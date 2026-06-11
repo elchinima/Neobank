@@ -1,0 +1,151 @@
+@use '../../assets/styles/variables' as *;
+
+.dashboard {
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  &__stat-card {
+    background-color: $bg;
+    border-radius: $border-radius;
+    padding: 24px;
+    border: 1px solid $border;
+    box-shadow: $shadow-sm;
+
+    &-label {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    &-value {
+      font-size: $font-size-2xl;
+      font-weight: 700;
+      color: $text-primary;
+      margin-bottom: 4px;
+    }
+
+    &-sub {
+      font-size: $font-size-sm;
+      color: $success;
+      font-weight: 500;
+    }
+
+    &-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  &__card {
+    background-color: $bg;
+    border-radius: $border-radius;
+    padding: 24px;
+    border: 1px solid $border;
+    box-shadow: $shadow-sm;
+
+    &-title {
+      font-size: $font-size-lg;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 20px;
+    }
+  }
+
+  &__transaction {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    &-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: $bg-secondary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    &-name {
+      font-size: $font-size-base;
+      font-weight: 500;
+      color: $text-primary;
+    }
+
+    &-date {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+    }
+
+    &-amount {
+      font-size: $font-size-base;
+      font-weight: 600;
+
+      &.income {
+        color: $success;
+      }
+
+      &.expense {
+        color: $error;
+      }
+    }
+  }
+
+  &__quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  &__quick-btn {
+    padding: 16px;
+    border-radius: $border-radius-sm;
+    border: 1.5px solid $border;
+    background-color: $bg;
+    cursor: pointer;
+    transition: $transition;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: $font-size-base;
+    font-weight: 500;
+    color: $text-primary;
+    font-family: $font-family;
+
+    &:hover {
+      border-color: $accent;
+      background-color: rgba(212, 175, 55, 0.04);
+      color: $primary;
+    }
+
+    span {
+      font-size: 20px;
+    }
+  }
+}

@@ -1,0 +1,302 @@
+@use '../../assets/styles/variables' as *;
+
+.landing {
+  min-height: 100vh;
+  background-color: $bg;
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 80px;
+    background-color: $bg;
+    border-bottom: 1px solid $border;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      &__icon {
+        width: 40px;
+        height: 40px;
+        background-color: $primary;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: $accent;
+      }
+
+      &__name {
+        font-size: $font-size-lg;
+        font-weight: 700;
+        color: $text-primary;
+        letter-spacing: 1px;
+      }
+    }
+
+    &-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+
+      a {
+        color: $text-secondary;
+        text-decoration: none;
+        font-size: $font-size-base;
+        font-weight: 500;
+        transition: $transition;
+
+        &:hover {
+          color: $text-primary;
+        }
+      }
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  &__hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 80px;
+    background: linear-gradient(135deg, $primary 0%, #2d2d4e 100%);
+    min-height: 560px;
+
+    &-content {
+      max-width: 560px;
+
+      h1 {
+        font-size: 48px;
+        font-weight: 800;
+        color: $text-light;
+        line-height: 1.2;
+        margin-bottom: 20px;
+
+        span {
+          color: $accent;
+        }
+      }
+
+      p {
+        font-size: $font-size-lg;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.7;
+        margin-bottom: 40px;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      gap: 16px;
+    }
+
+    &-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 40px;
+      min-width: 340px;
+
+      &-label {
+        font-size: $font-size-sm;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+
+      &-balance {
+        font-size: 36px;
+        font-weight: 700;
+        color: $text-light;
+        margin-bottom: 32px;
+      }
+
+      &-chip {
+        width: 40px;
+        height: 30px;
+        background: linear-gradient(135deg, $accent, #b8962e);
+        border-radius: 6px;
+        margin-bottom: 24px;
+      }
+
+      &-number {
+        font-size: $font-size-base;
+        color: rgba(255, 255, 255, 0.6);
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+      }
+
+      &-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        span {
+          font-size: $font-size-sm;
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        strong {
+          font-size: $font-size-base;
+          color: $accent;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  &__features {
+    padding: 80px;
+    background-color: $bg-secondary;
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: 700;
+      color: $text-primary;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    &-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    &-card {
+      background-color: $bg;
+      border-radius: $border-radius;
+      padding: 32px;
+      border: 1px solid $border;
+      transition: $transition;
+
+      &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-4px);
+      }
+
+      &-icon {
+        font-size: 36px;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        font-size: $font-size-lg;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 8px;
+      }
+
+      p {
+        font-size: $font-size-base;
+        color: $text-secondary;
+        line-height: 1.6;
+      }
+    }
+  }
+
+  &__cta {
+    padding: 80px;
+    background-color: $primary;
+    text-align: center;
+
+    h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: $text-light;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: $font-size-lg;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 40px;
+    }
+  }
+
+  &__footer {
+    padding: 24px 80px;
+    background-color: $bg;
+    border-top: 1px solid $border;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    span {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+    }
+  }
+}
+
+.btn-primary {
+  padding: 14px 28px;
+  background-color: $accent;
+  color: $primary;
+  border: none;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-base;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    background-color: $accent-hover;
+  }
+}
+
+.btn-outline {
+  padding: 14px 28px;
+  background-color: transparent;
+  color: $text-light;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: $border-radius-sm;
+  font-size: $font-size-base;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    border-color: $accent;
+    color: $accent;
+  }
+}
+
+.btn-outline-dark {
+  padding: 14px 28px;
+  background-color: transparent;
+  color: $text-primary;
+  border: 1.5px solid $border;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-base;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: $transition;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+}
