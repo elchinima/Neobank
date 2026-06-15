@@ -18,6 +18,12 @@ import Subscriptions from '../../pages/subscriptions/Subscriptions'
 import Support from '../../pages/support/Support'
 import TicketDetails from '../../pages/support/TicketDetails'
 import AdminDashboard from '../../pages/admin/AdminDashboard'
+import UsersManage from '../../pages/admin/UsersManage'
+import AccountsManage from '../../pages/admin/AccountsManage'
+import CardsManage from '../../pages/admin/CardsManage'
+import LoansManage from '../../pages/admin/LoansManage'
+import SubscriptionsManage from '../../pages/admin/SubscriptionsManage'
+import SupportManage from '../../pages/admin/SupportManage'
 
 function AppRouter() {
   return (
@@ -42,6 +48,12 @@ function AppRouter() {
         <Route path="/support" element={<Support />} />
         <Route path="/support/:id" element={<TicketDetails />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<UsersManage />} />
+        <Route path="/admin/accounts" element={<AccountsManage />} />
+        <Route path="/admin/cards" element={<CardsManage />} />
+        <Route path="/admin/loans" element={<LoansManage />} />
+        <Route path="/admin/subscriptions" element={<SubscriptionsManage />} />
+        <Route path="/admin/support" element={<SupportManage />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,0 +1,126 @@
+@use '../../assets/styles/variables' as *;
+
+.accounts-manage {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    input, select {
+      padding: 10px 16px;
+      border: 1.5px solid $border;
+      border-radius: $border-radius-sm;
+      font-size: $font-size-base;
+      font-family: $font-family;
+      color: $text-primary;
+      background-color: $bg;
+      outline: none;
+      transition: $transition;
+
+      &:focus {
+        border-color: $accent;
+      }
+    }
+
+    input {
+      width: 280px;
+    }
+  }
+
+  &__table {
+    background-color: $bg;
+    border-radius: $border-radius;
+    border: 1px solid $border;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background-color: $bg-secondary;
+      border-bottom: 1px solid $border;
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: $font-size-base;
+      color: $text-primary;
+      border-bottom: 1px solid $border;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(212, 175, 55, 0.03);
+    }
+  }
+
+  &__status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+
+    &.active {
+      background-color: rgba(5, 150, 105, 0.1);
+      color: $success;
+    }
+
+    &.frozen {
+      background-color: rgba(220, 38, 38, 0.1);
+      color: $error;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__btn {
+    padding: 6px 12px;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    font-family: $font-family;
+    cursor: pointer;
+    transition: $transition;
+    border: 1.5px solid $border;
+    background-color: $bg;
+    color: $text-primary;
+
+    &:hover {
+      border-color: $accent;
+      color: $primary;
+    }
+
+    &.danger {
+      border-color: rgba(220, 38, 38, 0.3);
+      color: $error;
+
+      &:hover {
+        background-color: rgba(220, 38, 38, 0.06);
+        border-color: $error;
+      }
+    }
+  }
+}
