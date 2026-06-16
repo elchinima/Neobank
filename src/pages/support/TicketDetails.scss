@@ -33,17 +33,7 @@
     justify-content: space-between;
 
     &-left {
-      h2 {
-        font-size: $font-size-xl;
-        font-weight: 700;
-        color: $text-primary;
-        margin-bottom: 4px;
-      }
 
-      p {
-        font-size: $font-size-sm;
-        color: $text-secondary;
-      }
     }
 
     &-status {
@@ -149,26 +139,6 @@
     border: 1px solid $border;
     box-shadow: $shadow-sm;
 
-    textarea {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid $border;
-      border-radius: $border-radius-sm;
-      font-size: $font-size-base;
-      font-family: $font-family;
-      color: $text-primary;
-      background-color: $bg;
-      transition: $transition;
-      outline: none;
-      resize: none;
-      height: 100px;
-      margin-bottom: 12px;
-
-      &:focus {
-        border-color: $accent;
-        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-      }
-    }
 
     &-btn {
       padding: 12px 28px;
