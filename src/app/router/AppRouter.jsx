@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Landing from '../../pages/landing/Landing'
 import Login from '../../pages/auth/Login'
 import Register from '../../pages/auth/Register'
@@ -23,7 +23,7 @@ import AccountsManage from '../../pages/admin/AccountsManage'
 import CardsManage from '../../pages/admin/CardsManage'
 import LoansManage from '../../pages/admin/LoansManage'
 import SubscriptionsManage from '../../pages/admin/SubscriptionsManage'
-import SupportManage from '../../pages/admin/SupportManage'
+import SupportPanel from '../../pages/support-panel/SupportPanel'
 
 function AppRouter() {
   return (
@@ -53,7 +53,8 @@ function AppRouter() {
         <Route path="/admin/cards" element={<CardsManage />} />
         <Route path="/admin/loans" element={<LoansManage />} />
         <Route path="/admin/subscriptions" element={<SubscriptionsManage />} />
-        <Route path="/admin/support" element={<SupportManage />} />
+        <Route path="/admin/support" element={<Navigate to="/support-panel" replace />} />
+        <Route path="/support-panel" element={<SupportPanel />} />
       </Routes>
     </BrowserRouter>
   )

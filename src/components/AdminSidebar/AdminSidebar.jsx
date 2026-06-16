@@ -17,12 +17,6 @@ const navItems = [
       { path: '/admin/loans', icon: '📋', label: 'Кредиты' },
       { path: '/admin/subscriptions', icon: '⭐', label: 'Подписки' },
     ]
-  },
-  {
-    section: 'Поддержка',
-    items: [
-      { path: '/admin/support', icon: '💬', label: 'Обращения' },
-    ]
   }
 ]
 
