@@ -80,10 +80,6 @@
       display: flex;
       justify-content: space-between;
 
-      span {
-        font-size: $font-size-sm;
-        color: rgba(255, 255, 255, 0.4);
-      }
 
       strong {
         color: $accent;
@@ -113,20 +109,7 @@
     }
 
     &-item {
-      label {
-        display: block;
-        font-size: $font-size-sm;
-        color: $text-secondary;
-        margin-bottom: 4px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
 
-      span {
-        font-size: $font-size-base;
-        font-weight: 600;
-        color: $text-primary;
-      }
     }
   }
 

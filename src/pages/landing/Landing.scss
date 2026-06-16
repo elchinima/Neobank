@@ -46,17 +46,6 @@
       align-items: center;
       gap: 32px;
 
-      a {
-        color: $text-secondary;
-        text-decoration: none;
-        font-size: $font-size-base;
-        font-weight: 500;
-        transition: $transition;
-
-        &:hover {
-          color: $text-primary;
-        }
-      }
     }
 
     &-actions {
@@ -77,24 +66,7 @@
     &-content {
       max-width: 560px;
 
-      h1 {
-        font-size: 48px;
-        font-weight: 800;
-        color: $text-light;
-        line-height: 1.2;
-        margin-bottom: 20px;
 
-        span {
-          color: $accent;
-        }
-      }
-
-      p {
-        font-size: $font-size-lg;
-        color: rgba(255, 255, 255, 0.7);
-        line-height: 1.7;
-        margin-bottom: 40px;
-      }
     }
 
     &-actions {
@@ -144,10 +116,6 @@
         justify-content: space-between;
         align-items: center;
 
-        span {
-          font-size: $font-size-sm;
-          color: rgba(255, 255, 255, 0.5);
-        }
 
         strong {
           font-size: $font-size-base;
@@ -162,13 +130,6 @@
     padding: 80px;
     background-color: $bg-secondary;
 
-    h2 {
-      font-size: $font-size-2xl;
-      font-weight: 700;
-      color: $text-primary;
-      text-align: center;
-      margin-bottom: 48px;
-    }
 
     &-grid {
       display: grid;
@@ -193,18 +154,7 @@
         margin-bottom: 16px;
       }
 
-      h3 {
-        font-size: $font-size-lg;
-        font-weight: 600;
-        color: $text-primary;
-        margin-bottom: 8px;
-      }
 
-      p {
-        font-size: $font-size-base;
-        color: $text-secondary;
-        line-height: 1.6;
-      }
     }
   }
 
@@ -213,18 +163,7 @@
     background-color: $primary;
     text-align: center;
 
-    h2 {
-      font-size: 36px;
-      font-weight: 700;
-      color: $text-light;
-      margin-bottom: 16px;
-    }
 
-    p {
-      font-size: $font-size-lg;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 40px;
-    }
   }
 
   &__footer {
@@ -235,10 +174,6 @@
     align-items: center;
     justify-content: space-between;
 
-    span {
-      font-size: $font-size-sm;
-      color: $text-secondary;
-    }
   }
 }
 

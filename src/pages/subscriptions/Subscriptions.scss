@@ -118,11 +118,6 @@
       color: $text-primary;
       margin-bottom: 16px;
 
-      span {
-        font-size: $font-size-sm;
-        font-weight: 400;
-        color: $text-secondary;
-      }
     }
 
     &-row {
@@ -130,10 +125,6 @@
       justify-content: space-between;
       margin-bottom: 8px;
 
-      p {
-        font-size: $font-size-sm;
-        color: $text-secondary;
-      }
 
       strong {
         font-size: $font-size-sm;
