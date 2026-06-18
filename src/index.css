@@ -10,6 +10,24 @@ body {
   overflow-x: hidden;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #17121F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #F3C24A, #7A4A14);
+  border: 2px solid #17121F;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F3C24A;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #F5F5F5;
