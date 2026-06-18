@@ -13,7 +13,27 @@
     align-items: center;
     gap: 12px;
 
+    input,
+    select {
+      width: 280px;
+      padding: 10px 16px;
+      border: 1.5px solid $border;
+      border-radius: $border-radius-sm;
+      font-size: $font-size-base;
+      font-family: $font-family;
+      color: $text-primary;
+      background-color: $bg;
+      outline: none;
+      transition: $transition;
 
+      &:focus {
+        border-color: $accent;
+      }
+    }
+
+    select {
+      width: auto;
+    }
   }
 
   &__table {
@@ -23,10 +43,37 @@
     box-shadow: $shadow-sm;
     overflow: hidden;
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
+    th {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background-color: $bg-secondary;
+      border-bottom: 1px solid $border;
+    }
 
+    td {
+      padding: 14px 20px;
+      font-size: $font-size-base;
+      color: $text-primary;
+      border-bottom: 1px solid $border;
+    }
 
+    tr:last-child td {
+      border-bottom: none;
+    }
 
+    tr:hover td {
+      background-color: rgba(212, 175, 55, 0.03);
+    }
   }
 
   &__user {

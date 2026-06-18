@@ -23,8 +23,40 @@
   &__group {
     margin-bottom: 20px;
 
+    label {
+      display: block;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid $border;
+      border-radius: $border-radius-sm;
+      font-size: $font-size-base;
+      font-family: $font-family;
+      color: $text-primary;
+      background-color: $bg;
+      transition: $transition;
+      outline: none;
+      resize: none;
 
+      &:focus {
+        border-color: $accent;
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      }
+    }
+
+    textarea {
+      height: 120px;
+    }
   }
 
   &__btn {
