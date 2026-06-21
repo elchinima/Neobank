@@ -1,149 +1,677 @@
 @use '../../assets/styles/variables' as *;
 
-.cashback {
-  &__stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-bottom: 32px;
+@keyframes cashbackNavReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
   }
 
-  &__stat {
-    background-color: $bg;
-    border-radius: $border-radius;
-    padding: 24px;
-    border: 1px solid $border;
-    box-shadow: $shadow-sm;
-    text-align: center;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    &-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
+@keyframes cashbackFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cashbackScaleIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cashbackFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes cashbackSweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-170%) rotate(12deg);
+  }
+
+  18% {
+    opacity: 0.42;
+  }
+
+  58% {
+    opacity: 0.32;
+  }
+
+  88% {
+    opacity: 0.08;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(190%) rotate(12deg);
+  }
+}
+
+@keyframes cashbackPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(243, 194, 74, 0.22), 0 18px 48px rgba(0, 0, 0, 0.28);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(243, 194, 74, 0), 0 22px 56px rgba(0, 0, 0, 0.34);
+  }
+}
+
+@keyframes cashbackGlowDrift {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes cashbackButtonShine {
+  0% {
+    transform: translateX(-130%) skewX(-16deg);
+  }
+
+  48%,
+  100% {
+    transform: translateX(145%) skewX(-16deg);
+  }
+}
+
+.cashback-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(243, 194, 74, 0.18), transparent 32%),
+    radial-gradient(circle at 82% 10%, rgba(160, 32, 240, 0.22), transparent 34%),
+    linear-gradient(180deg, #6b6962 0%, #37323a 42%, #17121f 100%);
+  color: $text-light;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  :where(a) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :where(p, span, h1, h2, h3, h4, strong) {
+    margin: 0;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  &__nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: $landing-nav-height;
+    padding: 14px clamp(20px, 5vw, 72px);
+    background: rgba(23, 18, 31, 0.76);
+    border-bottom: 1px solid rgba(255, 226, 138, 0.16);
+    box-shadow: 0 18px 54px rgba(12, 9, 18, 0.26);
+    backdrop-filter: blur(20px);
+    animation: cashbackNavReveal $landing-animation-base $landing-animation-ease both;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
+  }
+
+  &__brand-mark {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: translateY(3px) scale(1.5);
     }
+  }
 
-    &-value {
-      font-size: $font-size-2xl;
+  &__brand-name {
+    color: $landing-gold-soft;
+    font-size: 19px;
+    font-weight: 800;
+  }
+
+  &__nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(18px, 3vw, 36px);
+
+    a {
+      position: relative;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: $font-size-base;
       font-weight: 700;
-      color: $text-primary;
-      margin-bottom: 4px;
-    }
+      transition: color 0.2s ease;
 
-    &-label {
-      font-size: $font-size-sm;
-      color: $text-secondary;
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -8px;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, $landing-gold-soft, transparent);
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform $landing-animation-fast $landing-animation-ease, opacity $landing-animation-fast $landing-animation-ease;
+      }
+
+      &:hover {
+        color: $landing-gold-soft;
+
+        &::after {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
     }
   }
 
-  &__row {
+  &__nav-actions,
+  &__hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-base;
+    font-weight: 800;
+    line-height: 1;
+    transition: $transition;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -40% auto -40% -42%;
+      width: 36%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-130%) skewX(-16deg);
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      text-decoration: none;
+
+      &::before {
+        opacity: 1;
+        animation: cashbackButtonShine 1100ms $landing-animation-ease both;
+      }
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    &--primary {
+      background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 46%, #b47012);
+      color: #211405;
+
+      &:hover {
+        filter: brightness(1.04);
+      }
+    }
+
+    &--ghost {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.82);
+      border-color: rgba(255, 226, 138, 0.18);
+
+      &:hover {
+        color: $landing-gold-soft;
+        border-color: rgba(255, 226, 138, 0.38);
+      }
+    }
+
+    &--light {
+      background: rgba(91, 22, 143, 0.28);
+      color: #ffffff;
+      border-color: rgba(219, 154, 255, 0.3);
+
+      &:hover {
+        background: rgba(160, 32, 240, 0.36);
+        border-color: rgba(255, 226, 138, 0.44);
+      }
+    }
+  }
+
+  &__main {
+    padding-top: $landing-nav-height;
+  }
+
+  &__hero {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    justify-items: center;
+    gap: clamp(28px, 5vw, 72px);
+    min-height: calc(100svh - #{$landing-nav-height});
+    padding: clamp(36px, 5vw, 60px) clamp(20px, 5vw, 72px);
+    overflow: hidden;
+    isolation: isolate;
   }
 
-  &__card {
-    background-color: $bg;
+  &__hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      linear-gradient(90deg, rgba(23, 18, 31, 0.92) 0%, rgba(23, 18, 31, 0.68) 48%, rgba(91, 22, 143, 0.34) 100%),
+      radial-gradient(circle at 72% 44%, rgba(255, 226, 138, 0.22), transparent 24%),
+      radial-gradient(circle at 88% 30%, rgba(160, 32, 240, 0.36), transparent 32%);
+    animation: cashbackGlowDrift $landing-animation-slow ease-in-out infinite;
+  }
+
+  &__hero-content {
+    position: relative;
+    z-index: 2;
+    justify-self: center;
+    width: min(760px, 100%);
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease both;
+  }
+
+  &__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-bottom: 16px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 226, 138, 0.24);
+    border-radius: 999px;
+    background: rgba(255, 226, 138, 0.08);
+    color: $landing-gold-soft;
+    font-size: $font-size-sm;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease 90ms both;
+  }
+
+  &__hero h1 {
+    max-width: 760px;
+    color: #ffffff;
+    font-size: clamp(40px, 5.2vw, 66px);
+    font-weight: 900;
+    line-height: 0.98;
+    text-shadow: 0 0 40px rgba(255, 226, 138, 0.12);
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease 160ms both;
+  }
+
+  &__hero-copy {
+    max-width: 650px;
+    margin-top: 18px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 600;
+    line-height: 1.72;
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease 230ms both;
+  }
+
+  &__hero-actions {
+    margin-top: 24px;
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease 300ms both;
+  }
+
+  &__hero-media {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    align-self: center;
+    width: min(100%, clamp(460px, 40vw, 760px));
+    border: 1px solid rgba(255, 226, 138, 0.18);
     border-radius: $border-radius;
-    padding: 24px;
-    border: 1px solid $border;
-    box-shadow: $shadow-sm;
+    background: rgba(23, 18, 31, 0.28);
+    box-shadow:
+      0 34px 90px rgba(0, 0, 0, 0.36),
+      0 0 90px rgba(160, 32, 240, 0.18);
+    overflow: hidden;
+    animation:
+      cashbackScaleIn $landing-animation-base $landing-animation-ease 240ms both,
+      cashbackFloat $landing-animation-slow ease-in-out 1200ms infinite;
 
-    &-title {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(23, 18, 31, 0.02), rgba(23, 18, 31, 0.16));
+      pointer-events: none;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      bottom: -30%;
+      left: -36%;
+      z-index: 2;
+      width: 34%;
+      background: linear-gradient(90deg, transparent, rgba(255, 226, 138, 0.26), rgba(255, 255, 255, 0.12), transparent);
+      filter: blur(1px);
+      pointer-events: none;
+      animation: cashbackSweep 6200ms cubic-bezier(0.42, 0, 0.22, 1) 1000ms infinite;
+    }
+
+    img {
+      position: relative;
+      z-index: 0;
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__plans {
+    position: relative;
+    display: grid;
+    gap: clamp(28px, 4vw, 44px);
+    padding: clamp(72px, 8vw, 112px) clamp(20px, 5vw, 72px);
+    background:
+      radial-gradient(circle at 18% 14%, rgba(243, 194, 74, 0.14), transparent 30%),
+      radial-gradient(circle at 90% 12%, rgba(160, 32, 240, 0.18), transparent 34%),
+      linear-gradient(180deg, #17121f 0%, #211a2a 48%, #17121f 100%);
+  }
+
+  &__plans-heading {
+    display: grid;
+    gap: 14px;
+    max-width: 860px;
+
+    h2 {
+      color: #ffffff;
+      font-size: clamp(34px, 5vw, 64px);
+      font-weight: 900;
+      line-height: 1.02;
+    }
+
+    > p:last-child {
+      max-width: 720px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: clamp(16px, 2vw, 19px);
+      font-weight: 600;
+      line-height: 1.7;
+    }
+  }
+
+  &__plans-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) auto minmax(320px, 0.75fr);
+    align-items: start;
+    gap: 18px;
+  }
+
+  &__plan {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+    padding: clamp(20px, 3vw, 30px);
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: $border-radius;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+      rgba(23, 18, 31, 0.58);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(16px);
+    animation: cashbackFadeUp $landing-animation-base $landing-animation-ease both;
+    transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, box-shadow $landing-animation-fast $landing-animation-ease;
+
+    &:hover {
+      border-color: rgba(255, 226, 138, 0.3);
+      box-shadow: 0 34px 82px rgba(0, 0, 0, 0.28);
+      transform: translateY(-4px);
+    }
+
+    &--featured {
+      border-color: rgba(255, 226, 138, 0.28);
+      background:
+        linear-gradient(145deg, rgba(255, 226, 138, 0.12), rgba(160, 32, 240, 0.08)),
+        rgba(23, 18, 31, 0.62);
+    }
+  }
+
+  &__plan:not(.cashback-page__plan--featured) {
+    align-self: center;
+  }
+
+  &__plan-header {
+    display: grid;
+    gap: 9px;
+
+    span {
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid rgba(255, 226, 138, 0.2);
+      border-radius: 999px;
+      background: rgba(255, 226, 138, 0.08);
+      color: $landing-gold-soft;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      color: #ffffff;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 900;
+      line-height: 1.08;
+    }
+  }
+
+  &__offers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  &__plan:not(&__plan--featured) &__offers {
+    grid-template-columns: 1fr;
+  }
+
+  &__offer {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    min-height: 118px;
+    padding: 18px;
+    border: 1px solid rgba(255, 226, 138, 0.13);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.055);
+    transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, background $landing-animation-fast $landing-animation-ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 226, 138, 0.28);
+      transform: translateY(-2px);
+
+      strong {
+        transform: rotate(-2deg) scale(1.04);
+      }
+    }
+
+    strong {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      height: 48px;
+      padding: 0 10px;
+      border-radius: $border-radius-sm;
+      background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 46%, #b47012);
+      color: #211405;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+      transition: transform $landing-animation-fast $landing-animation-ease;
+    }
+
+    h4 {
+      color: #ffffff;
       font-size: $font-size-lg;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-top: 7px;
+      color: rgba(255, 255, 255, 0.64);
+      font-size: 13px;
       font-weight: 600;
-      color: $text-primary;
-      margin-bottom: 20px;
+      line-height: 1.5;
     }
   }
 
-  &__category {
-    display: flex;
+  &__or {
+    display: grid;
+    align-self: center;
     align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid $border;
+    justify-items: center;
+    min-width: 64px;
 
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    &-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background-color: $bg-secondary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    &-name {
-      font-size: $font-size-base;
-      font-weight: 500;
-      color: $text-primary;
-    }
-
-    &-rate {
-      font-size: $font-size-sm;
-      color: $text-secondary;
-    }
-
-    &-amount {
-      font-size: $font-size-base;
-      font-weight: 600;
-      color: $success;
+    span {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(255, 226, 138, 0.24);
+      border-radius: 50%;
+      background: rgba(23, 18, 31, 0.72);
+      color: $landing-gold-soft;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      animation: cashbackPulse 2600ms ease-in-out infinite;
     }
   }
 
-  &__history-item {
+  &__notes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    border-top: 1px solid rgba(255, 226, 138, 0.14);
+    padding-top: 22px;
+  }
+
+  &__note {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 18px;
+    border: 1px solid rgba(255, 226, 138, 0.13);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.05);
+    transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, background $landing-animation-fast $landing-animation-ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.075);
+      border-color: rgba(255, 226, 138, 0.24);
+      transform: translateY(-2px);
+    }
+
+    strong {
+      color: $landing-gold-soft;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+  }
+
+  &__footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid $border;
+    gap: 18px;
+    padding: 28px clamp(20px, 5vw, 72px);
+    border-top: 1px solid rgba(255, 226, 138, 0.14);
+    background: $landing-navy;
 
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    &-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background-color: $bg-secondary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    &-name {
-      font-size: $font-size-base;
-      font-weight: 500;
-      color: $text-primary;
-    }
-
-    &-date {
-      font-size: $font-size-sm;
-      color: $text-secondary;
-    }
-
-    &-amount {
-      font-size: $font-size-base;
-      font-weight: 600;
-      color: $success;
+    span {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 13px;
+      font-weight: 700;
     }
   }
 }

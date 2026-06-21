@@ -53,7 +53,7 @@ function Landing() {
           <a href="#card">Cards</a>
           <a href="#loans">Loans</a>
           <a href="#deposits">Deposits</a>
-          <a href="#cashback">Cashback</a>
+          <Link to="/cashback">Cashback</Link>
           <a href="#support">Support</a>
         </div>
 

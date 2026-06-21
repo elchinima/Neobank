@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html,
 body {
   max-width: 100%;
