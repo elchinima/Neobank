@@ -79,7 +79,7 @@ function Cashback() {
         <div className="cashback-page__nav-links">
           <Link to="/#card">Cards</Link>
           <Link to="/#loans">Loans</Link>
-          <Link to="/#deposits">Deposits</Link>
+          <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>
           <Link to="/#support">Support</Link>
         </div>
@@ -99,11 +99,6 @@ function Cashback() {
           <div className="cashback-page__hero-content">
             <p className="cashback-page__eyebrow">NeoBank Cashback</p>
             <h1 id="cashback-title">Get more back from everyday spending.</h1>
-            <p className="cashback-page__hero-copy">
-              Earn automatic cashback at supermarkets, fuel stations, and pharmacies.
-              Spend as usual, track rewards in NeoBank, and move earned cashback back
-              to your account when it is ready.
-            </p>
 
             <div className="cashback-page__hero-actions">
               <Link to="/register" className="cashback-page__button cashback-page__button--primary">
@@ -117,6 +112,11 @@ function Cashback() {
 
           <div className="cashback-page__hero-media" aria-hidden="true">
             <img src={cashbackBanner} alt="" />
+            <p className="cashback-page__media-copy">
+              Earn automatic cashback at supermarkets, fuel stations, and pharmacies.
+              Spend as usual, track rewards in NeoBank, and move earned cashback back
+              to your account when it is ready.
+            </p>
           </div>
         </section>
 

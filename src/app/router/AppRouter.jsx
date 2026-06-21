@@ -12,7 +12,6 @@ import OrderCard from '../../pages/cards/OrderCard'
 import Loans from '../../pages/loans/Loans'
 import ApplyLoan from '../../pages/loans/ApplyLoan'
 import Deposits from '../../pages/deposits/Deposits'
-import CreateDeposit from '../../pages/deposits/CreateDeposit'
 import Cashback from '../../pages/cashback/Cashback'
 import Subscriptions from '../../pages/subscriptions/Subscriptions'
 import Support from '../../pages/support/Support'
@@ -42,7 +41,7 @@ function AppRouter() {
         <Route path="/loans" element={<Loans />} />
         <Route path="/loans/apply" element={<ApplyLoan />} />
         <Route path="/deposits" element={<Deposits />} />
-        <Route path="/deposits/create" element={<CreateDeposit />} />
+        <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />
         <Route path="/cashback" element={<Cashback />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
         <Route path="/support" element={<Support />} />
