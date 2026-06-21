@@ -52,7 +52,7 @@ function Landing() {
         <div className="landing__nav-links">
           <a href="#card">Cards</a>
           <a href="#loans">Loans</a>
-          <a href="#deposits">Deposits</a>
+          <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>
           <a href="#support">Support</a>
         </div>
