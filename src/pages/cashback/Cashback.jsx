@@ -78,7 +78,7 @@ function Cashback() {
 
         <div className="cashback-page__nav-links">
           <Link to="/#card">Cards</Link>
-          <Link to="/#loans">Loans</Link>
+          <Link to="/loans">Loans</Link>
           <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>
           <Link to="/#support">Support</Link>
