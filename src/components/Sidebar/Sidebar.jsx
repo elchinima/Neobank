@@ -13,7 +13,7 @@ const navItems = [
   {
     section: 'Продукты',
     items: [
-      { path: '/cards', icon: '💳', label: 'Карты' },
+      { path: '/dashboard/cards', icon: '💳', label: 'Карты' },
       { path: '/loans', icon: '📋', label: 'Кредиты' },
       { path: '/deposits', icon: '💰', label: 'Депозиты' },
       { path: '/cashback', icon: '🎁', label: 'Кэшбэк' },
