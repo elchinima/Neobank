@@ -16,7 +16,7 @@ function Cards() {
       <div className="cards">
         <div className="cards__header">
           <p style={{ color: '#6B7280', fontSize: '14px' }}>Всего карт: {cards.length}</p>
-          <button className="cards__btn" onClick={() => navigate('/cards/order')}>
+          <button className="cards__btn" onClick={() => navigate('/dashboard/cards/order')}>
             + Заказать карту
           </button>
         </div>

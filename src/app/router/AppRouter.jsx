@@ -8,7 +8,8 @@ import Accounts from '../../pages/accounts/Accounts'
 //import AccountDetails from '../../pages/accounts/AccountDetails'
 import Transfers from '../../pages/transfers/Transfers'
 import Cards from '../../pages/cards/Cards'
-//import OrderCard from '../../pages/cards/OrderCard'
+import CardsPublic from '../../pages/cards/CardsPublic'
+import OrderCard from '../../pages/cards/OrderCard'
 import Loans from '../../pages/loans/Loans'
 import Deposits from '../../pages/deposits/Deposits'
 import Cashback from '../../pages/cashback/Cashback'
@@ -35,8 +36,9 @@ function AppRouter() {
         <Route path="/accounts" element={<Accounts />} />
         {/* <Route path="/accounts/:id" element={<AccountDetails />} /> */}
         <Route path="/transfers" element={<Transfers />} />
-        <Route path="/cards" element={<Cards />} />
-        {/* <Route path="/cards/order" element={<OrderCard />} /> */}
+        <Route path="/cards" element={<CardsPublic />} />
+        <Route path="/dashboard/cards" element={<Cards />} />
+        <Route path="/dashboard/cards/order" element={<OrderCard />} />
         <Route path="/loans" element={<Loans />} />
         <Route path="/deposits" element={<Deposits />} />
         <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />

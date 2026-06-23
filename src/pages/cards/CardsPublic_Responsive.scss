@@ -1,7 +1,7 @@
 @use '../../assets/styles/variables' as *;
 
 @media (min-width: 1440px) {
-  .deposits-page {
+  .cards-page {
     &__hero-content {
       width: min(900px, 100%);
     }
@@ -10,16 +10,11 @@
       max-width: 900px;
       font-size: clamp(72px, 5vw, 96px);
     }
-
-    &__hero-copy {
-      max-width: 760px;
-      font-size: 22px;
-    }
   }
 }
 
 @media (max-width: 1040px) {
-  .deposits-page {
+  .cards-page {
     &__nav {
       flex-wrap: wrap;
       align-content: center;
@@ -47,18 +42,20 @@
       width: min(100%, 760px);
     }
 
-    &__workspace {
+    &__showcase,
+    &__showcase--reverse {
       grid-template-columns: 1fr;
-    }
 
-    &__types {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      .cards-page__card-preview,
+      .cards-page__showcase-copy {
+        order: initial;
+      }
     }
   }
 }
 
 @media (max-width: 680px) {
-  .deposits-page {
+  .cards-page {
     &__nav {
       min-height: $landing-mobile-nav-height;
       padding: 14px 15px;
@@ -94,7 +91,7 @@
       flex-wrap: nowrap;
       gap: 8px;
 
-      .deposits-page__button {
+      .cards-page__button {
         flex: 0 0 auto;
         min-height: 38px;
         padding: 0 12px;
@@ -124,6 +121,12 @@
       }
     }
 
+    &__media-copy {
+      padding: 0 16px 16px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
     &__hero-content {
       width: 100%;
       padding: 18px;
@@ -138,21 +141,16 @@
       font-size: clamp(32px, 10vw, 46px);
     }
 
-    &__hero-copy {
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
     &__hero-actions {
       align-items: stretch;
 
-      .deposits-page__button {
+      .cards-page__button {
         flex: 1 1 140px;
       }
     }
 
     &__hero-stats,
-    &__types {
+    &__feature-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -168,20 +166,26 @@
       display: grid;
     }
 
-    &__plans {
+    &__lineup {
       padding: 56px 18px;
     }
 
-    &__summary-row,
-    &__summary-total {
-      align-items: flex-start;
-      flex-direction: column;
+    &__showcase {
+      min-height: auto;
+      padding: 18px;
     }
 
-    &__summary-row,
-    &__summary-total {
-      strong {
-        text-align: left;
+    &__card-figure {
+      padding: 16px;
+    }
+
+    &__showcase-copy h3 {
+      font-size: clamp(29px, 10vw, 42px);
+    }
+
+    &__feature-grid {
+      div {
+        min-height: 96px;
       }
     }
 
@@ -193,10 +197,19 @@
   }
 }
 
+@media (max-width: 460px) {
+  .cards-page {
+    &__feature-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .deposits-page *,
-  .deposits-page *::before,
-  .deposits-page *::after {
+
+  .cards-page *,
+  .cards-page *::before,
+  .cards-page *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

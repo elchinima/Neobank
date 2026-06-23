@@ -8,7 +8,7 @@
 
     &__hero h1 {
       max-width: 900px;
-      font-size: clamp(72px, 5vw, 96px);
+      font-size: clamp(65px, calc(5vw - 7px), 89px);
     }
 
   }
@@ -138,7 +138,7 @@
     }
 
     &__hero h1 {
-      font-size: clamp(32px, 10vw, 46px);
+      font-size: clamp(25px, calc(10vw - 7px), 39px);
     }
 
     &__hero-actions {
@@ -159,6 +159,10 @@
       strong {
         font-size: 22px;
       }
+    }
+
+    &__hero-stat--mobile-only {
+      display: grid;
     }
 
     &__products {

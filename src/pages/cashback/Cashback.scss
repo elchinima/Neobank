@@ -59,6 +59,20 @@
   }
 }
 
+@keyframes cashbackFeatureBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .cashback-page {
   min-height: 100vh;
   background:
@@ -354,6 +368,29 @@
       0 0 90px rgba(160, 32, 240, 0.18);
     overflow: hidden;
 
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      padding: 1px;
+      border-radius: inherit;
+      background: linear-gradient(
+        120deg,
+        rgba(255, 226, 138, 0.18),
+        rgba(160, 32, 240, 0.44),
+        rgba(255, 226, 138, 0.78),
+        rgba(255, 255, 255, 0.22)
+      );
+      background-size: 260% 260%;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+      animation: cashbackFeatureBorder 4200ms ease-in-out infinite;
+    }
+
     &::after {
       content: '';
       position: absolute;
@@ -494,13 +531,19 @@
     gap: 14px;
     min-height: 118px;
     padding: 18px;
-    border: 1px solid rgba(255, 226, 138, 0.13);
+    border: 1px solid rgba(255, 226, 138, 0.1);
     border-radius: $border-radius-sm;
-    background: rgba(255, 255, 255, 0.055);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
+      rgba(23, 18, 31, 0.58);
+    box-shadow: inset 0 0 0 1px rgba(255, 226, 138, 0.06);
+    overflow: hidden;
     transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, background $landing-animation-fast $landing-animation-ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.024)),
+        rgba(23, 18, 31, 0.66);
       border-color: rgba(255, 226, 138, 0.28);
       transform: translateY(-2px);
 
@@ -579,13 +622,19 @@
     gap: 14px;
     align-items: center;
     padding: 18px;
-    border: 1px solid rgba(255, 226, 138, 0.13);
+    border: 1px solid rgba(255, 226, 138, 0.1);
     border-radius: $border-radius-sm;
-    background: rgba(255, 255, 255, 0.05);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
+      rgba(23, 18, 31, 0.58);
+    box-shadow: inset 0 0 0 1px rgba(255, 226, 138, 0.06);
+    overflow: hidden;
     transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, background $landing-animation-fast $landing-animation-ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.075);
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.024)),
+        rgba(23, 18, 31, 0.66);
       border-color: rgba(255, 226, 138, 0.24);
       transform: translateY(-2px);
     }

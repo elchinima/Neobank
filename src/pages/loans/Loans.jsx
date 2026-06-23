@@ -33,7 +33,7 @@ const stats = [
   { label: 'Starting rate', value: '9.9%', sub: 'annual rate' },
   { label: 'Decision time', value: '2 min', sub: 'pre-check' },
   { label: 'Maximum term', value: '84 mo', sub: 'flexible schedule' },
-  { label: 'Early payment', value: '0 AZN', sub: 'extra fee' },
+  { label: 'Early payment', value: '0 AZN', sub: 'extra fee', mobileOnly: true },
 ]
 
 const processSteps = [
@@ -79,8 +79,8 @@ function Loans() {
         </Link>
 
         <div className="loans-page__nav-links">
-          <Link to="/#card">Cards</Link>
-          <Link to="/loans">Loans</Link>
+          <Link to="/">Home</Link>
+          <Link to="/cards">Cards</Link>
           <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>
           <Link to="/#support">Support</Link>
@@ -113,7 +113,10 @@ function Loans() {
 
             <div className="loans-page__hero-stats" aria-label="Loan overview">
               {stats.map((stat) => (
-                <div className="loans-page__hero-stat" key={stat.label}>
+                <div
+                  className={`loans-page__hero-stat${stat.mobileOnly ? ' loans-page__hero-stat--mobile-only' : ''}`}
+                  key={stat.label}
+                >
                   <span>{stat.label}</span>
                   <strong>{stat.value}</strong>
                   <small>{stat.sub}</small>

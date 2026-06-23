@@ -50,7 +50,7 @@ function Landing() {
         </a>
 
         <div className="landing__nav-links">
-          <a href="#card">Cards</a>
+          <Link to="/cards">Cards</Link>
           <Link to="/loans">Loans</Link>
           <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>

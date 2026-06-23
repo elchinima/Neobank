@@ -15,7 +15,7 @@ const depositTypes = [
 const stats = [
   { label: 'Minimum opening', value: '100 AZN', sub: 'Start small' },
   { label: 'Top annual rate', value: '9.0%', sub: 'Premium plan' },
-  { label: 'Flexible terms', value: '1-36 mo', sub: 'Choose maturity' },
+  { label: 'Flexible terms', value: '1-36 mo', sub: 'Choose maturity', mobileOnly: true },
   { label: 'Currencies', value: 'AZN/USD', sub: 'Local and foreign' },
 ]
 
@@ -39,9 +39,9 @@ function Deposits() {
         </Link>
 
         <div className="deposits-page__nav-links">
-          <Link to="/#card">Cards</Link>
+          <Link to="/">Home</Link>
+          <Link to="/cards">Cards</Link>
           <Link to="/loans">Loans</Link>
-          <Link to="/deposits">Deposits</Link>
           <Link to="/cashback">Cashback</Link>
           <Link to="/#support">Support</Link>
         </div>
@@ -70,7 +70,10 @@ function Deposits() {
 
             <div className="deposits-page__hero-stats" aria-label="Deposit overview">
               {stats.map((stat) => (
-                <div className="deposits-page__hero-stat" key={stat.label}>
+                <div
+                  className={`deposits-page__hero-stat${stat.mobileOnly ? ' deposits-page__hero-stat--mobile-only' : ''}`}
+                  key={stat.label}
+                >
                   <span>{stat.label}</span>
                   <strong>{stat.value}</strong>
                   <small>{stat.sub}</small>
