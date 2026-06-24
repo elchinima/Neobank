@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
 import cardsBanner from '../../assets/images/card_banner_az.png'
 import standartVisa from '../../assets/images/standart_card_visa.png'
@@ -203,10 +204,7 @@ function CardsPublic() {
         </section>
       </main>
 
-      <footer className="cards-page__footer">
-        <span>2026 NeoBank. All rights reserved.</span>
-        <span>Designed by Elsim Studio</span>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }

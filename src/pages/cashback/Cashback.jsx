@@ -1,4 +1,5 @@
 ﻿import { Link } from 'react-router-dom'
+import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
 import cashbackBanner from '../../assets/images/cashback_banner_az.png'
 import './Cashback.scss'
@@ -185,10 +186,7 @@ function Cashback() {
         </section>
       </main>
 
-      <footer className="cashback-page__footer">
-        <span>2026 NeoBank. All rights reserved.</span>
-        <span>Designed by Elsim Studio</span>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }
