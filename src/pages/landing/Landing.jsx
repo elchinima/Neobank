@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
 import logoWithText from '../../assets/logo/main_logo_with_text.png'
 import './Landing.scss'
@@ -174,10 +175,7 @@ function Landing() {
         </section>
       </main>
 
-      <footer className="landing__footer">
-        <span>2026 NeoBank. All rights reserved.</span>
-        <span>Designed by Elsim Studio</span>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }

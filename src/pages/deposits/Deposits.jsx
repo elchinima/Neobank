@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
 import depositsBanner from '../../assets/images/deposits_banner_az.png'
 import './Deposits.scss'
@@ -214,10 +215,7 @@ function Deposits() {
 
       </main>
 
-      <footer className="deposits-page__footer">
-        <span>2026 NeoBank. All rights reserved.</span>
-        <span>Designed by Elsim Studio</span>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }

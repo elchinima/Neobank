@@ -1,0 +1,123 @@
+@use '../../assets/styles/variables' as *;
+
+@media (max-width: 960px) {
+  .public-footer {
+    &__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__bottom {
+      padding-right: 58px;
+    }
+
+    &__modal {
+      grid-template-columns: 1fr;
+      width: min(680px, 100%);
+    }
+
+    &__modal-media {
+      min-height: 280px;
+    }
+
+    &__floating-icon--notification {
+      right: 10px;
+    }
+
+    &__floating-icon--control {
+      left: 12px;
+    }
+
+    &__modal-features {
+      grid-template-columns: 1fr;
+
+      article {
+        min-height: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .public-footer {
+    padding-top: 42px;
+
+    &__inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+
+    &__contact-list {
+      margin-top: 0;
+    }
+
+    &__bottom {
+      align-items: flex-start;
+      grid-template-columns: 1fr;
+      row-gap: 24px;
+      margin-top: 58px;
+      padding-right: 56px;
+    }
+
+    &__stores,
+    &__socials {
+      justify-content: flex-start;
+    }
+
+    &__to-top {
+      bottom: 28px;
+    }
+
+    &__modal-backdrop {
+      padding: 14px;
+    }
+
+    &__modal {
+      max-height: calc(100vh - 28px);
+      padding: 16px;
+    }
+
+    &__modal-media {
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+
+      > img {
+        min-height: 0;
+        object-fit: contain;
+        object-position: center bottom;
+      }
+    }
+
+    &__floating-icon {
+      width: 54px;
+    }
+
+    &__floating-icon--notification {
+      top: 10%;
+      right: 10px;
+    }
+
+    &__floating-icon--control {
+      top: 30%;
+      left: 10px;
+    }
+
+    &__floating-icon--news {
+      top: 47%;
+      right: 24px;
+    }
+
+    &__modal-content {
+      padding: 4px 0;
+    }
+
+    &__modal-features {
+      gap: 10px;
+
+      article {
+        min-height: 0;
+        padding: 13px 14px;
+      }
+    }
+  }
+}
