@@ -23,7 +23,7 @@ const navItems = [
   {
     section: 'Поддержка',
     items: [
-      { path: '/support', icon: '💬', label: 'Поддержка' },
+      { path: '/dashboard/support', icon: '💬', label: 'Поддержка' },
     ]
   }
 ]

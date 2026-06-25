@@ -44,7 +44,7 @@ function Deposits() {
           <Link to="/cards">Cards</Link>
           <Link to="/loans">Loans</Link>
           <Link to="/cashback">Cashback</Link>
-          <Link to="/#support">Support</Link>
+          <Link to="/support">Support</Link>
         </div>
 
         <div className="deposits-page__nav-actions">
