@@ -14,8 +14,7 @@ import Loans from '../../pages/loans/Loans'
 import Deposits from '../../pages/deposits/Deposits'
 import Cashback from '../../pages/cashback/Cashback'
 import Subscriptions from '../../pages/subscriptions/Subscriptions'
-import Support from '../../pages/support/Support'
-import TicketDetails from '../../pages/support/TicketDetails'
+import SupportPublic from '../../pages/support/SupportPublic'
 import AdminDashboard from '../../pages/admin/AdminDashboard'
 import UsersManage from '../../pages/admin/UsersManage'
 import AccountsManage from '../../pages/admin/AccountsManage'
@@ -44,8 +43,9 @@ function AppRouter() {
         <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />
         <Route path="/cashback" element={<Cashback />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
-        <Route path="/support" element={<Support />} />
-        <Route path="/support/:id" element={<TicketDetails />} />
+        <Route path="/support" element={<SupportPublic />} />
+        <Route path="/dashboard/support" element={<SupportPublic />} />
+        <Route path="/dashboard/support/:id" element={<SupportPublic />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UsersManage />} />
         <Route path="/admin/accounts" element={<AccountsManage />} />

@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
 import cashbackBanner from '../../assets/images/cashback_banner_az.png'
@@ -82,7 +82,7 @@ function Cashback() {
           <Link to="/cards">Cards</Link>
           <Link to="/loans">Loans</Link>
           <Link to="/deposits">Deposits</Link>
-          <Link to="/#support">Support</Link>
+          <Link to="/support">Support</Link>
         </div>
 
         <div className="cashback-page__nav-actions">
