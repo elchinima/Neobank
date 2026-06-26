@@ -1,42 +1,171 @@
-﻿import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import logoMark from '../../assets/logo/main_logo.png'
 import './Login.scss'
 
+const features = [
+  {
+    number: '01',
+    title: 'Two-factor authentication',
+    text: '2FA is enabled on every sensitive action to keep your account protected.',
+  },
+  {
+    number: '02',
+    title: 'Instant card control',
+    text: 'Freeze your card, change limits, and manage settings in real time.',
+  },
+  {
+    number: '03',
+    title: '24/7 account access',
+    text: 'View balances, transactions, and cashback rewards at any time, from anywhere.',
+  },
+]
+
 function Login() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [errors, setErrors] = useState({})
+
+  const validate = () => {
+    const next = {}
+    if (!email.trim()) next.email = 'Email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = 'Enter a valid email'
+    if (!password) next.password = 'Password is required'
+    else if (password.length < 6) next.password = 'Password must be at least 6 characters'
+    return next
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const next = validate()
+    setErrors(next)
+    if (Object.keys(next).length === 0) {
+      console.log('Login submitted', { email, password })
+    }
+  }
+
   return (
-    <div className="login">
-      <div className="login__left">
-        <div className="logo">
-          <div className="logo__icon">N</div>
-          <span className="logo__name">NeoBank</span>
+    <div className="auth-page">
+      <nav className="auth-page__nav" aria-label="NeoBank navigation">
+        <Link className="auth-page__brand" to="/" aria-label="NeoBank home">
+          <span className="auth-page__brand-mark" aria-hidden="true">
+            <img src={logoMark} alt="" />
+          </span>
+          <span className="auth-page__brand-name">NeoBank</span>
+        </Link>
+
+        <div className="auth-page__nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/loans">Loans</Link>
+          <Link to="/cashback">Cashback</Link>
+          <Link to="/support">Support</Link>
         </div>
-        <p className="tagline">
-          Современный банкинг для тех, кто ценит удобство и безопасность
-        </p>
-      </div>
 
-      <div className="login__right">
-        <div className="login__form-box">
-          <h2>Добро пожаловать</h2>
-          <p>Войдите в свой аккаунт</p>
-
-          <div className="login__group">
-            <label>Email</label>
-            <input type="email" placeholder="example@email.com" />
-          </div>
-
-          <div className="login__group">
-            <label>Пароль</label>
-            <input type="password" placeholder="••••••••" />
-          </div>
-
-          <button className="login__btn">Войти</button>
-
-          <div className="login__footer">
-            Нет аккаунта?
-            <Link to="/register">Зарегистрироваться</Link>
-          </div>
+        <div className="auth-page__nav-actions">
+          <Link to="/register" className="auth-page__button auth-page__button--ghost">
+            Open account
+          </Link>
         </div>
-      </div>
+      </nav>
+
+      <main className="auth-page__main">
+        <div className="auth-page__split">
+          <aside className="auth-page__panel-left" aria-hidden="true">
+            <div className="auth-page__panel-left-inner">
+              <p className="auth-page__eyebrow">Welcome back</p>
+              <h2 className="auth-page__panel-heading">
+                Your finances, always within reach.
+              </h2>
+              <p className="auth-page__panel-sub">
+                Sign in to manage accounts, track cashback, view statements, and
+                stay on top of every transaction — all in one place.
+              </p>
+
+              <div className="auth-page__features">
+                {features.map((f) => (
+                  <div className="auth-page__feature" key={f.number}>
+                    <span className="auth-page__feature-num">{f.number}</span>
+                    <div>
+                      <strong>{f.title}</strong>
+                      <p>{f.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <section className="auth-page__form-section" aria-labelledby="login-heading">
+            <div className="auth-page__card">
+              <div className="auth-page__card-header">
+                <p className="auth-page__eyebrow">NeoBank · Sign In</p>
+                <h1 id="login-heading" className="auth-page__card-title">
+                  Welcome back
+                </h1>
+                <p className="auth-page__card-sub">Enter your credentials to access your account</p>
+              </div>
+
+              <form className="auth-page__form" noValidate onSubmit={handleSubmit}>
+                <div className={`auth-page__group${errors.email ? ' auth-page__group--error' : ''}`}>
+                  <label htmlFor="login-email">Email address</label>
+                  <input
+                    id="login-email"
+                    type="email"
+                    placeholder="example@email.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  {errors.email && <span className="auth-page__error">{errors.email}</span>}
+                </div>
+
+                <div className={`auth-page__group${errors.password ? ' auth-page__group--error' : ''}`}>
+                  <label htmlFor="login-password">Password</label>
+                  <div className="auth-page__input-wrap">
+                    <input
+                      id="login-password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="auth-page__toggle-pw"
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? '🙈' : '👁'}
+                    </button>
+                  </div>
+                  {errors.password && <span className="auth-page__error">{errors.password}</span>}
+                </div>
+
+                <button
+                  id="login-submit"
+                  type="submit"
+                  className="auth-page__button auth-page__button--primary auth-page__button--full"
+                >
+                  Sign in
+                </button>
+              </form>
+
+              <div className="auth-page__divider">
+                <span>Don't have an account?</span>
+              </div>
+
+              <Link
+                to="/register"
+                className="auth-page__button auth-page__button--ghost auth-page__button--full"
+              >
+                Create account
+              </Link>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   )
 }
