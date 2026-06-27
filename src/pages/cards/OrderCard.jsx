@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useOrderCard } from './OrderCard.js'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../../components/Layout/Layout'
 import './OrderCard.scss'
@@ -11,10 +11,11 @@ const cardTypes = [
 ]
 
 function OrderCard() {
-  const navigate = useNavigate()
-  const [selected, setSelected] = useState('visa-classic')
-
-  const selectedCard = cardTypes.find(c => c.id === selected)
+  const {
+    selected,
+    setSelected,
+    selectedCard,
+  } = useOrderCard(cardTypes)
 
   return (
     <Layout title="Заказать карту">

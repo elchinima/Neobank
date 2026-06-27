@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import appPreviewImage from '../../assets/images/image_1.png'
 import controlBubbleIcon from '../../assets/icons/control_bubble.svg'
@@ -148,26 +148,11 @@ const floatingIcons = [
 ]
 
 function PublicFooter() {
-  const [isInfoOpen, setIsInfoOpen] = useState(false)
-
-  useEffect(() => {
-    if (!isInfoOpen) {
-      return undefined
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setIsInfoOpen(false)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isInfoOpen])
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const {
+    isInfoOpen,
+    setIsInfoOpen,
+    scrollToTop,
+  } = usePublicFooter()
 
   return (
     <footer className="public-footer">
