@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLoans } from './Loans.js'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
@@ -56,18 +56,18 @@ const processSteps = [
 ]
 
 function Loans() {
-  const [selected, setSelected] = useState('personal')
-  const [amount, setAmount] = useState(10000)
-  const [term, setTerm] = useState(24)
-
-  const selectedLoan = loanTypes.find((loanType) => loanType.id === selected)
-  const monthlyRate = selectedLoan.rate / 100 / 12
-  const monthlyPayment = (
-    (amount * monthlyRate) /
-    (1 - Math.pow(1 + monthlyRate, -term))
-  ).toFixed(2)
-  const total = (Number(monthlyPayment) * term).toFixed(2)
-  const overpayment = (Number(total) - amount).toFixed(2)
+  const {
+    selected,
+    setSelected,
+    amount,
+    setAmount,
+    term,
+    setTerm,
+    selectedLoan,
+    monthlyPayment,
+    total,
+    overpayment,
+  } = useLoans(loanTypes)
 
   return (
     <div className="loans-page">

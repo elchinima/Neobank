@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useDeposits } from './Deposits.js'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../components/PublicFooter/PublicFooter'
 import logoMark from '../../assets/logo/main_logo.png'
@@ -21,13 +21,17 @@ const stats = [
 ]
 
 function Deposits() {
-  const [selected, setSelected] = useState('term')
-  const [amount, setAmount] = useState(1000)
-  const [term, setTerm] = useState(12)
-
-  const selectedType = depositTypes.find((depositType) => depositType.id === selected)
-  const income = (amount * (selectedType.rate / 100) * (term / 12)).toFixed(2)
-  const total = (Number(amount) + Number(income)).toFixed(2)
+  const {
+    selected,
+    setSelected,
+    amount,
+    setAmount,
+    term,
+    setTerm,
+    selectedType,
+    income,
+    total,
+  } = useDeposits(depositTypes)
 
   return (
     <div className="deposits-page">
