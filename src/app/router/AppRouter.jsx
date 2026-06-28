@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Landing from '../../pages/landing/Landing'
-import Login from '../../pages/auth/Login'
-import Register from '../../pages/auth/Register'
-import CardsPublic from '../../pages/cards/CardsPublic'
-import Loans from '../../pages/loans/Loans'
-import Deposits from '../../pages/deposits/Deposits'
-import Cashback from '../../pages/cashback/Cashback'
-import SupportPublic from '../../pages/support/SupportPublic'
+import Landing from '../../components/PublicPages/landing/Landing'
+import Login from '../../components/PublicPages/auth/Login'
+import Register from '../../components/PublicPages/auth/Register'
+import CardsPublic from '../../components/PublicPages/cards/CardsPublic'
+import Loans from '../../components/PublicPages/loans/Loans'
+import Deposits from '../../components/PublicPages/deposits/Deposits'
+import Cashback from '../../components/PublicPages/cashback/Cashback'
+import SupportPublic from '../../components/PublicPages/support/SupportPublic'
 
 function AppRouter() {
   return (
