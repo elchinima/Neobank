@@ -8,6 +8,13 @@ import Deposits from '../../components/PublicPages/deposits/Deposits'
 import Cashback from '../../components/PublicPages/cashback/Cashback'
 import SupportPublic from '../../components/PublicPages/support/SupportPublic'
 
+import UserLayout from '../../components/UserPages/UserLayout'
+import Dashboard from '../../components/UserPages/dashboard/Dashboard'
+import Cards from '../../components/UserPages/cards/Cards'
+import Payments from '../../components/UserPages/payments/Payments'
+import History from '../../components/UserPages/history/History'
+import Settings from '../../components/UserPages/settings/Settings'
+
 function AppRouter() {
   return (
     <BrowserRouter>
@@ -21,9 +28,21 @@ function AppRouter() {
         <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />
         <Route path="/cashback" element={<Cashback />} />
         <Route path="/support" element={<SupportPublic />} />
+
+        <Route path="/dashboard" element={<UserLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="cards" element={<Cards />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="history" element={<History />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
 }
 
 export default AppRouter
+
+

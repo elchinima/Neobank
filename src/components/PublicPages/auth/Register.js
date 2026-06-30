@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function useRegister() {
   const [showPassword, setShowPassword] = useState(false)
@@ -10,6 +11,7 @@ export function useRegister() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState({})
+  const navigate = useNavigate()
 
   const validate = () => {
     const next = {}
@@ -30,6 +32,7 @@ export function useRegister() {
     setErrors(next)
     if (Object.keys(next).length === 0) {
       console.log('Register submitted', { firstName, lastName, email, password })
+      navigate('/dashboard')
     }
   }
 
@@ -54,3 +57,4 @@ export function useRegister() {
     handleSubmit,
   }
 }
+

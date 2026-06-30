@@ -1,0 +1,41 @@
+@use '../../assets/styles/variables' as *;
+
+.user-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(160, 32, 240, 0.12), transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(243, 194, 74, 0.08), transparent 35%),
+    #17121F;
+  color: $text-light;
+
+  &__main {
+    flex: 1 0 auto;
+    padding-top: calc(#{$landing-nav-height} + 50px);
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 64px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .user-layout {
+    &__main {
+      padding-top: calc(#{$landing-tablet-nav-height} + 50px);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-layout {
+    &__main {
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 40px;
+    }
+  }
+}

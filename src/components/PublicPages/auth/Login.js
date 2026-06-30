@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function useLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState({})
+  const navigate = useNavigate()
 
   const validate = () => {
     const next = {}
@@ -21,6 +23,7 @@ export function useLogin() {
     setErrors(next)
     if (Object.keys(next).length === 0) {
       console.log('Login submitted', { email, password })
+      navigate('/dashboard')
     }
   }
 
@@ -37,3 +40,4 @@ export function useLogin() {
     handleSubmit,
   }
 }
+
