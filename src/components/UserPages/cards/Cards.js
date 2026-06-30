@@ -1,0 +1,3 @@
+// Cards scripts
+
+export default {}

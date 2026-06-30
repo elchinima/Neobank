@@ -1,0 +1,3 @@
+// Settings scripts
+
+export default {}

@@ -1,0 +1,3 @@
+// Payments scripts
+
+export default {}
