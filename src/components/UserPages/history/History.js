@@ -1,0 +1,3 @@
+// History scripts
+
+export default {}
