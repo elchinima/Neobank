@@ -29,8 +29,9 @@ function AppRouter() {
         <Route path="/cashback" element={<Cashback />} />
         <Route path="/support" element={<SupportPublic />} />
 
-        <Route path="/dashboard" element={<UserLayout />}>
-          <Route index element={<Dashboard />} />
+        <Route path="/user" element={<UserLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="cards" element={<Cards />} />
           <Route path="payments" element={<Payments />} />
           <Route path="history" element={<History />} />

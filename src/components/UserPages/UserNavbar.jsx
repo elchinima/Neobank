@@ -1,15 +1,31 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
 import './UserNavbar.scss'
 
 const UserNavbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const currentPath = location.pathname
 
   const handleLogout = () => {
     navigate('/')
   }
+
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/user/dashboard', label: 'Dashboard' },
+    { to: '/user/cards', label: 'Cards' },
+    { to: '/user/payments', label: 'Payments' },
+    { to: '/user/history', label: 'History' },
+    { to: '/user/settings', label: 'Settings' }
+  ]
+
+  const filteredLinks = navLinks.filter(link => {
+    if (link.to === '/') {
+      return currentPath !== '/'
+    }
+    return currentPath !== link.to
+  })
 
   return (
     <nav className="user-navbar" aria-label="Client navigation">
@@ -20,54 +36,16 @@ const UserNavbar = () => {
         <span className="user-navbar__brand-name">NeoBank</span>
       </Link>
 
-      <div className={`user-navbar__nav-links ${mobileMenuOpen ? 'user-navbar__nav-links--open' : ''}`}>
-        <NavLink 
-          to="/" 
-          end
-          className={({ isActive }) => `user-navbar__link ${isActive ? 'user-navbar__link--active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Home
-        </NavLink>
-        <NavLink 
-          to="/dashboard" 
-          end
-          className={({ isActive }) => `user-navbar__link ${isActive ? 'user-navbar__link--active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Dashboard
-        </NavLink>
-        <NavLink 
-          to="/dashboard/payments" 
-          className={({ isActive }) => `user-navbar__link ${isActive ? 'user-navbar__link--active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Payments
-        </NavLink>
-        <NavLink 
-          to="/dashboard/history" 
-          className={({ isActive }) => `user-navbar__link ${isActive ? 'user-navbar__link--active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          History
-        </NavLink>
-        <NavLink 
-          to="/dashboard/settings" 
-          className={({ isActive }) => `user-navbar__link ${isActive ? 'user-navbar__link--active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Settings
-        </NavLink>
-        
-        <div className="user-navbar__mobile-profile">
-          <div className="user-navbar__profile-info">
-            <strong>Elchin I.</strong>
-            <span>Premium Client</span>
-          </div>
-          <button className="user-navbar__button user-navbar__button--ghost" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+      <div className="user-navbar__nav-links">
+        {filteredLinks.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="user-navbar__link"
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
 
       <div className="user-navbar__nav-actions">
@@ -82,16 +60,6 @@ const UserNavbar = () => {
           Logout
         </button>
       </div>
-
-      <button 
-        className="user-navbar__toggle" 
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        aria-expanded={mobileMenuOpen}
-      >
-        <span className={`user-navbar__toggle-bar ${mobileMenuOpen ? 'user-navbar__toggle-bar--open' : ''}`} />
-        <span className={`user-navbar__toggle-bar ${mobileMenuOpen ? 'user-navbar__toggle-bar--open' : ''}`} />
-        <span className={`user-navbar__toggle-bar ${mobileMenuOpen ? 'user-navbar__toggle-bar--open' : ''}`} />
-      </button>
     </nav>
   )
 }
