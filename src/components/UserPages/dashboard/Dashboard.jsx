@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import './Dashboard.scss'
-import shoppingBubbleIcon from '../../../assets/icons/shopping_bubble.svg'
-import foodBubbleIcon from '../../../assets/icons/food_bubble.svg'
-import transportBubbleIcon from '../../../assets/icons/transport_bubble.svg'
-import entertainmentBubbleIcon from '../../../assets/icons/entertainment_bubble.svg'
-import utilitiesBubbleIcon from '../../../assets/icons/utilities_bubble.svg'
-import vatBubbleIcon from '../../../assets/icons/vat_bubble.svg'
+import shoppingBubbleIcon from '../../../assets/icons/User/shopping_bubble.svg'
+import foodBubbleIcon from '../../../assets/icons/User/food_bubble.svg'
+import transportBubbleIcon from '../../../assets/icons/User/transport_bubble.svg'
+import entertainmentBubbleIcon from '../../../assets/icons/User/entertainment_bubble.svg'
+import utilitiesBubbleIcon from '../../../assets/icons/User/utilities_bubble.svg'
+import vatBubbleIcon from '../../../assets/icons/User/vat_bubble.svg'
 
 const filterData = {
   '24h': {
@@ -110,13 +110,11 @@ const Dashboard = () => {
   const doughnutSegments = currentData.categories.map((cat) => {
     const percentage = cat.value / totalCatValue
     const strokeLength = percentage * circ
-    // Ensure gap for rounded caps to prevent overlapping
-    const gap = 16 // strokeWidth is 16, so caps add 8px on each side
+    const gap = 16
     let adjustedLength = strokeLength - gap
-    if (adjustedLength < 0.1) adjustedLength = 0.1 // minimum visible dot
+    if (adjustedLength < 0.1) adjustedLength = 0.1
 
     const strokeOffset = -(accumulatedPercent * circ)
-    // Offset the start by half the gap so it centers the segment in its allocated slice
     const finalOffset = strokeOffset - (gap / 2)
     
     accumulatedPercent += percentage

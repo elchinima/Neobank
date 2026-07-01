@@ -1,9 +1,9 @@
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import appPreviewImage from '../../assets/images/image_1.png'
-import controlBubbleIcon from '../../assets/icons/control_bubble.svg'
-import newsBubbleIcon from '../../assets/icons/news_bubble.svg'
-import notificationBubbleIcon from '../../assets/icons/notification_bubble.svg'
+import controlBubbleIcon from '../../assets/icons/Public/control_bubble.svg'
+import newsBubbleIcon from '../../assets/icons/Public/news_bubble.svg'
+import notificationBubbleIcon from '../../assets/icons/Public/notification_bubble.svg'
 import './PublicFooter.scss'
 import './PublicFooter_Responsive.scss'
 

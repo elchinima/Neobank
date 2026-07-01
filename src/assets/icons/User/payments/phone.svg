@@ -1,0 +1,26 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="48" cy="48" r="43" fill="url(#bubbleFill)" stroke="url(#bubbleStroke)" stroke-width="2"/>
+  <circle cx="48" cy="48" r="34" fill="url(#bubbleGlow)" opacity="0.76"/>
+  <g transform="translate(0 2)">
+    <path d="M32 36c0-6 10-8 16-8s16 2 16 8c0 4-4 6-8 6h-16c-4 0-8-2-8-6z" fill="#FFE28A"/>
+    <path d="M28 56c0-6 8-8 20-8s20 2 20 8v6H28v-6z" fill="#17121F" stroke="#FFE28A" stroke-width="4"/>
+    <path d="M36 62c-4 4-4 8 0 12s8 0 8-4" stroke="#A020F0" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+  <defs>
+    <linearGradient id="bubbleFill" x1="19" y1="13" x2="80" y2="85" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B3343"/>
+      <stop offset="0.54" stop-color="#17121F"/>
+      <stop offset="1" stop-color="#5B168F"/>
+    </linearGradient>
+    <linearGradient id="bubbleStroke" x1="18" y1="14" x2="78" y2="83" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE28A" stop-opacity="0.92"/>
+      <stop offset="0.52" stop-color="#A020F0" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#F3C24A" stop-opacity="0.88"/>
+    </linearGradient>
+    <radialGradient id="bubbleGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(35 25) rotate(55) scale(54)">
+      <stop stop-color="#FFE28A" stop-opacity="0.22"/>
+      <stop offset="0.58" stop-color="#A020F0" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#17121F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
