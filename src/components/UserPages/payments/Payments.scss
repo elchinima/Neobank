@@ -1,3 +1,5 @@
+@use '../../../assets/styles/variables' as *;
+
 .payments-page {
   width: 100%;
   color: #FFFFFF;
@@ -111,4 +113,359 @@
     color: #FFFFFF;
     font-weight: 500;
   }
+}
+
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 8, 14, 0.72);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  padding: 24px;
+
+  @media (max-width: 768px) {
+    top: $landing-tablet-nav-height;
+    padding: 0;
+    z-index: 90; // Below navbar
+  }
+
+  @media (max-width: 680px) {
+    top: $landing-mobile-nav-height;
+  }
+}
+
+.payment-modal {
+  position: relative;
+  border-radius: 24px;
+  width: min(500px, 100%);
+  max-height: min(680px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 226, 138, 0.22);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(243, 194, 74, 0.14), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgba(160, 32, 240, 0.18), transparent 34%),
+    linear-gradient(145deg, #211a2a, #17121f 58%, #14101b);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
+  animation: slideUp 0.3s ease;
+
+  @media (max-width: 768px) {
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: none;
+    border-top: 1px solid rgba(255, 226, 138, 0.22);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 226, 138, 0.1);
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+
+    .close-btn {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 226, 138, 0.18);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.76);
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+
+      &:hover {
+        border-color: rgba(255, 226, 138, 0.44);
+        background: rgba(255, 226, 138, 0.1);
+        color: #F3C24A;
+        transform: rotate(4deg);
+      }
+    }
+  }
+
+  &__content {
+    padding: 20px 24px 24px;
+    overflow-y: auto;
+    
+    .no-providers {
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+      padding: 20px 0;
+    }
+  }
+}
+
+.provider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.provider-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+    border-left: 4px solid #A020F0;
+  }
+
+  .provider-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 16px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+  }
+
+  .provider-icon-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A020F0, #601090);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-right: 16px;
+  }
+
+  span {
+    font-size: 16px;
+    color: #FFFFFF;
+    font-weight: 500;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.payment-modal__header {
+  .back-btn {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.76);
+    cursor: pointer;
+    font-size: 20px;
+    margin-right: 12px;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: #FFFFFF;
+    }
+  }
+  
+  h2 {
+    flex: 1;
+  }
+}
+
+.payment-simulation {
+  .payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      input, select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: #FFFFFF;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.2s ease;
+        font-family: inherit;
+
+        &:focus {
+          border-color: #A020F0;
+        }
+      }
+
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+        padding-right: 40px;
+
+        option {
+          background: #17121f;
+          color: #fff;
+        }
+      }
+    }
+
+    .pay-btn {
+      margin-top: 10px;
+      background: linear-gradient(135deg, #A020F0, #601090);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+
+      &:disabled {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .payment-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    gap: 20px;
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(160, 32, 240, 0.2);
+      border-top-color: #A020F0;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+    }
+  }
+
+  .payment-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 0;
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: #4CAF50;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      margin-bottom: 20px;
+      animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    h3 {
+      font-size: 24px;
+      margin: 0 0 12px 0;
+      color: #FFFFFF;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0 0 32px 0;
+      line-height: 1.5;
+    }
+
+    .done-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
