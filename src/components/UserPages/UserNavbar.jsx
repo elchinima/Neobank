@@ -1,14 +1,17 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
+import { useAuth } from '../../app/context/AuthContext'
 import './UserNavbar.scss'
 
 const UserNavbar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const currentPath = location.pathname
+  const { user, logout } = useAuth()
 
   const handleLogout = () => {
-    navigate('/')
+    logout()
+    navigate('/login')
   }
 
   const navLinks = [
@@ -27,9 +30,18 @@ const UserNavbar = () => {
     return currentPath !== link.to
   })
 
+  // Initials for avatar
+  const initials = user
+    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
+    : 'NB'
+
+  const fullName = user
+    ? `${user.firstName} ${user.lastName?.[0] ? user.lastName[0] + '.' : ''}`
+    : 'Client'
+
   return (
     <nav className="user-navbar" aria-label="Client navigation">
-      <Link className="user-navbar__brand" to="/dashboard">
+      <Link className="user-navbar__brand" to="/user/dashboard">
         <span className="user-navbar__brand-mark" aria-hidden="true">
           <img src={logoMark} alt="" />
         </span>
@@ -50,10 +62,10 @@ const UserNavbar = () => {
 
       <div className="user-navbar__nav-actions">
         <div className="user-navbar__profile">
-          <div className="user-navbar__avatar">EI</div>
+          <div className="user-navbar__avatar">{initials}</div>
           <div className="user-navbar__profile-details">
-            <strong>Elchin I.</strong>
-            <span>Premium Client</span>
+            <strong>{fullName}</strong>
+            <span>{user?.email || 'User'}</span>
           </div>
         </div>
         <button className="user-navbar__button user-navbar__button--ghost" onClick={handleLogout}>

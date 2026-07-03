@@ -30,6 +30,8 @@ function Login() {
     password,
     setPassword,
     errors,
+    isSubmitting,
+    serverError,
     handleSubmit,
   } = useLogin()
 
@@ -94,6 +96,20 @@ function Login() {
                 <p className="auth-page__card-sub">Enter your credentials to access your account</p>
               </div>
 
+              {serverError && (
+                <div style={{
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  color: '#f87171',
+                  fontSize: '14px',
+                  marginBottom: '20px'
+                }}>
+                  {serverError}
+                </div>
+              )}
+
               <form className="auth-page__form" noValidate onSubmit={handleSubmit}>
                 <div className={`auth-page__group${errors.email ? ' auth-page__group--error' : ''}`}>
                   <label htmlFor="login-email">Email address</label>
@@ -134,9 +150,10 @@ function Login() {
                 <button
                   id="login-submit"
                   type="submit"
+                  disabled={isSubmitting}
                   className="auth-page__button auth-page__button--primary auth-page__button--full"
                 >
-                  Sign in
+                  {isSubmitting ? 'Signing in...' : 'Sign in'}
                 </button>
               </form>
 
