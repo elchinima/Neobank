@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDeposits } from './Deposits.js'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -7,7 +8,7 @@ import './Deposits.scss'
 import './Deposits_Responsive.scss'
 
 const depositTypes = [
-  { id: 'term', icon: 'T', name: 'Term', rate: 7.5, caption: 'Fixed return for planned goals' },
+  { id: 'term', icon: 'T', name: 'Term', rate: 12.0, caption: 'Fixed return for planned goals' },
   { id: 'savings', icon: 'S', name: 'Savings', rate: 5.0, caption: 'Flexible growth with access' },
   { id: 'currency', icon: 'F', name: 'Currency', rate: 3.5, caption: 'Hold value in foreign currency' },
   { id: 'premium', icon: 'P', name: 'Premium', rate: 9.0, caption: 'Higher yield for larger balances' },
@@ -29,9 +30,36 @@ function Deposits() {
     term,
     setTerm,
     selectedType,
+    dynamicRate,
     income,
     total,
   } = useDeposits(depositTypes)
+
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    step: 'select_card',
+    selectedCardId: 1
+  })
+
+  const mockCards = [
+    { id: 1, type: 'Visa', number: '•••• 4242', balance: 125000 },
+    { id: 2, type: 'Mastercard', number: '•••• 8899', balance: 350 },
+  ]
+
+  const handleOpenModal = () => {
+    setModalState({ isOpen: true, step: 'select_card', selectedCardId: 1 })
+  }
+
+  const handleConfirmDeposit = () => {
+    setModalState(prev => ({ ...prev, step: 'processing' }))
+    setTimeout(() => {
+      setModalState(prev => ({ ...prev, step: 'success' }))
+    }, 2000)
+  }
+
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, step: 'select_card', selectedCardId: 1 })
+  }
 
   return (
     <div className="deposits-page">
@@ -90,11 +118,6 @@ function Deposits() {
           <div className="deposits-page__hero-media" aria-label="Deposit campaign carousel">
             <div className="deposits-page__carousel-slide">
               <img src={depositsBanner} alt="NeoBank deposit campaign" />
-              <div className="deposits-page__carousel-dots" aria-hidden="true">
-                <span className="active" />
-                <span />
-                <span />
-              </div>
             </div>
             <p className="deposits-page__media-copy">
               Compare deposit options, calculate your expected return, and open a new
@@ -106,120 +129,144 @@ function Deposits() {
 
         <section className="deposits-page__plans" id="open-deposit" aria-labelledby="deposit-plans-title">
           <div className="deposits-page__plans-heading">
-            <p className="deposits-page__eyebrow">Open a deposit</p>
-            <h2 id="deposit-plans-title">Choose the plan, then tune the numbers.</h2>
+            <p className="deposits-page__eyebrow">Calculator</p>
+            <h2 id="deposit-plans-title">Tune the numbers.</h2>
             <p>
-              Customers can choose a deposit type, review the projected return, and
-              create a new plan without switching pages.
+              Calculate your expected return and open a deposit with up to 12% annual interest.
             </p>
           </div>
 
-          <div className="deposits-page__workspace">
-            <article className="deposits-page__panel deposits-page__panel--calculator">
-              <div className="deposits-page__panel-header">
-                <span>Calculator</span>
-                <h3>Deposit parameters</h3>
-              </div>
+          <div className="deposits-page__workspace deposits-page__workspace--unified">
+            <article className="deposits-page__panel deposits-page__panel--calculator-unified">
+              <div className="deposits-page__calculator-body">
+                <div className="deposits-page__calculator-inputs">
+                  <div className="deposits-page__group">
+                    <label htmlFor="deposit-amount">
+                      Amount: <span>{Number(amount).toLocaleString()} AZN</span>
+                    </label>
+                    <input
+                      id="deposit-amount"
+                      type="range"
+                      min="1000"
+                      max="50000"
+                      step="100"
+                      value={amount}
+                      onChange={(event) => setAmount(Number(event.target.value))}
+                    />
+                  </div>
 
-              <div className="deposits-page__form">
-                <div className="deposits-page__group">
-                  <label>Deposit type</label>
-                  <div className="deposits-page__types">
-                    {depositTypes.map((type) => (
-                      <button
-                        type="button"
-                        key={type.id}
-                        className={`deposits-page__type ${selected === type.id ? 'selected' : ''}`}
-                        onClick={() => setSelected(type.id)}
-                      >
-                        <strong>{type.rate}%</strong>
-                        <span>{type.name}</span>
-                        <p>{type.caption}</p>
-                      </button>
-                    ))}
+                  <div className="deposits-page__group">
+                    <label htmlFor="deposit-term">
+                      Term: <span>{term} months</span>
+                    </label>
+                    <input
+                      id="deposit-term"
+                      type="range"
+                      min="6"
+                      max="36"
+                      step="1"
+                      value={term}
+                      onChange={(event) => setTerm(Number(event.target.value))}
+                    />
                   </div>
                 </div>
 
-                <div className="deposits-page__group">
-                  <label htmlFor="deposit-amount">
-                    Amount: {Number(amount).toLocaleString()} AZN
-                  </label>
-                  <input
-                    id="deposit-amount"
-                    type="range"
-                    min="100"
-                    max="50000"
-                    step="100"
-                    value={amount}
-                    onChange={(event) => setAmount(Number(event.target.value))}
-                  />
-                </div>
+                <div className="deposits-page__calculator-results">
+                  <div className="deposits-page__summary-row">
+                    <span>Interest rate</span>
+                    <strong className={dynamicRate === 12 ? 'deposits-page__rate--max' : ''}>
+                      {dynamicRate}% yearly
+                    </strong>
+                  </div>
+                  <div className="deposits-page__summary-row">
+                    <span>Expected Income</span>
+                    <strong>+{income} AZN</strong>
+                  </div>
 
-                <div className="deposits-page__group">
-                  <label htmlFor="deposit-term">Term: {term} months</label>
-                  <input
-                    id="deposit-term"
-                    type="range"
-                    min="1"
-                    max="36"
-                    step="1"
-                    value={term}
-                    onChange={(event) => setTerm(Number(event.target.value))}
-                  />
+                  <div className="deposits-page__summary-total">
+                    <span>Total at maturity</span>
+                    <strong>{Number(total).toLocaleString()} AZN</strong>
+                  </div>
+                  
+                  <button 
+                    className="deposits-page__button deposits-page__button--primary deposits-page__button--full" 
+                    type="button"
+                    onClick={handleOpenModal}
+                  >
+                    Open deposit
+                  </button>
                 </div>
-
-                <div className="deposits-page__group">
-                  <label htmlFor="deposit-source">Funding account</label>
-                  <select id="deposit-source">
-                    <option>Current account - 12,450.00 AZN</option>
-                    <option>Savings account - 8,000.00 AZN</option>
-                  </select>
-                </div>
-
-                <button className="deposits-page__button deposits-page__button--primary" type="button">
-                  Open deposit
-                </button>
               </div>
             </article>
-
-            <aside className="deposits-page__panel deposits-page__panel--summary" aria-label="Deposit calculation">
-              <div className="deposits-page__panel-header">
-                <span>Projection</span>
-                <h3>Expected return</h3>
-              </div>
-
-              <div className="deposits-page__summary-row">
-                <span>Deposit type</span>
-                <strong>{selectedType.name}</strong>
-              </div>
-              <div className="deposits-page__summary-row">
-                <span>Amount</span>
-                <strong>{Number(amount).toLocaleString()} AZN</strong>
-              </div>
-              <div className="deposits-page__summary-row">
-                <span>Interest rate</span>
-                <strong>{selectedType.rate}% yearly</strong>
-              </div>
-              <div className="deposits-page__summary-row">
-                <span>Term</span>
-                <strong>{term} months</strong>
-              </div>
-              <div className="deposits-page__summary-row">
-                <span>Income</span>
-                <strong>{income} AZN</strong>
-              </div>
-
-              <div className="deposits-page__summary-total">
-                <span>Total at maturity</span>
-                <strong>{Number(total).toLocaleString()} AZN</strong>
-              </div>
-            </aside>
           </div>
         </section>
 
       </main>
 
       <PublicFooter />
+
+      {modalState.isOpen && (
+        <div className="deposits-page__modal-overlay">
+          <div className="deposits-page__modal">
+            <button className="deposits-page__modal-close" onClick={handleCloseModal}>&times;</button>
+            
+            {modalState.step === 'select_card' && (
+              <div className="deposits-page__modal-content">
+                <h3>Select Funding Card</h3>
+                <p>Choose a card to fund your {amount.toLocaleString()} AZN deposit.</p>
+                <div className="deposits-page__cards">
+                  {mockCards.map(card => (
+                    <div 
+                      key={card.id} 
+                      className={`deposits-page__card ${modalState.selectedCardId === card.id ? 'active' : ''} ${card.balance < amount ? 'disabled' : ''}`}
+                      onClick={() => card.balance >= amount && setModalState(prev => ({ ...prev, selectedCardId: card.id }))}
+                    >
+                      <div className="deposits-page__card-info">
+                        <strong>{card.type} {card.number}</strong>
+                        <span>Balance: {card.balance.toLocaleString()} AZN</span>
+                      </div>
+                      <div className="deposits-page__card-radio">
+                        <div className="radio-inner"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full" 
+                  onClick={handleConfirmDeposit}
+                  disabled={!mockCards.find(c => c.id === modalState.selectedCardId) || mockCards.find(c => c.id === modalState.selectedCardId).balance < amount}
+                  style={{marginTop: '32px'}}
+                >
+                  Confirm & Open Deposit
+                </button>
+              </div>
+            )}
+
+            {modalState.step === 'processing' && (
+              <div className="deposits-page__modal-content deposits-page__modal-content--center">
+                <div className="deposits-page__spinner"></div>
+                <h3>Processing...</h3>
+                <p>Please wait while we open your deposit account.</p>
+              </div>
+            )}
+
+            {modalState.step === 'success' && (
+              <div className="deposits-page__modal-content deposits-page__modal-content--center">
+                <div className="deposits-page__success-icon">✓</div>
+                <h3>Success!</h3>
+                <p>Your deposit of <strong>{amount.toLocaleString()} AZN</strong> has been successfully opened at {dynamicRate}% APY.</p>
+                <button 
+                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full" 
+                  onClick={handleCloseModal}
+                  style={{marginTop: '32px'}}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

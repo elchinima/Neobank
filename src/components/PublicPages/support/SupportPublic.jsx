@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useSupportPublic } from './SupportPublic.js'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -35,6 +36,23 @@ function SupportPublic() {
     handleSendMessage,
   } = useSupportPublic()
 
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.classList.add('support-no-scroll')
+      document.documentElement.classList.add('support-no-scroll')
+    } else {
+      document.body.classList.remove('support-no-scroll')
+      document.documentElement.classList.remove('support-no-scroll')
+    }
+    
+    return () => {
+      document.body.classList.remove('support-no-scroll')
+      document.documentElement.classList.remove('support-no-scroll')
+    }
+  }, [isExpanded])
+
   return (
     <div className="support-page">
       <nav className="support-page__nav" aria-label="Support navigation">
@@ -64,7 +82,7 @@ function SupportPublic() {
       </nav>
 
       <main className="support-page__main">
-        <section className="support-page__hero" aria-labelledby="support-title">
+        <section className={`support-page__hero ${isExpanded ? 'support-page__hero--expanded' : ''}`} aria-labelledby="support-title">
           <div className="support-page__hero-content">
             <p className="support-page__eyebrow">NeoBank Support</p>
             <h1 id="support-title">Always ready. Always here to help.</h1>
@@ -95,9 +113,9 @@ function SupportPublic() {
             </div>
           </div>
 
-          <div className="support-page__hero-media" ref={chatSectionRef} aria-label="NeoBank support campaign">
+          <div className={`support-page__hero-media ${isExpanded ? 'support-page__hero-media--expanded' : ''}`} ref={chatSectionRef} aria-label="NeoBank support campaign">
             {isChatOpen ? (
-              <div className="support-chat">
+              <div className={`support-chat ${isExpanded ? 'support-chat--expanded' : ''}`}>
                 <div className="support-chat__header">
                   <div className="support-chat__avatar">S</div>
                   <div className="support-chat__agent-info">
@@ -105,9 +123,17 @@ function SupportPublic() {
                     <span>Online • NeoBank Agent</span>
                   </div>
                   <button
+                    className="support-chat__expand-btn"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    title={isExpanded ? "Minimize chat" : "Maximize chat"}
+                  >
+                    {isExpanded ? '⤓' : '⤢'}
+                  </button>
+                  <button
                     className="support-chat__reset-btn"
                     onClick={() => {
                       setIsChatOpen(false)
+                      setIsExpanded(false)
                       setName('')
                       setMessage('')
                       setMessages([])
@@ -146,6 +172,7 @@ function SupportPublic() {
                     placeholder="Type your message..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
+                    maxLength={1000}
                   />
                   <button type="submit" disabled={!chatInput.trim()}>
                     Send

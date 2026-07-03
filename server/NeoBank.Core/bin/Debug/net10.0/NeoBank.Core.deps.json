@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "NeoBank.Core/1.0.0": {
+        "runtime": {
+          "NeoBank.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "NeoBank.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
