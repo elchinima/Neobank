@@ -482,9 +482,13 @@
   }
 
   &__products-heading {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 14px;
     max-width: 900px;
+    margin: 0 auto 16px;
 
     h2 {
       color: #ffffff;
@@ -503,55 +507,80 @@
   }
 
   &__workspace {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.65fr);
-    gap: 18px;
-    align-items: start;
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
 
-  &__panel {
-    padding: clamp(20px, 3vw, 30px);
-    border: 1px solid rgba(255, 226, 138, 0.16);
-    border-radius: $border-radius;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-      rgba(23, 18, 31, 0.58);
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
-    backdrop-filter: blur(16px);
+  &__panel--calculator-unified {
+    width: min(100%, 900px);
+    border: 1px solid rgba(255, 226, 138, 0.15);
+    border-radius: 12px;
+    background: #17111a;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
     animation: loansFadeUp $landing-animation-base $landing-animation-ease both;
   }
 
-  &__panel--calculator {
-    border-color: rgba(255, 226, 138, 0.28);
-    background:
-      linear-gradient(145deg, rgba(255, 226, 138, 0.12), rgba(160, 32, 240, 0.08)),
-      rgba(23, 18, 31, 0.62);
+  &__calculator-body {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    @media (min-width: 768px) {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
-  &__panel-header {
-    display: grid;
-    gap: 9px;
-    margin-bottom: 22px;
+  &__calculator-inputs {
+    padding: clamp(24px, 4vw, 40px);
+    border-bottom: 1px solid rgba(255, 226, 138, 0.1);
 
-    span {
-      width: fit-content;
-      padding: 6px 10px;
-      border: 1px solid rgba(255, 226, 138, 0.2);
-      border-radius: 999px;
-      background: rgba(255, 226, 138, 0.08);
-      color: $landing-gold-soft;
-      font-size: 11px;
-      font-weight: 900;
-      line-height: 1;
-      text-transform: uppercase;
+    @media (min-width: 768px) {
+      border-bottom: none;
+      border-right: 1px solid rgba(255, 226, 138, 0.1);
+      padding: 48px;
     }
+    
+    .loans-page__group {
+      margin-bottom: 48px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: none;
+        
+        span {
+          color: $landing-gold;
+          font-size: 22px;
+          font-weight: 800;
+        }
+      }
+    }
+  }
 
-    h3 {
-      color: #ffffff;
-      font-size: clamp(24px, 3vw, 36px);
-      font-weight: 900;
-      line-height: 1.08;
+  &__calculator-results {
+    padding: clamp(24px, 4vw, 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 32px;
+
+    @media (min-width: 768px) {
+      padding: 48px;
     }
+  }
+
+  &__button--full {
+    width: 100%;
+    margin-top: 24px;
   }
 
   &__group {
@@ -595,73 +624,6 @@
     }
   }
 
-  &__types {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  &__type {
-    min-height: 174px;
-    padding: 16px;
-    border: 1px solid rgba(255, 226, 138, 0.13);
-    border-radius: $border-radius-sm;
-    background: rgba(255, 255, 255, 0.055);
-    color: #ffffff;
-    cursor: pointer;
-    font-family: $font-family;
-    text-align: left;
-    transition: transform $landing-animation-fast $landing-animation-ease, border-color $landing-animation-fast $landing-animation-ease, background $landing-animation-fast $landing-animation-ease;
-
-    &:hover,
-    &.selected {
-      background: rgba(255, 255, 255, 0.09);
-      border-color: rgba(255, 226, 138, 0.34);
-      transform: translateY(-2px);
-    }
-
-    strong {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 64px;
-      height: 44px;
-      margin-bottom: 12px;
-      padding: 0 10px;
-      border-radius: $border-radius-sm;
-      background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 46%, #b47012);
-      color: #211405;
-      font-size: 20px;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    span {
-      display: block;
-      color: #ffffff;
-      font-size: $font-size-lg;
-      font-weight: 900;
-      line-height: 1.2;
-    }
-
-    small {
-      display: block;
-      margin-top: 7px;
-      color: $landing-gold-soft;
-      font-size: 12px;
-      font-weight: 900;
-      line-height: 1.35;
-    }
-
-    p {
-      margin-top: 8px;
-      color: rgba(255, 255, 255, 0.64);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.45;
-    }
-  }
-
   &__summary-row,
   &__summary-total {
     display: flex;
@@ -671,41 +633,51 @@
   }
 
   &__summary-row {
-    min-height: 54px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 226, 138, 0.13);
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(255, 226, 138, 0.1);
 
     span {
-      color: rgba(255, 255, 255, 0.62);
-      font-size: $font-size-base;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
       font-weight: 700;
     }
 
     strong {
       color: #ffffff;
-      font-size: $font-size-base;
-      font-weight: 900;
+      font-size: 16px;
+      font-weight: 800;
       text-align: right;
+      transition: color 0.3s ease;
+    }
+    
+    .loans-page__rate--min {
+      color: $landing-gold;
+      text-shadow: 0 0 12px rgba(243, 194, 74, 0.4);
     }
   }
 
   &__summary-total {
-    margin-top: 20px;
-    padding: 18px;
-    border-radius: $border-radius-sm;
-    background: rgba(255, 226, 138, 0.1);
-
+    margin-top: auto;
+    padding: 32px 24px;
+    border-radius: 12px;
+    background: #28242A;
+    
     span {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: $font-size-base;
-      font-weight: 800;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 16px;
+      font-weight: 700;
+      max-width: 80px;
+      line-height: 1.3;
     }
 
     strong {
-      color: $landing-gold-soft;
-      font-size: clamp(22px, 3vw, 30px);
-      font-weight: 900;
+      color: $landing-gold;
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 800;
       text-align: right;
+      line-height: 1.1;
+      white-space: nowrap;
+      letter-spacing: -0.5px;
     }
   }
 
@@ -769,5 +741,170 @@
       font-size: 13px;
       font-weight: 700;
     }
+  }
+
+  &__modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: loansFadeIn 0.3s ease;
+  }
+
+  &__modal {
+    position: relative;
+    width: min(90%, 500px);
+    background: #17111a;
+    border: 1px solid rgba(255, 226, 138, 0.15);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    animation: loansFadeUp 0.4s ease;
+  }
+
+  &__modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__modal-content {
+    h3 {
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    &--center {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 250px;
+    }
+  }
+
+  &__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(.disabled) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.active {
+      border-color: $landing-gold;
+      background: rgba(243, 194, 74, 0.08);
+
+      .radio-inner {
+        background: $landing-gold;
+        transform: scale(1);
+      }
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      strong {
+        color: #fff;
+        font-size: 16px;
+      }
+
+      span {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 13px;
+      }
+    }
+
+    &-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .radio-inner {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: transparent;
+        transform: scale(0);
+        transition: transform 0.2s ease;
+      }
+    }
+  }
+
+  &__spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(243, 194, 74, 0.2);
+    border-top-color: $landing-gold;
+    border-radius: 50%;
+    animation: loansSpin 1s linear infinite;
+    margin-bottom: 24px;
+  }
+
+  &__success-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 24px;
+  }
+}
+
+@keyframes loansSpin {
+  to {
+    transform: rotate(360deg);
   }
 }

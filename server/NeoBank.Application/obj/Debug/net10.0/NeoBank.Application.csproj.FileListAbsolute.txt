@@ -1,0 +1,16 @@
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\bin\Debug\net10.0\NeoBank.Application.deps.json
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\bin\Debug\net10.0\NeoBank.Application.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\bin\Debug\net10.0\NeoBank.Application.pdb
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\bin\Debug\net10.0\NeoBank.Core.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\bin\Debug\net10.0\NeoBank.Core.pdb
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.csproj.AssemblyReference.cache
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.AssemblyInfoInputs.cache
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.AssemblyInfo.cs
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.csproj.CoreCompileInputs.cache
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.sourcelink.json
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank..A0BC700A.Up2Date
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\refint\NeoBank.Application.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\NeoBank.Application.pdb
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Application\obj\Debug\net10.0\ref\NeoBank.Application.dll

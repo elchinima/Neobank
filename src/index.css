@@ -39,3 +39,8 @@ body {
   max-width: 100%;
   overflow-x: hidden;
 }
+
+::selection {
+  background-color: #F3C24A;
+  color: #000;
+}

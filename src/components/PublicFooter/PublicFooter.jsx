@@ -151,6 +151,8 @@ function PublicFooter() {
   const {
     isInfoOpen,
     setIsInfoOpen,
+    selectedLang,
+    setSelectedLang,
     scrollToTop,
   } = usePublicFooter()
 
@@ -209,9 +211,29 @@ function PublicFooter() {
       </div>
 
       <div className="public-footer__bottom">
-        <p>
-          Copyright 2026 <span>NeoBank</span>. All Rights Reserved
-        </p>
+        <div className="public-footer__copyright-col">
+          <div className="public-footer__lang-selector">
+            <svg className="public-footer__lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <select
+              className="public-footer__lang-select"
+              value={selectedLang}
+              onChange={(e) => setSelectedLang(e.target.value)}
+              aria-label="Select language"
+            >
+              <option value="en">English</option>
+              <option value="az">Azərbaycan</option>
+              <option value="ru">Русский</option>
+            </select>
+          </div>
+
+          <p>
+            Copyright 2026 <span>NeoBank</span>. All Rights Reserved
+          </p>
+        </div>
 
         <div className="public-footer__stores" aria-label="Mobile app links">
           {storeLinks.map((link) => (

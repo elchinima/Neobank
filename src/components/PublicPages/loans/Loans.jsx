@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLoans } from './Loans.js'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -64,10 +65,37 @@ function Loans() {
     term,
     setTerm,
     selectedLoan,
+    dynamicRate,
     monthlyPayment,
     total,
     overpayment,
   } = useLoans(loanTypes)
+
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    step: 'select_card',
+    selectedCardId: 1
+  })
+
+  const mockCards = [
+    { id: 1, type: 'Visa', number: '•••• 4242', balance: 125000 },
+    { id: 2, type: 'Mastercard', number: '•••• 8899', balance: 350 },
+  ]
+
+  const handleOpenModal = () => {
+    setModalState({ isOpen: true, step: 'select_card', selectedCardId: 1 })
+  }
+
+  const handleConfirmLoan = () => {
+    setModalState(prev => ({ ...prev, step: 'processing' }))
+    setTimeout(() => {
+      setModalState(prev => ({ ...prev, step: 'success' }))
+    }, 2000)
+  }
+
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, step: 'select_card', selectedCardId: 1 })
+  }
 
   return (
     <div className="loans-page">
@@ -145,108 +173,67 @@ function Loans() {
             </p>
           </div>
 
-          <div className="loans-page__workspace">
-            <article className="loans-page__panel loans-page__panel--calculator">
-              <div className="loans-page__panel-header">
-                <span>Calculator</span>
-                <h3>Loan parameters</h3>
-              </div>
+          <div className="loans-page__workspace loans-page__workspace--unified">
+            <article className="loans-page__panel loans-page__panel--calculator-unified">
+              <div className="loans-page__calculator-body">
+                <div className="loans-page__calculator-inputs">
+                  <div className="loans-page__group">
+                    <label htmlFor="loan-amount">
+                      Amount: <span>{Number(amount).toLocaleString()} AZN</span>
+                    </label>
+                    <input
+                      id="loan-amount"
+                      type="range"
+                      min="500"
+                      max="100000"
+                      step="500"
+                      value={amount}
+                      onChange={(event) => setAmount(Number(event.target.value))}
+                    />
+                  </div>
 
-              <div className="loans-page__form">
-                <div className="loans-page__group">
-                  <label>Loan type</label>
-                  <div className="loans-page__types">
-                    {loanTypes.map((loanType) => (
-                      <button
-                        type="button"
-                        key={loanType.id}
-                        className={`loans-page__type ${selected === loanType.id ? 'selected' : ''}`}
-                        onClick={() => setSelected(loanType.id)}
-                      >
-                        <strong>{loanType.rate}%</strong>
-                        <span>{loanType.title}</span>
-                        <small>{loanType.limit}</small>
-                        <p>{loanType.text}</p>
-                      </button>
-                    ))}
+                  <div className="loans-page__group">
+                    <label htmlFor="loan-term">
+                      Term: <span>{term} months</span>
+                    </label>
+                    <input
+                      id="loan-term"
+                      type="range"
+                      min="3"
+                      max="84"
+                      step="3"
+                      value={term}
+                      onChange={(event) => setTerm(Number(event.target.value))}
+                    />
                   </div>
                 </div>
 
-                <div className="loans-page__group">
-                  <label htmlFor="loan-amount">
-                    Amount: {Number(amount).toLocaleString()} AZN
-                  </label>
-                  <input
-                    id="loan-amount"
-                    type="range"
-                    min="500"
-                    max="100000"
-                    step="500"
-                    value={amount}
-                    onChange={(event) => setAmount(Number(event.target.value))}
-                  />
-                </div>
+                <div className="loans-page__calculator-results">
+                  <div className="loans-page__summary-row">
+                    <span>Interest rate</span>
+                    <strong className={dynamicRate === 9.9 ? 'loans-page__rate--min' : ''}>
+                      {dynamicRate}% yearly
+                    </strong>
+                  </div>
+                  <div className="loans-page__summary-row">
+                    <span>Overpayment</span>
+                    <strong>{Number(overpayment).toLocaleString()} AZN</strong>
+                  </div>
 
-                <div className="loans-page__group">
-                  <label htmlFor="loan-term">Term: {term} months</label>
-                  <input
-                    id="loan-term"
-                    type="range"
-                    min="3"
-                    max="84"
-                    step="3"
-                    value={term}
-                    onChange={(event) => setTerm(Number(event.target.value))}
-                  />
+                  <div className="loans-page__summary-total">
+                    <span>Monthly payment</span>
+                    <strong>{Math.floor(Number(monthlyPayment)).toLocaleString()} AZN</strong>
+                  </div>
+                  
+                  <button 
+                    className="loans-page__button loans-page__button--primary loans-page__button--full"
+                    onClick={handleOpenModal}
+                  >
+                    Continue application
+                  </button>
                 </div>
-
-                <div className="loans-page__group">
-                  <label htmlFor="loan-income">Monthly income</label>
-                  <select id="loan-income">
-                    <option>2,000 - 3,000 AZN</option>
-                    <option>3,000 - 5,000 AZN</option>
-                    <option>5,000+ AZN</option>
-                  </select>
-                </div>
-
-                <Link to="/loans/apply" className="loans-page__button loans-page__button--primary">
-                  Continue application
-                </Link>
               </div>
             </article>
-
-            <aside className="loans-page__panel loans-page__panel--summary" aria-label="Loan calculation">
-              <div className="loans-page__panel-header">
-                <span>Estimate</span>
-                <h3>Monthly payment</h3>
-              </div>
-
-              <div className="loans-page__summary-row">
-                <span>Loan type</span>
-                <strong>{selectedLoan.title}</strong>
-              </div>
-              <div className="loans-page__summary-row">
-                <span>Amount</span>
-                <strong>{Number(amount).toLocaleString()} AZN</strong>
-              </div>
-              <div className="loans-page__summary-row">
-                <span>Interest rate</span>
-                <strong>{selectedLoan.rate}% yearly</strong>
-              </div>
-              <div className="loans-page__summary-row">
-                <span>Term</span>
-                <strong>{term} months</strong>
-              </div>
-              <div className="loans-page__summary-row">
-                <span>Overpayment</span>
-                <strong>{Number(overpayment).toLocaleString()} AZN</strong>
-              </div>
-
-              <div className="loans-page__summary-total">
-                <span>Estimated monthly payment</span>
-                <strong>{Number(monthlyPayment).toLocaleString()} AZN</strong>
-              </div>
-            </aside>
           </div>
 
           <div className="loans-page__steps" aria-label="Loan application steps">
@@ -262,6 +249,69 @@ function Loans() {
       </main>
 
       <PublicFooter />
+
+      {modalState.isOpen && (
+        <div className="loans-page__modal-overlay">
+          <div className="loans-page__modal">
+            <button className="loans-page__modal-close" onClick={handleCloseModal}>&times;</button>
+            
+            {modalState.step === 'select_card' && (
+              <div className="loans-page__modal-content">
+                <h3>Select Receiving Card</h3>
+                <p>Choose a card where your {Number(amount).toLocaleString()} AZN loan will be disbursed.</p>
+                <div className="loans-page__cards">
+                  {mockCards.map(card => (
+                    <div 
+                      key={card.id} 
+                      className={`loans-page__card ${modalState.selectedCardId === card.id ? 'active' : ''}`}
+                      onClick={() => setModalState(prev => ({ ...prev, selectedCardId: card.id }))}
+                    >
+                      <div className="loans-page__card-info">
+                        <strong>{card.type} {card.number}</strong>
+                        <span>Current balance: {card.balance.toLocaleString()} AZN</span>
+                      </div>
+                      <div className="loans-page__card-radio">
+                        <div className="radio-inner"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="loans-page__button loans-page__button--primary loans-page__button--full" 
+                  onClick={handleConfirmLoan}
+                  disabled={!modalState.selectedCardId}
+                  style={{marginTop: '32px'}}
+                >
+                  Confirm & Receive Funds
+                </button>
+              </div>
+            )}
+
+            {modalState.step === 'processing' && (
+              <div className="loans-page__modal-content loans-page__modal-content--center">
+                <div className="loans-page__spinner"></div>
+                <h3>Processing...</h3>
+                <p>Please wait while we process your loan application.</p>
+              </div>
+            )}
+
+            {modalState.step === 'success' && (
+              <div className="loans-page__modal-content loans-page__modal-content--center">
+                <div className="loans-page__success-icon">✓</div>
+                <h3>Success!</h3>
+                <p>Your loan of <strong>{Number(amount).toLocaleString()} AZN</strong> has been approved at {dynamicRate}% APY and funds have been transferred to your card.</p>
+                <button 
+                  className="loans-page__button loans-page__button--primary loans-page__button--full" 
+                  onClick={handleCloseModal}
+                  style={{marginTop: '32px'}}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

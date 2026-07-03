@@ -6,8 +6,16 @@ export function useDeposits(depositTypes) {
   const [term, setTerm] = useState(12)
 
   const selectedType = depositTypes.find((depositType) => depositType.id === selected)
-  const income = (amount * (selectedType.rate / 100) * (term / 12)).toFixed(2)
-  const total = (Number(amount) + Number(income)).toFixed(2)
+  
+  let dynamicRate = 12
+  if (term <= 18) {
+    dynamicRate = 8
+  } else if (term <= 24) {
+    dynamicRate = 10
+  }
+
+  const income = (amount * (dynamicRate / 100) * (term / 12)).toFixed(2)
+  const total = Math.floor(Number(amount) + Number(income))
 
   return {
     selected,
@@ -17,6 +25,7 @@ export function useDeposits(depositTypes) {
     term,
     setTerm,
     selectedType,
+    dynamicRate,
     income,
     total,
   }

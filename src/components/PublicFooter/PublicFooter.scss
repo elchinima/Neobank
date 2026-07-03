@@ -201,12 +201,59 @@
 
   &__bottom {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: auto auto auto;
     align-items: center;
-    column-gap: clamp(40px, 8vw, 120px);
+    justify-content: space-between;
+    column-gap: clamp(20px, 4vw, 60px);
     max-width: 1180px;
     margin: clamp(86px, 10vw, 120px) auto 0;
     padding-right: 64px;
+  }
+
+  &__copyright-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &__lang-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: 8px;
+    padding: 5px 10px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 226, 138, 0.3);
+    }
+  }
+
+  &__lang-icon {
+    width: 15px;
+    height: 15px;
+    color: $landing-gold;
+    flex-shrink: 0;
+  }
+
+  &__lang-select {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+
+    option {
+      background: #17121F;
+      color: #FFFFFF;
+      padding: 8px;
+    }
   }
 
   &__bottom p {
@@ -214,6 +261,7 @@
     font-size: 13px;
     font-weight: 650;
     line-height: 1.5;
+    white-space: nowrap;
 
     span {
       color: $landing-gold;

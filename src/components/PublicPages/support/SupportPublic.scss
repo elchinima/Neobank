@@ -1,5 +1,10 @@
 @use '../../../assets/styles/variables' as *;
 
+body.support-no-scroll,
+html.support-no-scroll {
+  overflow: hidden !important;
+}
+
 @keyframes supportNavReveal {
   from {
     opacity: 0;
@@ -264,6 +269,10 @@
     overflow: hidden;
     isolation: isolate;
 
+    &--expanded {
+      z-index: 19;
+    }
+
     &::before {
       content: '';
       position: absolute;
@@ -403,6 +412,10 @@
     position: relative;
     z-index: 1;
     display: grid;
+    
+    &--expanded {
+      z-index: 19;
+    }
     gap: 16px;
     justify-self: center;
     align-self: center;
@@ -466,6 +479,34 @@
     overflow: hidden;
     position: relative;
     z-index: 10;
+    transition: all 0.3s ease;
+
+    &--expanded {
+      position: fixed;
+      top: $landing-nav-height;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: calc(100vh - #{$landing-nav-height});
+      z-index: 19;
+      border-radius: 0;
+      background: #17111a;
+      
+      @media (min-width: 768px) {
+        width: 100%;
+      }
+      
+      @media (max-width: 1040px) {
+        top: $landing-tablet-nav-height;
+        height: calc(100vh - #{$landing-tablet-nav-height});
+      }
+
+      @media (max-width: 680px) {
+        top: $landing-mobile-nav-height;
+        height: calc(100vh - #{$landing-mobile-nav-height});
+      }
+    }
 
     &__header {
       display: flex;
@@ -474,6 +515,24 @@
       padding: 16px;
       background: rgba(255, 255, 255, 0.04);
       border-bottom: 1px solid rgba(255, 226, 138, 0.12);
+    }
+    
+    &__expand-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &:hover {
+        color: #fff;
+      }
     }
 
     &__avatar {

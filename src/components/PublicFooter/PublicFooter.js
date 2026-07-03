@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 export function usePublicFooter() {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
+  const [selectedLang, setSelectedLang] = useState('en')
 
   useEffect(() => {
     if (!isInfoOpen) {
@@ -25,6 +26,8 @@ export function usePublicFooter() {
   return {
     isInfoOpen,
     setIsInfoOpen,
+    selectedLang,
+    setSelectedLang,
     scrollToTop,
   }
 }
