@@ -106,13 +106,30 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        var databaseCreator = dbContext.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;
-        databaseCreator?.CreateTables();
+
+        // Remove old ASP.NET Identity tables and old Users table structure if present
+        try
+        {
+            dbContext.Database.ExecuteSqlRaw(@"
+                DROP TABLE IF EXISTS ""AspNetRoles"", ""AspNetUserClaims"", ""AspNetUserLogins"", ""AspNetUserRoles"", ""AspNetUserTokens"", ""AspNetRoleClaims"" CASCADE;
+                
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Users' AND column_name='NormalizedEmail') THEN
+                        DROP TABLE ""Users"" CASCADE;
+                    END IF;
+                END $$;
+            ");
+        }
+        catch { }
+
+        // Apply EF Core Migrations (creates __EFMigrationsHistory and Users table)
+        dbContext.Database.Migrate();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("Database check status: {Message}", ex.Message);
+        logger.LogWarning(ex, "An error occurred while migrating the database.");
     }
 }
 
