@@ -1,17 +1,47 @@
-# Build stage
-FROM node:22-alpine AS build
+# ==========================================
+# STAGE 1: Build Frontend (Vite/React)
+# ==========================================
+FROM node:22-alpine AS frontend-build
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm ci
-
 COPY . .
 RUN npm run build
 
-# Production stage with Nginx
-FROM nginx:alpine AS final
-COPY --from=build /app/dist /usr/share/nginx/html
+# ==========================================
+# STAGE 2: Build Backend (.NET 10)
+# ==========================================
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend-build
+WORKDIR /src
 
-EXPOSE 80
+# Copy project files for caching restore
+COPY ["server/NeoBank.Api/NeoBank.Api.csproj", "NeoBank.Api/"]
+COPY ["server/NeoBank.Application/NeoBank.Application.csproj", "NeoBank.Application/"]
+COPY ["server/NeoBank.Core/NeoBank.Core.csproj", "NeoBank.Core/"]
+COPY ["server/NeoBank.Infrastructure/NeoBank.Infrastructure.csproj", "NeoBank.Infrastructure/"]
 
-CMD ["nginx", "-g", "daemon off;"]
+RUN dotnet restore "NeoBank.Api/NeoBank.Api.csproj"
+
+# Copy full C# source
+COPY server/ .
+
+# Build and Publish
+WORKDIR "/src/NeoBank.Api"
+RUN dotnet publish "NeoBank.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# ==========================================
+# STAGE 3: Final Production Image
+# ==========================================
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+# Copy Published backend app
+COPY --from=backend-build /app/publish .
+
+# Copy Built frontend files into wwwroot folder of the backend API
+COPY --from=frontend-build /app/dist ./wwwroot
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+ENTRYPOINT ["dotnet", "NeoBank.Api.dll"]
