@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using NeoBank.Application.DTOs.Auth;
 using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
@@ -8,20 +9,24 @@ namespace NeoBank.Application.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IApplicationDbContext _dbContext;
+    private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
     private readonly IJwtService _jwtService;
 
     public AuthService(
-        UserManager<ApplicationUser> userManager,
+        IApplicationDbContext dbContext,
+        IPasswordHasher<ApplicationUser> passwordHasher,
         IJwtService jwtService)
     {
-        _userManager = userManager;
+        _dbContext = dbContext;
+        _passwordHasher = passwordHasher;
         _jwtService = jwtService;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
     {
-        var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+        var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
         if (existingUser != null)
         {
             throw new InvalidOperationException("User with this email already exists.");
@@ -29,22 +34,20 @@ public class AuthService : IAuthService
 
         var user = new ApplicationUser
         {
-            UserName = dto.Email,
-            Email = dto.Email,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
+            Email = dto.Email.Trim(),
+            FirstName = dto.FirstName.Trim(),
+            LastName = dto.LastName.Trim(),
+            Role = "User",
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            throw new InvalidOperationException($"Registration failed: {errors}");
-        }
+        user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
-        var roles = await _userManager.GetRolesAsync(user);
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
+
+        var roles = new List<string> { user.Role };
         var (token, expiration) = _jwtService.GenerateToken(user, roles);
 
         return new AuthResponseDto
@@ -57,19 +60,20 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
-        var user = await _userManager.FindByEmailAsync(dto.Email);
+        var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
         if (user == null || !user.IsActive)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var isPasswordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-        if (!isPasswordValid)
+        var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+        if (verificationResult == PasswordVerificationResult.Failed)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = new List<string> { user.Role };
         var (token, expiration) = _jwtService.GenerateToken(user, roles);
 
         return new AuthResponseDto
@@ -82,7 +86,7 @@ public class AuthService : IAuthService
 
     public async Task<UserDto?> GetCurrentUserAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return null;
 
         return MapToUserDto(user);
@@ -93,7 +97,7 @@ public class AuthService : IAuthService
         return new UserDto
         {
             Id = user.Id,
-            Email = user.Email ?? string.Empty,
+            Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
             AvatarUrl = user.AvatarUrl,

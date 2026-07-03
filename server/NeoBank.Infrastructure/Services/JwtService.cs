@@ -19,25 +19,29 @@ public class JwtService : IJwtService
 
     public (string Token, DateTime Expiration) GenerateToken(ApplicationUser user, IList<string> roles)
     {
-        var secretKey = _configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey";
+        var secretKey = _configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),
-            new(ClaimTypes.Email, user.Email ?? string.Empty),
+            new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.GivenName, user.FirstName),
             new(ClaimTypes.Surname, user.LastName),
+            new(ClaimTypes.Role, user.Role),
             new("avatarUrl", user.AvatarUrl ?? string.Empty)
         };
 
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value == role))
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
         }
 
-        var expiryInMinutes = double.TryParse(_configuration["Jwt:ExpiryInMinutes"], out var minutes) ? minutes : 1440; // Default 24 hours
+        var expiryInMinutes = double.TryParse(_configuration["Jwt:ExpiryInMinutes"], out var minutes) ? minutes : 1440;
         var expiration = DateTime.UtcNow.AddMinutes(expiryInMinutes);
 
         var token = new JwtSecurityToken(
@@ -53,7 +57,7 @@ public class JwtService : IJwtService
 
     public ClaimsPrincipal? GetPrincipalFromToken(string token)
     {
-        var secretKey = _configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey";
+        var secretKey = _configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = true,
