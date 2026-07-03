@@ -4,4 +4,11 @@ dist
 .gitignore
 .vs
 .vscode
-server
+server/NeoBank.Api/bin
+server/NeoBank.Api/obj
+server/NeoBank.Application/bin
+server/NeoBank.Application/obj
+server/NeoBank.Core/bin
+server/NeoBank.Core/obj
+server/NeoBank.Infrastructure/bin
+server/NeoBank.Infrastructure/obj
