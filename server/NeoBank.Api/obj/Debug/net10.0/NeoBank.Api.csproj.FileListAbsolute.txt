@@ -6,7 +6,6 @@ D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debu
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\NeoBank.Api.runtimeconfig.json
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\NeoBank.Api.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\NeoBank.Api.pdb
-D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Microsoft.OpenApi.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\obj\Debug\net10.0\NeoBank.Api.csproj.AssemblyReference.cache
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\obj\Debug\net10.0\rpswa.dswa.cache.json
@@ -171,3 +170,5 @@ D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debu
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Npgsql.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

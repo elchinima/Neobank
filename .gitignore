@@ -25,3 +25,7 @@ artifacts
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets & environment configs
+secret/
+secret/*

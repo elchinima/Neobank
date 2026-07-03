@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../app/context/AuthContext'
 
 export function useRegister() {
   const [showPassword, setShowPassword] = useState(false)
@@ -11,6 +12,10 @@ export function useRegister() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [serverError, setServerError] = useState('')
+
+  const { register } = useAuth()
   const navigate = useNavigate()
 
   const validate = () => {
@@ -26,13 +31,22 @@ export function useRegister() {
     return next
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setServerError('')
     const next = validate()
     setErrors(next)
+
     if (Object.keys(next).length === 0) {
-      console.log('Register submitted', { firstName, lastName, email, password })
-      navigate('/dashboard')
+      setIsSubmitting(true)
+      try {
+        await register({ firstName, lastName, email, password })
+        navigate('/user/dashboard')
+      } catch (err) {
+        setServerError(err.message || 'Registration failed. Please try again.')
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -53,8 +67,9 @@ export function useRegister() {
     setConfirm,
     errors,
     setErrors,
+    isSubmitting,
+    serverError,
     validate,
     handleSubmit,
   }
 }
-

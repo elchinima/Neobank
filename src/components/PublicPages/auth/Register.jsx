@@ -38,6 +38,8 @@ function Register() {
     confirm,
     setConfirm,
     errors,
+    isSubmitting,
+    serverError,
     handleSubmit,
   } = useRegister()
 
@@ -101,6 +103,20 @@ function Register() {
                 </h1>
                 <p className="auth-page__card-sub">Fill in your details to get started</p>
               </div>
+
+              {serverError && (
+                <div style={{
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  color: '#f87171',
+                  fontSize: '14px',
+                  marginBottom: '20px'
+                }}>
+                  {serverError}
+                </div>
+              )}
 
               <form className="auth-page__form" noValidate onSubmit={handleSubmit}>
                 <div className="auth-page__row">
@@ -192,9 +208,10 @@ function Register() {
                 <button
                   id="register-submit"
                   type="submit"
+                  disabled={isSubmitting}
                   className="auth-page__button auth-page__button--primary auth-page__button--full"
                 >
-                  Create account
+                  {isSubmitting ? 'Creating account...' : 'Create account'}
                 </button>
               </form>
 

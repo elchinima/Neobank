@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from '../context/AuthContext'
+import ProtectedRoute from './ProtectedRoute'
+
 import Landing from '../../components/PublicPages/landing/Landing'
 import Login from '../../components/PublicPages/auth/Login'
 import Register from '../../components/PublicPages/auth/Register'
@@ -17,33 +20,36 @@ import Settings from '../../components/UserPages/settings/Settings'
 
 function AppRouter() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cards" element={<CardsPublic />} />
-        <Route path="/loans" element={<Loans />} />
-        <Route path="/deposits" element={<Deposits />} />
-        <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />
-        <Route path="/cashback" element={<Cashback />} />
-        <Route path="/support" element={<SupportPublic />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/cards" element={<CardsPublic />} />
+          <Route path="/loans" element={<Loans />} />
+          <Route path="/deposits" element={<Deposits />} />
+          <Route path="/deposits/create" element={<Navigate to="/deposits" replace />} />
+          <Route path="/cashback" element={<Cashback />} />
+          <Route path="/support" element={<SupportPublic />} />
 
-        <Route path="/user" element={<UserLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="cards" element={<Cards />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="history" element={<History />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
+          {/* Protected User Routes - Requires Authentication */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/user" element={<UserLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="cards" element={<Cards />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="history" element={<History />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
 export default AppRouter
-
-

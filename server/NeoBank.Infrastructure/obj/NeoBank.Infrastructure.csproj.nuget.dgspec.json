@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {}
+    "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {}
   },
   "projects": {
     "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj": {
@@ -59,6 +59,10 @@
             "AutoMapper": {
               "target": "Package",
               "version": "[16.2.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.9, )"
             }
           },
           "imports": [
@@ -402,6 +406,12 @@
         "net10.0": {
           "framework": "net10.0",
           "targetAlias": "net10.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -696,14 +706,14 @@
         }
       }
     },
-    "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {
+    "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+        "projectUniqueName": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
         "projectName": "NeoBank.Infrastructure",
-        "projectPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+        "projectPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\dmatc\\.nuget\\packages\\",
-        "outputPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\obj\\",
+        "outputPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -765,6 +775,10 @@
               "target": "Package",
               "version": "[10.0.9, )"
             },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[10.0.2, )"
+            },
             "SixLabors.ImageSharp": {
               "target": "Package",
               "version": "[3.1.7, )"
@@ -772,6 +786,10 @@
             "Stripe.net": {
               "target": "Package",
               "version": "[52.1.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.19.1, )"
             }
           },
           "imports": [
