@@ -15,7 +15,15 @@ export const settingsLang = {
     twoFactor: 'Two-Factor Authentication (2FA)',
     twoFactorDesc: 'Require SMS or authenticator code on sensitive actions.',
     saveChanges: 'Save Changes',
-    saved: 'Settings saved successfully!'
+    saved: 'Settings saved successfully!',
+    maxFileSize: 'Maximum file size is 10 MB.',
+    avatarUploadError: 'Avatar upload error',
+    processingAvatar: 'Processing (ImageSharp)...',
+    changeAvatar: 'Change Avatar',
+    fullName: 'Full Name',
+    updatePasswordDesc: 'Update your account password regularly to keep your funds safe.',
+    updatePasswordBtn: 'Update Password',
+    cancel: 'Cancel'
   },
   az: {
     title: 'Parametrlər və Təhlükəsizlik',
@@ -33,7 +41,15 @@ export const settingsLang = {
     twoFactor: 'İki-Mərhələli Doğrulama (2FA)',
     twoFactorDesc: 'Həssas əməliyyatlarda SMS və ya autentifikator kodu tələb olunsun.',
     saveChanges: 'Dəyişiklikləri Yadda Saxla',
-    saved: 'Parametrlər uğurla yadda saxlanıldı!'
+    saved: 'Parametrlər uğurla yadda saxlanıldı!',
+    maxFileSize: 'Maksimum fayl ölçüsü 10 MB-dır.',
+    avatarUploadError: 'Avatar yükləmə xətası',
+    processingAvatar: 'İşlənir (ImageSharp)...',
+    changeAvatar: 'Avatarı Dəyiş',
+    fullName: 'Tam Adınız',
+    updatePasswordDesc: 'Vəsaitlərinizi təhlükəsiz saxlamaq üçün hesabınızın şifrəsini müntəzəm olaraq yeniləyin.',
+    updatePasswordBtn: 'Şifrəni Yenilə',
+    cancel: 'Ləğv et'
   },
   ru: {
     title: 'Настройки и безопасность',
@@ -51,6 +67,14 @@ export const settingsLang = {
     twoFactor: 'Двухфакторная аутентификация (2FA)',
     twoFactorDesc: 'Запрашивать код из SMS или приложения при важных операциях.',
     saveChanges: 'Сохранить изменения',
-    saved: 'Настройки успешно сохранены!'
+    saved: 'Настройки успешно сохранены!',
+    maxFileSize: 'Максимальный размер файла — 10 МБ.',
+    avatarUploadError: 'Ошибка загрузки аватара',
+    processingAvatar: 'Обработка (ImageSharp)...',
+    changeAvatar: 'Изменить аватар',
+    fullName: 'Полное имя',
+    updatePasswordDesc: 'Регулярно обновляйте пароль, чтобы ваши средства были в безопасности.',
+    updatePasswordBtn: 'Сменить пароль',
+    cancel: 'Отмена'
   }
 }

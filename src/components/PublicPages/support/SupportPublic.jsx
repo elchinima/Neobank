@@ -46,7 +46,7 @@ function SupportPublic() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
-    if (isExpanded) {
+    if (isExpanded || isModalOpen) {
       document.body.classList.add('support-no-scroll')
       document.documentElement.classList.add('support-no-scroll')
     } else {
@@ -58,7 +58,7 @@ function SupportPublic() {
       document.body.classList.remove('support-no-scroll')
       document.documentElement.classList.remove('support-no-scroll')
     }
-  }, [isExpanded])
+  }, [isExpanded, isModalOpen])
 
   return (
     <div className="support-page">
@@ -192,6 +192,60 @@ function SupportPublic() {
               </>
             )}
           </div>
+        </section>
+
+        <section className="support-page__channels" id="faq" aria-labelledby="channels-title">
+          <div className="support-page__channels-heading">
+            <p className="support-page__eyebrow" data-lang-key="ticketsEyebrow">{t(supportLang, 'ticketsEyebrow')}</p>
+            <h2 id="channels-title" data-lang-key="ticketsTitle">{t(supportLang, 'ticketsTitle')}</h2>
+            <p data-lang-key="channelsDesc">
+              {t(supportLang, 'channelsDesc')}
+            </p>
+          </div>
+
+          <div className="support-page__channels-grid">
+            <article className="support-page__channel-card">
+              <span className="support-page__channel-index">01</span>
+              <p data-lang-key="faqQ1">{t(supportLang, 'faqQ1')}</p>
+              <h3 data-lang-key="faqTitle1">{t(supportLang, 'faqTitle1')}</h3>
+              <span data-lang-key="faqA1">{t(supportLang, 'faqA1')}</span>
+            </article>
+
+            <article className="support-page__channel-card">
+              <span className="support-page__channel-index">02</span>
+              <p data-lang-key="faqQ2">{t(supportLang, 'faqQ2')}</p>
+              <h3 data-lang-key="faqTitle2">{t(supportLang, 'faqTitle2')}</h3>
+              <span data-lang-key="faqA2">{t(supportLang, 'faqA2')}</span>
+            </article>
+
+            <article className="support-page__channel-card">
+              <span className="support-page__channel-index">03</span>
+              <p data-lang-key="faqQ3">{t(supportLang, 'faqQ3')}</p>
+              <h3 data-lang-key="faqTitle3">{t(supportLang, 'faqTitle3')}</h3>
+              <span data-lang-key="faqA3">{t(supportLang, 'faqA3')}</span>
+            </article>
+
+            <article className="support-page__channel-card">
+              <span className="support-page__channel-index">04</span>
+              <p data-lang-key="faqQ4">{t(supportLang, 'faqQ4')}</p>
+              <h3 data-lang-key="faqTitle4">{t(supportLang, 'faqTitle4')}</h3>
+              <span data-lang-key="faqA4">{t(supportLang, 'faqA4')}</span>
+            </article>
+          </div>
+
+          <section className="support-page__cta">
+            <div className="support-page__cta-inner">
+              <p className="support-page__eyebrow" data-lang-key="ctaEyebrow">{t(supportLang, 'ctaEyebrow')}</p>
+              <h2 data-lang-key="ctaTitle">{t(supportLang, 'ctaTitle')}</h2>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="support-page__button support-page__button--primary"
+                data-lang-key="submitTicket"
+              >
+                {t(supportLang, 'submitTicket')}
+              </button>
+            </div>
+          </section>
         </section>
       </main>
 

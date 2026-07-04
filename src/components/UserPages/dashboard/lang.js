@@ -18,7 +18,11 @@ export const dashboardLang = {
     food: 'Food & Dining',
     transport: 'Transport',
     entertainment: 'Entertainment',
-    utilities: 'Utilities'
+    utilities: 'Utilities',
+    activeAccount: 'Active Account',
+    loyalty: 'Loyalty',
+    totalSpent: 'Total spent',
+    expensesTrend: 'Expenses Trend'
   },
   az: {
     welcome: 'Xoş gəldiniz',
@@ -39,7 +43,11 @@ export const dashboardLang = {
     food: 'Yemək və Restoran',
     transport: 'Nəqliyyat',
     entertainment: 'Əyləncə',
-    utilities: 'Kommunal'
+    utilities: 'Kommunal',
+    activeAccount: 'Aktiv Hesab',
+    loyalty: 'Loyallıq',
+    totalSpent: 'Ümumi xərclənən',
+    expensesTrend: 'Xərclərin Qrafiki'
   },
   ru: {
     welcome: 'С возвращением',
@@ -60,6 +68,10 @@ export const dashboardLang = {
     food: 'Еда и рестораны',
     transport: 'Транспорт',
     entertainment: 'Развлечения',
-    utilities: 'Коммунальные'
+    utilities: 'Коммунальные',
+    activeAccount: 'Активный счет',
+    loyalty: 'Лояльность',
+    totalSpent: 'Всего потрачено',
+    expensesTrend: 'График расходов'
   }
 }

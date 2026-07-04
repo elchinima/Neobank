@@ -29,7 +29,7 @@ const Settings = () => {
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      setUploadError('Максимальный размер файла — 10 МБ.')
+      setUploadError(t(settingsLang, 'maxFileSize'))
       return
     }
 
@@ -51,7 +51,7 @@ const Settings = () => {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.message || 'Ошибка загрузки аватара')
+        throw new Error(data.message || t(settingsLang, 'avatarUploadError'))
       }
 
       setAvatarUrl(data.avatarUrl)
@@ -100,15 +100,16 @@ const Settings = () => {
                 className="change-avatar-btn"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
+                data-lang-key="changeAvatar"
               >
-                {uploadingAvatar ? 'Обработка (ImageSharp)...' : 'Change Avatar'}
+                {uploadingAvatar ? t(settingsLang, 'processingAvatar') : t(settingsLang, 'changeAvatar')}
               </button>
               {uploadError && <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>{uploadError}</p>}
             </div>
 
             <div className="profile-info-fields">
               <div className="field-group">
-                <label data-lang-key="firstName">Full Name</label>
+                <label data-lang-key="fullName">{t(settingsLang, 'fullName')}</label>
                 <input type="text" value={`${user?.firstName || 'User'} ${user?.lastName || ''}`} readOnly className="settings-input readonly" />
               </div>
 
@@ -144,11 +145,11 @@ const Settings = () => {
                 <img src={pinIcon} className="option-icon" alt="" />
                 <div>
                   <h3 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h3>
-                  <p>Update your account password regularly to keep your funds safe.</p>
+                  <p data-lang-key="updatePasswordDesc">{t(settingsLang, 'updatePasswordDesc')}</p>
                 </div>
               </div>
-              <button className="action-button" onClick={() => setIsPasswordModalOpen(true)} data-lang-key="changePassword">
-                {t(settingsLang, 'changePassword')}
+              <button className="action-button" onClick={() => setIsPasswordModalOpen(true)} data-lang-key="updatePasswordBtn">
+                {t(settingsLang, 'updatePasswordBtn')}
               </button>
             </div>
 
@@ -174,9 +175,13 @@ const Settings = () => {
       </div>
 
       {isPasswordModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h3>
+        <div className="settings-modal-overlay">
+          <div className="settings-modal">
+            <div className="settings-modal__header">
+              <h2 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h2>
+              <button className="close-btn" onClick={() => setIsPasswordModalOpen(false)}>✕</button>
+            </div>
+            <div className="settings-modal__content">
             <div className="field-group">
               <label data-lang-key="currentPassword">{t(settingsLang, 'currentPassword')}</label>
               <input
@@ -204,10 +209,10 @@ const Settings = () => {
                 className="settings-input"
               />
             </div>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={() => setIsPasswordModalOpen(false)}>Cancel</button>
-              <button className="save-btn" onClick={() => setIsPasswordModalOpen(false)} data-lang-key="saveChanges">
-                {t(settingsLang, 'saveChanges')}
+            <div className="settings-modal__footer">
+              <button className="modal-btn cancel" onClick={() => setIsPasswordModalOpen(false)}>{t(settingsLang, 'cancel')}</button>
+              <button className="modal-btn save" onClick={() => setIsPasswordModalOpen(false)} data-lang-key="updatePasswordBtn">
+                {t(settingsLang, 'updatePasswordBtn')}
               </button>
             </div>
           </div>

@@ -866,3 +866,88 @@
     }
   }
 }
+
+/* Missing modal styles for forms */
+.new-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    select, input {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 226, 138, 0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #FFFFFF;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      appearance: none;
+      
+      &:focus {
+        border-color: #F3C24A;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      option {
+        background: #17121F;
+        color: #fff;
+      }
+    }
+  }
+
+  .fee-payment-box {
+    background: rgba(243, 194, 74, 0.05);
+    border: 1px solid rgba(243, 194, 74, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+
+    .fee-payment-text {
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      color: #F3C24A;
+    }
+  }
+
+  .submit-order-btn {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
+.cards-loading {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+}
+
+.no-cards-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  gap: 16px;
+
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-size: 16px;
+  }
+}

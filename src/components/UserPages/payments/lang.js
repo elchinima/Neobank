@@ -13,7 +13,8 @@ export const paymentsLang = {
     recipient: 'Recipient Phone or Card Number',
     sourceCard: 'Select Source Card',
     pay: 'Pay Now',
-    transferNow: 'Transfer Now'
+    transferNow: 'Transfer Now',
+    paymentError: 'Payment deduction error'
   },
   az: {
     title: 'Ödənişlər və Köçürmələr',
@@ -29,7 +30,8 @@ export const paymentsLang = {
     recipient: 'Qəbul edənin telefon və ya kart nömrəsi',
     sourceCard: 'Mənbə kartı seçin',
     pay: 'İndi Ödə',
-    transferNow: 'İndi Köçür'
+    transferNow: 'İndi Köçür',
+    paymentError: 'Ödənişin silinməsində xəta'
   },
   ru: {
     title: 'Платежи и переводы',
@@ -45,6 +47,7 @@ export const paymentsLang = {
     recipient: 'Номер телефона или карты получателя',
     sourceCard: 'Выберите карту списания',
     pay: 'Оплатить сейчас',
-    transferNow: 'Перевести сейчас'
+    transferNow: 'Перевести сейчас',
+    paymentError: 'Ошибка списания платежа'
   }
 }
