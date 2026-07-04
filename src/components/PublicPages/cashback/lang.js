@@ -36,7 +36,19 @@ export const cashbackLang = {
     cat6Text: 'Online marketplace purchases through popular platforms.',
     cat7Title: 'Other payments',
     cat7Text: 'A base reward for payments outside the main categories.',
-    startEarning: 'Start earning cashback'
+    startEarning: 'Start earning cashback',
+    programDesc: 'NeoBank can support a category-based cashback model or a simpler universal model. Both include the special public transport reward.',
+    optionA: 'Option A',
+    optionATitle: 'Category rewards',
+    optionB: 'Option B',
+    optionBTitle: 'Simple rewards',
+    or: 'or',
+    simple0Title: 'Every 5th metro or bus ride',
+    simple0Text: 'The transit bonus stays active in the simplified plan.',
+    simple1Title: 'All payments',
+    simple1Text: 'One clean cashback rate for every eligible purchase.',
+    note0: 'Maximum cashback limit is 350 AZN per month.',
+    note1: 'The 5th transit ride cashback is calculated from the average price of all five rides.'
   },
   az: {
     navHome: 'Ana səhifə',
@@ -75,7 +87,19 @@ export const cashbackLang = {
     cat6Text: 'Məşhur platformalar vasitəsilə onlayn bazar alış-verişləri.',
     cat7Title: 'Digər ödənişlər',
     cat7Text: 'Əsas kateqoriyalardan kənar ödənişlər üçün baza mükafatı.',
-    startEarning: 'Kəşbək qazanmağa başla'
+    startEarning: 'Kəşbək qazanmağa başla',
+    programDesc: 'NeoBank kateqoriya əsaslı keşbek modelini və ya daha sadə universal modeli dəstəkləyir. Hər ikisinə xüsusi ictimai nəqliyyat mükafatı daxildir.',
+    optionA: 'Variant A',
+    optionATitle: 'Kateqoriya mükafatları',
+    optionB: 'Variant B',
+    optionBTitle: 'Sadə mükafatlar',
+    or: 'və ya',
+    simple0Title: 'Hər 5-ci metro və ya avtobus gedişi',
+    simple0Text: 'Tranzit bonusu sadələşdirilmiş planda aktiv qalır.',
+    simple1Title: 'Bütün ödənişlər',
+    simple1Text: 'Hər bir uyğun alış üçün tək bir təmiz keşbek dərəcəsi.',
+    note0: 'Maksimum keşbek limiti ayda 350 AZN-dir.',
+    note1: '5-ci tranzit gedişi keşbeki hər beş gedişin orta qiymətindən hesablanır.'
   },
   ru: {
     navHome: 'Главная',
@@ -114,6 +138,18 @@ export const cashbackLang = {
     cat6Text: 'Онлайн-покупки на популярный маркетплейсах.',
     cat7Title: 'Другие платежи',
     cat7Text: 'Базовое вознаграждение за любые другие покупки.',
-    startEarning: 'Начать получать кэшбэк'
+    startEarning: 'Начать получать кэшбэк',
+    programDesc: 'NeoBank поддерживает модель кэшбэка на основе категорий или более простую универсальную модель. Обе включают специальное вознаграждение за общественный транспорт.',
+    optionA: 'Вариант А',
+    optionATitle: 'Вознаграждения по категориям',
+    optionB: 'Вариант Б',
+    optionBTitle: 'Простые вознаграждения',
+    or: 'или',
+    simple0Title: 'Каждая 5-я поездка на метро или автобусе',
+    simple0Text: 'Транзитный бонус остается активным в упрощенном плане.',
+    simple1Title: 'Все платежи',
+    simple1Text: 'Единая ставка кэшбэка для каждой подходящей покупки.',
+    note0: 'Максимальный лимит кэшбэка составляет 350 AZN в месяц.',
+    note1: 'Кэшбэк за 5-ю поездку рассчитывается от средней стоимости всех пяти поездок.'
   }
 }

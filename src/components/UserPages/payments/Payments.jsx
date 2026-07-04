@@ -151,7 +151,7 @@ const Payments = () => {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.message || 'Ошибка списания платежа')
+        throw new Error(data.message || t(paymentsLang, 'paymentError'))
       }
 
       setPaymentStatus('success')

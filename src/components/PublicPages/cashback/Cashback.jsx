@@ -24,6 +24,16 @@ function Cashback() {
     { titleKey: 'cat7Title', rate: '0.1%', textKey: 'cat7Text' },
   ]
 
+  const simpleProgram = [
+    { titleKey: 'simple0Title', rate: '100%', textKey: 'simple0Text' },
+    { titleKey: 'simple1Title', rate: '1%', textKey: 'simple1Text' },
+  ]
+
+  const cashbackNotes = [
+    'note0',
+    'note1',
+  ]
+
   const stats = [
     { labelKey: 'stat0Label', value: '100%', subKey: 'stat0Sub' },
     { labelKey: 'stat1Label', value: 'Up to 5%', subKey: 'stat1Sub' },
@@ -101,23 +111,67 @@ function Cashback() {
           </div>
         </section>
 
-        <section className="cashback-page__program" id="cashback-program" aria-labelledby="cashback-program-title">
-          <div className="cashback-page__program-heading">
+        <section className="cashback-page__plans" id="cashback-program" aria-labelledby="cashback-plans-title">
+          <div className="cashback-page__plans-heading">
             <p className="cashback-page__eyebrow" data-lang-key="programEyebrow">{t(cashbackLang, 'programEyebrow')}</p>
-            <h2 id="cashback-program-title" data-lang-key="programTitle">{t(cashbackLang, 'programTitle')}</h2>
+            <h2 id="cashback-plans-title" data-lang-key="programTitle">{t(cashbackLang, 'programTitle')}</h2>
+            <p data-lang-key="programDesc">
+              {t(cashbackLang, 'programDesc')}
+            </p>
           </div>
 
-          <div className="cashback-page__grid">
-            {categoryProgram.map((item) => (
-              <article className="cashback-page__card" key={item.titleKey}>
-                <div className="cashback-page__card-header">
-                  <h3 data-lang-key={item.titleKey}>{t(cashbackLang, item.titleKey)}</h3>
-                  <span className="cashback-page__rate-badge">{item.rate}</span>
-                </div>
-                <p data-lang-key={item.textKey}>{t(cashbackLang, item.textKey)}</p>
-              </article>
-            ))}
+          <div className="cashback-page__plans-grid">
+            <article className="cashback-page__plan cashback-page__plan--featured">
+              <div className="cashback-page__plan-header">
+                <span data-lang-key="optionA">{t(cashbackLang, 'optionA')}</span>
+                <h3 data-lang-key="optionATitle">{t(cashbackLang, 'optionATitle')}</h3>
+              </div>
+
+              <div className="cashback-page__offers">
+                {categoryProgram.map((item) => (
+                  <div className="cashback-page__offer" key={item.titleKey}>
+                    <strong>{item.rate}</strong>
+                    <div>
+                      <h4 data-lang-key={item.titleKey}>{t(cashbackLang, item.titleKey)}</h4>
+                      <p data-lang-key={item.textKey}>{t(cashbackLang, item.textKey)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <div className="cashback-page__or" aria-hidden="true">
+              <span data-lang-key="or">{t(cashbackLang, 'or')}</span>
+            </div>
+
+            <article className="cashback-page__plan">
+              <div className="cashback-page__plan-header">
+                <span data-lang-key="optionB">{t(cashbackLang, 'optionB')}</span>
+                <h3 data-lang-key="optionBTitle">{t(cashbackLang, 'optionBTitle')}</h3>
+              </div>
+
+              <div className="cashback-page__offers">
+                {simpleProgram.map((item) => (
+                  <div className="cashback-page__offer" key={item.titleKey}>
+                    <strong>{item.rate}</strong>
+                    <div>
+                      <h4 data-lang-key={item.titleKey}>{t(cashbackLang, item.titleKey)}</h4>
+                      <p data-lang-key={item.textKey}>{t(cashbackLang, item.textKey)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
           </div>
+
+          <aside className="cashback-page__notes" aria-label="Cashback notes">
+            {cashbackNotes.map((noteKey, index) => (
+              <div className="cashback-page__note" key={noteKey}>
+                <strong>{String(index + 1).padStart(2, '0')}</strong>
+                <p data-lang-key={noteKey}>{t(cashbackLang, noteKey)}</p>
+              </div>
+            ))}
+          </aside>
 
           <div className="cashback-page__footer-cta">
             <Link to="/register" className="cashback-page__button cashback-page__button--primary" data-lang-key="startEarning">

@@ -91,6 +91,18 @@ const Dashboard = () => {
     }
   })
 
+  // Dummy trend data generated based on totalExpenses for visual completeness
+  const trendData = [
+    { label: '08:00', value: (dashboardData.totalExpenses * 0.15) || 12 },
+    { label: '10:00', value: (dashboardData.totalExpenses * 0.10) || 5 },
+    { label: '12:00', value: (dashboardData.totalExpenses * 0.25) || 95 },
+    { label: '14:00', value: (dashboardData.totalExpenses * 0.20) || 42 },
+    { label: '16:00', value: (dashboardData.totalExpenses * 0.05) || 105 },
+    { label: '18:00', value: (dashboardData.totalExpenses * 0.25) || 25 }
+  ]
+  const maxTrendValue = Math.max(...trendData.map(t => t.value), 1)
+  const heightMax = 140
+
   return (
     <div className={`dashboard-view ${animateIn ? 'dashboard-view--loaded' : ''}`}>
       <header className="dashboard-view__header">
@@ -128,7 +140,7 @@ const Dashboard = () => {
         <div className="dashboard-view__card dashboard-view__card--balance">
           <div className="dashboard-view__card-header">
             <span data-lang-key="totalBalance">{t(dashboardLang, 'totalBalance')}</span>
-            <span className="dashboard-view__card-badge">Active Account</span>
+            <span className="dashboard-view__card-badge" data-lang-key="activeAccount">{t(dashboardLang, 'activeAccount')}</span>
           </div>
           <div className="dashboard-view__balance-amount">
             {Number(dashboardData.totalBalance).toLocaleString('en-US', { minimumFractionDigits: 2 })} <small>AZN</small>
@@ -148,7 +160,7 @@ const Dashboard = () => {
         <div className="dashboard-view__card dashboard-view__card--bonuses">
           <div className="dashboard-view__card-header">
             <span data-lang-key="bonuses">{t(dashboardLang, 'bonuses')}</span>
-            <span className="dashboard-view__card-badge dashboard-view__card-badge--gold">Loyalty</span>
+            <span className="dashboard-view__card-badge dashboard-view__card-badge--gold" data-lang-key="loyalty">{t(dashboardLang, 'loyalty')}</span>
           </div>
 
           <div className="dashboard-view__bonuses-content">
@@ -188,6 +200,71 @@ const Dashboard = () => {
       </div>
 
       <div className="dashboard-view__charts-grid">
+        <section className="dashboard-view__chart-card" aria-labelledby="expenses-trend-title">
+          <div className="dashboard-view__chart-header">
+            <h2 id="expenses-trend-title" data-lang-key="expensesTrend">{t(dashboardLang, 'expensesTrend')}</h2>
+            <span className="trend-total">Total: -{Number(dashboardData.totalExpenses).toLocaleString('en-US', { minimumFractionDigits: 2 })} AZN</span>
+          </div>
+
+          <div className="trend-chart-container">
+            <div className={`trend-chart-tooltip ${hoveredBar !== null ? 'trend-chart-tooltip--visible' : ''}`}>
+              {hoveredBar !== null && trendData[hoveredBar] && (
+                <>
+                  <span className="trend-chart-tooltip__label">{trendData[hoveredBar].label}</span>
+                  <strong className="trend-chart-tooltip__value">-{trendData[hoveredBar].value.toFixed(2)} AZN</strong>
+                </>
+              )}
+            </div>
+
+            <svg viewBox="0 0 500 220" width="100%" height="100%" className="trend-chart-svg">
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#A020F0" stopOpacity="0.88" />
+                  <stop offset="70%" stopColor="#5B168F" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#17121F" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+              <text x="30" y="34" className="chart-axis-text" textAnchor="end">{(maxTrendValue * 1.0).toFixed(0)}</text>
+              <text x="30" y="84" className="chart-axis-text" textAnchor="end">{(maxTrendValue * 0.6).toFixed(0)}</text>
+              <text x="30" y="134" className="chart-axis-text" textAnchor="end">{(maxTrendValue * 0.3).toFixed(0)}</text>
+              <text x="30" y="184" className="chart-axis-text" textAnchor="end">0</text>
+
+              {trendData.map((point, index) => {
+                const count = trendData.length
+                const chartWidth = 440
+                const sectionWidth = chartWidth / count
+                const barWidth = Math.min(sectionWidth * 0.45, 32)
+                const x = 40 + (index * sectionWidth) + (sectionWidth / 2) - (barWidth / 2)
+                
+                const barHeight = point.value === 0 ? 3 : (point.value / maxTrendValue) * heightMax
+                const y = 180 - barHeight
+
+                const isHovered = hoveredBar === index
+
+                return (
+                  <rect
+                    key={`bar-${index}`}
+                    className="trend-bar"
+                    x={x}
+                    y={y}
+                    width={barWidth}
+                    height={barHeight}
+                    rx="4"
+                    fill="url(#barGradient)"
+                    style={{
+                      opacity: isHovered ? 1 : 0.7,
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={() => setHoveredBar(index)}
+                    onMouseLeave={() => setHoveredBar(null)}
+                  />
+                )
+              })}
+            </svg>
+          </div>
+        </section>
+
         <section className="dashboard-view__chart-card" aria-labelledby="expenses-categories-title">
           <div className="dashboard-view__chart-header">
             <h2 id="expenses-categories-title" data-lang-key="expenses">{t(dashboardLang, 'expenses')}</h2>
@@ -233,7 +310,7 @@ const Dashboard = () => {
               </svg>
 
               <div className="doughnut-center-info">
-                <span>Total spent</span>
+                <span data-lang-key="totalSpent">{t(dashboardLang, 'totalSpent')}</span>
                 <strong>
                   -{Number(dashboardData.totalExpenses).toLocaleString('en-US', { maximumFractionDigits: 2 })}
                   <small>AZN</small>

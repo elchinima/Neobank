@@ -109,17 +109,18 @@ const Cards = () => {
     setNewCardError('')
 
 
-    if (cards.some(c => c.cardType.toLowerCase() === newCardForm.cardType.toLowerCase())) {
-      setNewCardError(`Вы уже владеете картой типа ${newCardForm.cardType}. Каждому пользователю разрешено иметь только 1 карту каждого типа.`)
+    const existingSameType = cards.find(c => c.cardType === newCardForm.cardType)
+    if (existingSameType) {
+      setNewCardError(t(userCardsLang, 'cardLimitReached').replace('{cardType}', newCardForm.cardType))
       return
     }
 
     const fee = newCardForm.cardType === 'Premium' ? 10 : (newCardForm.cardType === 'Elite' ? 25 : 0)
 
     if (fee > 0 && newCardForm.paymentMethod === 'balance') {
-      const source = cards.find(c => c.id === newCardForm.sourceCardId)
-      if (!source || source.balance < fee) {
-        setNewCardError(`Недостаточно средств на выбранной карте для оплаты первого месяца (${fee} AZN).`)
+      const sourceCard = cards.find(c => c.id === newCardForm.sourceCardId)
+      if (!sourceCard || sourceCard.balance < fee) {
+        setNewCardError(t(userCardsLang, 'insufficientFunds').replace('{fee}', fee))
         return
       }
     }
@@ -142,7 +143,7 @@ const Cards = () => {
 
       const data = await res.json()
       if (!res.ok) {
-        throw new Error(data.message || 'Ошибка оформления карты')
+        throw new Error(data.message || t(userCardsLang, 'orderCardError'))
       }
 
       setShowNewCardModal(false)
@@ -181,12 +182,12 @@ const Cards = () => {
       </div>
 
       {loading ? (
-        <div className="cards-loading">Загрузка карт...</div>
+        <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
       ) : cards.length === 0 ? (
         <div className="no-cards-banner">
-          <p>У вас пока нет оформленных карт.</p>
+          <p data-lang-key="noCards">{t(userCardsLang, 'noCards')}</p>
           <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
-            <span>Оформить первую карту</span>
+            <span data-lang-key="orderFirstCard">{t(userCardsLang, 'orderFirstCard')}</span>
           </button>
         </div>
       ) : (
@@ -210,7 +211,7 @@ const Cards = () => {
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
                 <div className="card-balance">
-                  <span className="label">Available Balance</span>
+                  <span className="label" data-lang-key="availableBalance">{t(userCardsLang, 'availableBalance')}</span>
                   <span className="amount">{Number(card.balance).toFixed(2)} AZN</span>
                 </div>
                 <div className="card-actions">
@@ -220,8 +221,9 @@ const Cards = () => {
                       e.stopPropagation();
                       setSelectedTransferCard(card);
                     }}
+                    data-lang-key="transfer"
                   >
-                    Transfer
+                    {t(userCardsLang, 'transfer')}
                   </button>
                   <button
                     className="action-btn"
@@ -229,8 +231,9 @@ const Cards = () => {
                       e.stopPropagation();
                       setSelectedSettingsCard(card);
                     }}
+                    data-lang-key="settings"
                   >
-                    Settings
+                    {t(userCardsLang, 'settings')}
                   </button>
                 </div>
               </div>
@@ -243,11 +246,11 @@ const Cards = () => {
         <div className="cashback-section-header">
           <div className="cashback-title-row">
             <img src={shoppingBubbleIcon} className="cashback-section-icon" alt="" />
-            <h2>Cashback Categories</h2>
+            <h2 data-lang-key="cashbackCategories">{t(userCardsLang, 'cashbackCategories')}</h2>
             <button className="info-toggle-btn" onClick={() => setShowLimits(!showLimits)}>i</button>
           </div>
           <div className="total-cashback">
-            <span>Total Earned: </span>
+            <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
             <strong>{totalEarned} ₼</strong>
           </div>
         </div>
@@ -260,8 +263,8 @@ const Cards = () => {
                 <p>{item.text}</p>
                 {showLimits && (
                   <div className="cashback-limits">
-                    <span className="limit">Limit: 10 ₼</span>
-                    <span className="earned">Earned: {item.earned.toFixed(2)} ₼</span>
+                    <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
+                    <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {item.earned.toFixed(2)} ₼</span>
                   </div>
                 )}
               </div>
@@ -273,11 +276,11 @@ const Cards = () => {
       <div className="cards-footer">
         <button className="scan-qr-btn">
           <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
-          <span>Scan QR code</span>
+          <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
         </button>
         <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
           <img src={addProductIcon} className="btn-svg-icon" alt="" />
-          <span>Add new product</span>
+          <span data-lang-key="addNewProduct">{t(userCardsLang, 'addNewProduct')}</span>
         </button>
       </div>
 
@@ -286,7 +289,7 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowNewCardModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2>Оформление новой карты</h2>
+              <h2 data-lang-key="orderNewCardModalTitle">{t(userCardsLang, 'orderNewCardModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
@@ -294,19 +297,19 @@ const Cards = () => {
                 {newCardError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newCardError}</div>}
 
                 <div className="form-group">
-                  <label>Тип карты</label>
+                  <label data-lang-key="cardType">{t(userCardsLang, 'cardType')}</label>
                   <select
                     value={newCardForm.cardType}
                     onChange={e => setNewCardForm({ ...newCardForm, cardType: e.target.value })}
                   >
-                    <option value="Standard">Standard (0.00 AZN / мес)</option>
-                    <option value="Premium">Premium (10.00 AZN / мес)</option>
-                    <option value="Elite">Elite (25.00 AZN / мес)</option>
+                    <option value="Standard">Standard (0.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Premium">Premium (10.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Elite">Elite (25.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>Платежная система</label>
+                  <label data-lang-key="paymentNetwork">{t(userCardsLang, 'paymentNetwork')}</label>
                   <select
                     value={newCardForm.network}
                     onChange={e => setNewCardForm({ ...newCardForm, network: e.target.value })}
@@ -317,25 +320,25 @@ const Cards = () => {
                 </div>
 
                 {(newCardForm.cardType === 'Premium' || newCardForm.cardType === 'Elite') && (
-                  <div className="fee-payment-box" style={{ background: '#1d1929', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                    <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#ffd700' }}>
-                      Оплата первого месяца подписки ({newCardForm.cardType === 'Premium' ? '10' : '25'} AZN):
+                  <div className="fee-payment-box">
+                    <p className="fee-payment-text">
+                      <span data-lang-key="feePaymentBoxText">{t(userCardsLang, 'feePaymentBoxText')}</span> ({newCardForm.cardType === 'Premium' ? '10' : '25'} AZN):
                     </p>
 
                     <div className="form-group">
-                      <label>Способ оплаты</label>
+                      <label data-lang-key="paymentMethod">{t(userCardsLang, 'paymentMethod')}</label>
                       <select
                         value={newCardForm.paymentMethod}
                         onChange={e => setNewCardForm({ ...newCardForm, paymentMethod: e.target.value })}
                       >
-                        <option value="balance">С баланса имеющейся карты</option>
-                        <option value="stripe">Картой любого банка (Stripe)</option>
+                        <option value="balance">{t(userCardsLang, 'balanceMethod')}</option>
+                        <option value="stripe">{t(userCardsLang, 'stripeMethod')}</option>
                       </select>
                     </div>
 
                     {newCardForm.paymentMethod === 'balance' && (
                       <div className="form-group">
-                        <label>Выберите карту для списания</label>
+                        <label data-lang-key="selectSourceCard">{t(userCardsLang, 'selectSourceCard')}</label>
                         <select
                           value={newCardForm.sourceCardId}
                           onChange={e => setNewCardForm({ ...newCardForm, sourceCardId: e.target.value })}
@@ -353,11 +356,10 @@ const Cards = () => {
 
                 <button
                   type="submit"
-                  className="cards-page__button cards-page__button--primary"
-                  style={{ width: '100%', padding: '12px', marginTop: '12px' }}
+                  className="cards-page__button cards-page__button--primary submit-order-btn"
                   disabled={submittingCard}
                 >
-                  {submittingCard ? 'Оформление...' : 'Заказать карту'}
+                  {submittingCard ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitCard')}
                 </button>
               </form>
             </div>
@@ -369,48 +371,48 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setSelectedSettingsCard(null)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2>Card Settings</h2>
+              <h2 data-lang-key="settings">{t(userCardsLang, 'settings')}</h2>
               <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section">
-                <h3>Card Details</h3>
+                <h3 data-lang-key="cardDetails">{t(userCardsLang, 'cardDetails')}</h3>
                 <div className="detail-row">
-                  <span className="label">Cardholder</span>
+                  <span className="label" data-lang-key="cardholder">{t(userCardsLang, 'cardholder')}</span>
                   <span className="value">{selectedSettingsCard.holderName}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">Type</span>
+                  <span className="label" data-lang-key="cardType">{t(userCardsLang, 'cardType')}</span>
                   <span className="value">{selectedSettingsCard.cardType} ({selectedSettingsCard.network})</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">Number</span>
+                  <span className="label" data-lang-key="number">{t(userCardsLang, 'number')}</span>
                   <span className="value">{selectedSettingsCard.cardNumber}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">Expiry Date</span>
+                  <span className="label" data-lang-key="expiry">{t(userCardsLang, 'expiry')}</span>
                   <span className="value">{selectedSettingsCard.expiryDate}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">CVV</span>
+                  <span className="label" data-lang-key="cvv">{t(userCardsLang, 'cvv')}</span>
                   <span className="value">{selectedSettingsCard.cvv}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">Status</span>
-                  <span className={`status ${selectedSettingsCard.status.toLowerCase()}`}>{selectedSettingsCard.status}</span>
+                  <span className="label" data-lang-key="status">{t(userCardsLang, 'status')}</span>
+                  <span className={`status ${selectedSettingsCard.status.toLowerCase()}`}>{t(userCardsLang, selectedSettingsCard.status.toLowerCase(), selectedSettingsCard.status)}</span>
                 </div>
               </div>
 
               <div className="settings-section">
-                <h3>Settings</h3>
+                <h3 data-lang-key="settings">{t(userCardsLang, 'settings')}</h3>
                 <button
                   className="settings-action-btn danger"
                   onClick={() => handleToggleBlock(selectedSettingsCard.id)}
                 >
                   <img src={blockIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">{selectedSettingsCard.status === 'Active' ? 'Block Plastic Card' : 'Unblock Plastic Card'}</span>
-                    <span className="btn-subtitle">Toggle card status</span>
+                    <span className="btn-title">{selectedSettingsCard.status === 'Active' ? t(userCardsLang, 'blockPlasticCard') : t(userCardsLang, 'unblockPlasticCard')}</span>
+                    <span className="btn-subtitle" data-lang-key="toggleCardStatus">{t(userCardsLang, 'toggleCardStatus')}</span>
                   </div>
                 </button>
               </div>

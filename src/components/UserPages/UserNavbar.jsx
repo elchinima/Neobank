@@ -65,7 +65,7 @@ const UserNavbar = () => {
       </div>
 
       <div className="user-navbar__nav-actions">
-        <Link to="/user/dashboard" className="user-navbar__profile" title="Перейти в личный кабинет">
+        <Link to="/user/dashboard" className="user-navbar__profile" title={t(navbarLang, 'profileTooltip')}>
           <div className="user-navbar__avatar">
             {user?.avatarUrl ? (
               <img src={user.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
