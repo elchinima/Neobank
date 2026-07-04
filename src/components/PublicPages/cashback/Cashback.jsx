@@ -34,11 +34,7 @@ function Cashback() {
     'note1',
   ]
 
-  const stats = [
-    { labelKey: 'stat0Label', value: '100%', subKey: 'stat0Sub' },
-    { labelKey: 'stat1Label', value: 'Up to 5%', subKey: 'stat1Sub' },
-    { labelKey: 'stat2Label', value: '0.1%', subKey: 'stat2Sub', mobileOnly: true },
-  ]
+
 
   return (
     <div className="cashback-page">
@@ -87,19 +83,6 @@ function Cashback() {
               <Link to="/register" className="cashback-page__button cashback-page__button--light" data-lang-key="getCard">
                 {t(cashbackLang, 'getCard')}
               </Link>
-            </div>
-
-            <div className="cashback-page__hero-stats" aria-label="Cashback overview">
-              {stats.map((stat) => (
-                <div
-                  className={`cashback-page__hero-stat${stat.mobileOnly ? ' cashback-page__hero-stat--mobile-only' : ''}`}
-                  key={stat.labelKey}
-                >
-                  <span data-lang-key={stat.labelKey}>{t(cashbackLang, stat.labelKey)}</span>
-                  <strong>{stat.value}</strong>
-                  <small data-lang-key={stat.subKey}>{t(cashbackLang, stat.subKey)}</small>
-                </div>
-              ))}
             </div>
           </div>
 
