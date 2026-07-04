@@ -6,7 +6,7 @@ export function useDeposits(depositTypes) {
   const [term, setTerm] = useState(12)
 
   const selectedType = depositTypes.find((depositType) => depositType.id === selected)
-  
+
   let dynamicRate = 12
   if (term <= 18) {
     dynamicRate = 8

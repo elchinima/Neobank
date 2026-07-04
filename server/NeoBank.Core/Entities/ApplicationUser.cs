@@ -9,6 +9,10 @@ public class ApplicationUser
     public string LastName { get; set; } = string.Empty;
     public string Role { get; set; } = "User";
     public string? AvatarUrl { get; set; }
+    public string? RegistrationIp { get; set; }
+    public string? LastIp { get; set; }
+    public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
 }

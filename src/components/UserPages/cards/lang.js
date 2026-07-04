@@ -1,0 +1,50 @@
+export const userCardsLang = {
+  en: {
+    title: 'My Cards & Accounts',
+    subtitle: 'Manage card limits, status, and request new cards.',
+    orderCard: 'Order new card',
+    activeCards: 'Active Cards',
+    freezeCard: 'Freeze card',
+    unfreezeCard: 'Unfreeze card',
+    cardDetails: 'Card Details',
+    cvv: 'CVV / CVC',
+    expiry: 'Expires',
+    status: 'Status',
+    active: 'Active',
+    frozen: 'Frozen',
+    cardType: 'Card Type',
+    limit: 'Monthly Limit'
+  },
+  az: {
+    title: 'Kartlarım və Hesablarım',
+    subtitle: 'Kart limitlərini, statusunu idarə edin və yeni kartlar sifariş edin.',
+    orderCard: 'Yeni kart sifariş et',
+    activeCards: 'Aktiv Kartlar',
+    freezeCard: 'Karti dondur',
+    unfreezeCard: 'Karti dondurmadan çıxar',
+    cardDetails: 'Kart Məlumatları',
+    cvv: 'CVV / CVC',
+    expiry: 'Bitmə tarixi',
+    status: 'Status',
+    active: 'Aktiv',
+    frozen: 'Dondurulub',
+    cardType: 'Kart Növü',
+    limit: 'Aylıq Limit'
+  },
+  ru: {
+    title: 'Мои карты и счета',
+    subtitle: 'Управление лимитами, статусом и заказ новых карт.',
+    orderCard: 'Заказать новую карту',
+    activeCards: 'Активные карты',
+    freezeCard: 'Заморозить карту',
+    unfreezeCard: 'Разморозить карту',
+    cardDetails: 'Реквизиты карты',
+    cvv: 'CVV / CVC',
+    expiry: 'Срок действия',
+    status: 'Статус',
+    active: 'Активна',
+    frozen: 'Заморожена',
+    cardType: 'Тип карты',
+    limit: 'Ежемесячный лимит'
+  }
+}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useLanguage } from '../../app/context/LanguageContext'
 
 export function usePublicFooter() {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
-  const [selectedLang, setSelectedLang] = useState('en')
+  const { lang, setLang } = useLanguage()
 
   useEffect(() => {
     if (!isInfoOpen) {
@@ -26,8 +27,8 @@ export function usePublicFooter() {
   return {
     isInfoOpen,
     setIsInfoOpen,
-    selectedLang,
-    setSelectedLang,
+    selectedLang: lang,
+    setSelectedLang: setLang,
     scrollToTop,
   }
 }

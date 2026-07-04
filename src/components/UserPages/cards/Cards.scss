@@ -3,7 +3,7 @@
 .user-cards-page {
   width: 100%;
   color: #FFFFFF;
-  
+
   .cards-header {
     display: flex;
     justify-content: space-between;
@@ -24,7 +24,7 @@
     gap: 24px;
     padding-top: 8px;
 
-    /* Mobile Carousel */
+
     @media (max-width: 768px) {
       display: flex;
       flex-wrap: nowrap;
@@ -32,13 +32,13 @@
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       gap: 16px;
-      padding-bottom: 16px; /* Space for scrollbar */
-      /* Hide scrollbar for cleaner look */
+      padding-bottom: 16px;
+
       &::-webkit-scrollbar {
         display: none;
       }
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   }
 
@@ -63,14 +63,14 @@
     &.active {
       transform: translateY(-5px);
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(160, 32, 240, 0.3); /* Purple accent from theme */
+      border-color: rgba(160, 32, 240, 0.3);
     }
 
     .card-image-wrapper {
       width: 100%;
       border-radius: 12px;
       overflow: hidden;
-      
+
       .card-image {
         width: 100%;
         height: auto;
@@ -101,7 +101,7 @@
           font-weight: 600;
           padding: 6px 12px;
           border-radius: 20px;
-          
+
           &.active {
             background: rgba(0, 168, 67, 0.2);
             color: #00d656;
@@ -229,12 +229,12 @@
         padding: 8px 16px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        
+
         span {
           color: rgba(255, 255, 255, 0.7);
           font-size: 14px;
         }
-        
+
         strong {
           color: #a020f0;
           font-size: 16px;
@@ -310,24 +310,24 @@
             padding-top: 10px;
             border-top: 1px dashed rgba(255, 255, 255, 0.1);
             animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            
+
             @media (max-width: 768px) {
               flex-direction: row;
               align-items: center;
             }
-            
+
             span {
               font-size: 11.5px;
               font-weight: 600;
               padding: 4px 6px;
               border-radius: 6px;
               white-space: nowrap;
-              
+
               &.limit {
                 background: rgba(255, 255, 255, 0.05);
                 color: rgba(255, 255, 255, 0.8);
               }
-              
+
               &.earned {
                 background: rgba(160, 32, 240, 0.1);
                 color: #b185fa;
@@ -444,7 +444,7 @@
           border-color: rgba(255, 255, 255, 0.1);
           transform: translateY(-2px);
         }
-        
+
         .receipt-info {
           h4 {
             margin: 0 0 4px 0;
@@ -515,7 +515,7 @@
       font-size: 16px;
       cursor: pointer;
       transition: all 0.2s ease;
-      
+
       .btn-svg-icon {
         width: 32px;
         height: 32px;
@@ -527,7 +527,7 @@
         height: 54px;
         border-radius: 50%;
         padding: 0;
-        
+
         span {
           display: none;
         }
@@ -552,7 +552,7 @@
         border-color: rgba(255, 255, 255, 0.2);
         transform: translateY(-2px);
       }
-      
+
       &:active {
         transform: translateY(0);
       }
@@ -571,7 +571,7 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(160, 32, 240, 0.5);
       }
-      
+
       &:active {
         transform: translateY(0);
       }
@@ -597,7 +597,7 @@
     top: 0;
     height: 100%;
     padding: 0;
-    z-index: 1001; // Above navbar
+    z-index: 1001;
     align-items: stretch;
   }
 
@@ -670,7 +670,7 @@
 
   &__content {
     padding: 20px 24px 24px;
-    
+
     .settings-section {
       margin-bottom: 32px;
 
@@ -714,7 +714,7 @@
           font-weight: 600;
           padding: 4px 10px;
           border-radius: 20px;
-          
+
           &.active {
             background: rgba(0, 168, 67, 0.2);
             color: #00d656;
@@ -765,7 +765,7 @@
 
         &.danger {
           color: #fc8181;
-          
+
           &:hover {
             border-left: 4px solid #fc8181;
             background: rgba(229, 62, 62, 0.1);
@@ -789,7 +789,7 @@
     max-height: calc(100vh - 160px);
   }
 
-  /* Custom scrollbar matching site style */
+
   &::-webkit-scrollbar {
     width: 10px;
   }

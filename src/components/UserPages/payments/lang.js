@@ -1,0 +1,50 @@
+export const paymentsLang = {
+  en: {
+    title: 'Payments & Transfers',
+    subtitle: 'Pay utilities, mobile, internet, and transfer funds instantly.',
+    mobile: 'Mobile Operator',
+    utilities: 'Utilities',
+    internet: 'Internet & TV',
+    transfers: 'Money Transfer',
+    cardToCard: 'Card to Card',
+    phoneTransfer: 'By Phone Number',
+    accountTransfer: 'Bank Account Transfer',
+    amount: 'Amount',
+    recipient: 'Recipient Phone or Card Number',
+    sourceCard: 'Select Source Card',
+    pay: 'Pay Now',
+    transferNow: 'Transfer Now'
+  },
+  az: {
+    title: 'Ödənişlər və Köçürmələr',
+    subtitle: 'Kommunal, mobil, internet ödənişləri edin və anında pul köçürün.',
+    mobile: 'Mobil Operatorlar',
+    utilities: 'Kommunal Ödənişlər',
+    internet: 'İnternet və TV',
+    transfers: 'Pul Köçürmələri',
+    cardToCard: 'Kartdan Karta',
+    phoneTransfer: 'Telefon Nömrəsi ilə',
+    accountTransfer: 'Bank Hesabına',
+    amount: 'Məbləğ',
+    recipient: 'Qəbul edənin telefon və ya kart nömrəsi',
+    sourceCard: 'Mənbə kartı seçin',
+    pay: 'İndi Ödə',
+    transferNow: 'İndi Köçür'
+  },
+  ru: {
+    title: 'Платежи и переводы',
+    subtitle: 'Оплата коммунальных услуг, связи, интернета и мгновенные переводы.',
+    mobile: 'Мобильная связь',
+    utilities: 'Коммунальные услуги',
+    internet: 'Интернет и ТВ',
+    transfers: 'Денежные переводы',
+    cardToCard: 'С карты на карту',
+    phoneTransfer: 'По номеру телефона',
+    accountTransfer: 'На банковский счет',
+    amount: 'Сумма',
+    recipient: 'Номер телефона или карты получателя',
+    sourceCard: 'Выберите карту списания',
+    pay: 'Оплатить сейчас',
+    transferNow: 'Перевести сейчас'
+  }
+}

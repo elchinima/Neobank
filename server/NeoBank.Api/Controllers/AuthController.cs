@@ -17,12 +17,37 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    private string GetClientIpAddress()
+    {
+        var forwardedFor = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+        return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+    }
+
+    private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = expiresAt,
+            Secure = HttpContext.Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
+            Path = "/api/auth"
+        };
+        Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+    }
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         try
         {
-            var response = await _authService.RegisterAsync(dto);
+            var ip = GetClientIpAddress();
+            var response = await _authService.RegisterAsync(dto, ip);
+            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
             return Ok(response);
         }
         catch (InvalidOperationException ex)
@@ -40,7 +65,9 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = await _authService.LoginAsync(dto);
+            var ip = GetClientIpAddress();
+            var response = await _authService.LoginAsync(dto, ip);
+            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)
@@ -50,6 +77,53 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "An error occurred during login.", details = ex.Message });
+        }
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto? dto)
+    {
+        try
+        {
+            var token = Request.Cookies["refreshToken"] ?? dto?.RefreshToken;
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest(new { message = "Refresh token is required." });
+            }
+
+            var ip = GetClientIpAddress();
+            var response = await _authService.RefreshTokenAsync(token, ip);
+            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during token refresh.", details = ex.Message });
+        }
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto? dto)
+    {
+        try
+        {
+            var token = Request.Cookies["refreshToken"] ?? dto?.RefreshToken;
+            if (!string.IsNullOrEmpty(token))
+            {
+                var ip = GetClientIpAddress();
+                await _authService.RevokeTokenAsync(token, ip);
+            }
+
+            Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api/auth" });
+            return Ok(new { message = "Logged out successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during logout.", details = ex.Message });
         }
     }
 

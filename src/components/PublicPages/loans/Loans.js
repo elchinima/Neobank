@@ -6,10 +6,10 @@ export function useLoans(loanTypes) {
   const [term, setTerm] = useState(24)
 
   const selectedLoan = loanTypes.find((loanType) => loanType.id === selected)
-  
+
   const baseRate = 9.9
   const dynamicRate = Number((baseRate + (Math.ceil(term / 12) - 1) * 2).toFixed(1))
-  
+
   const monthlyRate = dynamicRate / 100 / 12
   const monthlyPayment = (
     (amount * monthlyRate) /

@@ -1,3 +1,3 @@
-// Dashboard scripts
+
 
 export default {}

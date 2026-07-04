@@ -41,7 +41,7 @@
     backdrop-filter: blur(10px);
     width: 100%;
     transition: all 0.3s ease;
-    
+
     &:focus-within {
       background: rgba(255, 255, 255, 0.08);
       border-color: rgba(160, 32, 240, 0.5);
@@ -74,7 +74,7 @@
     border-radius: 8px;
     padding: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    
+
     button {
       background: transparent;
       border: none;
@@ -177,7 +177,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    
+
     img {
       width: 40px;
       height: 40px;
@@ -187,14 +187,14 @@
 
   &__info {
     flex-grow: 1;
-    
+
     h4 {
       font-size: 1.05rem;
       font-weight: 500;
       margin-bottom: 0.25rem;
       color: #fff;
     }
-    
+
     span {
       font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.5);
@@ -212,9 +212,9 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: #fff;
-    
+
     &.positive {
-      color: #059669; /* Green */
+      color: #059669;
     }
 
     &.strikethrough {
@@ -227,8 +227,8 @@
     font-size: 0.75rem;
     padding: 0.1rem 0.5rem;
     border-radius: 4px;
-    background: rgba(239, 68, 68, 0.15); /* Red transparent */
-    color: #ef4444; /* Red text */
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
   }
 
   &__chevron {
@@ -237,7 +237,7 @@
     align-items: center;
     justify-content: center;
     margin-left: 0.5rem;
-    
+
     svg {
       transition: transform 0.3s ease;
     }
@@ -275,7 +275,7 @@
   .detail-value {
     font-size: 0.95rem;
     color: #fff;
-    
+
     &.positive { color: #059669; }
     &.error-text { color: #ef4444; }
     &.status-completed { color: #059669; }
@@ -286,7 +286,7 @@
 .details-actions {
   display: flex;
   gap: 1rem;
-  
+
   button {
     padding: 0.6rem 1.25rem;
     border-radius: 8px;
@@ -295,7 +295,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
-    
+
     &.btn-primary {
       background: #A020F0;
       color: #fff;
@@ -304,7 +304,7 @@
         box-shadow: 0 4px 12px rgba(160, 32, 240, 0.3);
       }
     }
-    
+
     &.btn-secondary {
       background: rgba(255, 255, 255, 0.1);
       color: #fff;

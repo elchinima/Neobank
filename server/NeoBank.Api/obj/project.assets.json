@@ -1275,7 +1275,10 @@
         },
         "runtime": {
           "bin/placeholder/NeoBank.Infrastructure.dll": {}
-        }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },

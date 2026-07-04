@@ -15,11 +15,11 @@ using NeoBank.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 
-// Configure PostgreSQL DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Host=localhost;Port=5432;Database=neobank_db;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -27,12 +27,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
-// Register Password Hasher & Services
+
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPasswordHasher<ApplicationUser>, PasswordHasher<ApplicationUser>>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IStripeService, StripeService>();
+builder.Services.AddScoped<IAvatarProcessingService, AvatarProcessingService>();
 
-// Configure JWT Authentication
+
 var secretKey = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
 var key = Encoding.UTF8.GetBytes(secretKey);
 
@@ -57,7 +60,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configure CORS for Frontend Development
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -69,12 +72,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "NeoBank API", Version = "v1" });
-    
+
     var securityScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -89,7 +92,7 @@ builder.Services.AddSwaggerGen(c =>
             Type = ReferenceType.SecurityScheme
         }
     };
-    
+
     c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -99,7 +102,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Ensure single Users table is created in PostgreSQL on startup
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -107,14 +110,14 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-        // Remove old ASP.NET Identity tables and old Users table structure if present
+
         try
         {
             dbContext.Database.ExecuteSqlRaw(@"
                 DROP TABLE IF EXISTS ""AspNetRoles"", ""AspNetUserClaims"", ""AspNetUserLogins"", ""AspNetUserRoles"", ""AspNetUserTokens"", ""AspNetRoleClaims"" CASCADE;
-                
-                DO $$ 
-                BEGIN 
+
+                DO $$
+                BEGIN
                     IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Users' AND column_name='NormalizedEmail') THEN
                         DROP TABLE ""Users"" CASCADE;
                     END IF;
@@ -123,17 +126,23 @@ using (var scope = app.Services.CreateScope())
         }
         catch { }
 
-        // Apply EF Core Migrations (creates __EFMigrationsHistory and Users table)
-        dbContext.Database.Migrate();
+        try
+        {
+            dbContext.Database.Migrate();
+        }
+        catch
+        {
+            dbContext.Database.EnsureCreated();
+        }
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning(ex, "An error occurred while migrating the database.");
+        logger.LogWarning(ex, "An error occurred while creating/migrating the database.");
     }
 }
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

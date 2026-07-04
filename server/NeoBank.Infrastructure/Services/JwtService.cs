@@ -41,7 +41,7 @@ public class JwtService : IJwtService
             }
         }
 
-        var expiryInMinutes = double.TryParse(_configuration["Jwt:ExpiryInMinutes"], out var minutes) ? minutes : 1440;
+        var expiryInMinutes = double.TryParse(_configuration["Jwt:ExpiryInMinutes"], out var minutes) ? minutes : 30;
         var expiration = DateTime.UtcNow.AddMinutes(expiryInMinutes);
 
         var token = new JwtSecurityToken(

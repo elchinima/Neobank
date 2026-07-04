@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import './Cards.scss'
 import standartCard from '../../../assets/images/standart_card_mc.png'
 import premiumCard from '../../../assets/images/premium_card_mc.png'
 import eliteCard from '../../../assets/images/elite_card_mc.png'
+
+import { useLanguage } from '../../../app/context/LanguageContext'
+import { useAuth } from '../../../app/context/AuthContext'
+import { userCardsLang } from './lang.js'
 
 import blockIcon from '../../../assets/icons/User/settings/block.svg'
 import limitIcon from '../../../assets/icons/User/settings/limit.svg'
@@ -25,180 +30,214 @@ import addProductIcon from '../../../assets/icons/User/settings/add_product.svg'
 import vatBubbleIcon from '../../../assets/icons/User/vat_bubble.svg'
 import shoppingBubbleIcon from '../../../assets/icons/User/shopping_bubble.svg'
 
-const mockCards = [
-  {
-    id: 1,
-    type: 'Standard',
-    number: '5123 4567 8901 1234',
-    cvv: '123',
-    holderName: 'ELCHIN MAMMADOV',
-    balance: '1,250.00 ₼',
-    expiry: '12/25',
-    image: standartCard,
-    status: 'Active'
-  },
-  {
-    id: 2,
-    type: 'Premium',
-    number: '4231 5678 9012 3456',
-    cvv: '456',
-    holderName: 'ELCHIN MAMMADOV',
-    balance: '8,430.50 ₼',
-    expiry: '08/26',
-    image: premiumCard,
-    status: 'Active'
-  },
-  {
-    id: 3,
-    type: 'Elite',
-    number: '5342 9012 3456 7890',
-    cvv: '789',
-    holderName: 'ELCHIN MAMMADOV',
-    balance: '45,900.00 ₼',
-    expiry: '01/28',
-    image: eliteCard,
-    status: 'Active'
-  }
-]
+const API_BASE_URL = import.meta.env.VITE_API_URL ||
+  (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
+
+const cardImages = {
+  Standard: standartCard,
+  Premium: premiumCard,
+  Elite: eliteCard
+}
 
 const categoryProgram = [
-  {
-    title: 'Every 5th metro or bus ride',
-    rate: '100%',
-    text: 'Calculated from the average fare across all five rides.',
-    earned: 2.50,
-  },
-  {
-    title: 'Supermarkets',
-    rate: '5%',
-    text: 'Everyday grocery spending earns the highest retail rate.',
-    earned: 8.40,
-  },
-  {
-    title: 'Pharmacies',
-    rate: '3%',
-    text: 'Health and pharmacy purchases are included automatically.',
-    earned: 1.20,
-  },
-  {
-    title: 'Fuel stations',
-    rate: '3%',
-    text: 'Cashback for regular car expenses and fuel payments.',
-    earned: 4.50,
-  },
-  {
-    title: 'Restaurants, cafes, sweets',
-    rate: '2%',
-    text: 'Dining, coffee, desserts, and similar food categories.',
-    earned: 5.80,
-  },
-  {
-    title: 'Clothing and shoes',
-    rate: '2%',
-    text: 'Fashion, footwear, and wardrobe essentials.',
-    earned: 3.00,
-  },
-  {
-    title: 'Trendyol and Temu',
-    rate: '1%',
-    text: 'Online marketplace purchases through popular platforms.',
-    earned: 0.00,
-  },
-  {
-    title: 'Other payments',
-    rate: '0.1%',
-    text: 'A base reward for payments outside the main categories.',
-    earned: 0.15,
-  },
-]
-
-const mockReceipts = [
-  { id: 1, shop: 'Bravo Supermarket', amount: '45.80 ₼', vatRefund: '0.68 ₼', date: '01.07.2026', status: 'Approved' },
-  { id: 2, shop: 'Araz Supermarket', amount: '12.40 ₼', vatRefund: '0.18 ₼', date: '30.06.2026', status: 'Approved' },
-  { id: 3, shop: 'Baku Electronics', amount: '899.00 ₼', vatRefund: '13.48 ₼', date: '28.06.2026', status: 'Approved' },
-  { id: 4, shop: 'Port Baku Mall', amount: '150.00 ₼', vatRefund: '2.25 ₼', date: '25.06.2026', status: 'Pending' },
-]
-
-const mockVatReceiptsHistory = [
-  { id: 1, shop: 'Bravo Supermarket', amount: '45.80 ₼', vatRefund: '0.68 ₼', date: '01.07.2026', status: 'Approved' },
-  { id: 2, shop: 'Araz Supermarket', amount: '12.40 ₼', vatRefund: '0.18 ₼', date: '30.06.2026', status: 'Approved' },
-  { id: 3, shop: 'Baku Electronics', amount: '899.00 ₼', vatRefund: '13.48 ₼', date: '28.06.2026', status: 'Approved' },
-  { id: 4, shop: 'Port Baku Mall', amount: '150.00 ₼', vatRefund: '2.25 ₼', date: '25.06.2026', status: 'Pending' },
-  { id: 5, shop: 'Zara Baku', amount: '220.00 ₼', vatRefund: '3.30 ₼', date: '20.06.2026', status: 'Approved' },
-  { id: 6, shop: 'Neptun Market', amount: '55.50 ₼', vatRefund: '0.83 ₼', date: '18.06.2026', status: 'Approved' },
-  { id: 7, shop: 'Bazarstore', amount: '89.10 ₼', vatRefund: '1.34 ₼', date: '15.06.2026', status: 'Approved' },
-  { id: 8, shop: 'Ali & Nino Bookstore', amount: '35.00 ₼', vatRefund: '0.53 ₼', date: '12.06.2026', status: 'Approved' },
+  { title: 'Every 5th metro or bus ride', rate: '100%', text: 'Calculated from the average fare across all five rides.', earned: 2.50 },
+  { title: 'Supermarkets', rate: '5%', text: 'Everyday grocery spending earns the highest retail rate.', earned: 8.40 },
+  { title: 'Pharmacies', rate: '3%', text: 'Health and pharmacy purchases are included automatically.', earned: 1.20 },
+  { title: 'Fuel stations', rate: '3%', text: 'Cashback for regular car expenses and fuel payments.', earned: 4.50 },
+  { title: 'Restaurants, cafes, sweets', rate: '2%', text: 'Dining, coffee, desserts, and similar food categories.', earned: 5.80 },
+  { title: 'Clothing and shoes', rate: '2%', text: 'Fashion, footwear, and wardrobe essentials.', earned: 3.00 },
+  { title: 'Trendyol and Temu', rate: '1%', text: 'Online marketplace purchases through popular platforms.', earned: 0.00 },
+  { title: 'Other payments', rate: '0.1%', text: 'A base reward for payments outside the main categories.', earned: 0.15 },
 ]
 
 const Cards = () => {
-  const [activeCardId, setActiveCardId] = useState(mockCards[0].id)
+  const { t } = useLanguage()
+  const { token, user } = useAuth()
+  const location = useLocation()
+
+  const [cards, setCards] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [activeCardId, setActiveCardId] = useState(null)
   const [selectedSettingsCard, setSelectedSettingsCard] = useState(null)
   const [selectedTransferCard, setSelectedTransferCard] = useState(null)
   const [showVatModal, setShowVatModal] = useState(false)
   const [showLimits, setShowLimits] = useState(false)
-  
-  const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
+
+
+  const [showNewCardModal, setShowNewCardModal] = useState(false)
+  const [newCardForm, setNewCardForm] = useState({
+    cardType: location.state?.orderCardType || 'Standard',
+    network: 'Visa',
+    paymentMethod: 'balance',
+    sourceCardId: ''
+  })
+  const [newCardError, setNewCardError] = useState('')
+  const [submittingCard, setSubmittingCard] = useState(false)
+
+  const fetchCards = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(`${API_BASE_URL}/cards`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setCards(data)
+        if (data.length > 0) {
+          setActiveCardId(data[0].id)
+          setNewCardForm(prev => ({ ...prev, sourceCardId: data[0].id }))
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    if (selectedSettingsCard || selectedTransferCard || showVatModal) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
+    fetchCards()
+    if (location.state?.orderCardType) {
+      setShowNewCardModal(true)
     }
-    return () => {
-      document.body.style.overflow = 'unset'
+  }, [token])
+
+  const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
+
+  const handleAcquireCard = async (e) => {
+    e.preventDefault()
+    setNewCardError('')
+
+
+    if (cards.some(c => c.cardType.toLowerCase() === newCardForm.cardType.toLowerCase())) {
+      setNewCardError(`Вы уже владеете картой типа ${newCardForm.cardType}. Каждому пользователю разрешено иметь только 1 карту каждого типа.`)
+      return
     }
-  }, [selectedSettingsCard, selectedTransferCard, showVatModal])
+
+    const fee = newCardForm.cardType === 'Premium' ? 10 : (newCardForm.cardType === 'Elite' ? 25 : 0)
+
+    if (fee > 0 && newCardForm.paymentMethod === 'balance') {
+      const source = cards.find(c => c.id === newCardForm.sourceCardId)
+      if (!source || source.balance < fee) {
+        setNewCardError(`Недостаточно средств на выбранной карте для оплаты первого месяца (${fee} AZN).`)
+        return
+      }
+    }
+
+    try {
+      setSubmittingCard(true)
+      const res = await fetch(`${API_BASE_URL}/cards/acquire`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardType: newCardForm.cardType,
+          network: newCardForm.network,
+          paymentMethod: fee === 0 ? 'free' : newCardForm.paymentMethod,
+          sourceCardId: newCardForm.sourceCardId
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || 'Ошибка оформления карты')
+      }
+
+      setShowNewCardModal(false)
+      fetchCards()
+    } catch (err) {
+      setNewCardError(err.message)
+    } finally {
+      setSubmittingCard(false)
+    }
+  }
+
+  const handleToggleBlock = async (cardId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cards/toggle-block`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ cardId })
+      })
+
+      if (res.ok) {
+        fetchCards()
+        setSelectedSettingsCard(null)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
     <div className="user-cards-page">
       <div className="cards-header">
-        <h1>My Cards</h1>
+        <h1 data-lang-key="title">{t(userCardsLang, 'title')}</h1>
       </div>
 
-      <div className="cards-grid">
-        {mockCards.map(card => (
-          <div
-            key={card.id}
-            className={`card-item ${activeCardId === card.id ? 'active' : ''}`}
-            onClick={() => setActiveCardId(card.id)}
-          >
-            <div className="card-image-wrapper">
-              <img src={card.image} alt={`${card.type} Card`} className="card-image" />
+      {loading ? (
+        <div className="cards-loading">Загрузка карт...</div>
+      ) : cards.length === 0 ? (
+        <div className="no-cards-banner">
+          <p>У вас пока нет оформленных карт.</p>
+          <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
+            <span>Оформить первую карту</span>
+          </button>
+        </div>
+      ) : (
+        <div className="cards-grid">
+          {cards.map(card => (
+            <div
+              key={card.id}
+              className={`card-item ${activeCardId === card.id ? 'active' : ''}`}
+              onClick={() => setActiveCardId(card.id)}
+            >
+              <div className="card-image-wrapper">
+                <img
+                  src={cardImages[card.cardType] || standartCard}
+                  alt={`${card.cardType} Card`}
+                  className="card-image"
+                />
+              </div>
+              <div className="card-details">
+                <div className="card-info-header">
+                  <h2>{card.cardType} Card ({card.network})</h2>
+                  <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
+                </div>
+                <div className="card-balance">
+                  <span className="label">Available Balance</span>
+                  <span className="amount">{Number(card.balance).toFixed(2)} AZN</span>
+                </div>
+                <div className="card-actions">
+                  <button
+                    className="action-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedTransferCard(card);
+                    }}
+                  >
+                    Transfer
+                  </button>
+                  <button
+                    className="action-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedSettingsCard(card);
+                    }}
+                  >
+                    Settings
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="card-details">
-              <div className="card-info-header">
-                <h2>{card.type} Card</h2>
-                <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
-              </div>
-              <div className="card-balance">
-                <span className="label">Available Balance</span>
-                <span className="amount">{card.balance}</span>
-              </div>
-              <div className="card-actions">
-                <button
-                  className="action-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedTransferCard(card);
-                  }}
-                >
-                  Transfer
-                </button>
-                <button
-                  className="action-btn"
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent card from becoming active if clicking button, or let it
-                    setSelectedSettingsCard(card);
-                  }}
-                >
-                  Settings
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="cards-cashback-section">
         <div className="cashback-section-header">
@@ -231,46 +270,100 @@ const Cards = () => {
         </div>
       </div>
 
-      <div className="cards-vat-section">
-        <div className="vat-section-header">
-          <div className="vat-title-row">
-            <img src={vatBubbleIcon} className="vat-section-icon" alt="" />
-            <h2>ƏDV geri al (VAT Refund)</h2>
-          </div>
-          <div className="vat-actions-row">
-            <div className="total-vat">
-              <span>Total Refunded: </span>
-              <strong>16.59 ₼</strong>
-            </div>
-            <button className="view-all-vat-btn" onClick={() => setShowVatModal(true)}>View All</button>
-          </div>
-        </div>
-        <div className="vat-receipts">
-          {mockReceipts.map((receipt) => (
-            <div className="vat-receipt" key={receipt.id}>
-              <div className="receipt-info">
-                <h4>{receipt.shop}</h4>
-                <p>Receipt Amount: {receipt.amount} • {receipt.date}</p>
-              </div>
-              <div className="receipt-status-refund">
-                <span className="refund-amount">+{receipt.vatRefund}</span>
-                <span className={`status ${receipt.status.toLowerCase()}`}>{receipt.status}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="cards-footer">
         <button className="scan-qr-btn">
           <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
           <span>Scan QR code</span>
         </button>
-        <button className="add-product-btn">
+        <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
           <img src={addProductIcon} className="btn-svg-icon" alt="" />
           <span>Add new product</span>
         </button>
       </div>
+
+
+      {showNewCardModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewCardModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>Оформление новой карты</h2>
+              <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleAcquireCard} className="new-card-form">
+                {newCardError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newCardError}</div>}
+
+                <div className="form-group">
+                  <label>Тип карты</label>
+                  <select
+                    value={newCardForm.cardType}
+                    onChange={e => setNewCardForm({ ...newCardForm, cardType: e.target.value })}
+                  >
+                    <option value="Standard">Standard (0.00 AZN / мес)</option>
+                    <option value="Premium">Premium (10.00 AZN / мес)</option>
+                    <option value="Elite">Elite (25.00 AZN / мес)</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Платежная система</label>
+                  <select
+                    value={newCardForm.network}
+                    onChange={e => setNewCardForm({ ...newCardForm, network: e.target.value })}
+                  >
+                    <option value="Visa">Visa</option>
+                    <option value="Mastercard">Mastercard</option>
+                  </select>
+                </div>
+
+                {(newCardForm.cardType === 'Premium' || newCardForm.cardType === 'Elite') && (
+                  <div className="fee-payment-box" style={{ background: '#1d1929', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#ffd700' }}>
+                      Оплата первого месяца подписки ({newCardForm.cardType === 'Premium' ? '10' : '25'} AZN):
+                    </p>
+
+                    <div className="form-group">
+                      <label>Способ оплаты</label>
+                      <select
+                        value={newCardForm.paymentMethod}
+                        onChange={e => setNewCardForm({ ...newCardForm, paymentMethod: e.target.value })}
+                      >
+                        <option value="balance">С баланса имеющейся карты</option>
+                        <option value="stripe">Картой любого банка (Stripe)</option>
+                      </select>
+                    </div>
+
+                    {newCardForm.paymentMethod === 'balance' && (
+                      <div className="form-group">
+                        <label>Выберите карту для списания</label>
+                        <select
+                          value={newCardForm.sourceCardId}
+                          onChange={e => setNewCardForm({ ...newCardForm, sourceCardId: e.target.value })}
+                        >
+                          {cards.map(c => (
+                            <option key={c.id} value={c.id}>
+                              {c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="cards-page__button cards-page__button--primary"
+                  style={{ width: '100%', padding: '12px', marginTop: '12px' }}
+                  disabled={submittingCard}
+                >
+                  {submittingCard ? 'Оформление...' : 'Заказать карту'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedSettingsCard && (
         <div className="card-modal-overlay" onClick={() => setSelectedSettingsCard(null)}>
@@ -288,15 +381,15 @@ const Cards = () => {
                 </div>
                 <div className="detail-row">
                   <span className="label">Type</span>
-                  <span className="value">{selectedSettingsCard.type}</span>
+                  <span className="value">{selectedSettingsCard.cardType} ({selectedSettingsCard.network})</span>
                 </div>
                 <div className="detail-row">
                   <span className="label">Number</span>
-                  <span className="value">{selectedSettingsCard.number}</span>
+                  <span className="value">{selectedSettingsCard.cardNumber}</span>
                 </div>
                 <div className="detail-row">
                   <span className="label">Expiry Date</span>
-                  <span className="value">{selectedSettingsCard.expiry}</span>
+                  <span className="value">{selectedSettingsCard.expiryDate}</span>
                 </div>
                 <div className="detail-row">
                   <span className="label">CVV</span>
@@ -310,138 +403,16 @@ const Cards = () => {
 
               <div className="settings-section">
                 <h3>Settings</h3>
-                <button className="settings-action-btn danger">
+                <button
+                  className="settings-action-btn danger"
+                  onClick={() => handleToggleBlock(selectedSettingsCard.id)}
+                >
                   <img src={blockIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Block Plastic Card</span>
-                    <span className="btn-subtitle">You can always unblock it</span>
+                    <span className="btn-title">{selectedSettingsCard.status === 'Active' ? 'Block Plastic Card' : 'Unblock Plastic Card'}</span>
+                    <span className="btn-subtitle">Toggle card status</span>
                   </div>
                 </button>
-                <button className="settings-action-btn">
-                  <img src={limitIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Increase Credit Limit</span>
-                    <span className="btn-subtitle">Current limit: 0 ₼</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={googlePayIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Set Up Google Pay</span>
-                    <span className="btn-subtitle">Card added</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={cardDesignIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Card Design in Google Pay</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={limitsIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Limits</span>
-                    <span className="btn-subtitle">For transfers and cash withdrawal</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={pinIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Change PIN Code</span>
-                    <span className="btn-subtitle">Card and app</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={securityIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Security Settings</span>
-                    <span className="btn-subtitle">Payment settings</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={subscriptionsIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Manage Subscriptions</span>
-                    <span className="btn-subtitle">All services linked to the card</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Statements & Certificates</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn">
-                  <img src={accountIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Account Details</span>
-                    <span className="btn-subtitle">Domestic and SWIFT</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedTransferCard && (
-        <div className="card-modal-overlay" onClick={() => setSelectedTransferCard(null)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
-              <h2>Transfer Money</h2>
-              <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
-            </div>
-            <div className="card-modal__content">
-              <div className="settings-section">
-                <h3>Transfer Options</h3>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to my accounts...')}>
-                  <img src={transferMyIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Transfer to my accounts</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to card of any bank...')}>
-                  <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Transfer to card of any bank</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to card of foreign bank...')}>
-                  <img src={transferForeignIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">Transfer to card of foreign bank</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showVatModal && (
-        <div className="card-modal-overlay" onClick={() => setShowVatModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
-              <h2>ƏDV geri al History</h2>
-              <button className="close-btn" onClick={() => setShowVatModal(false)}>✕</button>
-            </div>
-            <div className="card-modal__content">
-              <div className="settings-section">
-                <h3>Receipt History</h3>
-                <div className="modal-receipts-list">
-                  {mockVatReceiptsHistory.map((receipt) => (
-                    <div className="vat-receipt-modal-item" key={receipt.id}>
-                      <div className="receipt-details">
-                        <h4>{receipt.shop}</h4>
-                        <span className="receipt-date">{receipt.date} • Amount: {receipt.amount}</span>
-                      </div>
-                      <div className="receipt-status-refund">
-                        <span className="refund-amount">+{receipt.vatRefund}</span>
-                        <span className={`status ${receipt.status.toLowerCase()}`}>{receipt.status}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

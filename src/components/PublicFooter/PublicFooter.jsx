@@ -1,5 +1,8 @@
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../../app/context/LanguageContext'
+import { footerLang } from './lang.js'
+import logoMark from '../../assets/logo/main_logo.png'
 import appPreviewImage from '../../assets/images/image_1.png'
 import controlBubbleIcon from '../../assets/icons/Public/control_bubble.svg'
 import newsBubbleIcon from '../../assets/icons/Public/news_bubble.svg'
@@ -9,8 +12,8 @@ import './PublicFooter_Responsive.scss'
 
 const contactItems = [
   {
-    label: 'Address',
-    value: 'Baku, Azerbaijan',
+    key: 'address',
+    valueKey: 'addressValue',
     href: 'https://maps.google.com/?q=Baku%2C%20Azerbaijan',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -20,8 +23,9 @@ const contactItems = [
     ),
   },
   {
-    label: 'Mail us',
-    value: 'support@neobank.az',
+    key: 'mailUs',
+    valueKey: 'emailVal',
+    fallbackValue: 'support@neobank.az',
     href: 'mailto:support@neobank.az',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -31,8 +35,9 @@ const contactItems = [
     ),
   },
   {
-    label: 'Phone',
-    value: '+994 12 555 45 45',
+    key: 'phone',
+    valueKey: 'phoneVal',
+    fallbackValue: '+994 12 555 45 45',
     href: 'tel:+994125554545',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -43,17 +48,17 @@ const contactItems = [
 ]
 
 const productLinks = [
-  { label: 'Cards', to: '/cards' },
-  { label: 'Loans', to: '/loans' },
-  { label: 'Deposits', to: '/deposits' },
-  { label: 'Cashback', to: '/cashback' },
+  { key: 'cards', label: 'Cards', to: '/cards' },
+  { key: 'loans', label: 'Loans', to: '/loans' },
+  { key: 'deposits', label: 'Deposits', to: '/deposits' },
+  { key: 'cashback', label: 'Cashback', to: '/cashback' },
 ]
 
 const infoLinks = [
-  { label: 'Home', to: '/' },
-  { label: 'Sign in', to: '/login' },
-  { label: 'Open account', to: '/register' },
-  { label: 'Support', to: '/#support' },
+  { key: 'home', label: 'Home', to: '/' },
+  { key: 'signIn', label: 'Sign in', to: '/login' },
+  { key: 'openAccount', label: 'Open account', to: '/register' },
+  { key: 'support', label: 'Support', to: '/support' },
 ]
 
 const socialLinks = [
@@ -126,21 +131,6 @@ const storeLinks = [
   },
 ]
 
-const appFeatures = [
-  {
-    title: 'Track actions',
-    text: 'See payments, transfers and cashback in one place.',
-  },
-  {
-    title: 'Control cards',
-    text: 'Freeze cards and check limits anytime.',
-  },
-  {
-    title: 'Stay updated',
-    text: 'Follow deposits, loans and support updates faster.',
-  },
-]
-
 const floatingIcons = [
   { label: 'Notifications', src: notificationBubbleIcon, modifier: 'notification' },
   { label: 'Controls', src: controlBubbleIcon, modifier: 'control' },
@@ -156,18 +146,36 @@ function PublicFooter() {
     scrollToTop,
   } = usePublicFooter()
 
+  const { t } = useLanguage()
+
+  const appFeatures = [
+    {
+      title: t(footerLang, 'feat1Title'),
+      text: t(footerLang, 'feat1Text'),
+    },
+    {
+      title: t(footerLang, 'feat2Title'),
+      text: t(footerLang, 'feat2Text'),
+    },
+    {
+      title: t(footerLang, 'feat3Title'),
+      text: t(footerLang, 'feat3Text'),
+    },
+  ]
+
   return (
     <footer className="public-footer">
       <div className="public-footer__inner">
         <section className="public-footer__account" aria-labelledby="footer-account-title">
-          <h2 id="footer-account-title">Contact Us</h2>
+          <h2 id="footer-account-title" data-lang-key="contactUs">{t(footerLang, 'contactUs')}</h2>
           <ul className="public-footer__contact-list">
             {contactItems.map((item) => (
-              <li key={item.label}>
+              <li key={item.key}>
                 <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
                   <span className="public-footer__icon">{item.icon}</span>
                   <span>
-                    <strong>{item.label}:</strong> {item.value}
+                    <strong data-lang-key={item.key}>{t(footerLang, item.key)}:</strong>{' '}
+                    <span data-lang-key={item.valueKey}>{item.fallbackValue || t(footerLang, item.valueKey)}</span>
                   </span>
                 </a>
               </li>
@@ -176,36 +184,36 @@ function PublicFooter() {
         </section>
 
         <nav className="public-footer__links" aria-labelledby="footer-products-title">
-          <h2 id="footer-products-title">Products</h2>
+          <h2 id="footer-products-title" data-lang-key="products">{t(footerLang, 'products')}</h2>
           {productLinks.map((link) => (
-            <Link key={link.to} to={link.to}>
-              {link.label}
+            <Link key={link.to} to={link.to} data-lang-key={link.key}>
+              {t(footerLang, link.key)}
             </Link>
           ))}
         </nav>
 
         <nav className="public-footer__links" aria-labelledby="footer-info-title">
-          <h2 id="footer-info-title">Information</h2>
+          <h2 id="footer-info-title" data-lang-key="information">{t(footerLang, 'information')}</h2>
           {infoLinks.map((link) => (
-            <Link key={link.label} to={link.to}>
-              {link.label}
+            <Link key={link.key} to={link.to} data-lang-key={link.key}>
+              {t(footerLang, link.key)}
             </Link>
           ))}
         </nav>
 
         <section className="public-footer__subscribe" aria-labelledby="footer-subscribe-title">
-          <h2 id="footer-subscribe-title">Subscribe</h2>
+          <h2 id="footer-subscribe-title" data-lang-key="subscribe">{t(footerLang, 'subscribe')}</h2>
           <form
             className="public-footer__form"
             onSubmit={(event) => {
               event.preventDefault()
             }}
           >
-            <label className="public-footer__sr-only" htmlFor="footer-email">
-              Email address
+            <label className="public-footer__sr-only" htmlFor="footer-email" data-lang-key="emailPlaceholder">
+              {t(footerLang, 'emailPlaceholder')}
             </label>
-            <input id="footer-email" type="email" placeholder="Email address" />
-            <button type="submit">Subscribe</button>
+            <input id="footer-email" type="email" placeholder={t(footerLang, 'emailPlaceholder')} />
+            <button type="submit" data-lang-key="subscribeBtn">{t(footerLang, 'subscribeBtn')}</button>
           </form>
         </section>
       </div>
@@ -230,8 +238,9 @@ function PublicFooter() {
             </select>
           </div>
 
-          <p>
-            Copyright 2026 <span>NeoBank</span>. All Rights Reserved
+          <p data-lang-key="copyright" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <img src={logoMark} alt="NeoBank logo" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+            <span>{t(footerLang, 'copyright')}</span>
           </p>
         </div>
 
@@ -307,16 +316,13 @@ function PublicFooter() {
             </div>
 
             <div className="public-footer__modal-content">
-              <p className="public-footer__modal-eyebrow">NeoBank mobile</p>
-              <h2 id="app-info-title">Download the app and track your actions with comfort.</h2>
-              <p>
-                Manage daily banking in one place: monitor balances, card activity,
-                cashback, deposits and support updates with a calmer mobile experience.
-              </p>
+              <p className="public-footer__modal-eyebrow" data-lang-key="appEyebrow">{t(footerLang, 'appEyebrow')}</p>
+              <h2 id="app-info-title" data-lang-key="appTitle">{t(footerLang, 'appTitle')}</h2>
+              <p data-lang-key="appDesc">{t(footerLang, 'appDesc')}</p>
 
               <div className="public-footer__modal-features">
-                {appFeatures.map((feature) => (
-                  <article key={feature.title}>
+                {appFeatures.map((feature, i) => (
+                  <article key={i}>
                     <strong>{feature.title}</strong>
                     <span>{feature.text}</span>
                   </article>

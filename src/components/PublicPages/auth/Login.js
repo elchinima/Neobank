@@ -27,7 +27,7 @@ export function useLogin() {
     setServerError('')
     const next = validate()
     setErrors(next)
-    
+
     if (Object.keys(next).length === 0) {
       setIsSubmitting(true)
       try {

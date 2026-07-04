@@ -24,7 +24,7 @@
       font-size: 16px;
       cursor: pointer;
       font-weight: 600;
-      
+
       &:hover {
         color: #F3C24A;
       }
@@ -133,7 +133,7 @@
   @media (max-width: 768px) {
     top: $landing-tablet-nav-height;
     padding: 0;
-    z-index: 90; // Below navbar
+    z-index: 90;
   }
 
   @media (max-width: 680px) {
@@ -204,7 +204,7 @@
   &__content {
     padding: 20px 24px 24px;
     overflow-y: auto;
-    
+
     .no-providers {
       color: rgba(255, 255, 255, 0.6);
       text-align: center;
@@ -303,7 +303,7 @@
       color: #FFFFFF;
     }
   }
-  
+
   h2 {
     flex: 1;
   }
