@@ -92,13 +92,14 @@ const Dashboard = () => {
   })
 
   // Dummy trend data generated based on totalExpenses for visual completeness
+  // Static realistic-looking dummy data for visual aesthetics of the trend graph
   const trendData = [
-    { label: '08:00', value: (dashboardData.totalExpenses * 0.15) || 12 },
-    { label: '10:00', value: (dashboardData.totalExpenses * 0.10) || 5 },
-    { label: '12:00', value: (dashboardData.totalExpenses * 0.25) || 95 },
-    { label: '14:00', value: (dashboardData.totalExpenses * 0.20) || 42 },
-    { label: '16:00', value: (dashboardData.totalExpenses * 0.05) || 105 },
-    { label: '18:00', value: (dashboardData.totalExpenses * 0.25) || 25 }
+    { label: '08:00', value: 12 },
+    { label: '10:00', value: 45 },
+    { label: '12:00', value: 95 },
+    { label: '14:00', value: 42 },
+    { label: '16:00', value: 105 },
+    { label: '18:00', value: 65 }
   ]
   const maxTrendValue = Math.max(...trendData.map(t => t.value), 1)
   const heightMax = 140

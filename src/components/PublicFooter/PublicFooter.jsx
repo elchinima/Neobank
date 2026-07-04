@@ -238,9 +238,8 @@ function PublicFooter() {
             </select>
           </div>
 
-          <p data-lang-key="copyright" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <img src={logoMark} alt="NeoBank logo" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
-            <span>{t(footerLang, 'copyright')}</span>
+          <p>
+            {t(footerLang, 'copyrightPart1', 'Copyright 2026 ')}<span>NeoBank</span>{t(footerLang, 'copyrightPart2', '. All Rights Reserved')}
           </p>
         </div>
 

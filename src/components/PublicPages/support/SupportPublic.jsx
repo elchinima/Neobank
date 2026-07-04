@@ -36,6 +36,7 @@ function SupportPublic() {
     chatInput,
     setChatInput,
     messages,
+    setMessages,
     isTyping,
     messagesContainerRef,
     chatSectionRef,
@@ -43,10 +44,8 @@ function SupportPublic() {
     handleSendMessage,
   } = useSupportPublic()
 
-  const [isExpanded, setIsExpanded] = useState(false)
-
   useEffect(() => {
-    if (isExpanded || isModalOpen) {
+    if (isModalOpen) {
       document.body.classList.add('support-no-scroll')
       document.documentElement.classList.add('support-no-scroll')
     } else {
@@ -58,7 +57,7 @@ function SupportPublic() {
       document.body.classList.remove('support-no-scroll')
       document.documentElement.classList.remove('support-no-scroll')
     }
-  }, [isExpanded, isModalOpen])
+  }, [isModalOpen])
 
   return (
     <div className="support-page">
@@ -95,7 +94,7 @@ function SupportPublic() {
       </nav>
 
       <main className="support-page__main">
-        <section className={`support-page__hero ${isExpanded ? 'support-page__hero--expanded' : ''}`} aria-labelledby="support-title">
+        <section className="support-page__hero" aria-labelledby="support-title">
           <div className="support-page__hero-content">
             <p className="support-page__eyebrow" data-lang-key="heroEyebrow">{t(supportLang, 'heroEyebrow')}</p>
             <h1 id="support-title" data-lang-key="heroTitle">{t(supportLang, 'heroTitle')}</h1>
@@ -131,9 +130,9 @@ function SupportPublic() {
             </div>
           </div>
 
-          <div className={`support-page__hero-media ${isExpanded ? 'support-page__hero-media--expanded' : ''}`} ref={chatSectionRef} aria-label="NeoBank support campaign">
+          <div className="support-page__hero-media" ref={chatSectionRef} aria-label="NeoBank support campaign">
             {isChatOpen ? (
-              <div className={`support-chat ${isExpanded ? 'support-chat--expanded' : ''}`}>
+              <div className="support-chat">
                 <div className="support-chat__header">
                   <div className="support-chat__avatar">S</div>
                   <div className="support-chat__agent-info">
@@ -141,31 +140,36 @@ function SupportPublic() {
                     <span>Online • NeoBank Agent</span>
                   </div>
                   <button
-                    className="support-chat__expand-btn"
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    title={isExpanded ? "Minimize chat" : "Maximize chat"}
+                    className="support-chat__reset-btn"
+                    onClick={() => {
+                      setIsChatOpen(false)
+                      setName('')
+                      setMessage('')
+                      setMessages([])
+                    }}
+                    title="End chat and reset"
                   >
-                    {isExpanded ? '⤓' : '⤢'}
+                    Reset
                   </button>
-                  <button className="support-chat__close-btn" onClick={() => setIsChatOpen(false)}>&times;</button>
                 </div>
 
                 <div className="support-chat__messages" ref={messagesContainerRef}>
                   {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`support-chat__message support-chat__message--${msg.sender}`}
-                    >
-                      <div className="support-chat__bubble">
-                        {msg.text}
+                    <div className={`support-chat__message-wrapper ${msg.sender}`} key={msg.id}>
+                      <div className="support-chat__message-bubble">
+                        <p>{msg.text}</p>
+                        <span className="support-chat__message-time">{msg.time}</span>
                       </div>
-                      <span className="support-chat__time">{msg.time}</span>
                     </div>
                   ))}
                   {isTyping && (
-                    <div className="support-chat__message support-chat__message--agent">
-                      <div className="support-chat__bubble support-chat__bubble--typing">
-                        <span>.</span><span>.</span><span>.</span>
+                    <div className="support-chat__message-wrapper support typing">
+                      <div className="support-chat__message-bubble">
+                        <div className="typing-indicator">
+                          <span />
+                          <span />
+                          <span />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -178,8 +182,8 @@ function SupportPublic() {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                   />
-                  <button type="submit" className="support-chat__send-btn" data-lang-key="send">
-                    {t(supportLang, 'send')}
+                  <button type="submit" disabled={!chatInput.trim()}>
+                    Send
                   </button>
                 </form>
               </div>
