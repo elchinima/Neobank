@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
 import { useAuth } from '../../app/context/AuthContext'
+import { useLanguage } from '../../app/context/LanguageContext'
+import { navbarLang } from './navbar.lang.js'
 import './UserNavbar.scss'
 
 const UserNavbar = () => {
@@ -8,6 +10,7 @@ const UserNavbar = () => {
   const location = useLocation()
   const currentPath = location.pathname
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
 
   const handleLogout = () => {
     logout()
@@ -15,12 +18,12 @@ const UserNavbar = () => {
   }
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/user/dashboard', label: 'Dashboard' },
-    { to: '/user/cards', label: 'Cards' },
-    { to: '/user/payments', label: 'Payments' },
-    { to: '/user/history', label: 'History' },
-    { to: '/user/settings', label: 'Settings' }
+    { to: '/', key: 'home' },
+    { to: '/user/dashboard', key: 'dashboard' },
+    { to: '/user/cards', key: 'cards' },
+    { to: '/user/payments', key: 'payments' },
+    { to: '/user/history', key: 'history' },
+    { to: '/user/settings', key: 'settings' }
   ]
 
   const filteredLinks = navLinks.filter(link => {
@@ -30,7 +33,7 @@ const UserNavbar = () => {
     return currentPath !== link.to
   })
 
-  // Initials for avatar
+
   const initials = user
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
     : 'NB'
@@ -43,7 +46,7 @@ const UserNavbar = () => {
     <nav className="user-navbar" aria-label="Client navigation">
       <Link className="user-navbar__brand" to="/user/dashboard">
         <span className="user-navbar__brand-mark" aria-hidden="true">
-          <img src={logoMark} alt="" />
+          <img src={logoMark} alt="NeoBank logo" />
         </span>
         <span className="user-navbar__brand-name">NeoBank</span>
       </Link>
@@ -54,22 +57,29 @@ const UserNavbar = () => {
             key={link.to}
             to={link.to}
             className="user-navbar__link"
+            data-lang-key={link.key}
           >
-            {link.label}
+            {t(navbarLang, link.key)}
           </Link>
         ))}
       </div>
 
       <div className="user-navbar__nav-actions">
-        <div className="user-navbar__profile">
-          <div className="user-navbar__avatar">{initials}</div>
+        <Link to="/user/dashboard" className="user-navbar__profile" title="Перейти в личный кабинет">
+          <div className="user-navbar__avatar">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              initials
+            )}
+          </div>
           <div className="user-navbar__profile-details">
             <strong>{fullName}</strong>
             <span>{user?.email || 'User'}</span>
           </div>
-        </div>
-        <button className="user-navbar__button user-navbar__button--ghost" onClick={handleLogout}>
-          Logout
+        </Link>
+        <button className="user-navbar__button user-navbar__button--ghost" onClick={handleLogout} data-lang-key="logout">
+          {t(navbarLang, 'logout')}
         </button>
       </div>
     </nav>

@@ -563,14 +563,14 @@
       border-right: 1px solid rgba(255, 226, 138, 0.1);
       padding: 48px;
     }
-    
+
     .deposits-page__group {
       margin-bottom: 48px;
-      
+
       &:last-child {
         margin-bottom: 0;
       }
-      
+
       label {
         display: flex;
         justify-content: space-between;
@@ -580,7 +580,7 @@
         font-size: 15px;
         font-weight: 700;
         text-transform: none;
-        
+
         span {
           color: $landing-gold;
           font-size: 22px;
@@ -731,7 +731,7 @@
       text-align: right;
       transition: color 0.3s ease;
     }
-    
+
     .deposits-page__rate--max {
       color: $landing-gold;
       text-shadow: 0 0 12px rgba(243, 194, 74, 0.4);
@@ -747,7 +747,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    
+
     span {
       color: rgba(255, 255, 255, 0.85);
       font-size: 16px;

@@ -1,55 +1,129 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useLanguage } from '../../../app/context/LanguageContext'
+import { useAuth } from '../../../app/context/AuthContext'
+import { settingsLang } from './lang.js'
 import './Settings.scss'
 import securityIcon from '../../../assets/icons/User/settings/security.svg'
 import accountIcon from '../../../assets/icons/User/settings/account.svg'
 import pinIcon from '../../../assets/icons/User/settings/pin.svg'
 import updateIcon from '../../../assets/icons/User/settings/update.svg'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL ||
+  (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
+
 const Settings = () => {
+  const { t } = useLanguage()
+  const { user, token, updateUser } = useAuth()
   const [password, setPassword] = useState({ current: '', new: '', confirm: '' })
-  const [email, setEmail] = useState('elchin@example.com')
+  const [email, setEmail] = useState(user?.email || 'user@example.com')
   const [twoFactorAuth, setTwoFactorAuth] = useState(true)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || null)
+  const [uploadError, setUploadError] = useState('')
+
+  const fileInputRef = useRef(null)
+
+  const handleAvatarSelect = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Максимальный размер файла — 10 МБ.')
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      setUploadingAvatar(true)
+      setUploadError('')
+
+      const res = await fetch(`${API_BASE_URL}/users/avatar`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Ошибка загрузки аватара')
+      }
+
+      setAvatarUrl(data.avatarUrl)
+      if (updateUser) {
+        updateUser({ avatarUrl: data.avatarUrl })
+      }
+    } catch (err) {
+      setUploadError(err.message)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   return (
     <div className="settings-page">
       <div className="settings-header">
-        <h1>Account Settings</h1>
+        <h1 data-lang-key="title">{t(settingsLang, 'title')}</h1>
       </div>
 
       <div className="settings-container">
-        
-        {/* Profile & Personal Info */}
+
+
         <div className="settings-card">
           <div className="card-title-row">
             <img src={accountIcon} className="card-title-icon" alt="" />
-            <h2>Profile Details</h2>
+            <h2 data-lang-key="personalInfo">{t(settingsLang, 'personalInfo')}</h2>
           </div>
-          
+
           <div className="profile-wrapper">
             <div className="avatar-box">
-              <div className="avatar-circle">E</div>
-              <button className="change-avatar-btn">Change Avatar</button>
+              <div className="avatar-circle" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  user?.firstName?.charAt(0) || 'E'
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarSelect}
+                accept="image/png, image/jpeg, image/jpg"
+                style={{ display: 'none' }}
+              />
+              <button
+                className="change-avatar-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+              >
+                {uploadingAvatar ? 'Обработка (ImageSharp)...' : 'Change Avatar'}
+              </button>
+              {uploadError && <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>{uploadError}</p>}
             </div>
-            
+
             <div className="profile-info-fields">
               <div className="field-group">
-                <label>Full Name</label>
-                <input type="text" value="Elchin Mammadov" readOnly className="settings-input readonly" />
+                <label data-lang-key="firstName">Full Name</label>
+                <input type="text" value={`${user?.firstName || 'User'} ${user?.lastName || ''}`} readOnly className="settings-input readonly" />
               </div>
 
               <div className="field-group">
-                <label>Email Address</label>
+                <label data-lang-key="email">{t(settingsLang, 'email')}</label>
                 <div className="input-with-button">
-                  <input 
-                    type="email" 
-                    value={email} 
+                  <input
+                    type="email"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="settings-input"
                   />
-                  <button className="save-btn">
+                  <button className="save-btn" data-lang-key="saveChanges">
                     <img src={updateIcon} className="btn-icon" alt="" />
-                    Update
+                    {t(settingsLang, 'saveChanges')}
                   </button>
                 </div>
               </div>
@@ -57,101 +131,83 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Security & Authentication */}
+
         <div className="settings-card">
           <div className="card-title-row">
             <img src={securityIcon} className="card-title-icon" alt="" />
-            <h2>Security & Privacy</h2>
+            <h2 data-lang-key="security">{t(settingsLang, 'security')}</h2>
           </div>
 
-          <div className="settings-list">
-            
-            {/* 2FA Row */}
-            <div className="setting-row setting-row--toggle">
-              <div className="row-text">
-                <span className="row-title">Two-Factor Authentication (2FA)</span>
-                <span className="row-desc">Require a verification code when logging in to protect your account.</span>
+          <div className="security-options-list">
+            <div className="security-option">
+              <div className="option-info">
+                <img src={pinIcon} className="option-icon" alt="" />
+                <div>
+                  <h3 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h3>
+                  <p>Update your account password regularly to keep your funds safe.</p>
+                </div>
+              </div>
+              <button className="action-button" onClick={() => setIsPasswordModalOpen(true)} data-lang-key="changePassword">
+                {t(settingsLang, 'changePassword')}
+              </button>
+            </div>
+
+            <div className="security-option">
+              <div className="option-info">
+                <img src={securityIcon} className="option-icon" alt="" />
+                <div>
+                  <h3 data-lang-key="twoFactor">{t(settingsLang, 'twoFactor')}</h3>
+                  <p data-lang-key="twoFactorDesc">{t(settingsLang, 'twoFactorDesc')}</p>
+                </div>
               </div>
               <label className="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  checked={twoFactorAuth} 
+                <input
+                  type="checkbox"
+                  checked={twoFactorAuth}
                   onChange={() => setTwoFactorAuth(!twoFactorAuth)}
                 />
                 <span className="toggle-slider"></span>
               </label>
             </div>
-
-            {/* Change Password Row */}
-            <div className="setting-row">
-              <div className="row-text">
-                <span className="row-title">Password</span>
-                <span className="row-desc">It's a good idea to use a strong password that you don't use elsewhere.</span>
-              </div>
-              <button 
-                className="action-btn"
-                onClick={() => setIsPasswordModalOpen(true)}
-              >
-                <img src={pinIcon} className="btn-icon" alt="" />
-                Change Password
-              </button>
-            </div>
-
           </div>
         </div>
-
       </div>
 
-      {/* Password Change Modal */}
       {isPasswordModalOpen && (
-        <div className="settings-modal-overlay" onClick={() => setIsPasswordModalOpen(false)}>
-          <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="settings-modal__header">
-              <h2>Change Password</h2>
-              <button className="close-btn" onClick={() => setIsPasswordModalOpen(false)}>✕</button>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h3>
+            <div className="field-group">
+              <label data-lang-key="currentPassword">{t(settingsLang, 'currentPassword')}</label>
+              <input
+                type="password"
+                value={password.current}
+                onChange={(e) => setPassword({ ...password, current: e.target.value })}
+                className="settings-input"
+              />
             </div>
-
-            <div className="settings-modal__content">
-              <div className="field-group">
-                <label>Current Password</label>
-                <input 
-                  type="password" 
-                  placeholder="Enter current password"
-                  value={password.current}
-                  onChange={(e) => setPassword({...password, current: e.target.value})}
-                  className="settings-input"
-                />
-              </div>
-
-              <div className="field-group">
-                <label>New Password</label>
-                <input 
-                  type="password" 
-                  placeholder="Enter new password"
-                  value={password.new}
-                  onChange={(e) => setPassword({...password, new: e.target.value})}
-                  className="settings-input"
-                />
-              </div>
-
-              <div className="field-group">
-                <label>Confirm New Password</label>
-                <input 
-                  type="password" 
-                  placeholder="Confirm new password"
-                  value={password.confirm}
-                  onChange={(e) => setPassword({...password, confirm: e.target.value})}
-                  className="settings-input"
-                />
-              </div>
+            <div className="field-group">
+              <label data-lang-key="newPassword">{t(settingsLang, 'newPassword')}</label>
+              <input
+                type="password"
+                value={password.new}
+                onChange={(e) => setPassword({ ...password, new: e.target.value })}
+                className="settings-input"
+              />
             </div>
-
-            <div className="settings-modal__footer">
-              <button className="modal-btn cancel" onClick={() => setIsPasswordModalOpen(false)}>
-                Cancel
-              </button>
-              <button className="modal-btn save" onClick={() => setIsPasswordModalOpen(false)}>
-                Save Password
+            <div className="field-group">
+              <label data-lang-key="confirmPassword">{t(settingsLang, 'confirmPassword')}</label>
+              <input
+                type="password"
+                value={password.confirm}
+                onChange={(e) => setPassword({ ...password, confirm: e.target.value })}
+                className="settings-input"
+              />
+            </div>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setIsPasswordModalOpen(false)}>Cancel</button>
+              <button className="save-btn" onClick={() => setIsPasswordModalOpen(false)} data-lang-key="saveChanges">
+                {t(settingsLang, 'saveChanges')}
               </button>
             </div>
           </div>

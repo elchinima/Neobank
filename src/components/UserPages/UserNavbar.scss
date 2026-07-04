@@ -115,12 +115,25 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+
+      strong {
+        color: #ffe28a;
+      }
+    }
   }
 
   &__avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
+    overflow: hidden;
     background: linear-gradient(135deg, $landing-purple, $landing-purple-bright);
     color: #ffffff;
     font-weight: 800;
@@ -238,7 +251,7 @@
       flex: 0 0 auto;
       font-size: 14px;
       padding: 6px 0;
-      
+
       &::after {
         content: '';
         position: absolute;
@@ -290,14 +303,14 @@
 
     &__nav-links {
       gap: 18px;
-      
+
       .user-navbar__link {
         font-size: 13px;
       }
     }
 
     &__profile-details {
-      display: none; // Hide full name & client tier to save space on mobile
+      display: none;
     }
 
     &__nav-actions {

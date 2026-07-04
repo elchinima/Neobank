@@ -412,7 +412,7 @@ html.support-no-scroll {
     position: relative;
     z-index: 1;
     display: grid;
-    
+
     &--expanded {
       z-index: 19;
     }
@@ -492,11 +492,11 @@ html.support-no-scroll {
       z-index: 19;
       border-radius: 0;
       background: #17111a;
-      
+
       @media (min-width: 768px) {
         width: 100%;
       }
-      
+
       @media (max-width: 1040px) {
         top: $landing-tablet-nav-height;
         height: calc(100vh - #{$landing-tablet-nav-height});
@@ -516,7 +516,7 @@ html.support-no-scroll {
       background: rgba(255, 255, 255, 0.04);
       border-bottom: 1px solid rgba(255, 226, 138, 0.12);
     }
-    
+
     &__expand-btn {
       background: none;
       border: none;
@@ -529,7 +529,7 @@ html.support-no-scroll {
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       &:hover {
         color: #fff;
       }

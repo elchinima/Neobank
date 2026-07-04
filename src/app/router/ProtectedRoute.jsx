@@ -33,7 +33,7 @@ export default function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/error" state={{ code: '403' }} replace />
   }
 
   return <Outlet />

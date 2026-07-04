@@ -1,0 +1,25 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ldrArc" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE28A"/>
+      <stop offset=".5" stop-color="#F3C24A"/>
+      <stop offset="1" stop-color="#A020F0"/>
+    </linearGradient>
+
+    <style>
+      @keyframes spin { to { transform: rotate(360deg) } }
+      @keyframes dash {
+        0%   { stroke-dasharray: 1 200; stroke-dashoffset: 0 }
+        50%  { stroke-dasharray: 100 200; stroke-dashoffset: -30 }
+        100% { stroke-dasharray: 100 200; stroke-dashoffset: -175 }
+      }
+      .arc {
+        transform-origin: 40px 40px;
+        animation: spin 1.4s linear infinite, dash 1.4s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <circle cx="40" cy="40" r="30" stroke="rgba(255,226,138,.1)" stroke-width="5" fill="none"/>
+  <circle class="arc" cx="40" cy="40" r="30" stroke="url(#ldrArc)" stroke-width="5" stroke-linecap="round" fill="none"/>
+</svg>
