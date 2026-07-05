@@ -12,7 +12,12 @@ export const historyLang = {
     amount: 'Amount',
     status: 'Status',
     card: 'Card',
-    downloadStatement: 'Download Statement'
+    downloadStatement: 'Download Statement',
+    firstMonthFee: '1st month fee for card',
+    loading: 'Loading history...',
+    noData: 'No operations found in database.',
+    transactionId: 'Transaction ID',
+    accountTarget: 'Account / Target'
   },
   az: {
     title: 'Əməliyyat Tarixçəsi',
@@ -27,7 +32,12 @@ export const historyLang = {
     amount: 'Məbləğ',
     status: 'Status',
     card: 'Kart',
-    downloadStatement: 'Hesabatı yüklə'
+    downloadStatement: 'Hesabatı yüklə',
+    firstMonthFee: 'Kart üçün 1-ci ay ödənişi',
+    loading: 'Tarixçə yüklənir...',
+    noData: 'Məlumat bazasında əməliyyat tapılmadı.',
+    transactionId: 'Əməliyyat ID',
+    accountTarget: 'Hesab / Hədəf'
   },
   ru: {
     title: 'История операций',
@@ -42,6 +52,11 @@ export const historyLang = {
     amount: 'Сумма',
     status: 'Статус',
     card: 'Карта',
-    downloadStatement: 'Скачать выписку'
+    downloadStatement: 'Скачать выписку',
+    firstMonthFee: 'Оплата 1-го месяца карты',
+    loading: 'Загрузка истории...',
+    noData: 'Операции в базе данных не найдены.',
+    transactionId: 'ID Транзакции',
+    accountTarget: 'Счет / Цель'
   }
 }

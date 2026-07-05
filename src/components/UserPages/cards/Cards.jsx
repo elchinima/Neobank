@@ -214,7 +214,7 @@ const Cards = () => {
               onClick={() => setActiveCardId(card.id)}
             >
               <div className="card-image-wrapper">
-                <img src={cardImages[card.cardType][card.network] || cardImages['Standard']['Mastercard']} alt={card.cardType} className="card-image-content" />
+                <img src={cardImages[card.cardType][card.network] || cardImages['Standard']['Mastercard']} alt={card.cardType} className="card-image" />
               </div>
               <div className="card-details">
                 <div className="card-info-header">
@@ -314,8 +314,8 @@ const Cards = () => {
                     onChange={e => setNewCardForm({ ...newCardForm, cardType: e.target.value })}
                   >
                     <option value="Standard">Standard (0.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
-                    <option value="Premium">Premium (10.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
-                    <option value="Elite">Elite (25.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Premium">Premium (19.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Elite">Elite (9.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
                   </select>
                 </div>
 
@@ -426,62 +426,62 @@ const Cards = () => {
                 <button className="settings-action-btn" onClick={() => alert('Increase credit limit clicked')}>
                   <img src={limitIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Increase Credit Limit</span>
-                    <span className="btn-subtitle">Current limit: 0 ₼</span>
+                    <span className="btn-title">{t(userCardsLang, 'increaseLimit')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'currentLimit')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Google Pay clicked')}>
                   <img src={googlePayIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Set Up Google Pay</span>
-                    <span className="btn-subtitle">Card added</span>
+                    <span className="btn-title">{t(userCardsLang, 'setupGooglePay')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'cardAdded')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Card Design clicked')}>
                   <img src={cardDesignIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Card Design in Google Pay</span>
+                    <span className="btn-title">{t(userCardsLang, 'cardDesign')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Limits clicked')}>
                   <img src={limitsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Limits</span>
-                    <span className="btn-subtitle">For transfers and cash withdrawal</span>
+                    <span className="btn-title">{t(userCardsLang, 'limitsTitle')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'limitsDesc')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Change PIN clicked')}>
                   <img src={pinIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Change PIN Code</span>
-                    <span className="btn-subtitle">Card and app</span>
+                    <span className="btn-title">{t(userCardsLang, 'changePin')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'pinDesc')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Security Settings clicked')}>
                   <img src={securityIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Security Settings</span>
-                    <span className="btn-subtitle">Payment settings</span>
+                    <span className="btn-title">{t(userCardsLang, 'securitySettings')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'securityDesc')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Manage Subscriptions clicked')}>
                   <img src={subscriptionsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Manage Subscriptions</span>
-                    <span className="btn-subtitle">All services linked to the card</span>
+                    <span className="btn-title">{t(userCardsLang, 'manageSubscriptions')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'subscriptionsDesc')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Statements clicked')}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Statements & Certificates</span>
+                    <span className="btn-title">{t(userCardsLang, 'statementsAndCerts')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Account details clicked')}>
                   <img src={accountIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Account Details</span>
-                    <span className="btn-subtitle">Domestic and SWIFT</span>
+                    <span className="btn-title">{t(userCardsLang, 'accountDetailsTitle')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'accountDetailsDesc')}</span>
                   </div>
                 </button>
               </div>
@@ -494,28 +494,28 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setSelectedTransferCard(null)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2>Transfer Money</h2>
+              <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
               <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section">
-                <h3>Transfer Options</h3>
+                <h3>{t(userCardsLang, 'transferOptions')}</h3>
                 <button className="settings-action-btn" onClick={() => alert('Transferring to my accounts...')}>
                   <img src={transferMyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Transfer to my accounts</span>
+                    <span className="btn-title">{t(userCardsLang, 'transferToMyAccounts')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Transferring to card of any bank...')}>
                   <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Transfer to card of any bank</span>
+                    <span className="btn-title">{t(userCardsLang, 'transferToAnyBank')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => alert('Transferring to card of foreign bank...')}>
                   <img src={transferForeignIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">Transfer to card of foreign bank</span>
+                    <span className="btn-title">{t(userCardsLang, 'transferToForeignBank')}</span>
                   </div>
                 </button>
               </div>
@@ -528,22 +528,22 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowStripeMock(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2>Stripe Checkout (Mock)</h2>
+              <h2>{t(userCardsLang, 'stripeMockTitle')}</h2>
               <button className="close-btn" onClick={() => setShowStripeMock(false)}>✕</button>
             </div>
             <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p>You are about to pay {newCardForm.cardType === 'Premium' ? '19' : '9'} AZN using Stripe.</p>
+              <p>{t(userCardsLang, 'stripeMockDesc').replace('{fee}', newCardForm.cardType === 'Premium' ? '19' : '9')}</p>
               <div className="form-group">
-                <label>Card Number</label>
+                <label>{t(userCardsLang, 'cardNumberField')}</label>
                 <input type="text" className="cards-page__input" placeholder="0000 0000 0000 0000" />
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Expiry</label>
+                  <label>{t(userCardsLang, 'expiryField')}</label>
                   <input type="text" className="cards-page__input" placeholder="MM/YY" />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>CVC</label>
+                  <label>{t(userCardsLang, 'cvcField')}</label>
                   <input type="text" className="cards-page__input" placeholder="123" />
                 </div>
               </div>
@@ -554,7 +554,7 @@ const Cards = () => {
                   submitCardOrder()
                 }}
               >
-                Pay Now
+                {t(userCardsLang, 'payNow')}
               </button>
             </div>
           </div>

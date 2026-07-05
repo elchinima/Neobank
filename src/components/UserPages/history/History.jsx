@@ -28,10 +28,16 @@ const iconMap = {
 }
 
 const History = () => {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const { token } = useAuth()
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+
+  const locale = useMemo(() => {
+    if (language === 'az') return 'az-Latn-AZ'
+    if (language === 'ru') return 'ru-RU'
+    return 'en-US'
+  }, [language])
   const [expandedTxn, setExpandedTxn] = useState(null)
   const [historyList, setHistoryList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -56,9 +62,16 @@ const History = () => {
   const formattedHistory = useMemo(() => {
     return historyList.map(item => {
       const isPositive = item.type === 'Credit'
+      let title = item.description || item.category
+      
+      if (title && title.startsWith('Оплата 1-го месяца карты ')) {
+        const cardName = title.replace('Оплата 1-го месяца карты ', '')
+        title = `${t(historyLang, 'firstMonthFee')} ${cardName}`
+      }
+
       return {
         id: item.id,
-        title: item.description || item.category,
+        title: title,
         category: item.category,
         type: item.type === 'Credit' ? 'deposit' : 'payment',
         amount: isPositive ? Number(item.amount) : -Number(item.amount),
@@ -73,7 +86,7 @@ const History = () => {
         }
       }
     })
-  }, [historyList])
+  }, [historyList, t])
 
   const filteredHistory = useMemo(() => {
     return formattedHistory.filter(txn => {
@@ -89,19 +102,19 @@ const History = () => {
     const groups = {}
     filteredHistory.forEach(txn => {
       const dateObj = new Date(txn.date)
-      const dateKey = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+      const dateKey = dateObj.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
       if (!groups[dateKey]) groups[dateKey] = []
       groups[dateKey].push(txn)
     })
     return groups
-  }, [filteredHistory])
+  }, [filteredHistory, locale])
 
   const toggleExpand = (id) => {
     setExpandedTxn(expandedTxn === id ? null : id)
   }
 
   const formatTime = (dateStr) => {
-    return new Date(dateStr).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    return new Date(dateStr).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   }
 
   return (
@@ -113,9 +126,9 @@ const History = () => {
         </div>
 
         <div className="history-page__filters">
-          <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>All</button>
-          <button className={filter === 'payment' ? 'active' : ''} onClick={() => setFilter('payment')}>Payments</button>
-          <button className={filter === 'deposit' ? 'active' : ''} onClick={() => setFilter('deposit')}>Income</button>
+          <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>{t(historyLang, 'all')}</button>
+          <button className={filter === 'payment' ? 'active' : ''} onClick={() => setFilter('payment')}>{t(historyLang, 'expenses')}</button>
+          <button className={filter === 'deposit' ? 'active' : ''} onClick={() => setFilter('deposit')}>{t(historyLang, 'income')}</button>
         </div>
       </div>
 
@@ -126,7 +139,7 @@ const History = () => {
         </svg>
         <input
           type="text"
-          placeholder="Search by name, category, or amount..."
+          placeholder={t(historyLang, 'searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -134,10 +147,10 @@ const History = () => {
 
       <div className="history-page__list">
         {loading ? (
-          <div className="history-page__empty"><p>Loading history...</p></div>
+          <div className="history-page__empty"><p>{t(historyLang, 'loading')}</p></div>
         ) : Object.keys(groupedHistory).length === 0 ? (
           <div className="history-page__empty">
-            <p>No operations found in database.</p>
+            <p>{t(historyLang, 'noData')}</p>
           </div>
         ) : (
           Object.keys(groupedHistory).map(dateKey => (
@@ -178,15 +191,15 @@ const History = () => {
                         <div className="history-item__details" onClick={(e) => e.stopPropagation()}>
                           <div className="details-grid">
                             <div className="detail-item">
-                              <span className="detail-label">Transaction ID</span>
+                              <span className="detail-label">{t(historyLang, 'transactionId')}</span>
                               <span className="detail-value">{txn.id}</span>
                             </div>
                             <div className="detail-item">
-                              <span className="detail-label">Status</span>
+                              <span className="detail-label">{t(historyLang, 'status')}</span>
                               <span className={`detail-value status-${txn.status}`}>{txn.status}</span>
                             </div>
                             <div className="detail-item">
-                              <span className="detail-label">Account / Target</span>
+                              <span className="detail-label">{t(historyLang, 'accountTarget')}</span>
                               <span className="detail-value">{txn.details.account}</span>
                             </div>
                           </div>

@@ -246,6 +246,7 @@ const Payments = () => {
                           type={getPaymentFieldInfo(selectedCategory.id).type || 'text'}
                           inputMode={getPaymentFieldInfo(selectedCategory.id).inputMode || 'text'}
                           maxLength={getPaymentFieldInfo(selectedCategory.id).maxLength}
+                          minLength={getPaymentFieldInfo(selectedCategory.id).maxLength}
                           placeholder={getPaymentFieldInfo(selectedCategory.id).placeholder}
                           value={paymentForm.account}
                           onChange={e => setPaymentForm({ ...paymentForm, account: e.target.value })}
@@ -257,7 +258,7 @@ const Payments = () => {
                         <input
                           type="number"
                           step="0.01"
-                          min="0.1"
+                          min="1"
                           placeholder="0.00"
                           value={paymentForm.amount}
                           onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
