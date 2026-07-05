@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace NeoBank.Core.Entities;
 
 public class Card
@@ -13,5 +15,10 @@ public class Card
     public decimal Balance { get; set; } = 0.00m;
     public decimal MonthlyFee { get; set; } = 0.00m;
     public string Status { get; set; } = "Active";
+    public string Iban { get; set; } = string.Empty;
+    
+    [NotMapped]
+    public string Swift { get; } = "NEOBAZ22";
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -120,6 +120,9 @@ public class CardsController : ControllerBase
         var cardNumber = $"{prefix}{random.Next(100, 999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)}";
         var cvv = random.Next(100, 999).ToString();
         var expiry = DateTime.UtcNow.AddYears(3).ToString("MM/yy");
+        
+        var randomIbanDigits = $"{random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)}";
+        var iban = $"AZ12 NEOB {randomIbanDigits}";
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         var holderName = user != null ? $"{user.FirstName} {user.LastName}".ToUpper() : "CARD HOLDER";
@@ -138,7 +141,8 @@ public class CardsController : ControllerBase
             HolderName = holderName,
             Balance = initialBalance,
             MonthlyFee = monthlyFee,
-            Status = "Active"
+            Status = "Active",
+            Iban = iban
         };
 
         _context.Cards.Add(newCard);

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import Cookies from 'js-cookie'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
@@ -6,12 +7,12 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(() => localStorage.getItem('neobank_token'))
+  const [token, setToken] = useState(() => Cookies.get('neobank_token'))
   const [loading, setLoading] = useState(true)
 
   const refreshTokenFunc = useCallback(async () => {
     try {
-      const storedRefreshToken = localStorage.getItem('neobank_refresh_token')
+      const storedRefreshToken = Cookies.get('neobank_refresh_token')
       const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
         method: 'POST',
         headers: {
@@ -26,16 +27,16 @@ export function AuthProvider({ children }) {
       }
 
       const data = await response.json()
-      localStorage.setItem('neobank_token', data.token)
+      Cookies.set('neobank_token', data.token, { expires: 7 })
       if (data.refreshToken) {
-        localStorage.setItem('neobank_refresh_token', data.refreshToken)
+        Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
       }
       setToken(data.token)
       setUser(data.user)
       return data.token
     } catch (err) {
-      localStorage.removeItem('neobank_token')
-      localStorage.removeItem('neobank_refresh_token')
+      Cookies.remove('neobank_token')
+      Cookies.remove('neobank_refresh_token')
       setToken(null)
       setUser(null)
       return null
@@ -44,7 +45,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      const storedRefreshToken = localStorage.getItem('neobank_refresh_token')
+      const storedRefreshToken = Cookies.get('neobank_refresh_token')
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: {
@@ -56,8 +57,8 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.warn('Logout request error:', err)
     } finally {
-      localStorage.removeItem('neobank_token')
-      localStorage.removeItem('neobank_refresh_token')
+      Cookies.remove('neobank_token')
+      Cookies.remove('neobank_refresh_token')
       setToken(null)
       setUser(null)
     }
@@ -65,7 +66,7 @@ export function AuthProvider({ children }) {
 
   const fetchWithAuth = useCallback(
     async (url, options = {}) => {
-      let currentToken = token || localStorage.getItem('neobank_token')
+      let currentToken = token || Cookies.get('neobank_token')
 
       const headers = {
         ...options.headers,
@@ -100,7 +101,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     async function checkAuth() {
-      const storedToken = localStorage.getItem('neobank_token')
+      const storedToken = Cookies.get('neobank_token')
       if (!storedToken) {
         const refreshedToken = await refreshTokenFunc()
         if (!refreshedToken) {
@@ -110,7 +111,7 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const currentToken = localStorage.getItem('neobank_token')
+        const currentToken = Cookies.get('neobank_token')
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${currentToken}`,
@@ -164,9 +165,9 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || 'Login failed')
     }
 
-    localStorage.setItem('neobank_token', data.token)
+    Cookies.set('neobank_token', data.token, { expires: 7 })
     if (data.refreshToken) {
-      localStorage.setItem('neobank_refresh_token', data.refreshToken)
+      Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
     }
     setToken(data.token)
     setUser(data.user)
@@ -189,9 +190,9 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || 'Registration failed')
     }
 
-    localStorage.setItem('neobank_token', data.token)
+    Cookies.set('neobank_token', data.token, { expires: 7 })
     if (data.refreshToken) {
-      localStorage.setItem('neobank_refresh_token', data.refreshToken)
+      Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
     }
     setToken(data.token)
     setUser(data.user)

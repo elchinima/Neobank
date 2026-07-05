@@ -170,7 +170,11 @@ const Cards = () => {
       setShowNewCardModal(false)
       fetchCards()
     } catch (err) {
-      setNewCardError(err.message)
+      let errorMsg = err.message
+      if (errorMsg === 'This card is blocked and cannot be used for payment.') {
+        errorMsg = t(userCardsLang, 'cardBlockedError')
+      }
+      setNewCardError(errorMsg)
     } finally {
       setSubmittingCard(false)
     }
@@ -249,10 +253,6 @@ const Cards = () => {
     setTimeout(() => setCopiedField(null), 2000)
   }
 
-  const generateIBAN = (cardNumber) => {
-    if (!cardNumber) return ''
-    return `AZ12 NEOB 0000 0000 0000 ${cardNumber.slice(-4)}`
-  }
 
   return (
     <div className="user-cards-page">
@@ -368,7 +368,7 @@ const Cards = () => {
               <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
-              <form onSubmit={handleAcquireCard} className="new-card-form">
+              <form onSubmit={handleAcquireCard} className="modal-form">
                 {newCardError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newCardError}</div>}
 
                 <div className="form-group">
@@ -596,12 +596,11 @@ const Cards = () => {
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
-                <form onSubmit={handleInternalTransferSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form onSubmit={handleInternalTransferSubmit} className="modal-form">
                   {internalTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{internalTransferError}</div>}
                   <div className="form-group">
                     <label>{t(userCardsLang, 'sourceCard')}</label>
                     <select
-                      className="cards-page__input"
                       value={internalTransferForm.sourceCardId}
                       onChange={e => setInternalTransferForm({ ...internalTransferForm, sourceCardId: e.target.value })}
                       required
@@ -615,7 +614,6 @@ const Cards = () => {
                   <div className="form-group">
                     <label>{t(userCardsLang, 'destCard')}</label>
                     <select
-                      className="cards-page__input"
                       value={internalTransferForm.destCardId}
                       onChange={e => setInternalTransferForm({ ...internalTransferForm, destCardId: e.target.value })}
                       required
@@ -632,7 +630,6 @@ const Cards = () => {
                       type="number"
                       step="0.01"
                       min="1"
-                      className="cards-page__input"
                       placeholder="0.00"
                       value={internalTransferForm.amount}
                       onChange={e => setInternalTransferForm({ ...internalTransferForm, amount: e.target.value })}
@@ -679,11 +676,11 @@ const Cards = () => {
                 <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'ibanLabel')}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff', wordBreak: 'break-all', paddingRight: '10px' }}>
-                    {generateIBAN(selectedSettingsCard.cardNumber)}
+                    {selectedSettingsCard.iban}
                   </span>
                   <button 
                     className="copy-btn" 
-                    onClick={() => handleCopy(generateIBAN(selectedSettingsCard.cardNumber), 'iban')}
+                    onClick={() => handleCopy(selectedSettingsCard.iban, 'iban')}
                     style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     {copiedField === 'iban' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
@@ -695,11 +692,11 @@ const Cards = () => {
                 <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'swiftLabel')}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff' }}>
-                    NEOBAZ22
+                    {selectedSettingsCard.swift}
                   </span>
                   <button 
                     className="copy-btn" 
-                    onClick={() => handleCopy('NEOBAZ22', 'swift')}
+                    onClick={() => handleCopy(selectedSettingsCard.swift, 'swift')}
                     style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     {copiedField === 'swift' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
