@@ -101,7 +101,8 @@ export const userCardsLang = {
     ibanLabel: 'IBAN',
     swiftLabel: 'SWIFT Code',
     copyBtn: 'Copy',
-    copiedBtn: 'Copied!'
+    copiedBtn: 'Copied!',
+    insufficientFundsShort: 'Insufficient funds on the card.'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -205,7 +206,8 @@ export const userCardsLang = {
     ibanLabel: 'IBAN',
     swiftLabel: 'SWIFT Kodu',
     copyBtn: 'Kopyala',
-    copiedBtn: 'Kopyalandı!'
+    copiedBtn: 'Kopyalandı!',
+    insufficientFundsShort: 'Kartda kifayət qədər vəsait yoxdur.'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -309,6 +311,7 @@ export const userCardsLang = {
     ibanLabel: 'IBAN',
     swiftLabel: 'SWIFT-код',
     copyBtn: 'Копировать',
-    copiedBtn: 'Скопировано!'
+    copiedBtn: 'Скопировано!',
+    insufficientFundsShort: 'Недостаточно средств на карте.'
   }
 }

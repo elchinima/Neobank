@@ -3800,6 +3800,7 @@
       "Microsoft.EntityFrameworkCore.Design >= 10.0.9",
       "NeoBank.Application >= 1.0.0",
       "NeoBank.Infrastructure >= 1.0.0",
+      "Stripe.net >= 52.1.0",
       "Swashbuckle.AspNetCore >= 7.3.1"
     ]
   },
@@ -3839,8 +3840,8 @@
             "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj": {
               "projectPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj"
             },
-            "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {
-              "projectPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj"
+            "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj": {
+              "projectPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj"
             }
           }
         }
@@ -3871,6 +3872,10 @@
             "suppressParent": "All",
             "target": "Package",
             "version": "[10.0.9, )"
+          },
+          "Stripe.net": {
+            "target": "Package",
+            "version": "[52.1.0, )"
           },
           "Swashbuckle.AspNetCore": {
             "target": "Package",

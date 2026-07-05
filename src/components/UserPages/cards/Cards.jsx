@@ -1,6 +1,55 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import './Cards.scss'
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setProcessing(true);
+    const { error: submitError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.href,
+      },
+      redirect: 'if_required'
+    });
+    
+    if (submitError) {
+      setError(submitError.message);
+      setProcessing(false);
+    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+      onPaymentSuccess(paymentIntent.id);
+    } else {
+      setError("Payment failed");
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="modal-form">
+      {error && <div className="error-message" style={{ color: '#ff4d4d' }}>{error}</div>}
+      <PaymentElement />
+      <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+        <button type="submit" disabled={!stripe || processing} className="cards-page__button cards-page__button--primary" style={{ flex: 1 }}>
+          {processing ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payNow')}
+        </button>
+        <button type="button" onClick={onCancel} className="cards-page__button" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}>
+           ✕
+        </button>
+      </div>
+    </form>
+  );
+};
 import standartCardMc from '../../../assets/images/standart_card_mc.png'
 import premiumCardMc from '../../../assets/images/premium_card_mc.png'
 import eliteCardMc from '../../../assets/images/elite_card_mc.png'
@@ -113,7 +162,7 @@ const Cards = () => {
     { titleKey: 'catOtherTitle', textKey: 'catOtherText', rate: '0.1%', earned: 0.15 },
   ]
   const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
-  const [showStripeMock, setShowStripeMock] = useState(false);
+  const [stripeClientSecret, setStripeClientSecret] = useState(null);
 
   const handleAcquireCard = async (e) => {
     e.preventDefault()
@@ -137,14 +186,31 @@ const Cards = () => {
     }
 
     if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
-      setShowStripeMock(true)
-      return
+      try {
+        setSubmittingCard(true);
+        const res = await fetch(`${API_BASE_URL}/cards/create-payment-intent`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ cardType: newCardForm.cardType })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || t(userCardsLang, 'orderCardError'));
+        setStripeClientSecret(data.clientSecret);
+      } catch (err) {
+        setNewCardError(err.message);
+      } finally {
+        setSubmittingCard(false);
+      }
+      return;
     }
 
     submitCardOrder()
   }
 
-  const submitCardOrder = async () => {
+  const submitCardOrder = async (paymentIntentId = null) => {
     const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
     try {
       setSubmittingCard(true)
@@ -158,7 +224,8 @@ const Cards = () => {
           cardType: newCardForm.cardType,
           network: newCardForm.network,
           paymentMethod: fee === 0 ? 'free' : newCardForm.paymentMethod,
-          sourceCardId: newCardForm.sourceCardId
+          sourceCardId: newCardForm.sourceCardId,
+          paymentIntentId
         })
       })
 
@@ -242,7 +309,11 @@ const Cards = () => {
         setInternalTransferForm({ sourceCardId: '', destCardId: '', amount: '' })
       }, 2000)
     } catch (err) {
-      setInternalTransferError(err.message)
+      let errorMsg = err.message
+      if (errorMsg === 'Insufficient funds on the card.') {
+        errorMsg = t(userCardsLang, 'insufficientFundsShort')
+      }
+      setInternalTransferError(errorMsg)
       setInternalTransferStatus('idle')
     }
   }
@@ -708,38 +779,25 @@ const Cards = () => {
         </div>
       )}
 
-      {showStripeMock && (
-        <div className="card-modal-overlay" onClick={() => setShowStripeMock(false)}>
+      {stripeClientSecret && (
+        <div className="card-modal-overlay" onClick={() => setStripeClientSecret(null)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2>{t(userCardsLang, 'stripeMockTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowStripeMock(false)}>✕</button>
+              <h2>{t(userCardsLang, 'stripeMockTitle').replace(' (Maket)', '')}</h2>
+              <button className="close-btn" onClick={() => setStripeClientSecret(null)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p>{t(userCardsLang, 'stripeMockDesc').replace('{fee}', newCardForm.cardType === 'Premium' ? '19' : '9')}</p>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'cardNumberField')}</label>
-                <input type="text" className="cards-page__input" placeholder="0000 0000 0000 0000" />
-              </div>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>{t(userCardsLang, 'expiryField')}</label>
-                  <input type="text" className="cards-page__input" placeholder="MM/YY" />
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>{t(userCardsLang, 'cvcField')}</label>
-                  <input type="text" className="cards-page__input" placeholder="123" />
-                </div>
-              </div>
-              <button
-                className="cards-page__button cards-page__button--primary"
-                onClick={() => {
-                  setShowStripeMock(false)
-                  submitCardOrder()
-                }}
-              >
-                {t(userCardsLang, 'payNow')}
-              </button>
+            <div className="card-modal__content">
+              <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret, appearance: { theme: 'night', labels: 'floating' } }}>
+                <StripeCheckoutForm 
+                  onPaymentSuccess={(paymentIntentId) => {
+                    setStripeClientSecret(null);
+                    submitCardOrder(paymentIntentId);
+                  }}
+                  onCancel={() => setStripeClientSecret(null)}
+                  t={t}
+                  userCardsLang={userCardsLang}
+                />
+              </Elements>
             </div>
           </div>
         </div>

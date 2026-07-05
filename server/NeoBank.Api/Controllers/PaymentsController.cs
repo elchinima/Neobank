@@ -77,6 +77,28 @@ public class PaymentsController : ControllerBase
         };
 
         _context.Transactions.Add(transaction);
+
+        if (request.CategoryName == "Transfer" && request.ProviderName == "Internal Transfer")
+        {
+            var destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
+            if (destCard != null)
+            {
+                destCard.Balance += request.Amount;
+                var creditTransaction = new Transaction
+                {
+                    UserId = destCard.UserId,
+                    CardId = destCard.Id,
+                    Amount = request.Amount,
+                    Type = "Credit",
+                    Category = "Transfer",
+                    Description = $"Transfer from {card.CardNumber}",
+                    RecipientAccount = card.CardNumber,
+                    Status = "Completed"
+                };
+                _context.Transactions.Add(creditTransaction);
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         return Ok(new

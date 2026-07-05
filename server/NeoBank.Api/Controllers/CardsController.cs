@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
+using Stripe;
 
 namespace NeoBank.Api.Controllers;
 
@@ -17,6 +18,7 @@ public class CardsController : ControllerBase
     public CardsController(IApplicationDbContext context)
     {
         _context = context;
+        StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
     }
 
     private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -35,12 +37,52 @@ public class CardsController : ControllerBase
         return Ok(cards);
     }
 
+    public class CreatePaymentIntentRequest
+    {
+        public string CardType { get; set; } = "Premium";
+    }
+
+    [HttpPost("create-payment-intent")]
+    public IActionResult CreatePaymentIntent([FromBody] CreatePaymentIntentRequest request)
+    {
+        long amount = request.CardType switch
+        {
+            "Premium" => 1900,
+            "Elite" => 900,
+            _ => 0
+        };
+
+        if (amount == 0) return BadRequest(new { message = "Invalid card type or free card." });
+
+        var options = new PaymentIntentCreateOptions
+        {
+            Amount = amount,
+            Currency = "azn",
+            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+            {
+                Enabled = true,
+            },
+        };
+
+        var service = new PaymentIntentService();
+        try
+        {
+            var intent = service.Create(options);
+            return Ok(new { clientSecret = intent.ClientSecret });
+        }
+        catch (StripeException e)
+        {
+            return BadRequest(new { message = e.StripeError.Message });
+        }
+    }
+
     public class AcquireCardRequest
     {
         public string CardType { get; set; } = "Standard";
         public string Network { get; set; } = "Visa";
         public string PaymentMethod { get; set; } = "free";
         public string? SourceCardId { get; set; }
+        public string? PaymentIntentId { get; set; }
     }
 
     [HttpPost("acquire")]
@@ -110,7 +152,18 @@ public class CardsController : ControllerBase
             }
             else if (request.PaymentMethod == "stripe")
             {
+                if (string.IsNullOrEmpty(request.PaymentIntentId))
+                {
+                    return BadRequest(new { message = "Payment intent ID is required for Stripe payment." });
+                }
 
+                var service = new PaymentIntentService();
+                var intent = service.Get(request.PaymentIntentId);
+
+                if (intent.Status != "succeeded")
+                {
+                    return BadRequest(new { message = "Payment not successful." });
+                }
             }
         }
 
@@ -130,7 +183,7 @@ public class CardsController : ControllerBase
 
         decimal initialBalance = 0.00m;
 
-        var newCard = new Card
+        var newCard = new NeoBank.Core.Entities.Card
         {
             UserId = userId,
             CardType = request.CardType,
