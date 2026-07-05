@@ -69,6 +69,7 @@ public class AvatarProcessingService : IAvatarProcessingService
         webpStream.Position = 0;
 
         var fileName = $"{userId}_{DateTime.UtcNow.Ticks}.webp";
+        var objectPath = $"images/{userId}/{fileName}";
 
         var supabaseUrl = _configuration["Supabase:Url"] ?? _configuration["SUPABASE_URL"];
         var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
@@ -78,7 +79,7 @@ public class AvatarProcessingService : IAvatarProcessingService
         {
             try
             {
-                var uploadUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/{fileName}";
+                var uploadUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/{objectPath}";
                 var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", supabaseKey);
                 request.Headers.Add("apiKey", supabaseKey);
@@ -88,7 +89,7 @@ public class AvatarProcessingService : IAvatarProcessingService
                 var response = await _httpClient.SendAsync(request);
                 if (response.IsSuccessStatusCode)
                 {
-                    var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/{fileName}";
+                    var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/{objectPath}";
                     return publicUrl;
                 }
                 else
@@ -104,11 +105,11 @@ public class AvatarProcessingService : IAvatarProcessingService
         }
 
 
-        var localFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
+        var localFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars", "images", userId);
         Directory.CreateDirectory(localFolder);
         var localFilePath = Path.Combine(localFolder, fileName);
         await File.WriteAllBytesAsync(localFilePath, webpStream.ToArray());
 
-        return $"/uploads/avatars/{fileName}";
+        return $"/uploads/avatars/images/{userId}/{fileName}";
     }
 }

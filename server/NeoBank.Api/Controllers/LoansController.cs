@@ -49,18 +49,18 @@ public class LoansController : ControllerBase
 
         if (request.Amount < 500 || request.Amount > 100000)
         {
-            return BadRequest(new { message = "Сумма кредита должна быть от 500 до 100,000 AZN." });
+            return BadRequest(new { message = "The loan amount must be between 500 and 100,000 AZN." });
         }
 
         if (request.TermMonths < 3 || request.TermMonths > 84)
         {
-            return BadRequest(new { message = "Срок кредита должен быть от 3 до 84 месяцев." });
+            return BadRequest(new { message = "The loan term must be between 3 and 84 months." });
         }
 
         var targetCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.TargetCardId && c.UserId == userId);
         if (targetCard == null)
         {
-            return NotFound(new { message = "Карта для зачисления средств не найдена." });
+            return NotFound(new { message = "Destination card not found." });
         }
 
         decimal rate = 9.9m;
@@ -90,7 +90,7 @@ public class LoansController : ControllerBase
             Amount = request.Amount,
             Type = "Credit",
             Category = "LoanPayout",
-            Description = $"Зачисление кредита ({request.Amount} AZN на {request.TermMonths} мес.)",
+            Description = $"Loan disbursement ({request.Amount} AZN for {request.TermMonths} months)",
             Status = "Completed"
         };
 
@@ -102,7 +102,7 @@ public class LoansController : ControllerBase
         {
             loan,
             newBalance = targetCard.Balance,
-            message = "Кредит успешно оформлен и средства зачислены на карту."
+            message = "Loan successfully processed and funds disbursed to the card."
         });
     }
 }

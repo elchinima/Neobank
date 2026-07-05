@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import './Cards.scss'
-import standartCard from '../../../assets/images/standart_card_mc.png'
-import premiumCard from '../../../assets/images/premium_card_mc.png'
-import eliteCard from '../../../assets/images/elite_card_mc.png'
+import standartCardMc from '../../../assets/images/standart_card_mc.png'
+import premiumCardMc from '../../../assets/images/premium_card_mc.png'
+import eliteCardMc from '../../../assets/images/elite_card_mc.png'
+import standartCardVisa from '../../../assets/images/standart_card_visa.png'
+import premiumCardVisa from '../../../assets/images/premium_card_visa.png'
+import eliteCardVisa from '../../../assets/images/elite_card_visa.png'
+
+const cardImages = {
+  Standard: { Mastercard: standartCardMc, Visa: standartCardVisa },
+  Premium: { Mastercard: premiumCardMc, Visa: premiumCardVisa },
+  Elite: { Mastercard: eliteCardMc, Visa: eliteCardVisa }
+}
 
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
@@ -33,22 +42,7 @@ import shoppingBubbleIcon from '../../../assets/icons/User/shopping_bubble.svg'
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
-const cardImages = {
-  Standard: standartCard,
-  Premium: premiumCard,
-  Elite: eliteCard
-}
 
-const categoryProgram = [
-  { title: 'Every 5th metro or bus ride', rate: '100%', text: 'Calculated from the average fare across all five rides.', earned: 2.50 },
-  { title: 'Supermarkets', rate: '5%', text: 'Everyday grocery spending earns the highest retail rate.', earned: 8.40 },
-  { title: 'Pharmacies', rate: '3%', text: 'Health and pharmacy purchases are included automatically.', earned: 1.20 },
-  { title: 'Fuel stations', rate: '3%', text: 'Cashback for regular car expenses and fuel payments.', earned: 4.50 },
-  { title: 'Restaurants, cafes, sweets', rate: '2%', text: 'Dining, coffee, desserts, and similar food categories.', earned: 5.80 },
-  { title: 'Clothing and shoes', rate: '2%', text: 'Fashion, footwear, and wardrobe essentials.', earned: 3.00 },
-  { title: 'Trendyol and Temu', rate: '1%', text: 'Online marketplace purchases through popular platforms.', earned: 0.00 },
-  { title: 'Other payments', rate: '0.1%', text: 'A base reward for payments outside the main categories.', earned: 0.15 },
-]
 
 const Cards = () => {
   const { t } = useLanguage()
@@ -102,7 +96,18 @@ const Cards = () => {
     }
   }, [token])
 
+  const categoryProgram = [
+    { titleKey: 'catMetroTitle', textKey: 'catMetroText', rate: '100%', earned: 2.50 },
+    { titleKey: 'catSuperTitle', textKey: 'catSuperText', rate: '5%', earned: 8.40 },
+    { titleKey: 'catPharmTitle', textKey: 'catPharmText', rate: '3%', earned: 1.20 },
+    { titleKey: 'catFuelTitle', textKey: 'catFuelText', rate: '3%', earned: 4.50 },
+    { titleKey: 'catRestTitle', textKey: 'catRestText', rate: '2%', earned: 5.80 },
+    { titleKey: 'catClothTitle', textKey: 'catClothText', rate: '2%', earned: 3.00 },
+    { titleKey: 'catTrendTitle', textKey: 'catTrendText', rate: '1%', earned: 0.00 },
+    { titleKey: 'catOtherTitle', textKey: 'catOtherText', rate: '0.1%', earned: 0.15 },
+  ]
   const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
+  const [showStripeMock, setShowStripeMock] = useState(false);
 
   const handleAcquireCard = async (e) => {
     e.preventDefault()
@@ -115,7 +120,7 @@ const Cards = () => {
       return
     }
 
-    const fee = newCardForm.cardType === 'Premium' ? 10 : (newCardForm.cardType === 'Elite' ? 25 : 0)
+    const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
 
     if (fee > 0 && newCardForm.paymentMethod === 'balance') {
       const sourceCard = cards.find(c => c.id === newCardForm.sourceCardId)
@@ -125,6 +130,16 @@ const Cards = () => {
       }
     }
 
+    if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
+      setShowStripeMock(true)
+      return
+    }
+
+    submitCardOrder()
+  }
+
+  const submitCardOrder = async () => {
+    const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
     try {
       setSubmittingCard(true)
       const res = await fetch(`${API_BASE_URL}/cards/acquire`, {
@@ -199,11 +214,7 @@ const Cards = () => {
               onClick={() => setActiveCardId(card.id)}
             >
               <div className="card-image-wrapper">
-                <img
-                  src={cardImages[card.cardType] || standartCard}
-                  alt={`${card.cardType} Card`}
-                  className="card-image"
-                />
+                <img src={cardImages[card.cardType][card.network] || cardImages['Standard']['Mastercard']} alt={card.cardType} className="card-image-content" />
               </div>
               <div className="card-details">
                 <div className="card-info-header">
@@ -256,11 +267,11 @@ const Cards = () => {
         </div>
         <div className="cashback-offers">
           {categoryProgram.map((item) => (
-            <div className="cashback-offer" key={item.title}>
+            <div className="cashback-offer" key={item.titleKey}>
               <strong>{item.rate}</strong>
               <div className="cashback-offer-info">
-                <h4>{item.title}</h4>
-                <p>{item.text}</p>
+                <h4>{t(userCardsLang, item.titleKey)}</h4>
+                <p>{t(userCardsLang, item.textKey)}</p>
                 {showLimits && (
                   <div className="cashback-limits">
                     <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
@@ -322,7 +333,7 @@ const Cards = () => {
                 {(newCardForm.cardType === 'Premium' || newCardForm.cardType === 'Elite') && (
                   <div className="fee-payment-box">
                     <p className="fee-payment-text">
-                      <span data-lang-key="feePaymentBoxText">{t(userCardsLang, 'feePaymentBoxText')}</span> ({newCardForm.cardType === 'Premium' ? '10' : '25'} AZN):
+                      <span data-lang-key="feePaymentBoxText">{t(userCardsLang, 'feePaymentBoxText')}</span> ({newCardForm.cardType === 'Premium' ? '19' : '9'} AZN):
                     </p>
 
                     <div className="form-group">
@@ -405,17 +416,146 @@ const Cards = () => {
 
               <div className="settings-section">
                 <h3 data-lang-key="settings">{t(userCardsLang, 'settings')}</h3>
-                <button
-                  className="settings-action-btn danger"
-                  onClick={() => handleToggleBlock(selectedSettingsCard.id)}
-                >
+                <button className="settings-action-btn danger" onClick={() => handleToggleBlock(selectedSettingsCard.id)}>
                   <img src={blockIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{selectedSettingsCard.status === 'Active' ? t(userCardsLang, 'blockPlasticCard') : t(userCardsLang, 'unblockPlasticCard')}</span>
                     <span className="btn-subtitle" data-lang-key="toggleCardStatus">{t(userCardsLang, 'toggleCardStatus')}</span>
                   </div>
                 </button>
+                <button className="settings-action-btn" onClick={() => alert('Increase credit limit clicked')}>
+                  <img src={limitIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Increase Credit Limit</span>
+                    <span className="btn-subtitle">Current limit: 0 ₼</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Google Pay clicked')}>
+                  <img src={googlePayIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Set Up Google Pay</span>
+                    <span className="btn-subtitle">Card added</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Card Design clicked')}>
+                  <img src={cardDesignIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Card Design in Google Pay</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Limits clicked')}>
+                  <img src={limitsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Limits</span>
+                    <span className="btn-subtitle">For transfers and cash withdrawal</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Change PIN clicked')}>
+                  <img src={pinIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Change PIN Code</span>
+                    <span className="btn-subtitle">Card and app</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Security Settings clicked')}>
+                  <img src={securityIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Security Settings</span>
+                    <span className="btn-subtitle">Payment settings</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Manage Subscriptions clicked')}>
+                  <img src={subscriptionsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Manage Subscriptions</span>
+                    <span className="btn-subtitle">All services linked to the card</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Statements clicked')}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Statements & Certificates</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Account details clicked')}>
+                  <img src={accountIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Account Details</span>
+                    <span className="btn-subtitle">Domestic and SWIFT</span>
+                  </div>
+                </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTransferCard && (
+        <div className="card-modal-overlay" onClick={() => setSelectedTransferCard(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>Transfer Money</h2>
+              <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <h3>Transfer Options</h3>
+                <button className="settings-action-btn" onClick={() => alert('Transferring to my accounts...')}>
+                  <img src={transferMyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Transfer to my accounts</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Transferring to card of any bank...')}>
+                  <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Transfer to card of any bank</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => alert('Transferring to card of foreign bank...')}>
+                  <img src={transferForeignIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">Transfer to card of foreign bank</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStripeMock && (
+        <div className="card-modal-overlay" onClick={() => setShowStripeMock(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>Stripe Checkout (Mock)</h2>
+              <button className="close-btn" onClick={() => setShowStripeMock(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <p>You are about to pay {newCardForm.cardType === 'Premium' ? '19' : '9'} AZN using Stripe.</p>
+              <div className="form-group">
+                <label>Card Number</label>
+                <input type="text" className="cards-page__input" placeholder="0000 0000 0000 0000" />
+              </div>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Expiry</label>
+                  <input type="text" className="cards-page__input" placeholder="MM/YY" />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>CVC</label>
+                  <input type="text" className="cards-page__input" placeholder="123" />
+                </div>
+              </div>
+              <button
+                className="cards-page__button cards-page__button--primary"
+                onClick={() => {
+                  setShowStripeMock(false)
+                  submitCardOrder()
+                }}
+              >
+                Pay Now
+              </button>
             </div>
           </div>
         </div>

@@ -49,18 +49,18 @@ public class DepositsController : ControllerBase
 
         if (request.Amount < 100)
         {
-            return BadRequest(new { message = "Минимальная сумма депозита — 100 AZN." });
+            return BadRequest(new { message = "The minimum deposit amount is 100 AZN." });
         }
 
         var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.SourceCardId && c.UserId == userId);
         if (sourceCard == null)
         {
-            return NotFound(new { message = "Карта для списания не найдена." });
+            return NotFound(new { message = "Source card not found." });
         }
 
         if (sourceCard.Balance < request.Amount)
         {
-            return BadRequest(new { message = "Недостаточно средств на карте." });
+            return BadRequest(new { message = "Insufficient funds on the card." });
         }
 
         decimal rate = 12.0m;
@@ -87,7 +87,7 @@ public class DepositsController : ControllerBase
             Amount = request.Amount,
             Type = "Debit",
             Category = "DepositFunding",
-            Description = $"Открытие депозита ({request.Amount} AZN на {request.TermMonths} мес.)",
+            Description = $"Deposit opening ({request.Amount} AZN for {request.TermMonths} months)",
             Status = "Completed"
         };
 
@@ -99,7 +99,7 @@ public class DepositsController : ControllerBase
         {
             deposit,
             newBalance = sourceCard.Balance,
-            message = "Депозит успешно открыт."
+            message = "Deposit successfully opened."
         });
     }
 }

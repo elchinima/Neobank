@@ -54,13 +54,13 @@ public class CardsController : ControllerBase
 
         if (existingCard != null)
         {
-            return BadRequest(new { message = $"Вы уже владеете картой типа {request.CardType}. Разрешено иметь только 1 карту каждого типа." });
+            return BadRequest(new { message = $"You already own a {request.CardType} card. Only 1 card per type is allowed." });
         }
 
         decimal monthlyFee = request.CardType switch
         {
-            "Premium" => 10.00m,
-            "Elite" => 25.00m,
+            "Premium" => 19.00m,
+            "Elite" => 9.00m,
             _ => 0.00m
         };
 
@@ -71,7 +71,7 @@ public class CardsController : ControllerBase
             {
                 if (string.IsNullOrEmpty(request.SourceCardId))
                 {
-                    return BadRequest(new { message = "Выберите карту для оплаты первого месяца подписки." });
+                    return BadRequest(new { message = "Please select a card to pay for the first month's subscription." });
                 }
 
                 var sourceCard = await _context.Cards
@@ -79,12 +79,17 @@ public class CardsController : ControllerBase
 
                 if (sourceCard == null)
                 {
-                    return BadRequest(new { message = "Карта для оплаты не найдена." });
+                    return BadRequest(new { message = "Payment card not found." });
+                }
+
+                if (sourceCard.Status != "Active")
+                {
+                    return BadRequest(new { message = "This card is blocked and cannot be used for payment." });
                 }
 
                 if (sourceCard.Balance < monthlyFee)
                 {
-                    return BadRequest(new { message = $"Недостаточно средств на карте. Требуется {monthlyFee} AZN." });
+                    return BadRequest(new { message = $"Insufficient funds on the card. {monthlyFee} AZN required." });
                 }
 
 
@@ -98,7 +103,7 @@ public class CardsController : ControllerBase
                     Amount = monthlyFee,
                     Type = "Debit",
                     Category = "CardFee",
-                    Description = $"Оплата 1-го месяца карты {request.CardType}",
+                    Description = $"Payment for the 1st month of {request.CardType} card",
                     Status = "Completed"
                 };
                 _context.Transactions.Add(feeTransaction);
@@ -120,7 +125,7 @@ public class CardsController : ControllerBase
         var holderName = user != null ? $"{user.FirstName} {user.LastName}".ToUpper() : "CARD HOLDER";
 
 
-        decimal initialBalance = request.CardType == "Standard" ? 100.00m : 0.00m;
+        decimal initialBalance = 0.00m;
 
         var newCard = new Card
         {
@@ -155,7 +160,7 @@ public class CardsController : ControllerBase
 
         if (card == null)
         {
-            return NotFound(new { message = "Карта не найдена." });
+            return NotFound(new { message = "Card not found." });
         }
 
         card.Status = card.Status == "Active" ? "Blocked" : "Active";

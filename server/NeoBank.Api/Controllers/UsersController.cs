@@ -41,7 +41,7 @@ public class UsersController : ControllerBase
                 await _context.SaveChangesAsync();
             }
 
-            return Ok(new { avatarUrl, message = "Аватар успешно загружен и обработан (512x512, WebP, 50% сжатие)." });
+            return Ok(new { avatarUrl, message = "Avatar successfully uploaded and processed (512x512, WebP, 50% compression)." });
         }
         catch (ArgumentException ex)
         {
@@ -49,7 +49,7 @@ public class UsersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Ошибка при обработке изображения: " + ex.Message });
+            return StatusCode(500, new { message = "Error processing image: " + ex.Message });
         }
     }
 }

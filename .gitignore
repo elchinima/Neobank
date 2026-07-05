@@ -29,3 +29,7 @@ artifacts
 # Secrets & environment configs
 secret
 secret/*
+
+# .NET
+[Bb]in/
+[Oo]bj/

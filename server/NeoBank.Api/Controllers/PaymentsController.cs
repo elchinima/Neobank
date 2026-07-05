@@ -42,24 +42,24 @@ public class PaymentsController : ControllerBase
 
         if (request.Amount <= 0)
         {
-            return BadRequest(new { message = "Смма платежа должна быть больше 0." });
+            return BadRequest(new { message = "The payment amount must be greater than 0." });
         }
 
         var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId && c.UserId == userId);
 
         if (card == null)
         {
-            return NotFound(new { message = "Карта не найдена." });
+            return NotFound(new { message = "Card not found." });
         }
 
         if (card.Status != "Active")
         {
-            return BadRequest(new { message = "Карта заблокирована." });
+            return BadRequest(new { message = "The card is blocked." });
         }
 
         if (card.Balance < request.Amount)
         {
-            return BadRequest(new { message = "Недостаточно средств на карте." });
+            return BadRequest(new { message = "Insufficient funds on the card." });
         }
 
         card.Balance -= request.Amount;
@@ -71,7 +71,7 @@ public class PaymentsController : ControllerBase
             Amount = request.Amount,
             Type = "Debit",
             Category = request.CategoryName,
-            Description = $"Оплата {request.ProviderName} ({request.RecipientAccount})",
+            Description = $"Payment for {request.ProviderName} ({request.RecipientAccount})",
             RecipientAccount = request.RecipientAccount,
             Status = "Completed"
         };
@@ -84,14 +84,14 @@ public class PaymentsController : ControllerBase
             success = true,
             transactionId = transaction.Id,
             newBalance = card.Balance,
-            message = "Платеж успешно выполнен."
+            message = "Payment successfully completed."
         });
     }
 
     public class StripeIntentRequest
     {
         public decimal Amount { get; set; }
-        public string Description { get; set; } = "Оплата через Stripe";
+        public string Description { get; set; } = "Payment via Stripe";
     }
 
     [HttpPost("stripe/intent")]
@@ -100,7 +100,7 @@ public class PaymentsController : ControllerBase
         var clientSecret = await _stripeService.CreatePaymentIntentAsync(request.Amount, "azn", request.Description);
         if (string.IsNullOrEmpty(clientSecret))
         {
-            return BadRequest(new { message = "Не удалось инициализировать Stripe платеж." });
+            return BadRequest(new { message = "Failed to initialize Stripe payment." });
         }
 
         return Ok(new { clientSecret });
