@@ -17,7 +17,11 @@ export const historyLang = {
     loading: 'Loading history...',
     noData: 'No operations found in database.',
     transactionId: 'Transaction ID',
-    accountTarget: 'Account / Target'
+    accountTarget: 'Account / Target',
+    internalTransfer: 'Internal Transfer',
+    success: 'Success',
+    pending: 'Pending',
+    failed: 'Failed'
   },
   az: {
     title: 'Əməliyyat Tarixçəsi',
@@ -37,7 +41,11 @@ export const historyLang = {
     loading: 'Tarixçə yüklənir...',
     noData: 'Məlumat bazasında əməliyyat tapılmadı.',
     transactionId: 'Əməliyyat ID',
-    accountTarget: 'Hesab / Hədəf'
+    accountTarget: 'Hesab / Hədəf',
+    internalTransfer: 'Daxili Köçürmə',
+    success: 'Uğurlu',
+    pending: 'Gözləyir',
+    failed: 'Xəta'
   },
   ru: {
     title: 'История операций',
@@ -57,6 +65,10 @@ export const historyLang = {
     loading: 'Загрузка истории...',
     noData: 'Операции в базе данных не найдены.',
     transactionId: 'ID Транзакции',
-    accountTarget: 'Счет / Цель'
+    accountTarget: 'Счет / Цель',
+    internalTransfer: 'Внутренний перевод',
+    success: 'Успешно',
+    pending: 'В обработке',
+    failed: 'Ошибка'
   }
 }

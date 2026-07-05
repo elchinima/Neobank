@@ -58,6 +58,10 @@
     @media (max-width: 768px) {
       flex: 0 0 85%;
       scroll-snap-align: center;
+
+      &:only-child {
+        margin: 0 auto;
+      }
     }
 
     &.active {

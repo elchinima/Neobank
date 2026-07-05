@@ -64,9 +64,12 @@ const History = () => {
       const isPositive = item.type === 'Credit'
       let title = item.description || item.category
       
-      if (title && title.startsWith('Оплата 1-го месяца карты ')) {
-        const cardName = title.replace('Оплата 1-го месяца карты ', '')
-        title = `${t(historyLang, 'firstMonthFee')} ${cardName}`
+      if (item.category === 'CardFee' || (title && (title.includes('Оплата 1-го месяца') || title.toLowerCase().includes('first month fee')))) {
+        const cardNameMatch = title.match(/(Premium|Elite|Standard)/i)
+        const cardName = cardNameMatch ? cardNameMatch[0] : ''
+        title = cardName ? `${t(historyLang, 'firstMonthFee')} ${cardName}` : t(historyLang, 'firstMonthFee')
+      } else if (title === 'Internal Transfer' || title === 'Daxili Köçürmə' || title === 'Внутренний перевод') {
+        title = t(historyLang, 'internalTransfer')
       }
 
       return {

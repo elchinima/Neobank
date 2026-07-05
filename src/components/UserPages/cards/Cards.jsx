@@ -57,7 +57,13 @@ const Cards = () => {
   const [showVatModal, setShowVatModal] = useState(false)
   const [showLimits, setShowLimits] = useState(false)
 
-
+  const [showInternalTransferModal, setShowInternalTransferModal] = useState(false)
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false)
+  const [showAccountDetailsModal, setShowAccountDetailsModal] = useState(false)
+  const [copiedField, setCopiedField] = useState(null)
+  const [internalTransferForm, setInternalTransferForm] = useState({ sourceCardId: '', destCardId: '', amount: '' })
+  const [internalTransferStatus, setInternalTransferStatus] = useState('idle')
+  const [internalTransferError, setInternalTransferError] = useState('')
   const [showNewCardModal, setShowNewCardModal] = useState(false)
   const [newCardForm, setNewCardForm] = useState({
     cardType: location.state?.orderCardType || 'Standard',
@@ -190,6 +196,64 @@ const Cards = () => {
     }
   }
 
+  const handleInternalTransferSubmit = async (e) => {
+    e.preventDefault()
+    if (!internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount) return
+    if (internalTransferForm.sourceCardId === internalTransferForm.destCardId) {
+      setInternalTransferError(t(userCardsLang, 'sameCardError'))
+      return
+    }
+
+    setInternalTransferStatus('loading')
+    setInternalTransferError('')
+
+    try {
+      const destCard = cards.find(c => c.id.toString() === internalTransferForm.destCardId)
+
+      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardId: internalTransferForm.sourceCardId,
+          providerName: 'Internal Transfer',
+          categoryName: 'Transfer',
+          recipientAccount: destCard ? destCard.cardNumber : '',
+          amount: parseFloat(internalTransferForm.amount)
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || t(userCardsLang, 'transferError'))
+      }
+
+      setInternalTransferStatus('success')
+      fetchCards()
+      setTimeout(() => {
+        setShowInternalTransferModal(false)
+        setInternalTransferStatus('idle')
+        setInternalTransferForm({ sourceCardId: '', destCardId: '', amount: '' })
+      }, 2000)
+    } catch (err) {
+      setInternalTransferError(err.message)
+      setInternalTransferStatus('idle')
+    }
+  }
+
+  const handleCopy = (text, field) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(field)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
+  const generateIBAN = (cardNumber) => {
+    if (!cardNumber) return ''
+    return `AZ12 NEOB 0000 0000 0000 ${cardNumber.slice(-4)}`
+  }
+
   return (
     <div className="user-cards-page">
       <div className="cards-header">
@@ -218,7 +282,7 @@ const Cards = () => {
               </div>
               <div className="card-details">
                 <div className="card-info-header">
-                  <h2>{card.cardType} Card ({card.network})</h2>
+                  <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
                 <div className="card-balance">
@@ -430,19 +494,7 @@ const Cards = () => {
                     <span className="btn-subtitle">{t(userCardsLang, 'currentLimit')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Google Pay clicked')}>
-                  <img src={googlePayIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'setupGooglePay')}</span>
-                    <span className="btn-subtitle">{t(userCardsLang, 'cardAdded')}</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn" onClick={() => alert('Card Design clicked')}>
-                  <img src={cardDesignIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'cardDesign')}</span>
-                  </div>
-                </button>
+
                 <button className="settings-action-btn" onClick={() => alert('Limits clicked')}>
                   <img src={limitsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
@@ -464,20 +516,14 @@ const Cards = () => {
                     <span className="btn-subtitle">{t(userCardsLang, 'securityDesc')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Manage Subscriptions clicked')}>
-                  <img src={subscriptionsIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'manageSubscriptions')}</span>
-                    <span className="btn-subtitle">{t(userCardsLang, 'subscriptionsDesc')}</span>
-                  </div>
-                </button>
+
                 <button className="settings-action-btn" onClick={() => alert('Statements clicked')}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'statementsAndCerts')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Account details clicked')}>
+                <button className="settings-action-btn" onClick={() => setShowAccountDetailsModal(true)}>
                   <img src={accountIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'accountDetailsTitle')}</span>
@@ -500,24 +546,165 @@ const Cards = () => {
             <div className="card-modal__content">
               <div className="settings-section">
                 <h3>{t(userCardsLang, 'transferOptions')}</h3>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to my accounts...')}>
+                <button className="settings-action-btn" onClick={() => {
+                  setInternalTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destCardId: '', amount: '' }))
+                  setSelectedTransferCard(null)
+                  setInternalTransferStatus('idle')
+                  setInternalTransferError('')
+                  setShowInternalTransferModal(true)
+                }}>
                   <img src={transferMyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'transferToMyAccounts')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to card of any bank...')}>
+                <button className="settings-action-btn" onClick={() => {
+                  setSelectedTransferCard(null)
+                  setShowUnavailableModal(true)
+                }}>
                   <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'transferToAnyBank')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Transferring to card of foreign bank...')}>
+                <button className="settings-action-btn" onClick={() => {
+                  setSelectedTransferCard(null)
+                  setShowUnavailableModal(true)
+                }}>
                   <img src={transferForeignIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'transferToForeignBank')}</span>
                   </div>
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInternalTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowInternalTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {internalTransferStatus === 'success' ? (
+                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                  <p>{t(userCardsLang, 'transferSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleInternalTransferSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {internalTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{internalTransferError}</div>}
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'sourceCard')}</label>
+                    <select
+                      className="cards-page__input"
+                      value={internalTransferForm.sourceCardId}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, sourceCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.map(c => (
+                        <option key={`src-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({Number(c.balance).toFixed(2)} AZN)</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destCard')}</label>
+                    <select
+                      className="cards-page__input"
+                      value={internalTransferForm.destCardId}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, destCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.map(c => (
+                        <option key={`dst-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      className="cards-page__input"
+                      placeholder="0.00"
+                      value={internalTransferForm.amount}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={internalTransferStatus === 'loading' || !internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount}
+                  >
+                    {internalTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUnavailableModal && (
+        <div className="card-modal-overlay" onClick={() => setShowUnavailableModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+              <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAccountDetailsModal && selectedSettingsCard && (
+        <div className="card-modal-overlay" onClick={() => setShowAccountDetailsModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="detail-item" style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px' }}>
+                <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'ibanLabel')}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff', wordBreak: 'break-all', paddingRight: '10px' }}>
+                    {generateIBAN(selectedSettingsCard.cardNumber)}
+                  </span>
+                  <button 
+                    className="copy-btn" 
+                    onClick={() => handleCopy(generateIBAN(selectedSettingsCard.cardNumber), 'iban')}
+                    style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    {copiedField === 'iban' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
+                  </button>
+                </div>
+              </div>
+
+              <div className="detail-item" style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px' }}>
+                <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'swiftLabel')}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff' }}>
+                    NEOBAZ22
+                  </span>
+                  <button 
+                    className="copy-btn" 
+                    onClick={() => handleCopy('NEOBAZ22', 'swift')}
+                    style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    {copiedField === 'swift' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
