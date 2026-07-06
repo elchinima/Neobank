@@ -110,7 +110,11 @@ function Deposits() {
 
       setModalState(prev => ({ ...prev, step: 'success' }))
     } catch (err) {
-      setModalState(prev => ({ ...prev, step: 'select_card', error: err.message }))
+      let errorMsg = err.message;
+      if (errorMsg.includes('Insufficient funds')) {
+        errorMsg = t(depositsLang, 'insufficientFundsError');
+      }
+      setModalState(prev => ({ ...prev, step: 'select_card', error: errorMsg }))
     }
   }
 

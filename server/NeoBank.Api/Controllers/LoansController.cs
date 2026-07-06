@@ -105,4 +105,67 @@ public class LoansController : ControllerBase
             message = "Loan successfully processed and funds disbursed to the card."
         });
     }
+
+    [HttpPost("{id}/pay")]
+    public async Task<IActionResult> PayLoan(string id)
+    {
+        var userId = GetUserId();
+        var loan = await _context.Loans.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
+
+        if (loan == null)
+        {
+            return NotFound(new { message = "Loan not found." });
+        }
+
+        if (loan.Status != "Active")
+        {
+            return BadRequest(new { message = "This loan is not active." });
+        }
+
+        var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == loan.TargetCardId && c.UserId == userId);
+
+        if (sourceCard == null || sourceCard.Status != "Active")
+        {
+            return BadRequest(new { message = "The associated card is not available or blocked." });
+        }
+
+        if ((sourceCard.Balance + sourceCard.CreditLimit) < loan.MonthlyPayment)
+        {
+            return BadRequest(new { message = "Insufficient funds on the associated card to make the monthly payment." });
+        }
+
+        sourceCard.Balance -= loan.MonthlyPayment;
+        loan.RemainingBalance -= loan.MonthlyPayment;
+        if (loan.RemainingBalance <= 0)
+        {
+            loan.RemainingBalance = 0;
+            loan.Status = "Paid";
+        }
+        else
+        {
+            loan.NextPaymentDate = loan.NextPaymentDate.AddMonths(1);
+        }
+        loan.PaidAmount += loan.MonthlyPayment;
+
+        var transaction = new Transaction
+        {
+            UserId = userId,
+            CardId = sourceCard.Id,
+            Amount = loan.MonthlyPayment,
+            Type = "Debit",
+            Category = "LoanPayment",
+            Description = $"Monthly payment for loan {loan.Id.Substring(0, 8)}",
+            Status = "Completed"
+        };
+
+        _context.Transactions.Add(transaction);
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            loan,
+            newBalance = sourceCard.Balance,
+            message = "Loan payment successful."
+        });
+    }
 }

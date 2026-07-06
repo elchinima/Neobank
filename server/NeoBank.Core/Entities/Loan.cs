@@ -11,5 +11,7 @@ public class Loan
     public decimal MonthlyPayment { get; set; }
     public decimal RemainingBalance { get; set; }
     public string Status { get; set; } = "Active";
+    public DateTime NextPaymentDate { get; set; } = DateTime.UtcNow.AddMonths(1);
+    public decimal PaidAmount { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

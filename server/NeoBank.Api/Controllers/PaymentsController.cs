@@ -76,9 +76,18 @@ public class PaymentsController : ControllerBase
             Status = "Completed"
         };
 
-        if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer"))
+        if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer" || request.ProviderName == "IBAN Transfer"))
         {
-            var destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
+            Card destCard = null;
+            if (request.ProviderName == "IBAN Transfer")
+            {
+                destCard = await _context.Cards.FirstOrDefaultAsync(c => c.Iban == request.RecipientAccount);
+            }
+            else
+            {
+                destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
+            }
+
             if (destCard != null)
             {
                 destCard.Balance += request.Amount;
@@ -89,13 +98,13 @@ public class PaymentsController : ControllerBase
                     Amount = request.Amount,
                     Type = "Credit",
                     Category = "Transfer",
-                    Description = $"Transfer from {card.CardNumber}",
-                    RecipientAccount = card.CardNumber,
+                    Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {card.Iban}" : $"Transfer from {card.CardNumber}",
+                    RecipientAccount = request.ProviderName == "IBAN Transfer" ? card.Iban : card.CardNumber,
                     Status = "Completed"
                 };
                 _context.Transactions.Add(creditTransaction);
             }
-            else
+            else if (request.ProviderName != "IBAN Transfer")
             {
                 return BadRequest(new { message = "Recipient card not found." });
             }

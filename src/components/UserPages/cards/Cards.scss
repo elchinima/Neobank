@@ -19,26 +19,31 @@
   }
 
   .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 350px));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     gap: 24px;
     padding-top: 8px;
+    padding-bottom: 24px;
 
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
 
-    @media (max-width: 768px) {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      gap: 16px;
-      padding-bottom: 16px;
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+    }
 
-      &::-webkit-scrollbar {
-        display: none;
-      }
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
   }
 
@@ -54,11 +59,12 @@
     gap: 24px;
     backdrop-filter: blur(10px);
     cursor: pointer;
+    flex: 0 0 350px;
+    scroll-snap-align: center;
 
     @media (max-width: 768px) {
       flex: 0 0 85%;
-      scroll-snap-align: center;
-
+      
       &:only-child {
         margin: 0 auto;
       }

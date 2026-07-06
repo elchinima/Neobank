@@ -36,7 +36,8 @@ export const depositsLang = {
     processingDesc: 'Transferring funds and activating your deposit account.',
     successTitle: 'Deposit Successfully Opened!',
     successDesc: 'Your money is now growing with NeoBank guaranteed rates.',
-    done: 'Done'
+    done: 'Done',
+    insufficientFundsError: 'Insufficient funds on the card.'
   },
   az: {
     navHome: 'Ana səhifə',
@@ -75,7 +76,8 @@ export const depositsLang = {
     processingDesc: 'Vəsaitlər köçürülür və depozit hesabınız aktivləşdirilir.',
     successTitle: 'Depozit uğurla açıldı!',
     successDesc: 'Vəsaitiniz artıq NeoBank zəmanətli faizləri ilə artır.',
-    done: 'Hazırdır'
+    done: 'Hazırdır',
+    insufficientFundsError: 'Kartda kifayət qədər vəsait yoxdur.'
   },
   ru: {
     navHome: 'Главная',
@@ -114,6 +116,7 @@ export const depositsLang = {
     processingDesc: 'Переводим средства и активируем депозитный счет.',
     successTitle: 'Вклад успешно открыт!',
     successDesc: 'Ваши средства уже работают и приносят гарантированный доход.',
-    done: 'Готово'
+    done: 'Готово',
+    insufficientFundsError: 'Недостаточно средств на карте.'
   }
 }

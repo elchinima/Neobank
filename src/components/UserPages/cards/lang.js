@@ -142,7 +142,11 @@ export const userCardsLang = {
     submitApplication: 'Submit Application',
     activeDeposits: 'Active Deposits',
     totalIncome: 'Total Income',
-    noDeposits: 'You have no active deposits.'
+    noDeposits: 'You have no active deposits.',
+    monthsSuffix: 'months',
+    nextPaymentDate: 'Next Payment Date',
+    payLoanBtn: 'Pay Monthly',
+    paymentSuccess: 'Payment successful!'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -287,7 +291,11 @@ export const userCardsLang = {
     submitApplication: 'Müraciəti Göndər',
     activeDeposits: 'Aktiv Depozitlər',
     totalIncome: 'Ümumi Gəlir',
-    noDeposits: 'Sizin aktiv depozitiniz yoxdur.'
+    noDeposits: 'Sizin aktiv depozitiniz yoxdur.',
+    monthsSuffix: 'ay',
+    nextPaymentDate: 'Növbəti Ödəniş Tarixi',
+    payLoanBtn: 'Aylıq Ödəniş Et',
+    paymentSuccess: 'Ödəniş uğurla tamamlandı!'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -432,6 +440,10 @@ export const userCardsLang = {
     submitApplication: 'Отправить заявку',
     activeDeposits: 'Активные депозиты',
     totalIncome: 'Общий доход',
-    noDeposits: 'У вас нет активных депозитов.'
+    noDeposits: 'У вас нет активных депозитов.',
+    monthsSuffix: 'мес.',
+    nextPaymentDate: 'Дата следующего платежа',
+    payLoanBtn: 'Оплатить месяц',
+    paymentSuccess: 'Оплата успешно завершена!'
   }
 }

@@ -149,6 +149,13 @@ const Cards = () => {
   const [showPinAlertModal, setShowPinAlertModal] = useState(false)
   const [showPinSuccessModal, setShowPinSuccessModal] = useState(false)
   const [creditLimitError, setCreditLimitError] = useState(null)
+  const [payingLoanId, setPayingLoanId] = useState(null)
+
+  const translateErrorMsg = (msg) => {
+    if (!msg) return msg;
+    if (msg.includes('Insufficient funds')) return t(userCardsLang, 'insufficientFundsShort');
+    return msg;
+  };
 
   const toggleCreditLimitView = (cardId, e) => {
     e.stopPropagation();
@@ -238,8 +245,31 @@ const Cards = () => {
         setNewLoanForm(prev => ({ ...prev, amount: '', termMonths: '3' }))
       }, 1500)
     } catch (err) {
-      setNewLoanError(err.message)
+      setNewLoanError(translateErrorMsg(err.message))
       setNewLoanStatus('idle')
+    }
+  }
+
+  const handlePayLoan = async (loanId) => {
+    if (payingLoanId) return;
+    setPayingLoanId(loanId);
+    try {
+      const res = await fetch(`${API_BASE_URL}/loans/${loanId}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Error paying loan');
+
+      fetchLoans();
+      fetchCards();
+
+      alert(t(userCardsLang, 'paymentSuccess') || 'Payment successful!');
+    } catch (err) {
+      console.error(err);
+      alert(translateErrorMsg(err.message));
+    } finally {
+      setPayingLoanId(null);
     }
   }
 
@@ -269,7 +299,7 @@ const Cards = () => {
         setNewDepositForm(prev => ({ ...prev, amount: '', termMonths: '3' }))
       }, 1500)
     } catch (err) {
-      setNewDepositError(err.message)
+      setNewDepositError(translateErrorMsg(err.message))
       setNewDepositStatus('idle')
     }
   }
@@ -390,8 +420,8 @@ const Cards = () => {
         
         window.location.href = data.url;
       } catch (err) {
-        setNewCardError(err.message);
-        setSubmittingCard(false);
+        setNewCardError(translateErrorMsg(err.message));
+        setNewCardStatus('idle');
       }
       return;
     }
@@ -432,7 +462,7 @@ const Cards = () => {
       setShowNewCardModal(false)
       fetchCards()
     } catch (err) {
-      let errorMsg = err.message
+      let errorMsg = translateErrorMsg(err.message)
       if (errorMsg === 'This card is blocked and cannot be used for payment.') {
         errorMsg = t(userCardsLang, 'cardBlockedError')
       }
@@ -535,8 +565,7 @@ const Cards = () => {
         setShowPinSuccessModal(true)
       }, 1500)
     } catch (err) {
-      setPinError(err.message)
-      setPinStatus('idle')
+      setPinError(translateErrorMsg(err.message));
     }
   }
 
@@ -741,7 +770,7 @@ const Cards = () => {
                   <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: '16px', textAlign: 'left' }}>
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
                     <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                       {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
@@ -798,7 +827,6 @@ const Cards = () => {
         </div>
       )}
 
-      {/* Active Loans Section */}
       <div className="cards-header" style={{ marginTop: '32px' }}>
         <h2 data-lang-key="activeLoans">{t(userCardsLang, 'activeLoans')}</h2>
       </div>
@@ -837,8 +865,24 @@ const Cards = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                      <span className="label" data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
                   </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{new Date(loan.nextPaymentDate || Date.now()).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="card-actions" style={{ marginTop: '16px' }}>
+                  <button
+                    className="action-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePayLoan(loan.id);
+                    }}
+                    disabled={payingLoanId === loan.id}
+                  >
+                    {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1023,7 +1067,7 @@ const Cards = () => {
                   <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel')}</label>
                   <select value={newDepositForm.sourceCardId} onChange={e => setNewDepositForm({ ...newDepositForm, sourceCardId: e.target.value })} required>
                     <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}</option>)}
                   </select>
                 </div>
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newDepositStatus === 'loading'} style={{ marginTop: '16px' }}>
@@ -1095,7 +1139,7 @@ const Cards = () => {
                         >
                           {cards.map(c => (
                             <option key={c.id} value={c.id}>
-                              {c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN
+                              {c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}
                             </option>
                           ))}
                         </select>
@@ -1352,7 +1396,7 @@ const Cards = () => {
                     >
                       <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
                       {cards.map(c => (
-                        <option key={`src-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({Number(c.balance).toFixed(2)} AZN)</option>
+                        <option key={`src-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
                       ))}
                     </select>
                   </div>
@@ -1501,7 +1545,7 @@ const Cards = () => {
                       <option value="">{t(userCardsLang, 'selectCard')}</option>
                       {cards.filter(c => c.status === 'Active').map(c => (
                         <option key={c.id} value={c.id}>
-                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({c.balance.toFixed(2)} AZN)
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
                         </option>
                       ))}
                     </select>
