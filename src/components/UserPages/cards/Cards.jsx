@@ -173,9 +173,13 @@ const Cards = () => {
   const [payingLoanId, setPayingLoanId] = useState(null)
   const [showPayLoanModal, setShowPayLoanModal] = useState(false)
   const [payLoanForm, setPayLoanForm] = useState({ loanId: null, sourceCardId: '' })
+  const [payLoanStatus, setPayLoanStatus] = useState('idle')
+  const [payLoanError, setPayLoanError] = useState('')
 
   const openPayLoanModal = (loanId) => {
     setPayLoanForm({ loanId, sourceCardId: cards.length > 0 ? cards[0].id : '' });
+    setPayLoanStatus('idle');
+    setPayLoanError('');
     setShowPayLoanModal(true);
   };
 
@@ -282,7 +286,11 @@ const Cards = () => {
     if (e) e.preventDefault();
     const loanId = payLoanForm.loanId;
     if (payingLoanId || !loanId) return;
+    
     setPayingLoanId(loanId);
+    setPayLoanStatus('loading');
+    setPayLoanError('');
+    
     try {
       const res = await fetch(`${API_BASE_URL}/loans/${loanId}/pay`, {
         method: 'POST',
@@ -293,18 +301,22 @@ const Cards = () => {
       try {
         data = await res.json();
       } catch (e) {
-        throw new Error('Server returned an invalid response. Please try again.');
+        throw new Error(`Server returned an invalid response. Status: ${res.status}`);
       }
       if (!res.ok) throw new Error(data?.message || 'Error paying loan');
 
       fetchLoans();
       fetchCards();
 
-      alert(t(userCardsLang, 'paymentSuccess') || 'Payment successful!');
-      setShowPayLoanModal(false);
+      setPayLoanStatus('success');
+      setTimeout(() => {
+        setShowPayLoanModal(false);
+        setPayLoanStatus('idle');
+      }, 2000);
     } catch (err) {
       console.error(err);
-      alert(translateErrorMsg(err.message));
+      setPayLoanError(translateErrorMsg(err.message));
+      setPayLoanStatus('idle');
     } finally {
       setPayingLoanId(null);
     }
@@ -632,9 +644,14 @@ const Cards = () => {
         })
       })
 
-      const data = await res.json()
+      let data;
+      try {
+        data = await res.json()
+      } catch (e) {
+        throw new Error(`Invalid response from server. Status: ${res.status}`)
+      }
       if (!res.ok) {
-        throw new Error(data.message || t(userCardsLang, 'transferError'))
+        throw new Error(data?.message || t(userCardsLang, 'transferError'))
       }
 
       setInternalTransferStatus('success')
@@ -666,6 +683,13 @@ const Cards = () => {
     e.preventDefault()
     if (!ibanTransferForm.sourceCardId || !ibanTransferForm.destIban || !ibanTransferForm.amount) return
     
+    const ibanClean = ibanTransferForm.destIban.replace(/\s+/g, '').toUpperCase()
+    const ibanRegex = /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/
+    if (!ibanRegex.test(ibanClean)) {
+      setIbanTransferError(t(userCardsLang, 'invalidIbanFormat') || 'Invalid IBAN format')
+      return
+    }
+
     setIbanTransferStatus('loading')
     setIbanTransferError('')
 
@@ -685,9 +709,14 @@ const Cards = () => {
         })
       })
 
-      const data = await res.json()
+      let data;
+      try {
+        data = await res.json()
+      } catch (e) {
+        throw new Error(`Invalid response from server. Status: ${res.status}`)
+      }
       if (!res.ok) {
-        throw new Error(data.message || t(userCardsLang, 'transferError'))
+        throw new Error(data?.message || t(userCardsLang, 'transferError'))
       }
 
       setIbanTransferStatus('success')
@@ -742,9 +771,14 @@ const Cards = () => {
         })
       })
 
-      const data = await res.json()
+      let data;
+      try {
+        data = await res.json()
+      } catch (e) {
+        throw new Error(`Invalid response from server. Status: ${res.status}`)
+      }
       if (!res.ok) {
-        throw new Error(data.message || t(userCardsLang, 'transferError'))
+        throw new Error(data?.message || t(userCardsLang, 'transferError'))
       }
 
       setNeoBankTransferStatus('success')
@@ -1110,27 +1144,35 @@ const Cards = () => {
               <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
-              <form onSubmit={handlePayLoan} className="modal-form">
-                <div className="form-group">
-                  <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
-                  <select 
-                    value={payLoanForm.sourceCardId} 
-                    onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })} 
-                    required
-                  >
-                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
-                  </select>
+              {payLoanStatus === 'success' ? (
+                <div className="success-state" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d656', marginBottom: '16px' }}>✓</div>
+                  <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
-                <button 
-                  type="submit" 
-                  className="cards-page__button cards-page__button--primary submit-order-btn" 
-                  disabled={payingLoanId === payLoanForm.loanId} 
-                  style={{ marginTop: '16px' }}
-                >
-                  {payingLoanId === payLoanForm.loanId ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
-                </button>
-              </form>
+              ) : (
+                <form onSubmit={handlePayLoan} className="modal-form">
+                  {payLoanError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{payLoanError}</div>}
+                  <div className="form-group">
+                    <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
+                    <select 
+                      value={payLoanForm.sourceCardId} 
+                      onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })} 
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                    </select>
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="cards-page__button cards-page__button--primary submit-order-btn" 
+                    disabled={payLoanStatus === 'loading'} 
+                    style={{ marginTop: '16px' }}
+                  >
+                    {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

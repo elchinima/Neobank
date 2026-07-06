@@ -81,6 +81,11 @@ public class PaymentsController : ControllerBase
             Card destCard = null;
             if (request.ProviderName == "IBAN Transfer")
             {
+                request.RecipientAccount = request.RecipientAccount.Replace(" ", "").ToUpper();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(request.RecipientAccount, @"^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$"))
+                {
+                    return BadRequest(new { message = "Invalid IBAN format." });
+                }
                 destCard = await _context.Cards.FirstOrDefaultAsync(c => c.Iban == request.RecipientAccount);
             }
             else
