@@ -131,6 +131,8 @@ const Cards = () => {
   const [pinStatus, setPinStatus] = useState('idle')
   const [pinError, setPinError] = useState('')
   const [showingCreditLimitMap, setShowingCreditLimitMap] = useState({})
+  const [showPinAlertModal, setShowPinAlertModal] = useState(false)
+  const [showPinSuccessModal, setShowPinSuccessModal] = useState(false)
 
   const toggleCreditLimitView = (cardId, e) => {
     e.stopPropagation();
@@ -166,10 +168,58 @@ const Cards = () => {
 
   useEffect(() => {
     fetchCards()
-    if (location.state?.orderCardType) {
+
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    const canceled = params.get('canceled');
+
+    if (canceled) {
+      localStorage.removeItem('pendingCardOrder');
+      setShowNewCardModal(true);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (sessionId) {
+      const pendingOrderStr = localStorage.getItem('pendingCardOrder');
+      if (pendingOrderStr) {
+        const pendingOrder = JSON.parse(pendingOrderStr);
+        submitCardOrderFromSession(pendingOrder.cardType, pendingOrder.network, sessionId);
+      }
+    } else if (location.state?.orderCardType) {
       setShowNewCardModal(true)
     }
   }, [token])
+
+  const submitCardOrderFromSession = async (cardType, network, sessionId) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/cards/acquire`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardType,
+          network,
+          paymentMethod: 'stripe',
+          sessionId
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || t(userCardsLang, 'orderCardError'));
+      
+      localStorage.removeItem('pendingCardOrder');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      fetchCards();
+    } catch (err) {
+      console.error(err);
+      setNewCardError(err.message);
+      setShowNewCardModal(true);
+      localStorage.removeItem('pendingCardOrder');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const categoryProgram = [
     { titleKey: 'catMetroTitle', textKey: 'catMetroText', rate: '100%', earned: 2.50 },
@@ -182,7 +232,6 @@ const Cards = () => {
     { titleKey: 'catOtherTitle', textKey: 'catOtherText', rate: '0.1%', earned: 0.15 },
   ]
   const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
-  const [stripeClientSecret, setStripeClientSecret] = useState(null);
 
   const handleAcquireCard = async (e) => {
     e.preventDefault()
@@ -208,13 +257,13 @@ const Cards = () => {
     if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
       try {
         setSubmittingCard(true);
-        const res = await fetch(`${API_BASE_URL}/cards/create-payment-intent`, {
+        const res = await fetch(`${API_BASE_URL}/cards/create-checkout-session`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ cardType: newCardForm.cardType })
+          body: JSON.stringify({ cardType: newCardForm.cardType, network: newCardForm.network })
         });
         let data;
         try {
@@ -223,10 +272,15 @@ const Cards = () => {
           throw new Error('Server returned an invalid response. Please try again.');
         }
         if (!res.ok) throw new Error(data?.message || t(userCardsLang, 'orderCardError'));
-        setStripeClientSecret(data.clientSecret);
+        
+        localStorage.setItem('pendingCardOrder', JSON.stringify({
+          cardType: newCardForm.cardType,
+          network: newCardForm.network
+        }));
+        
+        window.location.href = data.url;
       } catch (err) {
         setNewCardError(err.message);
-      } finally {
         setSubmittingCard(false);
       }
       return;
@@ -368,7 +422,7 @@ const Cards = () => {
         setPinStatus('idle')
         setPinForm({ oldPin: '', newPin: '', confirmNewPin: '' })
         setSelectedSettingsCard(data)
-        alert(t(userCardsLang, 'pinSuccess'))
+        setShowPinSuccessModal(true)
       }, 1500)
     } catch (err) {
       setPinError(err.message)
@@ -532,22 +586,7 @@ const Cards = () => {
                   <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '16px', textAlign: 'left' }}>
-                  {card.creditLimit > 0 && (
-                    <button 
-                      className="toggle-balance-btn" 
-                      onClick={(e) => toggleCreditLimitView(card.id, e)}
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
-                      title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M7 10L3 14L7 18"/>
-                        <path d="M21 14H3"/>
-                        <path d="M17 4L21 8L17 12"/>
-                        <path d="M3 8H21"/>
-                      </svg>
-                    </button>
-                  )}
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '16px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                     <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                       {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
@@ -556,6 +595,21 @@ const Cards = () => {
                       {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
                     </span>
                   </div>
+                  {card.creditLimit > 0 && (
+                    <button 
+                      className="toggle-balance-btn" 
+                      onClick={(e) => toggleCreditLimitView(card.id, e)}
+                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
+                      title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 10L3 14L7 18"/>
+                        <path d="M21 14H3"/>
+                        <path d="M17 4L21 8L17 12"/>
+                        <path d="M3 8H21"/>
+                      </svg>
+                    </button>
+                  )}
                 </div>
                 <div className="card-actions">
                   <button
@@ -563,7 +617,7 @@ const Cards = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!card.hasPin) {
-                         alert(t(userCardsLang, 'cardNeedsPinAlert'));
+                         setShowPinAlertModal(true);
                          return;
                       }
                       setSelectedTransferCard(card);
@@ -954,6 +1008,49 @@ const Cards = () => {
         </div>
       )}
 
+      {showPinAlertModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'status_blocked') || 'Blocked'}</h2>
+              <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+              <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
+              <button 
+                className="cards-page__button cards-page__button--primary" 
+                style={{ marginTop: '20px' }}
+                onClick={() => setShowPinAlertModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPinSuccessModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinSuccessModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 style={{ color: '#4caf50' }}>{t(userCardsLang, 'success') || 'Success'}</h2>
+              <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+              <div className="success-icon" style={{ fontSize: '48px', color: '#4caf50', marginBottom: '16px' }}>✓</div>
+              <p>{t(userCardsLang, 'pinSuccess')}</p>
+              <button 
+                className="cards-page__button cards-page__button--primary" 
+                style={{ marginTop: '20px' }}
+                onClick={() => setShowPinSuccessModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showNeoBankTransferModal && (
         <div className="card-modal-overlay" onClick={() => setShowNeoBankTransferModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
@@ -1067,29 +1164,7 @@ const Cards = () => {
         </div>
       )}
 
-      {stripeClientSecret && (
-        <div className="card-modal-overlay" onClick={() => setStripeClientSecret(null)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
-              <h2>{t(userCardsLang, 'stripeMockTitle').replace(' (Maket)', '')}</h2>
-              <button className="close-btn" onClick={() => setStripeClientSecret(null)}>✕</button>
-            </div>
-            <div className="card-modal__content">
-              <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret, appearance: { theme: 'night', labels: 'floating' } }}>
-                <StripeCheckoutForm 
-                  onPaymentSuccess={(paymentIntentId) => {
-                    setStripeClientSecret(null);
-                    submitCardOrder(paymentIntentId);
-                  }}
-                  onCancel={() => setStripeClientSecret(null)}
-                  t={t}
-                  userCardsLang={userCardsLang}
-                />
-              </Elements>
-            </div>
-          </div>
-        </div>
-      )}
+
       {showPinModal && (
         <div className="card-modal-overlay" onClick={() => setShowPinModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>

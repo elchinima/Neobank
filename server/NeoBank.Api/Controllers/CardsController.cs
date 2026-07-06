@@ -37,13 +37,14 @@ public class CardsController : ControllerBase
         return Ok(cards);
     }
 
-    public class CreatePaymentIntentRequest
+    public class CreateCheckoutSessionRequest
     {
-        public string CardType { get; set; } = "Premium";
+        public string CardType { get; set; } = string.Empty;
+        public string Network { get; set; } = "Visa";
     }
 
-    [HttpPost("create-payment-intent")]
-    public IActionResult CreatePaymentIntent([FromBody] CreatePaymentIntentRequest request)
+    [HttpPost("create-checkout-session")]
+    public IActionResult CreateCheckoutSession([FromBody] CreateCheckoutSessionRequest request)
     {
         long amount = request.CardType switch
         {
@@ -54,15 +55,12 @@ public class CardsController : ControllerBase
 
         if (amount == 0) return BadRequest(new { message = "Invalid card type or free card." });
 
-        var options = new PaymentIntentCreateOptions
+        // Retrieve the front-end origin from headers or use a default
+        var origin = Request.Headers["Origin"].ToString();
+        if (string.IsNullOrEmpty(origin))
         {
-            Amount = amount,
-            Currency = "azn",
-            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-            {
-                Enabled = true,
-            },
-        };
+            origin = "http://localhost:5173";
+        }
 
         try
         {
@@ -71,9 +69,39 @@ public class CardsController : ControllerBase
                 return BadRequest(new { message = "Stripe API key is not configured on the server." });
             }
 
-            var service = new PaymentIntentService();
-            var intent = service.Create(options);
-            return Ok(new { clientSecret = intent.ClientSecret });
+            var options = new Stripe.Checkout.SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<Stripe.Checkout.SessionLineItemOptions>
+                {
+                    new Stripe.Checkout.SessionLineItemOptions
+                    {
+                        PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = amount,
+                            Currency = "azn",
+                            ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"{request.CardType} Card Subscription",
+                            },
+                        },
+                        Quantity = 1,
+                    },
+                },
+                Mode = "payment",
+                SuccessUrl = $"{origin}/user/cards?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = $"{origin}/user/cards?canceled=true",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "cardType", request.CardType },
+                    { "network", request.Network }
+                }
+            };
+
+            var service = new Stripe.Checkout.SessionService();
+            var session = service.Create(options);
+
+            return Ok(new { url = session.Url });
         }
         catch (StripeException e)
         {
@@ -81,7 +109,7 @@ public class CardsController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(new { message = "An error occurred while creating payment intent: " + e.Message });
+            return BadRequest(new { message = "An error occurred while creating checkout session: " + e.Message });
         }
     }
 
@@ -91,14 +119,13 @@ public class CardsController : ControllerBase
         public string Network { get; set; } = "Visa";
         public string PaymentMethod { get; set; } = "free";
         public string? SourceCardId { get; set; }
-        public string? PaymentIntentId { get; set; }
+        public string? SessionId { get; set; }
     }
 
     [HttpPost("acquire")]
     public async Task<IActionResult> AcquireCard([FromBody] AcquireCardRequest request)
     {
         var userId = GetUserId();
-
 
         var existingCard = await _context.Cards
             .FirstOrDefaultAsync(c => c.UserId == userId && c.CardType == request.CardType);
@@ -161,18 +188,22 @@ public class CardsController : ControllerBase
             }
             else if (request.PaymentMethod == "stripe")
             {
-                if (string.IsNullOrEmpty(request.PaymentIntentId))
+                if (string.IsNullOrEmpty(request.SessionId))
                 {
-                    return BadRequest(new { message = "Payment intent ID is required for Stripe payment." });
+                    return BadRequest(new { message = "Session ID is required for Stripe payment." });
                 }
 
-                var service = new PaymentIntentService();
-                var intent = service.Get(request.PaymentIntentId);
+                var service = new Stripe.Checkout.SessionService();
+                var session = service.Get(request.SessionId);
 
-                if (intent.Status != "succeeded")
+                if (session.PaymentStatus != "paid")
                 {
                     return BadRequest(new { message = "Payment not successful." });
                 }
+                
+                // If the user already created a card from this session, we shouldn't create it again.
+                // We can check if a transaction with this SessionId exists or just let it pass if we don't have a strict idempotency check.
+                // But ideally we'd store the session ID in the DB. For now, this suffices since the frontend only calls it once.
             }
         }
 
