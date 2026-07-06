@@ -105,19 +105,23 @@
 
     .card-image-wrapper {
       width: 100%;
+      aspect-ratio: 1.58;
       border-radius: 16px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
 
       .card-image {
-        width: 108%;
-        height: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         display: block;
         object-fit: cover;
-        margin-left: -4%;
-        margin-right: -4%;
+        transform: scale(1.05);
       }
     }
 
