@@ -31,6 +31,32 @@ public class HistoryController : ControllerBase
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
-        return Ok(transactions);
+        var cardIds = transactions.Select(t => t.CardId).Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList();
+        var cards = await _context.Cards
+            .Where(c => cardIds.Contains(c.Id))
+            .ToDictionaryAsync(c => c.Id);
+
+        var result = transactions.Select(t =>
+        {
+            cards.TryGetValue(t.CardId, out var card);
+            return new
+            {
+                t.Id,
+                t.UserId,
+                t.CardId,
+                t.Amount,
+                t.Type,
+                t.Category,
+                t.Description,
+                t.RecipientAccount,
+                t.Status,
+                t.CreatedAt,
+                CardType = card?.CardType,
+                CardLastFour = card != null && card.CardNumber.Length >= 4
+                    ? card.CardNumber[^4..] : (string?)null
+            };
+        });
+
+        return Ok(result);
     }
 }

@@ -11,6 +11,14 @@ import entertainmentBubbleIcon from '../../../assets/icons/User/entertainment_bu
 import utilitiesBubbleIcon from '../../../assets/icons/User/utilities_bubble.svg'
 import mobileIcon from '../../../assets/icons/User/payments/mobile.svg'
 import bankIcon from '../../../assets/icons/User/payments/bank.svg'
+import insuranceIcon from '../../../assets/icons/User/payments/insurance.svg'
+import educationIcon from '../../../assets/icons/User/payments/education.svg'
+import medicalIcon from '../../../assets/icons/User/payments/medical.svg'
+import housingIcon from '../../../assets/icons/User/payments/housing.svg'
+import otherIcon from '../../../assets/icons/User/payments/other.svg'
+import internetIcon from '../../../assets/icons/User/payments/internet.svg'
+import taxiIcon from '../../../assets/icons/User/payments/taxi.svg'
+import charityIcon from '../../../assets/icons/User/payments/charity.svg'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -18,13 +26,74 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 const iconMap = {
   Utilities: utilitiesBubbleIcon,
   Mobile: mobileIcon,
+  'Mobile Operators': mobileIcon,
   Shopping: shoppingBubbleIcon,
   Food: foodBubbleIcon,
   Transport: transportBubbleIcon,
   Entertainment: entertainmentBubbleIcon,
   Transfer: bankIcon,
   Income: bankIcon,
-  CardFee: bankIcon
+  CardFee: bankIcon,
+  LoanPayout: bankIcon,
+  LoanPayment: bankIcon,
+  DepositFunding: bankIcon,
+  DepositWithdrawal: bankIcon,
+  'Banking Services': bankIcon,
+  Internet: internetIcon,
+  Insurance: insuranceIcon,
+  Education: educationIcon,
+  'Medical Services': medicalIcon,
+  'Housing Payments': housingIcon,
+  Taxi: taxiIcon,
+  Charity: charityIcon,
+  Other: otherIcon
+}
+
+// Maps backend category string to lang key
+const categoryLangKeyMap = {
+  Utilities: 'catUtilities',
+  Mobile: 'catMobile',
+  'Mobile Operators': 'catMobileOperators',
+  Shopping: 'catShopping',
+  Food: 'catFood',
+  Transport: 'catTransport',
+  Entertainment: 'catEntertainment',
+  Transfer: 'catTransfer',
+  Income: 'catIncome',
+  CardFee: 'catCardFee',
+  LoanPayout: 'catLoanPayout',
+  LoanPayment: 'catLoanPayment',
+  DepositFunding: 'catDepositFunding',
+  DepositWithdrawal: 'catDepositWithdrawal',
+  'Banking Services': 'catBankingServices',
+  'BakıKart': 'catBakiKart',
+  Fines: 'catFines',
+  'Government Payments': 'catGovernment',
+  Internet: 'catInternet',
+  'Cable TV': 'catCableTV',
+  Telephone: 'catTelephone',
+  Insurance: 'catInsurance',
+  'E-commerce': 'catEcommerce',
+  'Delivery Services': 'catDelivery',
+  'Ads & Coupons': 'catAds',
+  'Medical Services': 'catMedical',
+  Betting: 'catBetting',
+  'Agency Network': 'catAgency',
+  Education: 'catEducation',
+  Hotels: 'catHotels',
+  Taxi: 'catTaxi',
+  Parking: 'catParking',
+  Charity: 'catCharity',
+  'Housing Payments': 'catHousing',
+  'POS Operators': 'catPOS',
+  'Brokerage Services': 'catBrokerage',
+  Other: 'catOther'
+}
+
+const statusLangKeyMap = {
+  completed: 'statusCompleted',
+  pending: 'statusPending',
+  failed: 'statusFailed'
 }
 
 const History = () => {
@@ -59,44 +128,97 @@ const History = () => {
     }
   }, [token])
 
+  const translateCategory = (category) => {
+    const langKey = categoryLangKeyMap[category]
+    if (langKey) return t(historyLang, langKey)
+    return category
+  }
+
+  const translateStatus = (status) => {
+    const langKey = statusLangKeyMap[status]
+    if (langKey) return t(historyLang, langKey)
+    return status
+  }
+
+  const buildTitle = (item) => {
+    const desc = item.description || ''
+    const category = item.category
+
+    // CardFee — extract card type name from description
+    if (category === 'CardFee') {
+      const cardNameMatch = desc.match(/(Premium|Elite|Standard)/i)
+      const cardName = cardNameMatch ? cardNameMatch[0] : ''
+      return cardName
+        ? `${t(historyLang, 'catFirstMonthFee')} ${cardName}`
+        : t(historyLang, 'catCardFee')
+    }
+
+    // Transfer — detect type from description
+    if (category === 'Transfer') {
+      if (desc.includes('IBAN')) return t(historyLang, 'catIbanTransfer')
+      if (desc.includes('Internal') || desc.includes('Daxili') || desc.includes('Внутренний')) {
+        return t(historyLang, 'catInternalTransfer')
+      }
+      if (desc.includes('NeoBank')) return t(historyLang, 'catNeoBankTransfer')
+      return t(historyLang, 'catTransfer')
+    }
+
+    // Loan/Deposit — use category translation
+    if (['LoanPayout', 'LoanPayment', 'DepositFunding', 'DepositWithdrawal'].includes(category)) {
+      return translateCategory(category)
+    }
+
+    // Payment categories — use provider name from description if available
+    if (desc.startsWith('Payment for ')) {
+      const providerPart = desc.replace('Payment for ', '').split(' (')[0]
+      return providerPart
+    }
+
+    // Fallback to translated category
+    return translateCategory(category)
+  }
+
   const formattedHistory = useMemo(() => {
     return historyList.map(item => {
       const isPositive = item.type === 'Credit'
-      let title = item.description || item.category
-      
-      if (item.category === 'CardFee' || (title && (title.includes('Оплата 1-го месяца') || title.toLowerCase().includes('first month fee')))) {
-        const cardNameMatch = title.match(/(Premium|Elite|Standard)/i)
-        const cardName = cardNameMatch ? cardNameMatch[0] : ''
-        title = cardName ? `${t(historyLang, 'firstMonthFee')} ${cardName}` : t(historyLang, 'firstMonthFee')
-      } else if (title === 'Internal Transfer' || title === 'Daxili Köçürmə' || title === 'Внутренний перевод') {
-        title = t(historyLang, 'internalTransfer')
+      const title = buildTitle(item)
+      const translatedCategory = translateCategory(item.category)
+
+      // Build card info string
+      let cardInfo = null
+      if (item.cardType && item.cardLastFour) {
+        cardInfo = `${item.cardType} ••${item.cardLastFour}`
+      } else if (item.cardLastFour) {
+        cardInfo = `••${item.cardLastFour}`
       }
 
       return {
         id: item.id,
         title: title,
         category: item.category,
+        translatedCategory: translatedCategory,
         type: item.type === 'Credit' ? 'deposit' : 'payment',
         amount: isPositive ? Number(item.amount) : -Number(item.amount),
         currency: 'AZN',
         date: item.createdAt,
         status: item.status.toLowerCase(),
-        icon: iconMap[item.category] || bankIcon,
+        icon: iconMap[item.category] || otherIcon,
+        cardInfo: cardInfo,
         details: {
-          account: item.recipientAccount || 'System',
-          fee: 0,
-          card: `Card ID: ${item.cardId}`
+          account: item.recipientAccount || '—',
+          description: item.description || '—'
         }
       }
     })
-  }, [historyList, t])
+  }, [historyList, language])
 
   const filteredHistory = useMemo(() => {
     return formattedHistory.filter(txn => {
       const matchesFilter = filter === 'all' || txn.type === filter
       const matchesSearch = txn.title.toLowerCase().includes(search.toLowerCase()) ||
-                            txn.category.toLowerCase().includes(search.toLowerCase()) ||
-                            txn.amount.toString().includes(search)
+                            txn.translatedCategory.toLowerCase().includes(search.toLowerCase()) ||
+                            txn.amount.toString().includes(search) ||
+                            (txn.cardInfo && txn.cardInfo.toLowerCase().includes(search.toLowerCase()))
       return matchesFilter && matchesSearch
     })
   }, [formattedHistory, filter, search])
@@ -174,17 +296,31 @@ const History = () => {
 
                         <div className="history-item__info">
                           <h4>{txn.title}</h4>
-                          <span>{txn.category} • {formatTime(txn.date)}</span>
+                          <span className="history-item__meta">
+                            {txn.translatedCategory} • {formatTime(txn.date)}
+                          </span>
+                          {txn.cardInfo && (
+                            <span className="history-item__card-badge">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                              </svg>
+                              {txn.cardInfo}
+                            </span>
+                          )}
                         </div>
 
                         <div className="history-item__amount-wrap">
                           <span className={`history-item__amount ${isPositive ? 'positive' : ''} ${isFailed ? 'strikethrough' : ''}`}>
                             {isPositive ? '+' : ''}{txn.amount.toFixed(2)} {txn.currency}
                           </span>
+                          <span className={`history-item__status-badge status-${txn.status}`}>
+                            {translateStatus(txn.status)}
+                          </span>
                         </div>
 
                         <div className="history-item__chevron">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)' }}>
                             <polyline points="6 9 12 15 18 9"></polyline>
                           </svg>
                         </div>
@@ -195,12 +331,22 @@ const History = () => {
                           <div className="details-grid">
                             <div className="detail-item">
                               <span className="detail-label">{t(historyLang, 'transactionId')}</span>
-                              <span className="detail-value">{txn.id}</span>
+                              <span className="detail-value detail-value--id">{txn.id}</span>
                             </div>
                             <div className="detail-item">
                               <span className="detail-label">{t(historyLang, 'status')}</span>
-                              <span className={`detail-value status-${txn.status}`}>{txn.status}</span>
+                              <span className={`detail-value status-${txn.status}`}>{translateStatus(txn.status)}</span>
                             </div>
+                            <div className="detail-item">
+                              <span className="detail-label">{t(historyLang, 'category')}</span>
+                              <span className="detail-value">{txn.translatedCategory}</span>
+                            </div>
+                            {txn.cardInfo && (
+                              <div className="detail-item">
+                                <span className="detail-label">{t(historyLang, 'fromCard')}</span>
+                                <span className="detail-value">{txn.cardInfo}</span>
+                              </div>
+                            )}
                             <div className="detail-item">
                               <span className="detail-label">{t(historyLang, 'accountTarget')}</span>
                               <span className="detail-value">{txn.details.account}</span>

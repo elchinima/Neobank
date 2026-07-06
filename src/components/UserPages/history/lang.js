@@ -13,15 +13,71 @@ export const historyLang = {
     status: 'Status',
     card: 'Card',
     downloadStatement: 'Download Statement',
-    firstMonthFee: '1st month fee for card',
     loading: 'Loading history...',
     noData: 'No operations found in database.',
     transactionId: 'Transaction ID',
     accountTarget: 'Account / Target',
-    internalTransfer: 'Internal Transfer',
-    success: 'Success',
-    pending: 'Pending',
-    failed: 'Failed'
+    fromCard: 'From card',
+
+    // Statuses
+    statusCompleted: 'Completed',
+    statusPending: 'Pending',
+    statusFailed: 'Failed',
+
+    // Categories — payment types
+    catUtilities: 'Utilities',
+    catMobile: 'Mobile Top-up',
+    catShopping: 'Shopping',
+    catFood: 'Food & Delivery',
+    catTransport: 'Transport',
+    catEntertainment: 'Entertainment',
+    catOther: 'Other Payment',
+
+    // Categories — transfers
+    catTransfer: 'Transfer',
+    catInternalTransfer: 'Internal Transfer',
+    catIbanTransfer: 'IBAN Transfer',
+    catNeoBankTransfer: 'NeoBank Transfer',
+
+    // Categories — cards
+    catCardFee: 'Card Fee',
+    catFirstMonthFee: '1st month fee',
+
+    // Categories — loans
+    catLoanPayout: 'Loan Disbursement',
+    catLoanPayment: 'Loan Payment',
+
+    // Categories — deposits
+    catDepositFunding: 'Deposit Opening',
+    catDepositWithdrawal: 'Deposit Withdrawal',
+
+    // Categories — income
+    catIncome: 'Income',
+
+    // Payment categories from Payments page
+    catMobileOperators: 'Mobile Operators',
+    catBankingServices: 'Banking Services',
+    catBakiKart: 'BakıKart',
+    catFines: 'Fines',
+    catGovernment: 'Government Payments',
+    catInternet: 'Internet',
+    catCableTV: 'Cable TV',
+    catTelephone: 'Telephone',
+    catInsurance: 'Insurance',
+    catEcommerce: 'E-commerce',
+    catDelivery: 'Delivery Services',
+    catAds: 'Ads & Coupons',
+    catMedical: 'Medical Services',
+    catBetting: 'Betting',
+    catAgency: 'Agency Network',
+    catEducation: 'Education',
+    catHotels: 'Hotels',
+    catTaxi: 'Taxi',
+    catParking: 'Parking',
+    catCharity: 'Charity',
+    catHousing: 'Housing Payments',
+    catPOS: 'POS Operators',
+    catBrokerage: 'Brokerage Services'
   },
   az: {
     title: 'Əməliyyat Tarixçəsi',
@@ -37,15 +93,63 @@ export const historyLang = {
     status: 'Status',
     card: 'Kart',
     downloadStatement: 'Hesabatı yüklə',
-    firstMonthFee: 'Kart üçün 1-ci ay ödənişi',
     loading: 'Tarixçə yüklənir...',
     noData: 'Məlumat bazasında əməliyyat tapılmadı.',
     transactionId: 'Əməliyyat ID',
     accountTarget: 'Hesab / Hədəf',
-    internalTransfer: 'Daxili Köçürmə',
-    success: 'Uğurlu',
-    pending: 'Gözləyir',
-    failed: 'Xəta'
+    fromCard: 'Kartdan',
+
+    statusCompleted: 'Uğurlu',
+    statusPending: 'Gözləyir',
+    statusFailed: 'Xəta',
+
+    catUtilities: 'Kommunal',
+    catMobile: 'Mobil balans artırma',
+    catShopping: 'Alış-veriş',
+    catFood: 'Yemək və çatdırılma',
+    catTransport: 'Nəqliyyat',
+    catEntertainment: 'Əyləncə',
+    catOther: 'Digər ödəniş',
+
+    catTransfer: 'Köçürmə',
+    catInternalTransfer: 'Daxili Köçürmə',
+    catIbanTransfer: 'IBAN Köçürmə',
+    catNeoBankTransfer: 'NeoBank Köçürmə',
+
+    catCardFee: 'Kart haqqı',
+    catFirstMonthFee: '1-ci ay ödənişi',
+
+    catLoanPayout: 'Kredit verilməsi',
+    catLoanPayment: 'Kredit ödənişi',
+
+    catDepositFunding: 'Depozit açılması',
+    catDepositWithdrawal: 'Depozit çıxarışı',
+
+    catIncome: 'Gəlir',
+
+    catMobileOperators: 'Mobil operatorlar',
+    catBankingServices: 'Bank xidmətləri',
+    catBakiKart: 'BakıKart',
+    catFines: 'Cərimələr',
+    catGovernment: 'Dövlət ödənişləri',
+    catInternet: 'İnternet',
+    catCableTV: 'Kabel TV',
+    catTelephone: 'Telefon',
+    catInsurance: 'Sığorta',
+    catEcommerce: 'E-ticarət',
+    catDelivery: 'Çatdırılma xidmətləri',
+    catAds: 'Reklam və kuponlar',
+    catMedical: 'Tibbi xidmətlər',
+    catBetting: 'Mərc oyunları',
+    catAgency: 'Agent şəbəkəsi',
+    catEducation: 'Təhsil',
+    catHotels: 'Otellər',
+    catTaxi: 'Taksi',
+    catParking: 'Parkinq',
+    catCharity: 'Xeyriyyə',
+    catHousing: 'Mənzil ödənişləri',
+    catPOS: 'POS operatorları',
+    catBrokerage: 'Broker xidmətləri'
   },
   ru: {
     title: 'История операций',
@@ -61,14 +165,62 @@ export const historyLang = {
     status: 'Статус',
     card: 'Карта',
     downloadStatement: 'Скачать выписку',
-    firstMonthFee: 'Оплата 1-го месяца карты',
     loading: 'Загрузка истории...',
     noData: 'Операции в базе данных не найдены.',
     transactionId: 'ID Транзакции',
-    accountTarget: 'Счет / Цель',
-    internalTransfer: 'Внутренний перевод',
-    success: 'Успешно',
-    pending: 'В обработке',
-    failed: 'Ошибка'
+    accountTarget: 'Счёт / Цель',
+    fromCard: 'С карты',
+
+    statusCompleted: 'Успешно',
+    statusPending: 'В обработке',
+    statusFailed: 'Ошибка',
+
+    catUtilities: 'Коммунальные',
+    catMobile: 'Пополнение мобильного',
+    catShopping: 'Покупки',
+    catFood: 'Еда и доставка',
+    catTransport: 'Транспорт',
+    catEntertainment: 'Развлечения',
+    catOther: 'Другой платёж',
+
+    catTransfer: 'Перевод',
+    catInternalTransfer: 'Внутренний перевод',
+    catIbanTransfer: 'Перевод по IBAN',
+    catNeoBankTransfer: 'Перевод NeoBank',
+
+    catCardFee: 'Комиссия за карту',
+    catFirstMonthFee: 'Оплата 1-го месяца',
+
+    catLoanPayout: 'Выдача кредита',
+    catLoanPayment: 'Платёж по кредиту',
+
+    catDepositFunding: 'Открытие депозита',
+    catDepositWithdrawal: 'Снятие депозита',
+
+    catIncome: 'Доход',
+
+    catMobileOperators: 'Мобильные операторы',
+    catBankingServices: 'Банковские услуги',
+    catBakiKart: 'BakıKart',
+    catFines: 'Штрафы',
+    catGovernment: 'Государственные платежи',
+    catInternet: 'Интернет',
+    catCableTV: 'Кабельное ТВ',
+    catTelephone: 'Телефон',
+    catInsurance: 'Страхование',
+    catEcommerce: 'Электронная коммерция',
+    catDelivery: 'Службы доставки',
+    catAds: 'Реклама и купоны',
+    catMedical: 'Медицинские услуги',
+    catBetting: 'Ставки',
+    catAgency: 'Агентская сеть',
+    catEducation: 'Образование',
+    catHotels: 'Отели',
+    catTaxi: 'Такси',
+    catParking: 'Парковка',
+    catCharity: 'Благотворительность',
+    catHousing: 'Жилищные платежи',
+    catPOS: 'POS-операторы',
+    catBrokerage: 'Брокерские услуги'
   }
 }

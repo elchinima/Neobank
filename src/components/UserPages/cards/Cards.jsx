@@ -861,6 +861,21 @@ const Cards = () => {
     setTimeout(() => setCopiedField(null), 2000)
   }
 
+  const isAnyModalOpen = !!(
+    selectedSettingsCard ||
+    selectedTransferCard ||
+    showVatModal ||
+    showProductSelectionModal ||
+    showNewLoanModal ||
+    showNewDepositModal ||
+    showIbanTransferModal ||
+    showNewCardModal ||
+    showPinModal ||
+    showPinAlertModal ||
+    showPinSuccessModal ||
+    showPayLoanModal ||
+    showWithdrawDepositModal
+  );
 
   return (
     <div className="user-cards-page">
@@ -986,7 +1001,7 @@ const Cards = () => {
                           <path d="M6 12h.01M18 12h.01"/>
                         </svg>
                       </div>
-                      <span style={{ color: '#b185fa', fontSize: '14px', fontWeight: '600' }}>NeoKredit</span>
+                      <span style={{ color: '#b185fa', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoCredit')}</span>
                     </div>
                   </div>
                   
@@ -1021,10 +1036,10 @@ const Cards = () => {
                     <span className="amount">{Number(loan.remainingBalance).toFixed(2)} AZN</span>
                   </div>
 
-                  <div className="card-actions">
+                  <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
                     <button
                       className="action-btn"
-                      style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)' }}
+                      style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)', whiteSpace: 'nowrap' }}
                       onClick={(e) => {
                         e.stopPropagation();
                         openPayLoanModal(loan.id);
@@ -1040,12 +1055,12 @@ const Cards = () => {
           )}
 
           {/* Deposits */}
-          {deposits.length === 0 ? (
+          {deposits.filter(d => d.status !== 'Closed').length === 0 ? (
             <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
               <p data-lang-key="noDeposits">{t(userCardsLang, 'noDeposits')}</p>
             </div>
           ) : (
-            deposits.map(deposit => (
+            deposits.filter(d => d.status !== 'Closed').map(deposit => (
               <div key={deposit.id} className="card-item">
                 <div className="card-image-wrapper" style={{ 
                   background: 'linear-gradient(135deg, rgba(0, 214, 86, 0.15), rgba(0, 160, 60, 0.1))',
@@ -1074,7 +1089,7 @@ const Cards = () => {
                           <path d="M6 12h.01M18 12h.01"/>
                         </svg>
                       </div>
-                      <span style={{ color: '#00d656', fontSize: '14px', fontWeight: '600' }}>NeoDepozit</span>
+                      <span style={{ color: '#00d656', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoDeposit')}</span>
                     </div>
                   </div>
                   
@@ -1108,7 +1123,7 @@ const Cards = () => {
                     <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
                     <span className="amount">{Number(deposit.totalIncome + deposit.amount).toFixed(2)} AZN</span>
                   </div>
-                  <div className="card-actions">
+                  <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
                     {(() => {
                       const depositCreatedAt = new Date(deposit.createdAt);
                       // Add termMonths to get the expiry date
@@ -1119,7 +1134,7 @@ const Cards = () => {
                       return (
                         <button
                           className="action-btn"
-                          style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600, background: 'rgba(0, 214, 86, 0.1)', color: '#00d656', border: '1px solid rgba(0, 214, 86, 0.3)' }}
+                          style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(0, 214, 86, 0.1)', color: '#00d656', border: '1px solid rgba(0, 214, 86, 0.3)', whiteSpace: 'nowrap' }}
                           onClick={(e) => {
                             e.stopPropagation();
                             openWithdrawDepositModal(deposit.id, isExpired);
@@ -1169,16 +1184,18 @@ const Cards = () => {
         </div>
       </div>
 
-      <div className="cards-footer">
-        <button className="scan-qr-btn">
-          <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
-          <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
-        </button>
-        <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
-          <img src={addProductIcon} className="btn-svg-icon" alt="" />
-          <span data-lang-key="addNewProduct">{t(userCardsLang, 'addNewProduct')}</span>
-        </button>
-      </div>
+      {!isAnyModalOpen && (
+        <div className="cards-footer">
+          <button className="scan-qr-btn">
+            <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
+            <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
+          </button>
+          <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
+            <img src={addProductIcon} className="btn-svg-icon" alt="" />
+            <span data-lang-key="addNewProduct">{t(userCardsLang, 'addNewProduct')}</span>
+          </button>
+        </div>
+      )}
 
 
       {showProductSelectionModal && (

@@ -152,7 +152,9 @@ export const userCardsLang = {
     withdrawDepositTitle: 'Withdraw Deposit',
     withdrawDepositPenaltyWarning: 'Early withdrawal incurs a 10% penalty on the principal amount, and no interest will be paid.',
     withdrawDepositSuccess: 'Deposit successfully withdrawn!',
-    withdrawDepositBtn: 'Withdraw to Card'
+    withdrawDepositBtn: 'Withdraw to Card',
+    neoCredit: 'NeoCredit',
+    neoDeposit: 'NeoDeposit'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -307,7 +309,9 @@ export const userCardsLang = {
     withdrawDepositTitle: 'Depoziti Çıxar',
     withdrawDepositPenaltyWarning: 'Müddətdən əvvəl çıxarış zamanı əsas məbləğdən 10% cərimə tutulur və faiz gəliri ödənilmir.',
     withdrawDepositSuccess: 'Depozit uğurla çıxarıldı!',
-    withdrawDepositBtn: 'Karta Çıxar'
+    withdrawDepositBtn: 'Karta Çıxar',
+    neoCredit: 'NeoKredit',
+    neoDeposit: 'NeoDepozit'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -462,6 +466,8 @@ export const userCardsLang = {
     withdrawDepositTitle: 'Снятие депозита',
     withdrawDepositPenaltyWarning: 'При досрочном снятии удерживается штраф 10% от вложенной суммы, а проценты не выплачиваются.',
     withdrawDepositSuccess: 'Депозит успешно снят!',
-    withdrawDepositBtn: 'Снять на карту'
+    withdrawDepositBtn: 'Снять на карту',
+    neoCredit: 'NeoКредит',
+    neoDeposit: 'NeoДепозит'
   }
 }
