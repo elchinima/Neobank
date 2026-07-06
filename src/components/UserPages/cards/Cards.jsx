@@ -133,6 +133,7 @@ const Cards = () => {
   const [showingCreditLimitMap, setShowingCreditLimitMap] = useState({})
   const [showPinAlertModal, setShowPinAlertModal] = useState(false)
   const [showPinSuccessModal, setShowPinSuccessModal] = useState(false)
+  const [creditLimitError, setCreditLimitError] = useState(null)
 
   const toggleCreditLimitView = (cardId, e) => {
     e.stopPropagation();
@@ -370,9 +371,9 @@ const Cards = () => {
       } else {
         const errData = await res.json()
         if (errData.message === 'creditLimitCooldown') {
-          alert(t(userCardsLang, 'creditLimitCooldown'))
+          setCreditLimitError(t(userCardsLang, 'creditLimitCooldown'))
         } else {
-          alert(errData.message || 'Error')
+          setCreditLimitError(errData.message || 'Error')
         }
       }
     } catch (err) {
@@ -586,8 +587,8 @@ const Cards = () => {
                   <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '16px', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: '16px', textAlign: 'left' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
                     <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                       {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
                     </span>
@@ -1012,7 +1013,7 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'status_blocked') || 'Blocked'}</h2>
+              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
             <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
@@ -1021,6 +1022,27 @@ const Cards = () => {
                 className="cards-page__button cards-page__button--primary" 
                 style={{ marginTop: '20px' }}
                 onClick={() => setShowPinAlertModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {creditLimitError && (
+        <div className="card-modal-overlay" onClick={() => setCreditLimitError(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+              <p>{creditLimitError}</p>
+              <button 
+                className="cards-page__button cards-page__button--primary" 
+                style={{ marginTop: '20px' }}
+                onClick={() => setCreditLimitError(null)}
               >
                 OK
               </button>

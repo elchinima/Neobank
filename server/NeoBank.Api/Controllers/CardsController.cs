@@ -208,13 +208,12 @@ public class CardsController : ControllerBase
         }
 
 
-        var random = new Random();
         var prefix = request.Network == "Visa" ? "4" : "5";
-        var cardNumber = $"{prefix}{random.Next(100, 999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}";
-        var cvv = random.Next(100, 999).ToString();
+        var cardNumber = $"{prefix}{Random.Shared.Next(100, 1000)}{Random.Shared.Next(1000, 10000)}{Random.Shared.Next(1000, 10000)}{Random.Shared.Next(1000, 10000)}";
+        var cvv = Random.Shared.Next(100, 1000).ToString();
         var expiry = DateTime.UtcNow.AddYears(3).ToString("MM/yy");
         
-        var randomIbanDigits = $"{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}";
+        var randomIbanDigits = $"{Random.Shared.Next(1000, 10000)}{Random.Shared.Next(1000, 10000)}{Random.Shared.Next(1000, 10000)}{Random.Shared.Next(1000, 10000)}";
         var iban = $"AZ12NEOB{randomIbanDigits}";
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
