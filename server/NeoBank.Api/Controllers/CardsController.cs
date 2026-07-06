@@ -203,7 +203,7 @@ public class CardsController : ControllerBase
             HolderName = holderName,
             Balance = initialBalance,
             MonthlyFee = monthlyFee,
-            Status = "Active",
+            Status = "Blocked",
             Iban = iban
         };
 
@@ -227,6 +227,11 @@ public class CardsController : ControllerBase
         if (card == null)
         {
             return NotFound(new { message = "Card not found." });
+        }
+
+        if (!card.HasPin && card.Status == "Blocked")
+        {
+            return BadRequest(new { message = "Cannot unblock card without a PIN. Please set a PIN first." });
         }
 
         card.Status = card.Status == "Active" ? "Blocked" : "Active";
@@ -309,6 +314,10 @@ public class CardsController : ControllerBase
             {
                 return BadRequest(new { message = "incorrectOldPin" });
             }
+        }
+        else
+        {
+            card.Status = "Active"; // Automatically activate card when PIN is first set
         }
 
         card.Pin = request.NewPin;

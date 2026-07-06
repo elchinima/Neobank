@@ -532,8 +532,23 @@ const Cards = () => {
                   <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
-                <div className="card-balance" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '16px', textAlign: 'left' }}>
+                  {card.creditLimit > 0 && (
+                    <button 
+                      className="toggle-balance-btn" 
+                      onClick={(e) => toggleCreditLimitView(card.id, e)}
+                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
+                      title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 10L3 14L7 18"/>
+                        <path d="M21 14H3"/>
+                        <path d="M17 4L21 8L17 12"/>
+                        <path d="M3 8H21"/>
+                      </svg>
+                    </button>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                     <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                       {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
                     </span>
@@ -541,15 +556,6 @@ const Cards = () => {
                       {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
                     </span>
                   </div>
-                  {card.creditLimit > 0 && (
-                    <button 
-                      className="toggle-balance-btn" 
-                      onClick={(e) => toggleCreditLimitView(card.id, e)}
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease' }}
-                    >
-                      <img src={limitIcon} className="btn-svg-icon" alt="Toggle" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                    </button>
-                  )}
                 </div>
                 <div className="card-actions">
                   <button
