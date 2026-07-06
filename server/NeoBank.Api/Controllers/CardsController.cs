@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NeoBank.Application.DTOs.CardDebit;
+using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
 using Stripe;
@@ -14,10 +16,12 @@ namespace NeoBank.Api.Controllers;
 public class CardsController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICardDebitService _cardDebitService;
 
-    public CardsController(IApplicationDbContext context)
+    public CardsController(IApplicationDbContext context, ICardDebitService cardDebitService)
     {
         _context = context;
+        _cardDebitService = cardDebitService;
         StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
     }
 
@@ -151,39 +155,21 @@ public class CardsController : ControllerBase
                     return BadRequest(new { message = "Please select a card to pay for the first month's subscription." });
                 }
 
-                var sourceCard = await _context.Cards
-                    .FirstOrDefaultAsync(c => c.Id == request.SourceCardId && c.UserId == userId);
-
-                if (sourceCard == null)
+                var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
                 {
-                    return BadRequest(new { message = "Payment card not found." });
-                }
-
-                if (sourceCard.Status != "Active")
-                {
-                    return BadRequest(new { message = "This card is blocked and cannot be used for payment." });
-                }
-
-                if ((sourceCard.Balance + sourceCard.CreditLimit) < monthlyFee)
-                {
-                    return BadRequest(new { message = $"Insufficient funds on the card. {monthlyFee} AZN required." });
-                }
-
-
-                sourceCard.Balance -= monthlyFee;
-
-
-                var feeTransaction = new Transaction
-                {
+                    CardId = request.SourceCardId,
                     UserId = userId,
-                    CardId = sourceCard.Id,
                     Amount = monthlyFee,
-                    Type = "Debit",
                     Category = "CardFee",
-                    Description = $"Payment for the 1st month of {request.CardType} card",
-                    Status = "Completed"
-                };
-                _context.Transactions.Add(feeTransaction);
+                    Description = $"Payment for the 1st month of {request.CardType} card"
+                });
+
+                if (!debitResult.Success)
+                {
+                    return debitResult.HttpStatusCode == 404
+                        ? BadRequest(new { message = "Payment card not found." })
+                        : BadRequest(new { message = debitResult.ErrorMessage });
+                }
             }
             else if (request.PaymentMethod == "stripe")
             {

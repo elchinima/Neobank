@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NeoBank.Application.DTOs.CardDebit;
+using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
 using NeoBank.Infrastructure.Services;
@@ -15,11 +17,13 @@ public class PaymentsController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
     private readonly IStripeService _stripeService;
+    private readonly ICardDebitService _cardDebitService;
 
-    public PaymentsController(IApplicationDbContext context, IStripeService stripeService)
+    public PaymentsController(IApplicationDbContext context, IStripeService stripeService, ICardDebitService cardDebitService)
     {
         _context = context;
         _stripeService = stripeService;
+        _cardDebitService = cardDebitService;
     }
 
     private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -40,45 +44,26 @@ public class PaymentsController : ControllerBase
     {
         var userId = GetUserId();
 
-        if (request.Amount <= 0)
+        var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
         {
-            return BadRequest(new { message = "The payment amount must be greater than 0." });
-        }
-
-        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId && c.UserId == userId);
-
-        if (card == null)
-        {
-            return NotFound(new { message = "Card not found." });
-        }
-
-        if (card.Status != "Active")
-        {
-            return BadRequest(new { message = "The card is blocked." });
-        }
-
-        if ((card.Balance + card.CreditLimit) < request.Amount)
-        {
-            return BadRequest(new { message = "Insufficient funds on the card." });
-        }
-
-        card.Balance -= request.Amount;
-
-        var transaction = new Transaction
-        {
+            CardId = request.CardId,
             UserId = userId,
-            CardId = card.Id,
             Amount = request.Amount,
-            Type = "Debit",
             Category = request.CategoryName,
             Description = $"Payment for {request.ProviderName} ({request.RecipientAccount})",
-            RecipientAccount = request.RecipientAccount,
-            Status = "Completed"
-        };
+            RecipientAccount = request.RecipientAccount
+        });
+
+        if (!debitResult.Success)
+        {
+            return debitResult.HttpStatusCode == 404
+                ? NotFound(new { message = debitResult.ErrorMessage })
+                : BadRequest(new { message = debitResult.ErrorMessage });
+        }
 
         if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer" || request.ProviderName == "IBAN Transfer"))
         {
-            Card destCard = null;
+            Card? destCard = null;
             if (request.ProviderName == "IBAN Transfer")
             {
                 request.RecipientAccount = request.RecipientAccount.Replace(" ", "").ToUpper();
@@ -103,8 +88,8 @@ public class PaymentsController : ControllerBase
                     Amount = request.Amount,
                     Type = "Credit",
                     Category = "Transfer",
-                    Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {card.Iban}" : $"Transfer from {card.CardNumber}",
-                    RecipientAccount = request.ProviderName == "IBAN Transfer" ? card.Iban : card.CardNumber,
+                    Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {debitResult.Card!.Iban}" : $"Transfer from {debitResult.Card!.CardNumber}",
+                    RecipientAccount = request.ProviderName == "IBAN Transfer" ? debitResult.Card!.Iban : debitResult.Card!.CardNumber,
                     Status = "Completed"
                 };
                 _context.Transactions.Add(creditTransaction);
@@ -115,14 +100,13 @@ public class PaymentsController : ControllerBase
             }
         }
 
-        _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return Ok(new
         {
             success = true,
-            transactionId = transaction.Id,
-            newBalance = card.Balance,
+            transactionId = debitResult.Transaction!.Id,
+            newBalance = debitResult.NewBalance,
             message = "Payment successfully completed."
         });
     }

@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NeoBank.Application.DTOs.CardDebit;
+using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
 
@@ -13,10 +15,12 @@ namespace NeoBank.Api.Controllers;
 public class LoansController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICardDebitService _cardDebitService;
 
-    public LoansController(IApplicationDbContext context)
+    public LoansController(IApplicationDbContext context, ICardDebitService cardDebitService)
     {
         _context = context;
+        _cardDebitService = cardDebitService;
     }
 
     private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -129,19 +133,22 @@ public class LoansController : ControllerBase
 
         string cardIdToCharge = !string.IsNullOrEmpty(request?.SourceCardId) ? request.SourceCardId : loan.TargetCardId;
 
-        var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardIdToCharge && c.UserId == userId);
-
-        if (sourceCard == null || sourceCard.Status != "Active")
+        var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
         {
-            return BadRequest(new { message = "The selected card is not available or blocked." });
+            CardId = cardIdToCharge,
+            UserId = userId,
+            Amount = loan.MonthlyPayment,
+            Category = "LoanPayment",
+            Description = $"Monthly payment for loan {loan.Id.Substring(0, 8)}"
+        });
+
+        if (!debitResult.Success)
+        {
+            return debitResult.HttpStatusCode == 404
+                ? BadRequest(new { message = "The selected card is not available or blocked." })
+                : BadRequest(new { message = debitResult.ErrorMessage });
         }
 
-        if ((sourceCard.Balance + sourceCard.CreditLimit) < loan.MonthlyPayment)
-        {
-            return BadRequest(new { message = "Insufficient funds on the selected card to make the monthly payment." });
-        }
-
-        sourceCard.Balance -= loan.MonthlyPayment;
         loan.RemainingBalance -= loan.MonthlyPayment;
         if (loan.RemainingBalance <= 0)
         {
@@ -161,24 +168,12 @@ public class LoansController : ControllerBase
         }
         loan.PaidAmount += loan.MonthlyPayment;
 
-        var transaction = new Transaction
-        {
-            UserId = userId,
-            CardId = sourceCard.Id,
-            Amount = loan.MonthlyPayment,
-            Type = "Debit",
-            Category = "LoanPayment",
-            Description = $"Monthly payment for loan {loan.Id.Substring(0, 8)}",
-            Status = "Completed"
-        };
-
-        _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return Ok(new
         {
             loan,
-            newBalance = sourceCard.Balance,
+            newBalance = debitResult.NewBalance,
             message = "Loan payment successful."
         });
     }

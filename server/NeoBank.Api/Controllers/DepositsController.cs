@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NeoBank.Application.DTOs.CardDebit;
+using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
 
@@ -13,10 +15,12 @@ namespace NeoBank.Api.Controllers;
 public class DepositsController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICardDebitService _cardDebitService;
 
-    public DepositsController(IApplicationDbContext context)
+    public DepositsController(IApplicationDbContext context, ICardDebitService cardDebitService)
     {
         _context = context;
+        _cardDebitService = cardDebitService;
     }
 
     private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -52,27 +56,29 @@ public class DepositsController : ControllerBase
             return BadRequest(new { message = "The minimum deposit amount is 100 AZN." });
         }
 
-        var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.SourceCardId && c.UserId == userId);
-        if (sourceCard == null)
+        var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
         {
-            return NotFound(new { message = "Source card not found." });
-        }
+            CardId = request.SourceCardId,
+            UserId = userId,
+            Amount = request.Amount,
+            Category = "DepositFunding",
+            Description = $"Deposit opening ({request.Amount} AZN for {request.TermMonths} months)"
+        });
 
-        if ((sourceCard.Balance + sourceCard.CreditLimit) < request.Amount)
+        if (!debitResult.Success)
         {
-            return BadRequest(new { message = "Insufficient funds on the card." });
+            return debitResult.HttpStatusCode == 404
+                ? NotFound(new { message = "Source card not found." })
+                : BadRequest(new { message = debitResult.ErrorMessage });
         }
 
         decimal rate = 12.0m;
         decimal totalIncome = Math.Round(request.Amount * (rate / 100m) * (request.TermMonths / 12.0m), 2);
 
-
-        sourceCard.Balance -= request.Amount;
-
         var deposit = new Deposit
         {
             UserId = userId,
-            SourceCardId = sourceCard.Id,
+            SourceCardId = debitResult.Card!.Id,
             Amount = request.Amount,
             TermMonths = request.TermMonths,
             InterestRate = rate,
@@ -80,25 +86,13 @@ public class DepositsController : ControllerBase
             Status = "Active"
         };
 
-        var transaction = new Transaction
-        {
-            UserId = userId,
-            CardId = sourceCard.Id,
-            Amount = request.Amount,
-            Type = "Debit",
-            Category = "DepositFunding",
-            Description = $"Deposit opening ({request.Amount} AZN for {request.TermMonths} months)",
-            Status = "Completed"
-        };
-
         _context.Deposits.Add(deposit);
-        _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return Ok(new
         {
             deposit,
-            newBalance = sourceCard.Balance,
+            newBalance = debitResult.NewBalance,
             message = "Deposit successfully opened."
         });
     }
