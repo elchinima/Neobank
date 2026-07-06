@@ -64,15 +64,24 @@ public class CardsController : ControllerBase
             },
         };
 
-        var service = new PaymentIntentService();
         try
         {
+            if (string.IsNullOrEmpty(StripeConfiguration.ApiKey))
+            {
+                return BadRequest(new { message = "Stripe API key is not configured on the server." });
+            }
+
+            var service = new PaymentIntentService();
             var intent = service.Create(options);
             return Ok(new { clientSecret = intent.ClientSecret });
         }
         catch (StripeException e)
         {
             return BadRequest(new { message = e.StripeError.Message });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { message = "An error occurred while creating payment intent: " + e.Message });
         }
     }
 
@@ -170,12 +179,12 @@ public class CardsController : ControllerBase
 
         var random = new Random();
         var prefix = request.Network == "Visa" ? "4" : "5";
-        var cardNumber = $"{prefix}{random.Next(100, 999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)}";
+        var cardNumber = $"{prefix}{random.Next(100, 999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}";
         var cvv = random.Next(100, 999).ToString();
         var expiry = DateTime.UtcNow.AddYears(3).ToString("MM/yy");
         
-        var randomIbanDigits = $"{random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)} {random.Next(1000, 9999)}";
-        var iban = $"AZ12 NEOB {randomIbanDigits}";
+        var randomIbanDigits = $"{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}{random.Next(1000, 9999)}";
+        var iban = $"AZ12NEOB{randomIbanDigits}";
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         var holderName = user != null ? $"{user.FirstName} {user.LastName}".ToUpper() : "CARD HOLDER";
@@ -271,6 +280,38 @@ public class CardsController : ControllerBase
         }
 
         card.CreditLimitUpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return Ok(card);
+    }
+
+    public class ChangePinRequest
+    {
+        public string CardId { get; set; } = string.Empty;
+        public string? OldPin { get; set; }
+        public string NewPin { get; set; } = string.Empty;
+    }
+
+    [HttpPost("change-pin")]
+    public async Task<IActionResult> ChangePin([FromBody] ChangePinRequest request)
+    {
+        var userId = GetUserId();
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId && c.UserId == userId);
+
+        if (card == null)
+        {
+            return NotFound(new { message = "Card not found." });
+        }
+
+        if (card.HasPin)
+        {
+            if (string.IsNullOrEmpty(request.OldPin) || request.OldPin != card.Pin)
+            {
+                return BadRequest(new { message = "incorrectOldPin" });
+            }
+        }
+
+        card.Pin = request.NewPin;
         await _context.SaveChangesAsync();
 
         return Ok(card);

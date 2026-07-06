@@ -26,4 +26,10 @@ public class Card
     public decimal CreditLimit { get; set; } = 0.00m;
     
     public DateTime? CreditLimitUpdatedAt { get; set; }
+    
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string? Pin { get; set; } = null;
+    
+    [NotMapped]
+    public bool HasPin => !string.IsNullOrEmpty(Pin);
 }

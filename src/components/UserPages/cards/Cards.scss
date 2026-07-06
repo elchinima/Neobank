@@ -70,6 +70,32 @@
       border-color: rgba(160, 32, 240, 0.3);
     }
 
+    &--no-pin {
+      border-color: rgba(255, 59, 48, 0.6);
+      background: rgba(255, 59, 48, 0.05);
+
+      .card-info-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #ff3b30;
+
+        &::after {
+          content: '!';
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          background: #ff3b30;
+          color: white;
+          border-radius: 50%;
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+    }
+
     .card-image-wrapper {
       width: 100%;
       border-radius: 12px;

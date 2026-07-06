@@ -126,6 +126,22 @@ const Cards = () => {
   })
   const [newCardError, setNewCardError] = useState('')
   const [submittingCard, setSubmittingCard] = useState(false)
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [pinForm, setPinForm] = useState({ oldPin: '', newPin: '', confirmNewPin: '' })
+  const [pinStatus, setPinStatus] = useState('idle')
+  const [pinError, setPinError] = useState('')
+  const [showingCreditLimitMap, setShowingCreditLimitMap] = useState({})
+
+  const toggleCreditLimitView = (cardId, e) => {
+    e.stopPropagation();
+    setShowingCreditLimitMap(prev => ({ ...prev, [cardId]: !prev[cardId] }));
+  }
+
+  const formatCardNumber = (number) => {
+    if (!number) return '';
+    const clean = number.replace(/\s+/g, '');
+    return clean.match(/.{1,4}/g)?.join(' ') || clean;
+  }
 
   const fetchCards = async () => {
     try {
@@ -200,8 +216,13 @@ const Cards = () => {
           },
           body: JSON.stringify({ cardType: newCardForm.cardType })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || t(userCardsLang, 'orderCardError'));
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new Error('Server returned an invalid response. Please try again.');
+        }
+        if (!res.ok) throw new Error(data?.message || t(userCardsLang, 'orderCardError'));
         setStripeClientSecret(data.clientSecret);
       } catch (err) {
         setNewCardError(err.message);
@@ -233,9 +254,15 @@ const Cards = () => {
         })
       })
 
-      const data = await res.json()
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Server returned an invalid response. Please try again.');
+      }
+
       if (!res.ok) {
-        throw new Error(data.message || t(userCardsLang, 'orderCardError'))
+        throw new Error(data?.message || t(userCardsLang, 'orderCardError'))
       }
 
       setShowNewCardModal(false)
@@ -296,6 +323,56 @@ const Cards = () => {
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const handleChangePinSubmit = async (e) => {
+    e.preventDefault()
+    if (!pinForm.newPin || !pinForm.confirmNewPin) return
+    if (selectedSettingsCard?.hasPin && !pinForm.oldPin) return
+
+    if (pinForm.newPin !== pinForm.confirmNewPin) {
+      setPinError(t(userCardsLang, 'pinNotMatch'))
+      return
+    }
+
+    setPinStatus('loading')
+    setPinError('')
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/cards/change-pin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardId: selectedSettingsCard.id,
+          oldPin: pinForm.oldPin,
+          newPin: pinForm.newPin
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.message === 'incorrectOldPin') {
+           throw new Error(t(userCardsLang, 'incorrectOldPin'))
+        }
+        throw new Error(data.message || 'Error changing PIN')
+      }
+
+      setPinStatus('success')
+      fetchCards()
+      setTimeout(() => {
+        setShowPinModal(false)
+        setPinStatus('idle')
+        setPinForm({ oldPin: '', newPin: '', confirmNewPin: '' })
+        setSelectedSettingsCard(data)
+        alert(t(userCardsLang, 'pinSuccess'))
+      }, 1500)
+    } catch (err) {
+      setPinError(err.message)
+      setPinStatus('idle')
     }
   }
 
@@ -444,7 +521,7 @@ const Cards = () => {
           {cards.map(card => (
             <div
               key={card.id}
-              className={`card-item ${activeCardId === card.id ? 'active' : ''}`}
+              className={`card-item ${activeCardId === card.id ? 'active' : ''} ${!card.hasPin ? 'card-item--no-pin' : ''}`}
               onClick={() => setActiveCardId(card.id)}
             >
               <div className="card-image-wrapper">
@@ -455,15 +532,34 @@ const Cards = () => {
                   <h2>{card.cardType} Card</h2>
                   <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                 </div>
-                <div className="card-balance">
-                  <span className="label" data-lang-key="availableBalance">{t(userCardsLang, 'availableBalance')}</span>
-                  <span className="amount">{Number(card.balance).toFixed(2)} AZN</span>
+                <div className="card-balance" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
+                      {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
+                    </span>
+                    <span className="amount">
+                      {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
+                    </span>
+                  </div>
+                  {card.creditLimit > 0 && (
+                    <button 
+                      className="toggle-balance-btn" 
+                      onClick={(e) => toggleCreditLimitView(card.id, e)}
+                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease' }}
+                    >
+                      <img src={limitIcon} className="btn-svg-icon" alt="Toggle" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
+                    </button>
+                  )}
                 </div>
                 <div className="card-actions">
                   <button
                     className="action-btn"
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (!card.hasPin) {
+                         alert(t(userCardsLang, 'cardNeedsPinAlert'));
+                         return;
+                      }
                       setSelectedTransferCard(card);
                     }}
                     data-lang-key="transfer"
@@ -632,7 +728,7 @@ const Cards = () => {
                 </div>
                 <div className="detail-row">
                   <span className="label" data-lang-key="number">{t(userCardsLang, 'number')}</span>
-                  <span className="value">{selectedSettingsCard.cardNumber}</span>
+                  <span className="value">{formatCardNumber(selectedSettingsCard.cardNumber)}</span>
                 </div>
                 <div className="detail-row">
                   <span className="label" data-lang-key="expiry">{t(userCardsLang, 'expiry')}</span>
@@ -646,6 +742,12 @@ const Cards = () => {
                   <span className="label" data-lang-key="status">{t(userCardsLang, 'status')}</span>
                   <span className={`status ${selectedSettingsCard.status.toLowerCase()}`}>{t(userCardsLang, selectedSettingsCard.status.toLowerCase(), selectedSettingsCard.status)}</span>
                 </div>
+                {selectedSettingsCard.creditLimit > 0 && (
+                  <div className="detail-row">
+                    <span className="label" data-lang-key="creditLineLabel">{t(userCardsLang, 'creditLineLabel')}</span>
+                    <span className="value">{Number(selectedSettingsCard.creditLimit).toFixed(2)} ₼</span>
+                  </div>
+                )}
               </div>
 
               <div className="settings-section">
@@ -672,10 +774,10 @@ const Cards = () => {
                     <span className="btn-subtitle">{t(userCardsLang, 'limitsDesc')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Change PIN clicked')}>
+                <button className="settings-action-btn" onClick={() => setShowPinModal(true)}>
                   <img src={pinIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'changePin')}</span>
+                    <span className="btn-title">{t(userCardsLang, 'changePinTitle')}</span>
                     <span className="btn-subtitle">{t(userCardsLang, 'pinDesc')}</span>
                   </div>
                 </button>
@@ -927,7 +1029,7 @@ const Cards = () => {
                 <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'ibanLabel')}</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff', wordBreak: 'break-all', paddingRight: '10px' }}>
-                    {selectedSettingsCard.iban}
+                    {formatCardNumber(selectedSettingsCard.iban)}
                   </span>
                   <button 
                     className="copy-btn" 
@@ -982,6 +1084,60 @@ const Cards = () => {
           </div>
         </div>
       )}
+      {showPinModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'changePinTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleChangePinSubmit} className="modal-form">
+                {pinError && <div className="error-message">{pinError}</div>}
+                {selectedSettingsCard?.hasPin && (
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'oldPin')}</label>
+                    <input
+                      type="password"
+                      maxLength="4"
+                      value={pinForm.oldPin}
+                      onChange={e => setPinForm({ ...pinForm, oldPin: e.target.value.replace(/\D/g, '') })}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                )}
+                <div className="form-group">
+                  <label>{t(userCardsLang, 'newPin')}</label>
+                  <input
+                    type="password"
+                    maxLength="4"
+                    value={pinForm.newPin}
+                    onChange={e => setPinForm({ ...pinForm, newPin: e.target.value.replace(/\D/g, '') })}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t(userCardsLang, 'confirmNewPin')}</label>
+                  <input
+                    type="password"
+                    maxLength="4"
+                    value={pinForm.confirmNewPin}
+                    onChange={e => setPinForm({ ...pinForm, confirmNewPin: e.target.value.replace(/\D/g, '') })}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary" disabled={pinStatus === 'loading'}>
+                  {pinStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'changePinTitle')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
