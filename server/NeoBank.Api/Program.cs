@@ -134,6 +134,33 @@ using (var scope = app.Services.CreateScope())
         {
             dbContext.Database.EnsureCreated();
         }
+
+        if (!dbContext.CashbackCategories.Any())
+        {
+            var categories = new List<CashbackCategory>
+            {
+                new CashbackCategory { TitleKey = "catMetroTitle", TextKey = "catMetroText", Rate = 100m },
+                new CashbackCategory { TitleKey = "catSuperTitle", TextKey = "catSuperText", Rate = 5m },
+                new CashbackCategory { TitleKey = "catPharmTitle", TextKey = "catPharmText", Rate = 3m },
+                new CashbackCategory { TitleKey = "catFuelTitle", TextKey = "catFuelText", Rate = 3m },
+                new CashbackCategory { TitleKey = "catRestTitle", TextKey = "catRestText", Rate = 2m },
+                new CashbackCategory { TitleKey = "catClothTitle", TextKey = "catClothText", Rate = 2m },
+                new CashbackCategory { TitleKey = "catTrendTitle", TextKey = "catTrendText", Rate = 1m },
+                new CashbackCategory { TitleKey = "catOtherTitle", TextKey = "catOtherText", Rate = 0.1m }
+            };
+            dbContext.CashbackCategories.AddRange(categories);
+            dbContext.SaveChanges();
+
+            var mccCodes = new List<CashbackMcc>();
+            int codeCounter = 1;
+            foreach(var cat in categories)
+            {
+                mccCodes.Add(new CashbackMcc { Code = codeCounter.ToString("D3"), CategoryId = cat.Id });
+                codeCounter++;
+            }
+            dbContext.CashbackMccs.AddRange(mccCodes);
+            dbContext.SaveChanges();
+        }
     }
     catch (Exception ex)
     {

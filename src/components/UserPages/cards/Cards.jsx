@@ -116,6 +116,27 @@ const Cards = () => {
   const [newLoanError, setNewLoanError] = useState('')
   const [newDepositStatus, setNewDepositStatus] = useState('idle')
   const [newDepositError, setNewDepositError] = useState('')
+  const [cashbackData, setCashbackData] = useState({ totalEarned: 0, categories: [] })
+
+  const fetchCashbackData = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cashback`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setCashbackData(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    if (token) {
+      fetchCashbackData()
+    }
+  }, [token])
 
   const [showInternalTransferModal, setShowInternalTransferModal] = useState(false)
   const [showUnavailableModal, setShowUnavailableModal] = useState(false)
@@ -385,18 +406,6 @@ const Cards = () => {
       setLoading(false);
     }
   }
-
-  const categoryProgram = [
-    { titleKey: 'catMetroTitle', textKey: 'catMetroText', rate: '100%', earned: 2.50 },
-    { titleKey: 'catSuperTitle', textKey: 'catSuperText', rate: '5%', earned: 8.40 },
-    { titleKey: 'catPharmTitle', textKey: 'catPharmText', rate: '3%', earned: 1.20 },
-    { titleKey: 'catFuelTitle', textKey: 'catFuelText', rate: '3%', earned: 4.50 },
-    { titleKey: 'catRestTitle', textKey: 'catRestText', rate: '2%', earned: 5.80 },
-    { titleKey: 'catClothTitle', textKey: 'catClothText', rate: '2%', earned: 3.00 },
-    { titleKey: 'catTrendTitle', textKey: 'catTrendText', rate: '1%', earned: 0.00 },
-    { titleKey: 'catOtherTitle', textKey: 'catOtherText', rate: '0.1%', earned: 0.15 },
-  ]
-  const totalEarned = categoryProgram.reduce((sum, item) => sum + item.earned, 0).toFixed(2);
 
   const handleAcquireCard = async (e) => {
     e.preventDefault()
@@ -869,14 +878,11 @@ const Cards = () => {
                   flexDirection: 'column',
                   justifyContent: 'space-between', 
                   alignItems: 'flex-start',
-                  height: '210px',
+                  aspectRatio: '1.58',
                   borderRadius: '16px',
                   boxShadow: 'inset 0 0 20px rgba(160, 32, 240, 0.05)',
-                  marginBottom: '16px',
                   position: 'relative',
-                  overflow: 'hidden',
-                  width: 'calc(100% - 48px)',
-                  margin: '24px auto 0'
+                  overflow: 'hidden'
                 }}>
                   {/* Decorative background elements */}
                   <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.1)', filter: 'blur(20px)' }}></div>
@@ -895,45 +901,41 @@ const Cards = () => {
                     </div>
                   </div>
                   
-                  <div style={{ zIndex: 1, width: '100%' }}>
-                    <p style={{ margin: '0 0 4px', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }} data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</p>
-                    <h3 style={{ margin: '0', color: '#fff', fontSize: '24px', fontWeight: '700', letterSpacing: '0.5px' }}>{Number(loan.amount).toFixed(2)} <span style={{fontSize:'16px', color:'rgba(255,255,255,0.6)'}}>AZN</span></h3>
+                  {/* Loan Data Grid INSIDE the virtual card */}
+                  <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(loan.amount).toFixed(2)} ₼</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{loan.interestRate}% / {loan.termMonths} ay</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="card-details" style={{ width: '100%', padding: '0 24px 24px' }}>
+                <div className="card-details">
                   <div className="card-info-header">
                     <h2>{t(userCardsLang, 'activeLoans')}</h2>
                     <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
                   </div>
-                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', textAlign: 'left', marginTop: '16px' }}>
+                  <div className="card-balance">
                     <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
                     <span className="amount">{Number(loan.remainingBalance).toFixed(2)} AZN</span>
                   </div>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '24px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
-                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{loan.interestRate}%</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
-                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
-                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
-                    </div>
-                  </div>
 
-                  <div className="card-actions" style={{ marginTop: '24px' }}>
+                  <div className="card-actions">
                     <button
                       className="action-btn"
-                      style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600 }}
+                      style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)' }}
                       onClick={(e) => {
                         e.stopPropagation();
                         openPayLoanModal(loan.id);
@@ -955,29 +957,67 @@ const Cards = () => {
             </div>
           ) : (
             deposits.map(deposit => (
-              <div key={deposit.id} className="card-item card-item--no-pin">
-                <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+              <div key={deposit.id} className="card-item">
+                <div className="card-image-wrapper" style={{ 
+                  background: 'linear-gradient(135deg, rgba(0, 214, 86, 0.15), rgba(0, 160, 60, 0.1))',
+                  border: '1px solid rgba(0, 214, 86, 0.3)',
+                  padding: '20px', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start',
+                  aspectRatio: '1.58',
+                  borderRadius: '16px',
+                  boxShadow: 'inset 0 0 20px rgba(0, 214, 86, 0.05)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Decorative background elements */}
+                  <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.1)', filter: 'blur(20px)' }}></div>
+                  <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.05)', filter: 'blur(15px)' }}></div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(0, 214, 86, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d656" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="6" width="20" height="12" rx="2"/>
+                          <circle cx="12" cy="12" r="2"/>
+                          <path d="M6 12h.01M18 12h.01"/>
+                        </svg>
+                      </div>
+                      <span style={{ color: '#00d656', fontSize: '14px', fontWeight: '600' }}>NeoDepozit</span>
+                    </div>
+                  </div>
+                  
+                  {/* Deposit Data Grid INSIDE the virtual card */}
+                  <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(deposit.amount).toFixed(2)} ₼</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(deposit.totalIncome).toFixed(2)} ₼</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{deposit.interestRate}%</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
+                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card-details">
                   <div className="card-info-header">
                     <h2>{t(userCardsLang, 'activeDeposits')}</h2>
                     <span className={`status ${deposit.status.toLowerCase()}`}>{deposit.status}</span>
                   </div>
-                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
-                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.amount).toFixed(2)} AZN</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
-                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.totalIncome).toFixed(2)} AZN</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.interestRate}%</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
-                    </div>
+                  <div className="card-balance">
+                    <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
+                    <span className="amount">{Number(deposit.totalIncome + deposit.amount).toFixed(2)} AZN</span>
                   </div>
                 </div>
               </div>
@@ -995,20 +1035,20 @@ const Cards = () => {
           </div>
           <div className="total-cashback">
             <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
-            <strong>{totalEarned} ₼</strong>
+            <strong>{Number(cashbackData.totalEarned).toFixed(2)} ₼</strong>
           </div>
         </div>
         <div className="cashback-offers">
-          {categoryProgram.map((item) => (
-            <div className="cashback-offer" key={item.titleKey}>
-              <strong>{item.rate}</strong>
+          {cashbackData.categories.map((item) => (
+            <div className="cashback-offer" key={item.id}>
+              <strong>{item.rate}%</strong>
               <div className="cashback-offer-info">
                 <h4>{t(userCardsLang, item.titleKey)}</h4>
                 <p>{t(userCardsLang, item.textKey)}</p>
                 {showLimits && (
                   <div className="cashback-limits">
                     <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
-                    <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {item.earned.toFixed(2)} ₼</span>
+                    <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(item.earned).toFixed(2)} ₼</span>
                   </div>
                 )}
               </div>

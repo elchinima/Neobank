@@ -16,7 +16,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Transaction> Transactions { get; set; } = null!;
     public DbSet<Loan> Loans { get; set; } = null!;
     public DbSet<Deposit> Deposits { get; set; } = null!;
-    public DbSet<VatReceipt> VatReceipts { get; set; } = null!;
+    public DbSet<CashbackCategory> CashbackCategories { get; set; } = null!;
+    public DbSet<CashbackMcc> CashbackMccs { get; set; } = null!;
+    public DbSet<UserCashback> UserCashbacks { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -79,11 +81,41 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasIndex(d => d.UserId);
         });
 
-        builder.Entity<VatReceipt>(entity =>
+        builder.Entity<CashbackCategory>(entity =>
         {
-            entity.ToTable("VatReceipts");
-            entity.HasKey(v => v.Id);
-            entity.HasIndex(v => v.UserId);
+            entity.ToTable("CashbackCategories");
+            entity.HasKey(c => c.Id);
+        });
+
+        builder.Entity<CashbackMcc>(entity =>
+        {
+            entity.ToTable("CashbackMccs");
+            entity.HasKey(m => m.Id);
+            entity.HasIndex(m => m.CategoryId);
+            
+            entity.HasOne(m => m.Category)
+                  .WithMany(c => c.MccCodes)
+                  .HasForeignKey(m => m.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<UserCashback>(entity =>
+        {
+            entity.ToTable("UserCashbacks");
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.UserId);
+            entity.HasIndex(u => u.CategoryId);
+            entity.HasIndex(u => new { u.UserId, u.CategoryId }).IsUnique();
+            
+            entity.HasOne(u => u.User)
+                  .WithMany()
+                  .HasForeignKey(u => u.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                  
+            entity.HasOne(u => u.Category)
+                  .WithMany(c => c.UserCashbacks)
+                  .HasForeignKey(u => u.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

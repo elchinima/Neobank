@@ -10,7 +10,9 @@ public interface IApplicationDbContext
     DbSet<Transaction> Transactions { get; set; }
     DbSet<Loan> Loans { get; set; }
     DbSet<Deposit> Deposits { get; set; }
-    DbSet<VatReceipt> VatReceipts { get; set; }
+    DbSet<CashbackCategory> CashbackCategories { get; set; }
+    DbSet<CashbackMcc> CashbackMccs { get; set; }
+    DbSet<UserCashback> UserCashbacks { get; set; }
     DbSet<RefreshToken> RefreshTokens { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
