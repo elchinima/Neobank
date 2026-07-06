@@ -21,4 +21,9 @@ public class Card
     public string Swift { get; } = "NEOBAZ22";
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal CreditLimit { get; set; } = 0.00m;
+    
+    public DateTime? CreditLimitUpdatedAt { get; set; }
 }

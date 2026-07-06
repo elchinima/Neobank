@@ -113,6 +113,10 @@ const Cards = () => {
   const [internalTransferForm, setInternalTransferForm] = useState({ sourceCardId: '', destCardId: '', amount: '' })
   const [internalTransferStatus, setInternalTransferStatus] = useState('idle')
   const [internalTransferError, setInternalTransferError] = useState('')
+  const [showNeoBankTransferModal, setShowNeoBankTransferModal] = useState(false)
+  const [neoBankTransferForm, setNeoBankTransferForm] = useState({ sourceCardId: '', destCardNumber: '', amount: '' })
+  const [neoBankTransferStatus, setNeoBankTransferStatus] = useState('idle')
+  const [neoBankTransferError, setNeoBankTransferError] = useState('')
   const [showNewCardModal, setShowNewCardModal] = useState(false)
   const [newCardForm, setNewCardForm] = useState({
     cardType: location.state?.orderCardType || 'Standard',
@@ -267,6 +271,34 @@ const Cards = () => {
     }
   }
 
+  const handleToggleCreditLimit = async (cardId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cards/toggle-credit-limit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ cardId })
+      })
+
+      if (res.ok) {
+        const updatedCard = await res.json()
+        setSelectedSettingsCard(updatedCard)
+        fetchCards()
+      } else {
+        const errData = await res.json()
+        if (errData.message === 'creditLimitCooldown') {
+          alert(t(userCardsLang, 'creditLimitCooldown'))
+        } else {
+          alert(errData.message || 'Error')
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const handleInternalTransferSubmit = async (e) => {
     e.preventDefault()
     if (!internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount) return
@@ -315,6 +347,73 @@ const Cards = () => {
       }
       setInternalTransferError(errorMsg)
       setInternalTransferStatus('idle')
+    }
+  }
+
+  const handleDestCardNumberChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 16) value = value.slice(0, 16)
+    let formatted = value.match(/.{1,4}/g)?.join(' ') || ''
+    if (value.length === 0) formatted = ''
+    setNeoBankTransferForm({ ...neoBankTransferForm, destCardNumber: formatted })
+  }
+
+  const handleNeoBankTransferSubmit = async (e) => {
+    e.preventDefault()
+    if (!neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount) return
+
+    const destNumberRaw = neoBankTransferForm.destCardNumber.replace(/\s+/g, '')
+    if (destNumberRaw.length !== 16) {
+      setNeoBankTransferError(t(userCardsLang, 'invalidCardNumberError'))
+      return
+    }
+
+    const sourceCard = cards.find(c => c.id.toString() === neoBankTransferForm.sourceCardId)
+    if (sourceCard && sourceCard.cardNumber.replace(/\s+/g, '') === destNumberRaw) {
+      setNeoBankTransferError(t(userCardsLang, 'sameCardError'))
+      return
+    }
+
+    setNeoBankTransferStatus('loading')
+    setNeoBankTransferError('')
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardId: neoBankTransferForm.sourceCardId,
+          providerName: 'NeoBank Transfer',
+          categoryName: 'Transfer',
+          recipientAccount: destNumberRaw,
+          amount: parseFloat(neoBankTransferForm.amount)
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || t(userCardsLang, 'transferError'))
+      }
+
+      setNeoBankTransferStatus('success')
+      fetchCards()
+      setTimeout(() => {
+        setShowNeoBankTransferModal(false)
+        setNeoBankTransferStatus('idle')
+        setNeoBankTransferForm({ sourceCardId: '', destCardNumber: '', amount: '' })
+      }, 2000)
+    } catch (err) {
+      let errorMsg = err.message
+      if (errorMsg === 'Insufficient funds on the card.') {
+        errorMsg = t(userCardsLang, 'insufficientFundsShort')
+      } else if (errorMsg === 'Recipient card not found.') {
+        errorMsg = t(userCardsLang, 'cardNotFoundError')
+      }
+      setNeoBankTransferError(errorMsg)
+      setNeoBankTransferStatus('idle')
     }
   }
 
@@ -558,11 +657,11 @@ const Cards = () => {
                     <span className="btn-subtitle" data-lang-key="toggleCardStatus">{t(userCardsLang, 'toggleCardStatus')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => alert('Increase credit limit clicked')}>
+                <button className="settings-action-btn" onClick={() => handleToggleCreditLimit(selectedSettingsCard.id)}>
                   <img src={limitIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'increaseLimit')}</span>
-                    <span className="btn-subtitle">{t(userCardsLang, 'currentLimit')}</span>
+                    <span className="btn-title">{selectedSettingsCard.creditLimit > 0 ? t(userCardsLang, 'deactivateLimit') : t(userCardsLang, 'increaseLimit')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'currentLimit').replace('{limit}', selectedSettingsCard.creditLimit || 0)}</span>
                   </div>
                 </button>
 
@@ -636,6 +735,18 @@ const Cards = () => {
                   <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'transferToAnyBank')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => {
+                  setNeoBankTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destCardNumber: '', amount: '' }))
+                  setSelectedTransferCard(null)
+                  setNeoBankTransferStatus('idle')
+                  setNeoBankTransferError('')
+                  setShowNeoBankTransferModal(true)
+                }}>
+                  <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'transferToNeoBank')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => {
@@ -730,6 +841,75 @@ const Cards = () => {
             </div>
             <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
               <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNeoBankTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNeoBankTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {neoBankTransferStatus === 'success' ? (
+                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#4caf50', marginBottom: '10px' }}>✓</div>
+                  <h3>{t(userCardsLang, 'transferSuccess')}</h3>
+                </div>
+              ) : (
+                <form onSubmit={handleNeoBankTransferSubmit} className="modal-form">
+                  {neoBankTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{neoBankTransferError}</div>}
+                  
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'sourceCard')}</label>
+                    <select 
+                      className="form-control"
+                      value={neoBankTransferForm.sourceCardId}
+                      onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, sourceCardId: e.target.value })}
+                      required
+                    >
+                      <option value="">{t(userCardsLang, 'selectCard')}</option>
+                      {cards.filter(c => c.status === 'Active').map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({c.balance.toFixed(2)} AZN)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destCard')}</label>
+                    <input
+                      type="text"
+                      placeholder={t(userCardsLang, 'recipientCardPlaceholder')}
+                      value={neoBankTransferForm.destCardNumber}
+                      onChange={handleDestCardNumberChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      placeholder="0.00"
+                      value={neoBankTransferForm.amount}
+                      onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={neoBankTransferStatus === 'loading' || !neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount}
+                  >
+                    {neoBankTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

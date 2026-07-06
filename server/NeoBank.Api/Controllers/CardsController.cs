@@ -225,4 +225,54 @@ public class CardsController : ControllerBase
 
         return Ok(new { cardId = card.Id, status = card.Status });
     }
+
+    public class ToggleCreditLimitRequest
+    {
+        public string CardId { get; set; } = string.Empty;
+    }
+
+    [HttpPost("toggle-credit-limit")]
+    public async Task<IActionResult> ToggleCreditLimit([FromBody] ToggleCreditLimitRequest request)
+    {
+        var userId = GetUserId();
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId && c.UserId == userId);
+
+        if (card == null)
+        {
+            return NotFound(new { message = "Card not found." });
+        }
+
+        if (card.CreditLimitUpdatedAt.HasValue && (DateTime.UtcNow - card.CreditLimitUpdatedAt.Value).TotalDays < 30)
+        {
+            return BadRequest(new { message = "creditLimitCooldown" });
+        }
+
+        if (card.CreditLimit > 0)
+        {
+            card.CreditLimit = 0.00m;
+        }
+        else
+        {
+            var random = new Random();
+            int amount = card.CardType switch
+            {
+                "Standard" => random.Next(1, 4) * 100,
+                "Elite" => random.Next(5, 11) * 100,
+                "Premium" => random.Next(10, 16) * 100,
+                _ => 0
+            };
+
+            if (amount == 0)
+            {
+                 return BadRequest(new { message = "Credit limit not available for this card type." });
+            }
+            
+            card.CreditLimit = amount;
+        }
+
+        card.CreditLimitUpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return Ok(card);
+    }
 }

@@ -76,9 +76,7 @@ public class PaymentsController : ControllerBase
             Status = "Completed"
         };
 
-        _context.Transactions.Add(transaction);
-
-        if (request.CategoryName == "Transfer" && request.ProviderName == "Internal Transfer")
+        if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer"))
         {
             var destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
             if (destCard != null)
@@ -97,8 +95,13 @@ public class PaymentsController : ControllerBase
                 };
                 _context.Transactions.Add(creditTransaction);
             }
+            else
+            {
+                return BadRequest(new { message = "Recipient card not found." });
+            }
         }
 
+        _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return Ok(new

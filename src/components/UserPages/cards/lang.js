@@ -72,7 +72,9 @@ export const userCardsLang = {
     transferToAnyBank: 'Transfer to card of any bank',
     transferToForeignBank: 'Transfer to card of foreign bank',
     increaseLimit: 'Increase Credit Limit',
-    currentLimit: 'Current limit: 0 ₼',
+    deactivateLimit: 'Deactivate Credit Line',
+    creditLimitCooldown: 'You can only change your credit limit once a month.',
+    currentLimit: 'Current limit: {limit} ₼',
     setupGooglePay: 'Set Up Google Pay',
     cardAdded: 'Card added',
     cardDesign: 'Card Design in Google Pay',
@@ -102,7 +104,12 @@ export const userCardsLang = {
     swiftLabel: 'SWIFT Code',
     copyBtn: 'Copy',
     copiedBtn: 'Copied!',
-    insufficientFundsShort: 'Insufficient funds on the card.'
+    insufficientFundsShort: 'Insufficient funds on the card.',
+    transferToNeoBank: 'Transfer to NeoBank card',
+    neoBankTransferTitle: 'NeoBank Transfer',
+    recipientCardPlaceholder: '0000 0000 0000 0000',
+    invalidCardNumberError: 'Please enter a valid 16-digit card number.',
+    cardNotFoundError: 'Recipient card not found.'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -177,7 +184,9 @@ export const userCardsLang = {
     transferToAnyBank: 'İstənilən bankın kartına köçürmə',
     transferToForeignBank: 'Xarici bankın kartına köçürmə',
     increaseLimit: 'Kredit limitini artır',
-    currentLimit: 'Cari limit: 0 ₼',
+    deactivateLimit: 'Kredit xəttini deaktiv et',
+    creditLimitCooldown: 'Kredit limitini yalnız ayda bir dəfə dəyişə bilərsiniz.',
+    currentLimit: 'Cari limit: {limit} ₼',
     setupGooglePay: 'Google Pay-i quraşdır',
     cardAdded: 'Kart əlavə edildi',
     cardDesign: 'Google Pay-də kartın dizaynı',
@@ -207,7 +216,12 @@ export const userCardsLang = {
     swiftLabel: 'SWIFT Kodu',
     copyBtn: 'Kopyala',
     copiedBtn: 'Kopyalandı!',
-    insufficientFundsShort: 'Kartda kifayət qədər vəsait yoxdur.'
+    insufficientFundsShort: 'Kartda kifayət qədər vəsait yoxdur.',
+    transferToNeoBank: 'NeoBank kartına köçürmə',
+    neoBankTransferTitle: 'NeoBank Köçürmə',
+    recipientCardPlaceholder: '0000 0000 0000 0000',
+    invalidCardNumberError: 'Zəhmət olmasa 16 rəqəmli kart nömrəsini daxil edin.',
+    cardNotFoundError: 'Qəbuledici kart tapılmadı.'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -282,7 +296,9 @@ export const userCardsLang = {
     transferToAnyBank: 'Перевод на карту любого банка',
     transferToForeignBank: 'Перевод на карту зарубежного банка',
     increaseLimit: 'Увеличить кредитный лимит',
-    currentLimit: 'Текущий лимит: 0 ₼',
+    deactivateLimit: 'Деактивировать кредитную линию',
+    creditLimitCooldown: 'Вы можете изменить кредитный лимит только раз в месяц.',
+    currentLimit: 'Текущий лимит: {limit} ₼',
     setupGooglePay: 'Настроить Google Pay',
     cardAdded: 'Карта добавлена',
     cardDesign: 'Дизайн карты в Google Pay',
@@ -312,6 +328,11 @@ export const userCardsLang = {
     swiftLabel: 'SWIFT-код',
     copyBtn: 'Копировать',
     copiedBtn: 'Скопировано!',
-    insufficientFundsShort: 'Недостаточно средств на карте.'
+    insufficientFundsShort: 'Недостаточно средств на карте.',
+    transferToNeoBank: 'Перевод на карту NeoBank',
+    neoBankTransferTitle: 'Перевод NeoBank',
+    recipientCardPlaceholder: '0000 0000 0000 0000',
+    invalidCardNumberError: 'Введите корректный 16-значный номер карты.',
+    cardNotFoundError: 'Карта получателя не найдена.'
   }
 }
