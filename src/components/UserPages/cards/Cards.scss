@@ -27,7 +27,7 @@
     gap: 24px;
     padding-top: 8px;
     padding-bottom: 24px;
-    align-items: flex-start;
+    align-items: stretch;
 
     &::-webkit-scrollbar {
       height: 6px;
@@ -120,6 +120,7 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      flex: 1;
 
       .card-info-header {
         display: flex;
@@ -168,7 +169,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
-        margin-top: 8px;
+        margin-top: auto;
 
         .action-btn {
           background: rgba(255, 255, 255, 0.1);
@@ -631,16 +632,14 @@
   padding: 24px;
 
   @media (max-width: 768px) {
-    top: 0;
-    height: 100%;
+    top: $landing-tablet-nav-height;
     padding: 0;
-    z-index: 1001;
+    z-index: 90;
     align-items: stretch;
   }
 
   @media (max-width: 680px) {
-    top: 0;
-    height: 100%;
+    top: $landing-mobile-nav-height;
   }
 }
 

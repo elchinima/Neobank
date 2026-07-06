@@ -176,6 +176,61 @@ const Cards = () => {
   const [payLoanStatus, setPayLoanStatus] = useState('idle')
   const [payLoanError, setPayLoanError] = useState('')
 
+  const [showWithdrawDepositModal, setShowWithdrawDepositModal] = useState(false)
+  const [withdrawDepositForm, setWithdrawDepositForm] = useState({ depositId: null, targetCardId: '' })
+  const [withdrawDepositStatus, setWithdrawDepositStatus] = useState('idle')
+  const [withdrawDepositError, setWithdrawDepositError] = useState('')
+  const [withdrawingDepositId, setWithdrawingDepositId] = useState(null)
+  const [withdrawingDepositExpired, setWithdrawingDepositExpired] = useState(false)
+
+  const openWithdrawDepositModal = (depositId, isExpired) => {
+    setWithdrawDepositForm({ depositId, targetCardId: cards.length > 0 ? cards[0].id : '' });
+    setWithdrawDepositStatus('idle');
+    setWithdrawDepositError('');
+    setWithdrawingDepositExpired(isExpired);
+    setShowWithdrawDepositModal(true);
+  };
+
+  const handleWithdrawDeposit = async (e) => {
+    if (e) e.preventDefault();
+    const depositId = withdrawDepositForm.depositId;
+    if (withdrawingDepositId || !depositId || !withdrawDepositForm.targetCardId) return;
+    
+    setWithdrawingDepositId(depositId);
+    setWithdrawDepositStatus('loading');
+    setWithdrawDepositError('');
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ targetCardId: withdrawDepositForm.targetCardId })
+      });
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        throw new Error(`Server returned an invalid response. Status: ${res.status}`);
+      }
+      if (!res.ok) throw new Error(data?.message || 'Error withdrawing deposit');
+
+      fetchDeposits();
+      fetchCards();
+
+      setWithdrawDepositStatus('success');
+      setTimeout(() => {
+        setShowWithdrawDepositModal(false);
+        setWithdrawDepositStatus('idle');
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setWithdrawDepositError(translateErrorMsg(err.message));
+      setWithdrawDepositStatus('idle');
+    } finally {
+      setWithdrawingDepositId(null);
+    }
+  }
+
   const openPayLoanModal = (loanId) => {
     setPayLoanForm({ loanId, sourceCardId: cards.length > 0 ? cards[0].id : '' });
     setPayLoanStatus('idle');
@@ -1053,6 +1108,29 @@ const Cards = () => {
                     <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
                     <span className="amount">{Number(deposit.totalIncome + deposit.amount).toFixed(2)} AZN</span>
                   </div>
+                  <div className="card-actions">
+                    {(() => {
+                      const depositCreatedAt = new Date(deposit.createdAt);
+                      // Add termMonths to get the expiry date
+                      const expiryDate = new Date(depositCreatedAt);
+                      expiryDate.setMonth(expiryDate.getMonth() + deposit.termMonths);
+                      const isExpired = expiryDate <= new Date();
+                      
+                      return (
+                        <button
+                          className="action-btn"
+                          style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600, background: 'rgba(0, 214, 86, 0.1)', color: '#00d656', border: '1px solid rgba(0, 214, 86, 0.3)' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openWithdrawDepositModal(deposit.id, isExpired);
+                          }}
+                          disabled={withdrawingDepositId === deposit.id}
+                        >
+                          {withdrawingDepositId === deposit.id ? t(userCardsLang, 'submitting') : (isExpired ? t(userCardsLang, 'withdraw') : t(userCardsLang, 'withdrawEarly'))}
+                        </button>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             ))
@@ -1170,6 +1248,53 @@ const Cards = () => {
                     style={{ marginTop: '16px' }}
                   >
                     {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWithdrawDepositModal && (
+        <div className="card-modal-overlay" onClick={() => setShowWithdrawDepositModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {withdrawDepositStatus === 'success' ? (
+                <div className="success-state" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d656', marginBottom: '16px' }}>✓</div>
+                  <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
+                </div>
+              ) : (
+                <form onSubmit={handleWithdrawDeposit} className="modal-form">
+                  {withdrawDepositError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{withdrawDepositError}</div>}
+                  {!withdrawingDepositExpired && (
+                    <div className="warning-message" style={{ color: '#faad14', marginBottom: '16px', background: 'rgba(250, 173, 20, 0.1)', padding: '12px', borderRadius: '8px', fontSize: '13px' }}>
+                      {t(userCardsLang, 'withdrawDepositPenaltyWarning')}
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel') || 'Select Card to Withdraw To'}</label>
+                    <select 
+                      value={withdrawDepositForm.targetCardId} 
+                      onChange={e => setWithdrawDepositForm({ ...withdrawDepositForm, targetCardId: e.target.value })} 
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                    </select>
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="cards-page__button cards-page__button--primary submit-order-btn" 
+                    disabled={withdrawDepositStatus === 'loading'} 
+                    style={{ marginTop: '16px' }}
+                  >
+                    {withdrawDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'withdrawDepositBtn')}
                   </button>
                 </form>
               )}

@@ -14,7 +14,17 @@ export const paymentsLang = {
     sourceCard: 'Select Source Card',
     pay: 'Pay Now',
     transferNow: 'Transfer Now',
-    paymentError: 'Payment deduction error'
+    paymentError: 'Payment deduction error',
+    paymentSuccessfulTitle: 'Payment Successful',
+    providersTitle: 'Providers',
+    payFromCard: 'Pay from Card',
+    amountAZN: 'Amount (AZN)',
+    processingPayment: 'Processing payment in Database...',
+    paymentCompleted: 'Payment Completed!',
+    paymentSuccessDesc1: 'Your payment of',
+    paymentSuccessDesc2: 'AZN to',
+    paymentSuccessDesc3: 'was successful and recorded in DB.',
+    doneBtn: 'Done'
   },
   az: {
     title: 'Ödənişlər və Köçürmələr',
@@ -31,7 +41,17 @@ export const paymentsLang = {
     sourceCard: 'Mənbə kartı seçin',
     pay: 'İndi Ödə',
     transferNow: 'İndi Köçür',
-    paymentError: 'Ödənişin silinməsində xəta'
+    paymentError: 'Ödənişin silinməsində xəta',
+    paymentSuccessfulTitle: 'Ödəniş Uğurludur',
+    providersTitle: 'Provayderləri',
+    payFromCard: 'Kartdan Ödə',
+    amountAZN: 'Məbləğ (AZN)',
+    processingPayment: 'Ödəniş bazada emal edilir...',
+    paymentCompleted: 'Ödəniş Tamamlandı!',
+    paymentSuccessDesc1: '',
+    paymentSuccessDesc2: 'AZN məbləğində',
+    paymentSuccessDesc3: 'üçün ödənişiniz uğurla tamamlandı və bazada qeydə alındı.',
+    doneBtn: 'Hazırdır'
   },
   ru: {
     title: 'Платежи и переводы',
@@ -48,6 +68,16 @@ export const paymentsLang = {
     sourceCard: 'Выберите карту списания',
     pay: 'Оплатить сейчас',
     transferNow: 'Перевести сейчас',
-    paymentError: 'Ошибка списания платежа'
+    paymentError: 'Ошибка списания платежа',
+    paymentSuccessfulTitle: 'Оплата успешна',
+    providersTitle: 'Провайдеры',
+    payFromCard: 'Оплатить с карты',
+    amountAZN: 'Сумма (AZN)',
+    processingPayment: 'Обработка платежа в базе данных...',
+    paymentCompleted: 'Оплата завершена!',
+    paymentSuccessDesc1: 'Ваш платеж в размере',
+    paymentSuccessDesc2: 'AZN для',
+    paymentSuccessDesc3: 'успешно завершен и сохранен в БД.',
+    doneBtn: 'Готово'
   }
 }

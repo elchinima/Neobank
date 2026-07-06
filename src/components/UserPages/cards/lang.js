@@ -146,7 +146,13 @@ export const userCardsLang = {
     monthsSuffix: 'months',
     nextPaymentDate: 'Next Payment Date',
     payLoanBtn: 'Pay Monthly',
-    paymentSuccess: 'Payment successful!'
+    paymentSuccess: 'Payment successful!',
+    withdrawEarly: 'Withdraw early',
+    withdraw: 'Withdraw',
+    withdrawDepositTitle: 'Withdraw Deposit',
+    withdrawDepositPenaltyWarning: 'Early withdrawal incurs a 10% penalty on the principal amount, and no interest will be paid.',
+    withdrawDepositSuccess: 'Deposit successfully withdrawn!',
+    withdrawDepositBtn: 'Withdraw to Card'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -295,7 +301,13 @@ export const userCardsLang = {
     monthsSuffix: 'ay',
     nextPaymentDate: 'Növbəti Ödəniş Tarixi',
     payLoanBtn: 'Aylıq Ödəniş Et',
-    paymentSuccess: 'Ödəniş uğurla tamamlandı!'
+    paymentSuccess: 'Ödəniş uğurla tamamlandı!',
+    withdrawEarly: 'Müddətdən əvvəl çıxar',
+    withdraw: 'Çıxar',
+    withdrawDepositTitle: 'Depoziti Çıxar',
+    withdrawDepositPenaltyWarning: 'Müddətdən əvvəl çıxarış zamanı əsas məbləğdən 10% cərimə tutulur və faiz gəliri ödənilmir.',
+    withdrawDepositSuccess: 'Depozit uğurla çıxarıldı!',
+    withdrawDepositBtn: 'Karta Çıxar'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -444,6 +456,12 @@ export const userCardsLang = {
     monthsSuffix: 'мес.',
     nextPaymentDate: 'Дата следующего платежа',
     payLoanBtn: 'Оплатить месяц',
-    paymentSuccess: 'Оплата успешно завершена!'
+    paymentSuccess: 'Оплата успешно завершена!',
+    withdrawEarly: 'Снять досрочно',
+    withdraw: 'Снять',
+    withdrawDepositTitle: 'Снятие депозита',
+    withdrawDepositPenaltyWarning: 'При досрочном снятии удерживается штраф 10% от вложенной суммы, а проценты не выплачиваются.',
+    withdrawDepositSuccess: 'Депозит успешно снят!',
+    withdrawDepositBtn: 'Снять на карту'
   }
 }

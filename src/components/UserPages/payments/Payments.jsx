@@ -212,7 +212,7 @@ const Payments = () => {
                   setErrorMessage('');
                 }}>←</button>
               ) : null}
-              <h2>{selectedProvider ? (paymentStatus === 'success' ? 'Payment Successful' : selectedProvider.name) : `${selectedCategory.name} Providers`}</h2>
+              <h2>{selectedProvider ? (paymentStatus === 'success' ? t(paymentsLang, 'paymentSuccessfulTitle') : selectedProvider.name) : `${selectedCategory.name} ${t(paymentsLang, 'providersTitle')}`}</h2>
               <button className="close-btn" onClick={() => {
                 setSelectedCategory(null);
                 setSelectedProvider(null);
@@ -227,7 +227,7 @@ const Payments = () => {
                     <form className="payment-form" onSubmit={handlePay}>
                       {errorMessage && <p style={{ color: '#ff4d4f', marginBottom: '10px' }}>{errorMessage}</p>}
                       <div className="form-group">
-                        <label>Pay from Card</label>
+                        <label>{t(paymentsLang, 'payFromCard')}</label>
                         <select
                           value={paymentForm.cardId}
                           onChange={e => setPaymentForm({ ...paymentForm, cardId: e.target.value })}
@@ -254,7 +254,7 @@ const Payments = () => {
                         />
                       </div>
                       <div className="form-group">
-                        <label>Amount (AZN)</label>
+                        <label>{t(paymentsLang, 'amountAZN')}</label>
                         <input
                           type="number"
                           step="0.01"
@@ -266,27 +266,27 @@ const Payments = () => {
                         />
                       </div>
                       <button type="submit" className="pay-btn" disabled={!paymentForm.account || !paymentForm.amount}>
-                        Pay {paymentForm.amount ? `${paymentForm.amount} AZN` : ''}
+                        {t(paymentsLang, 'pay')} {paymentForm.amount ? `${paymentForm.amount} AZN` : ''}
                       </button>
                     </form>
                   )}
                   {paymentStatus === 'loading' && (
                     <div className="payment-loading">
                       <div className="spinner"></div>
-                      <p>Processing payment in Database...</p>
+                      <p>{t(paymentsLang, 'processingPayment')}</p>
                     </div>
                   )}
                   {paymentStatus === 'success' && (
                     <div className="payment-success">
                       <div className="success-icon">✓</div>
-                      <h3>Payment Completed!</h3>
-                      <p>Your payment of {paymentForm.amount} AZN to {selectedProvider.name} was successful and recorded in DB.</p>
+                      <h3>{t(paymentsLang, 'paymentCompleted')}</h3>
+                      <p>{t(paymentsLang, 'paymentSuccessDesc1')} {paymentForm.amount} {t(paymentsLang, 'paymentSuccessDesc2')} {selectedProvider.name} {t(paymentsLang, 'paymentSuccessDesc3')}</p>
                       <button className="done-btn" onClick={() => {
                         setSelectedCategory(null);
                         setSelectedProvider(null);
                         setPaymentStatus('idle');
                         setPaymentForm({ account: '', amount: '', cardId: userCards[0]?.id || '' });
-                      }}>Done</button>
+                      }}>{t(paymentsLang, 'doneBtn')}</button>
                     </div>
                   )}
                 </div>

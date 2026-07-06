@@ -96,4 +96,57 @@ public class DepositsController : ControllerBase
             message = "Deposit successfully opened."
         });
     }
+    [HttpPost("{id}/withdraw")]
+    public async Task<IActionResult> WithdrawDeposit(string id, [FromBody] WithdrawDepositRequest request)
+    {
+        var userId = GetUserId();
+        var deposit = await _context.Deposits.FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+
+        if (deposit == null) return NotFound(new { message = "Deposit not found." });
+        if (deposit.Status != "Active") return BadRequest(new { message = "Deposit is not active." });
+
+        var targetCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.TargetCardId && c.UserId == userId);
+        if (targetCard == null) return NotFound(new { message = "Target card not found." });
+
+        var termExpired = deposit.CreatedAt.AddMonths(deposit.TermMonths) <= DateTime.UtcNow;
+
+        decimal amountToReturn;
+        if (termExpired)
+        {
+            amountToReturn = deposit.Amount + deposit.TotalIncome;
+        }
+        else
+        {
+            amountToReturn = deposit.Amount * 0.9m; // 10% penalty
+        }
+
+        targetCard.Balance += amountToReturn;
+        deposit.Status = "Closed";
+
+        var transaction = new Transaction
+        {
+            UserId = userId,
+            CardId = targetCard.Id,
+            Amount = amountToReturn,
+            Type = "Credit",
+            Category = "DepositWithdrawal",
+            Description = termExpired ? $"Deposit withdrawal ({deposit.Amount} AZN + Interest)" : $"Early deposit withdrawal ({deposit.Amount} AZN with penalty)",
+            Status = "Completed"
+        };
+
+        _context.Transactions.Add(transaction);
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            deposit,
+            newBalance = targetCard.Balance,
+            message = termExpired ? "Deposit successfully withdrawn." : "Deposit successfully withdrawn early."
+        });
+    }
+
+    public class WithdrawDepositRequest
+    {
+        public string TargetCardId { get; set; } = string.Empty;
+    }
 }
