@@ -55,7 +55,6 @@ public class CardsController : ControllerBase
 
         if (amount == 0) return BadRequest(new { message = "Invalid card type or free card." });
 
-        // Retrieve the front-end origin from headers or use a default
         var origin = Request.Headers["Origin"].ToString();
         if (string.IsNullOrEmpty(origin))
         {
@@ -165,7 +164,7 @@ public class CardsController : ControllerBase
                     return BadRequest(new { message = "This card is blocked and cannot be used for payment." });
                 }
 
-                if (sourceCard.Balance < monthlyFee)
+                if ((sourceCard.Balance + sourceCard.CreditLimit) < monthlyFee)
                 {
                     return BadRequest(new { message = $"Insufficient funds on the card. {monthlyFee} AZN required." });
                 }
@@ -200,10 +199,6 @@ public class CardsController : ControllerBase
                 {
                     return BadRequest(new { message = "Payment not successful." });
                 }
-                
-                // If the user already created a card from this session, we shouldn't create it again.
-                // We can check if a transaction with this SessionId exists or just let it pass if we don't have a strict idempotency check.
-                // But ideally we'd store the session ID in the DB. For now, this suffices since the frontend only calls it once.
             }
         }
 
@@ -347,7 +342,7 @@ public class CardsController : ControllerBase
         }
         else
         {
-            card.Status = "Active"; // Automatically activate card when PIN is first set
+            card.Status = "Active";
         }
 
         card.Pin = request.NewPin;

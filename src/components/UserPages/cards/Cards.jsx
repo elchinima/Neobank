@@ -99,12 +99,23 @@ const Cards = () => {
   const location = useLocation()
 
   const [cards, setCards] = useState([])
+  const [loans, setLoans] = useState([])
+  const [deposits, setDeposits] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeCardId, setActiveCardId] = useState(null)
   const [selectedSettingsCard, setSelectedSettingsCard] = useState(null)
   const [selectedTransferCard, setSelectedTransferCard] = useState(null)
   const [showVatModal, setShowVatModal] = useState(false)
   const [showLimits, setShowLimits] = useState(false)
+  const [showProductSelectionModal, setShowProductSelectionModal] = useState(false)
+  const [showNewLoanModal, setShowNewLoanModal] = useState(false)
+  const [showNewDepositModal, setShowNewDepositModal] = useState(false)
+  const [newLoanForm, setNewLoanForm] = useState({ amount: '', termMonths: '3', targetCardId: '' })
+  const [newDepositForm, setNewDepositForm] = useState({ amount: '', termMonths: '3', sourceCardId: '' })
+  const [newLoanStatus, setNewLoanStatus] = useState('idle')
+  const [newLoanError, setNewLoanError] = useState('')
+  const [newDepositStatus, setNewDepositStatus] = useState('idle')
+  const [newDepositError, setNewDepositError] = useState('')
 
   const [showInternalTransferModal, setShowInternalTransferModal] = useState(false)
   const [showUnavailableModal, setShowUnavailableModal] = useState(false)
@@ -117,6 +128,10 @@ const Cards = () => {
   const [neoBankTransferForm, setNeoBankTransferForm] = useState({ sourceCardId: '', destCardNumber: '', amount: '' })
   const [neoBankTransferStatus, setNeoBankTransferStatus] = useState('idle')
   const [neoBankTransferError, setNeoBankTransferError] = useState('')
+  const [showIbanTransferModal, setShowIbanTransferModal] = useState(false)
+  const [ibanTransferForm, setIbanTransferForm] = useState({ sourceCardId: '', destIban: '', amount: '' })
+  const [ibanTransferStatus, setIbanTransferStatus] = useState('idle')
+  const [ibanTransferError, setIbanTransferError] = useState('')
   const [showNewCardModal, setShowNewCardModal] = useState(false)
   const [newCardForm, setNewCardForm] = useState({
     cardType: location.state?.orderCardType || 'Standard',
@@ -158,6 +173,8 @@ const Cards = () => {
         if (data.length > 0) {
           setActiveCardId(data[0].id)
           setNewCardForm(prev => ({ ...prev, sourceCardId: data[0].id }))
+          setNewLoanForm(prev => ({ ...prev, targetCardId: data[0].id }))
+          setNewDepositForm(prev => ({ ...prev, sourceCardId: data[0].id }))
         }
       }
     } catch (err) {
@@ -167,8 +184,100 @@ const Cards = () => {
     }
   }
 
+  const fetchLoans = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/loans`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setLoans(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const fetchDeposits = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/deposits`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setDeposits(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleApplyLoan = async (e) => {
+    e.preventDefault()
+    if (!newLoanForm.amount || !newLoanForm.termMonths || !newLoanForm.targetCardId) return
+    setNewLoanStatus('loading')
+    setNewLoanError('')
+    try {
+      const res = await fetch(`${API_BASE_URL}/loans/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          amount: parseFloat(newLoanForm.amount),
+          termMonths: parseInt(newLoanForm.termMonths, 10),
+          targetCardId: newLoanForm.targetCardId
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Error applying for loan')
+      setNewLoanStatus('success')
+      fetchLoans()
+      fetchCards()
+      setTimeout(() => {
+        setShowNewLoanModal(false)
+        setNewLoanStatus('idle')
+        setNewLoanForm(prev => ({ ...prev, amount: '', termMonths: '3' }))
+      }, 1500)
+    } catch (err) {
+      setNewLoanError(err.message)
+      setNewLoanStatus('idle')
+    }
+  }
+
+  const handleOpenDeposit = async (e) => {
+    e.preventDefault()
+    if (!newDepositForm.amount || !newDepositForm.termMonths || !newDepositForm.sourceCardId) return
+    setNewDepositStatus('loading')
+    setNewDepositError('')
+    try {
+      const res = await fetch(`${API_BASE_URL}/deposits/open`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          amount: parseFloat(newDepositForm.amount),
+          termMonths: parseInt(newDepositForm.termMonths, 10),
+          sourceCardId: newDepositForm.sourceCardId
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Error opening deposit')
+      setNewDepositStatus('success')
+      fetchDeposits()
+      fetchCards()
+      setTimeout(() => {
+        setShowNewDepositModal(false)
+        setNewDepositStatus('idle')
+        setNewDepositForm(prev => ({ ...prev, amount: '', termMonths: '3' }))
+      }, 1500)
+    } catch (err) {
+      setNewDepositError(err.message)
+      setNewDepositStatus('idle')
+    }
+  }
+
   useEffect(() => {
     fetchCards()
+    fetchLoans()
+    fetchDeposits()
 
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
@@ -490,6 +599,51 @@ const Cards = () => {
     setNeoBankTransferForm({ ...neoBankTransferForm, destCardNumber: formatted })
   }
 
+  const handleIbanTransferSubmit = async (e) => {
+    e.preventDefault()
+    if (!ibanTransferForm.sourceCardId || !ibanTransferForm.destIban || !ibanTransferForm.amount) return
+    
+    setIbanTransferStatus('loading')
+    setIbanTransferError('')
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          cardId: ibanTransferForm.sourceCardId,
+          providerName: 'IBAN Transfer',
+          categoryName: 'Transfer',
+          recipientAccount: ibanTransferForm.destIban,
+          amount: parseFloat(ibanTransferForm.amount)
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || t(userCardsLang, 'transferError'))
+      }
+
+      setIbanTransferStatus('success')
+      fetchCards()
+      setTimeout(() => {
+        setShowIbanTransferModal(false)
+        setIbanTransferStatus('idle')
+        setIbanTransferForm({ sourceCardId: '', destIban: '', amount: '' })
+      }, 2000)
+    } catch (err) {
+      let errorMsg = err.message
+      if (errorMsg === 'Insufficient funds on the card.') {
+        errorMsg = t(userCardsLang, 'insufficientFundsShort')
+      }
+      setIbanTransferError(errorMsg)
+      setIbanTransferStatus('idle')
+    }
+  }
+
   const handleNeoBankTransferSubmit = async (e) => {
     e.preventDefault()
     if (!neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount) return
@@ -567,7 +721,7 @@ const Cards = () => {
       ) : cards.length === 0 ? (
         <div className="no-cards-banner">
           <p data-lang-key="noCards">{t(userCardsLang, 'noCards')}</p>
-          <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
+          <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
             <span data-lang-key="orderFirstCard">{t(userCardsLang, 'orderFirstCard')}</span>
           </button>
         </div>
@@ -644,6 +798,98 @@ const Cards = () => {
         </div>
       )}
 
+      {/* Active Loans Section */}
+      <div className="cards-header" style={{ marginTop: '32px' }}>
+        <h2 data-lang-key="activeLoans">{t(userCardsLang, 'activeLoans')}</h2>
+      </div>
+      
+      {loading ? (
+        <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
+      ) : loans.length === 0 ? (
+        <div className="no-cards-banner">
+          <p data-lang-key="noLoans">{t(userCardsLang, 'noLoans')}</p>
+        </div>
+      ) : (
+        <div className="cards-grid">
+          {loans.map(loan => (
+            <div key={loan.id} className="card-item card-item--no-pin">
+              <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+                <div className="card-info-header">
+                  <h2>{t(userCardsLang, 'activeLoans')}</h2>
+                  <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
+                </div>
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
+                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.amount).toFixed(2)} AZN</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
+                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.remainingBalance).toFixed(2)} AZN</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{Number(loan.monthlyPayment).toFixed(2)} AZN</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.interestRate}%</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Active Deposits Section */}
+      <div className="cards-header" style={{ marginTop: '32px' }}>
+        <h2 data-lang-key="activeDeposits">{t(userCardsLang, 'activeDeposits')}</h2>
+      </div>
+      
+      {loading ? (
+        <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
+      ) : deposits.length === 0 ? (
+        <div className="no-cards-banner">
+          <p data-lang-key="noDeposits">{t(userCardsLang, 'noDeposits')}</p>
+        </div>
+      ) : (
+        <div className="cards-grid">
+          {deposits.map(deposit => (
+            <div key={deposit.id} className="card-item card-item--no-pin">
+              <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+                <div className="card-info-header">
+                  <h2>{t(userCardsLang, 'activeDeposits')}</h2>
+                  <span className={`status ${deposit.status.toLowerCase()}`}>{deposit.status}</span>
+                </div>
+                <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
+                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.amount).toFixed(2)} AZN</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
+                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.totalIncome).toFixed(2)} AZN</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.interestRate}%</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span className="label" data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
+                     <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="cards-cashback-section">
         <div className="cashback-section-header">
           <div className="cashback-title-row">
@@ -680,12 +926,114 @@ const Cards = () => {
           <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
           <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
         </button>
-        <button className="add-product-btn" onClick={() => setShowNewCardModal(true)}>
+        <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
           <img src={addProductIcon} className="btn-svg-icon" alt="" />
           <span data-lang-key="addNewProduct">{t(userCardsLang, 'addNewProduct')}</span>
         </button>
       </div>
 
+
+      {showProductSelectionModal && (
+        <div className="card-modal-overlay" onClick={() => setShowProductSelectionModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
+                {t(userCardsLang, 'orderCardBtn')}
+              </button>
+              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewLoanModal(true); }}>
+                {t(userCardsLang, 'takeLoanBtn')}
+              </button>
+              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewDepositModal(true); }}>
+                {t(userCardsLang, 'openDepositBtn')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNewLoanModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewLoanModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleApplyLoan} className="modal-form">
+                {newLoanError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newLoanError}</div>}
+                <div className="form-group">
+                  <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
+                  <input className="modal-input" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }} type="number" value={newLoanForm.amount} onChange={e => setNewLoanForm({ ...newLoanForm, amount: e.target.value })} placeholder="500 - 100000" min="500" max="100000" required />
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
+                  <select value={newLoanForm.termMonths} onChange={e => setNewLoanForm({ ...newLoanForm, termMonths: e.target.value })}>
+                    <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel')}</label>
+                  <select value={newLoanForm.targetCardId} onChange={e => setNewLoanForm({ ...newLoanForm, targetCardId: e.target.value })} required>
+                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)})</option>)}
+                  </select>
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newLoanStatus === 'loading'} style={{ marginTop: '16px' }}>
+                  {newLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNewDepositModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewDepositModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleOpenDeposit} className="modal-form">
+                {newDepositError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newDepositError}</div>}
+                <div className="form-group">
+                  <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
+                  <input className="modal-input" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }} type="number" value={newDepositForm.amount} onChange={e => setNewDepositForm({ ...newDepositForm, amount: e.target.value })} placeholder="Min 100 AZN" min="100" required />
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
+                  <select value={newDepositForm.termMonths} onChange={e => setNewDepositForm({ ...newDepositForm, termMonths: e.target.value })}>
+                    <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel')}</label>
+                  <select value={newDepositForm.sourceCardId} onChange={e => setNewDepositForm({ ...newDepositForm, sourceCardId: e.target.value })} required>
+                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                  </select>
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newDepositStatus === 'loading'} style={{ marginTop: '16px' }}>
+                  {newDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showNewCardModal && (
         <div className="card-modal-overlay" onClick={() => setShowNewCardModal(false)}>
@@ -892,12 +1240,15 @@ const Cards = () => {
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => {
+                  setIbanTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destIban: '', amount: '' }))
                   setSelectedTransferCard(null)
-                  setShowUnavailableModal(true)
+                  setIbanTransferStatus('idle')
+                  setIbanTransferError('')
+                  setShowIbanTransferModal(true)
                 }}>
                   <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'transferToAnyBank')}</span>
+                    <span className="btn-title">{t(userCardsLang, 'transferByIban')}</span>
                   </div>
                 </button>
                 <button className="settings-action-btn" onClick={() => {
@@ -912,16 +1263,65 @@ const Cards = () => {
                     <span className="btn-title">{t(userCardsLang, 'transferToNeoBank')}</span>
                   </div>
                 </button>
-                <button className="settings-action-btn" onClick={() => {
-                  setSelectedTransferCard(null)
-                  setShowUnavailableModal(true)
-                }}>
-                  <img src={transferForeignIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'transferToForeignBank')}</span>
-                  </div>
-                </button>
+
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showIbanTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowIbanTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'transferByIban')}</h2>
+              <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {ibanTransferStatus === 'success' ? (
+                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                  <p>{t(userCardsLang, 'transferSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleIbanTransferSubmit} className="modal-form">
+                  {ibanTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{ibanTransferError}</div>}
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destIban')}</label>
+                    <input
+                      className="modal-input"
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }}
+                      type="text"
+                      placeholder="AZ00NABZ00000000000000000000"
+                      value={ibanTransferForm.destIban}
+                      onChange={e => setIbanTransferForm({ ...ibanTransferForm, destIban: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      className="modal-input"
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }}
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      placeholder="0.00"
+                      value={ibanTransferForm.amount}
+                      onChange={e => setIbanTransferForm({ ...ibanTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={ibanTransferStatus === 'loading' || !ibanTransferForm.destIban || !ibanTransferForm.amount}
+                    style={{ marginTop: '16px' }}
+                  >
+                    {ibanTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

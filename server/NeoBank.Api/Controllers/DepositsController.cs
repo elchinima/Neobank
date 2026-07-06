@@ -58,7 +58,7 @@ public class DepositsController : ControllerBase
             return NotFound(new { message = "Source card not found." });
         }
 
-        if (sourceCard.Balance < request.Amount)
+        if ((sourceCard.Balance + sourceCard.CreditLimit) < request.Amount)
         {
             return BadRequest(new { message = "Insufficient funds on the card." });
         }

@@ -57,7 +57,7 @@ public class PaymentsController : ControllerBase
             return BadRequest(new { message = "The card is blocked." });
         }
 
-        if (card.Balance < request.Amount)
+        if ((card.Balance + card.CreditLimit) < request.Amount)
         {
             return BadRequest(new { message = "Insufficient funds on the card." });
         }
