@@ -106,8 +106,13 @@ public class LoansController : ControllerBase
         });
     }
 
+    public class PayLoanRequest
+    {
+        public string? SourceCardId { get; set; }
+    }
+
     [HttpPost("{id}/pay")]
-    public async Task<IActionResult> PayLoan(string id)
+    public async Task<IActionResult> PayLoan(string id, [FromBody] PayLoanRequest? request = null)
     {
         var userId = GetUserId();
         var loan = await _context.Loans.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
@@ -122,16 +127,18 @@ public class LoansController : ControllerBase
             return BadRequest(new { message = "This loan is not active." });
         }
 
-        var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == loan.TargetCardId && c.UserId == userId);
+        string cardIdToCharge = !string.IsNullOrEmpty(request?.SourceCardId) ? request.SourceCardId : loan.TargetCardId;
+
+        var sourceCard = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardIdToCharge && c.UserId == userId);
 
         if (sourceCard == null || sourceCard.Status != "Active")
         {
-            return BadRequest(new { message = "The associated card is not available or blocked." });
+            return BadRequest(new { message = "The selected card is not available or blocked." });
         }
 
         if ((sourceCard.Balance + sourceCard.CreditLimit) < loan.MonthlyPayment)
         {
-            return BadRequest(new { message = "Insufficient funds on the associated card to make the monthly payment." });
+            return BadRequest(new { message = "Insufficient funds on the selected card to make the monthly payment." });
         }
 
         sourceCard.Balance -= loan.MonthlyPayment;

@@ -150,6 +150,13 @@ const Cards = () => {
   const [showPinSuccessModal, setShowPinSuccessModal] = useState(false)
   const [creditLimitError, setCreditLimitError] = useState(null)
   const [payingLoanId, setPayingLoanId] = useState(null)
+  const [showPayLoanModal, setShowPayLoanModal] = useState(false)
+  const [payLoanForm, setPayLoanForm] = useState({ loanId: null, sourceCardId: '' })
+
+  const openPayLoanModal = (loanId) => {
+    setPayLoanForm({ loanId, sourceCardId: cards.length > 0 ? cards[0].id : '' });
+    setShowPayLoanModal(true);
+  };
 
   const translateErrorMsg = (msg) => {
     if (!msg) return msg;
@@ -250,13 +257,16 @@ const Cards = () => {
     }
   }
 
-  const handlePayLoan = async (loanId) => {
-    if (payingLoanId) return;
+  const handlePayLoan = async (e) => {
+    if (e) e.preventDefault();
+    const loanId = payLoanForm.loanId;
+    if (payingLoanId || !loanId) return;
     setPayingLoanId(loanId);
     try {
       const res = await fetch(`${API_BASE_URL}/loans/${loanId}/pay`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ sourceCardId: payLoanForm.sourceCardId })
       });
       let data;
       try {
@@ -270,6 +280,7 @@ const Cards = () => {
       fetchCards();
 
       alert(t(userCardsLang, 'paymentSuccess') || 'Payment successful!');
+      setShowPayLoanModal(false);
     } catch (err) {
       console.error(err);
       alert(translateErrorMsg(err.message));
@@ -849,44 +860,83 @@ const Cards = () => {
             </div>
           ) : (
             loans.map(loan => (
-              <div key={loan.id} className="card-item card-item--no-pin">
-                <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+              <div key={loan.id} className="card-item">
+                <div className="card-image-wrapper" style={{ 
+                  background: 'linear-gradient(135deg, rgba(160, 32, 240, 0.15), rgba(96, 16, 144, 0.1))',
+                  border: '1px solid rgba(160, 32, 240, 0.3)',
+                  padding: '20px', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start',
+                  height: '210px',
+                  borderRadius: '16px',
+                  boxShadow: 'inset 0 0 20px rgba(160, 32, 240, 0.05)',
+                  marginBottom: '16px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  width: 'calc(100% - 48px)',
+                  margin: '24px auto 0'
+                }}>
+                  {/* Decorative background elements */}
+                  <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.1)', filter: 'blur(20px)' }}></div>
+                  <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.05)', filter: 'blur(15px)' }}></div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(160, 32, 240, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b185fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="6" width="20" height="12" rx="2"/>
+                          <circle cx="12" cy="12" r="2"/>
+                          <path d="M6 12h.01M18 12h.01"/>
+                        </svg>
+                      </div>
+                      <span style={{ color: '#b185fa', fontSize: '14px', fontWeight: '600' }}>NeoKredit</span>
+                    </div>
+                  </div>
+                  
+                  <div style={{ zIndex: 1, width: '100%' }}>
+                    <p style={{ margin: '0 0 4px', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }} data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</p>
+                    <h3 style={{ margin: '0', color: '#fff', fontSize: '24px', fontWeight: '700', letterSpacing: '0.5px' }}>{Number(loan.amount).toFixed(2)} <span style={{fontSize:'16px', color:'rgba(255,255,255,0.6)'}}>AZN</span></h3>
+                  </div>
+                </div>
+
+                <div className="card-details" style={{ width: '100%', padding: '0 24px 24px' }}>
                   <div className="card-info-header">
                     <h2>{t(userCardsLang, 'activeLoans')}</h2>
                     <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
                   </div>
-                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
-                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.amount).toFixed(2)} AZN</span>
+                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', textAlign: 'left', marginTop: '16px' }}>
+                    <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
+                    <span className="amount">{Number(loan.remainingBalance).toFixed(2)} AZN</span>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '24px', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
+                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
-                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.remainingBalance).toFixed(2)} AZN</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{loan.interestRate}%</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{Number(loan.monthlyPayment).toFixed(2)} AZN</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
+                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{loan.interestRate}%</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                       <span className="label" data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
-                       <span style={{ color: '#fff', fontWeight: 500 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
+                      <span style={{ fontSize: '15px', color: '#fff', fontWeight: 600 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
                     </div>
                   </div>
-                  <div className="card-actions" style={{ marginTop: '16px' }}>
+
+                  <div className="card-actions" style={{ marginTop: '24px' }}>
                     <button
                       className="action-btn"
+                      style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600 }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePayLoan(loan.id);
+                        openPayLoanModal(loan.id);
                       }}
                       disabled={payingLoanId === loan.id}
                     >
@@ -1007,6 +1057,40 @@ const Cards = () => {
                   </div>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPayLoanModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPayLoanModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
+              <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handlePayLoan} className="modal-form">
+                <div className="form-group">
+                  <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
+                  <select 
+                    value={payLoanForm.sourceCardId} 
+                    onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })} 
+                    required
+                  >
+                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                  </select>
+                </div>
+                <button 
+                  type="submit" 
+                  className="cards-page__button cards-page__button--primary submit-order-btn" 
+                  disabled={payingLoanId === payLoanForm.loanId} 
+                  style={{ marginTop: '16px' }}
+                >
+                  {payingLoanId === payLoanForm.loanId ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                </button>
+              </form>
             </div>
           </div>
         </div>
