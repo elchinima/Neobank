@@ -258,8 +258,13 @@ const Cards = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Error paying loan');
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Server returned an invalid response. Please try again.');
+      }
+      if (!res.ok) throw new Error(data?.message || 'Error paying loan');
 
       fetchLoans();
       fetchCards();
@@ -272,6 +277,15 @@ const Cards = () => {
       setPayingLoanId(null);
     }
   }
+
+  const formatLoanDate = (dateString) => {
+    if (!dateString) return new Date().toLocaleDateString();
+    const date = new Date(dateString);
+    if (date.getFullYear() < 2000) {
+      return new Date().toLocaleDateString();
+    }
+    return date.toLocaleDateString();
+  };
 
   const handleOpenDeposit = async (e) => {
     e.preventDefault()
@@ -747,190 +761,178 @@ const Cards = () => {
 
       {loading ? (
         <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
-      ) : cards.length === 0 ? (
-        <div className="no-cards-banner">
-          <p data-lang-key="noCards">{t(userCardsLang, 'noCards')}</p>
-          <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
-            <span data-lang-key="orderFirstCard">{t(userCardsLang, 'orderFirstCard')}</span>
-          </button>
-        </div>
       ) : (
         <div className="cards-grid">
-          {cards.map(card => (
-            <div
-              key={card.id}
-              className={`card-item ${activeCardId === card.id ? 'active' : ''} ${!card.hasPin ? 'card-item--no-pin' : ''}`}
-              onClick={() => setActiveCardId(card.id)}
-            >
-              <div className="card-image-wrapper">
-                <img src={cardImages[card.cardType][card.network] || cardImages['Standard']['Mastercard']} alt={card.cardType} className="card-image" />
-              </div>
-              <div className="card-details">
-                <div className="card-info-header">
-                  <h2>{card.cardType} Card</h2>
-                  <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
+          {/* Cards */}
+          {cards.length === 0 ? (
+            <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
+              <p data-lang-key="noCards">{t(userCardsLang, 'noCards')}</p>
+              <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
+                <span data-lang-key="orderFirstCard">{t(userCardsLang, 'orderFirstCard')}</span>
+              </button>
+            </div>
+          ) : (
+            cards.map(card => (
+              <div
+                key={card.id}
+                className={`card-item ${activeCardId === card.id ? 'active' : ''} ${!card.hasPin ? 'card-item--no-pin' : ''}`}
+                onClick={() => setActiveCardId(card.id)}
+              >
+                <div className="card-image-wrapper">
+                  <img src={cardImages[card.cardType][card.network] || cardImages['Standard']['Mastercard']} alt={card.cardType} className="card-image" />
                 </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-                    <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
-                      {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
-                    </span>
-                    <span className="amount">
-                      {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
-                    </span>
+                <div className="card-details">
+                  <div className="card-info-header">
+                    <h2>{card.cardType} Card</h2>
+                    <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                   </div>
-                  {card.creditLimit > 0 && (
-                    <button 
-                      className="toggle-balance-btn" 
-                      onClick={(e) => toggleCreditLimitView(card.id, e)}
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
-                      title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
+                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                      <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
+                        {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
+                      </span>
+                      <span className="amount">
+                        {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
+                      </span>
+                    </div>
+                    {card.creditLimit > 0 && (
+                      <button 
+                        className="toggle-balance-btn" 
+                        onClick={(e) => toggleCreditLimitView(card.id, e)}
+                        style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
+                        title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M7 10L3 14L7 18"/>
+                          <path d="M21 14H3"/>
+                          <path d="M17 4L21 8L17 12"/>
+                          <path d="M3 8H21"/>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!card.hasPin) {
+                           setShowPinAlertModal(true);
+                           return;
+                        }
+                        setSelectedTransferCard(card);
+                      }}
+                      data-lang-key="transfer"
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M7 10L3 14L7 18"/>
-                        <path d="M21 14H3"/>
-                        <path d="M17 4L21 8L17 12"/>
-                        <path d="M3 8H21"/>
-                      </svg>
+                      {t(userCardsLang, 'transfer')}
                     </button>
-                  )}
-                </div>
-                <div className="card-actions">
-                  <button
-                    className="action-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!card.hasPin) {
-                         setShowPinAlertModal(true);
-                         return;
-                      }
-                      setSelectedTransferCard(card);
-                    }}
-                    data-lang-key="transfer"
-                  >
-                    {t(userCardsLang, 'transfer')}
-                  </button>
-                  <button
-                    className="action-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedSettingsCard(card);
-                    }}
-                    data-lang-key="settings"
-                  >
-                    {t(userCardsLang, 'settings')}
-                  </button>
+                    <button
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedSettingsCard(card);
+                      }}
+                      data-lang-key="settings"
+                    >
+                      {t(userCardsLang, 'settings')}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))
+          )}
 
-      <div className="cards-header" style={{ marginTop: '32px' }}>
-        <h2 data-lang-key="activeLoans">{t(userCardsLang, 'activeLoans')}</h2>
-      </div>
-      
-      {loading ? (
-        <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
-      ) : loans.length === 0 ? (
-        <div className="no-cards-banner">
-          <p data-lang-key="noLoans">{t(userCardsLang, 'noLoans')}</p>
-        </div>
-      ) : (
-        <div className="cards-grid">
-          {loans.map(loan => (
-            <div key={loan.id} className="card-item card-item--no-pin">
-              <div className="card-details" style={{ width: '100%', padding: '24px' }}>
-                <div className="card-info-header">
-                  <h2>{t(userCardsLang, 'activeLoans')}</h2>
-                  <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
-                </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
-                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.amount).toFixed(2)} AZN</span>
+          {/* Loans */}
+          {loans.length === 0 ? (
+            <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
+              <p data-lang-key="noLoans">{t(userCardsLang, 'noLoans')}</p>
+            </div>
+          ) : (
+            loans.map(loan => (
+              <div key={loan.id} className="card-item card-item--no-pin">
+                <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+                  <div className="card-info-header">
+                    <h2>{t(userCardsLang, 'activeLoans')}</h2>
+                    <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
-                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.remainingBalance).toFixed(2)} AZN</span>
+                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
+                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.amount).toFixed(2)} AZN</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="remainingBalance">{t(userCardsLang, 'remainingBalance')}</span>
+                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(loan.remainingBalance).toFixed(2)} AZN</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{Number(loan.monthlyPayment).toFixed(2)} AZN</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{loan.interestRate}%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{Number(loan.monthlyPayment).toFixed(2)} AZN</span>
+                  <div className="card-actions" style={{ marginTop: '16px' }}>
+                    <button
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePayLoan(loan.id);
+                      }}
+                      disabled={payingLoanId === loan.id}
+                    >
+                      {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                    </button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.interestRate}%</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="termMonths">{t(userCardsLang, 'termMonths')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{loan.termMonths} {t(userCardsLang, 'monthsSuffix')}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{new Date(loan.nextPaymentDate || Date.now()).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="card-actions" style={{ marginTop: '16px' }}>
-                  <button
-                    className="action-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePayLoan(loan.id);
-                    }}
-                    disabled={payingLoanId === loan.id}
-                  >
-                    {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))
+          )}
 
-      {/* Active Deposits Section */}
-      <div className="cards-header" style={{ marginTop: '32px' }}>
-        <h2 data-lang-key="activeDeposits">{t(userCardsLang, 'activeDeposits')}</h2>
-      </div>
-      
-      {loading ? (
-        <div className="cards-loading" data-lang-key="loadingCards">{t(userCardsLang, 'loadingCards')}</div>
-      ) : deposits.length === 0 ? (
-        <div className="no-cards-banner">
-          <p data-lang-key="noDeposits">{t(userCardsLang, 'noDeposits')}</p>
-        </div>
-      ) : (
-        <div className="cards-grid">
-          {deposits.map(deposit => (
-            <div key={deposit.id} className="card-item card-item--no-pin">
-              <div className="card-details" style={{ width: '100%', padding: '24px' }}>
-                <div className="card-info-header">
-                  <h2>{t(userCardsLang, 'activeDeposits')}</h2>
-                  <span className={`status ${deposit.status.toLowerCase()}`}>{deposit.status}</span>
-                </div>
-                <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
-                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.amount).toFixed(2)} AZN</span>
+          {/* Deposits */}
+          {deposits.length === 0 ? (
+            <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
+              <p data-lang-key="noDeposits">{t(userCardsLang, 'noDeposits')}</p>
+            </div>
+          ) : (
+            deposits.map(deposit => (
+              <div key={deposit.id} className="card-item card-item--no-pin">
+                <div className="card-details" style={{ width: '100%', padding: '24px' }}>
+                  <div className="card-info-header">
+                    <h2>{t(userCardsLang, 'activeDeposits')}</h2>
+                    <span className={`status ${deposit.status.toLowerCase()}`}>{deposit.status}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
-                     <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.totalIncome).toFixed(2)} AZN</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.interestRate}%</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                     <span className="label" data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
+                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.amount).toFixed(2)} AZN</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
+                       <span className="amount" style={{ fontSize: '1.2rem' }}>{Number(deposit.totalIncome).toFixed(2)} AZN</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.interestRate}%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <span className="label" data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
+                       <span style={{ color: '#fff', fontWeight: 500 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 
@@ -979,21 +981,32 @@ const Cards = () => {
 
       {showProductSelectionModal && (
         <div className="card-modal-overlay" onClick={() => setShowProductSelectionModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
               <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
-                {t(userCardsLang, 'orderCardBtn')}
-              </button>
-              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewLoanModal(true); }}>
-                {t(userCardsLang, 'takeLoanBtn')}
-              </button>
-              <button className="cards-page__button cards-page__button--primary" onClick={() => { setShowProductSelectionModal(false); setShowNewDepositModal(true); }}>
-                {t(userCardsLang, 'openDepositBtn')}
-              </button>
+            <div className="card-modal__content">
+              <div className="settings-section" style={{ marginTop: '16px' }}>
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'orderCardBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewLoanModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'takeLoanBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewDepositModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'openDepositBtn')}</span>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>

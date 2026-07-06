@@ -143,7 +143,14 @@ public class LoansController : ControllerBase
         }
         else
         {
-            loan.NextPaymentDate = loan.NextPaymentDate.AddMonths(1);
+            if (loan.NextPaymentDate.Year < 2000)
+            {
+                loan.NextPaymentDate = DateTime.UtcNow.AddMonths(1);
+            }
+            else
+            {
+                loan.NextPaymentDate = loan.NextPaymentDate.AddMonths(1);
+            }
         }
         loan.PaidAmount += loan.MonthlyPayment;
 
