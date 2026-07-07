@@ -166,13 +166,44 @@ using (var scope = app.Services.CreateScope())
 
         if (!dbContext.PublicPageSettings.Any())
         {
-            dbContext.PublicPageSettings.AddRange(
-                new PublicPageSetting { PageKey = "cards", MediaText = "Choose a card line that fits your daily spending, travel and long-term plans." },
-                new PublicPageSetting { PageKey = "loans", MediaText = "Plan the next move with a calmer calculator and transparent monthly payments." },
-                new PublicPageSetting { PageKey = "deposits", MediaText = "Grow savings with flexible terms, clear yield and full control from NeoBank." },
-                new PublicPageSetting { PageKey = "support", MediaText = "Get help from NeoBank support through tickets, guided answers or live chat." },
-                new PublicPageSetting { PageKey = "cashback", MediaText = "Earn more value from everyday categories and track every reward in one place." }
-            );
+            var pCards = new PublicPageSetting { PageKey = "cards" };
+            var pLoans = new PublicPageSetting { PageKey = "loans" };
+            var pDeposits = new PublicPageSetting { PageKey = "deposits" };
+            var pSupport = new PublicPageSetting { PageKey = "support" };
+            var pCashback = new PublicPageSetting { PageKey = "cashback" };
+            
+            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Choose a card line that fits your daily spending, travel and long-term plans." });
+            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Выберите карту, подходящую для ваших ежедневных расходов, путешествий и долгосрочных планов." });
+            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Gündəlik xərclərinizə, səyahətlərinizə və uzunmüddətli planlarınıza uyğun kart seçin." });
+
+            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Plan the next move with a calmer calculator and transparent monthly payments." });
+            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Планируйте следующий шаг с прозрачными ежемесячными платежами." });
+            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Növbəti addımınızı daha şəffaf aylıq ödənişlərlə planlaşdırın." });
+
+            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Grow savings with flexible terms, clear yield and full control from NeoBank." });
+            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Увеличивайте сбережения на гибких условиях с полным контролем от NeoBank." });
+            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "NeoBank-dan tam nəzarət və çevik şərtlərlə əmanətlərinizi artırın." });
+
+            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Get help from NeoBank support through tickets, guided answers or live chat." });
+            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Получите помощь от службы поддержки NeoBank через тикеты или живой чат." });
+            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "NeoBank dəstək xidmətindən canlı çat vasitəsilə kömək alın." });
+
+            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Earn more value from everyday categories and track every reward in one place." });
+            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Получайте больше выгоды от повседневных покупок и отслеживайте кешбэк." });
+            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Gündəlik kateqoriyalardan daha çox qazanın və keşbekləri izləyin." });
+
+            dbContext.PublicPageSettings.AddRange(pCards, pLoans, pDeposits, pSupport, pCashback);
+            dbContext.SaveChanges();
+        }
+        else if (!dbContext.PublicPageSettingTranslations.Any())
+        {
+            var pages = dbContext.PublicPageSettings.ToList();
+            foreach (var p in pages)
+            {
+                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Default English Text" });
+                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Стандартный русский текст" });
+                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Standart Azərbaycan mətni" });
+            }
             dbContext.SaveChanges();
         }
 

@@ -19,13 +19,15 @@ public class PublicContentController : ControllerBase
     public async Task<IActionResult> GetPublicContent()
     {
         var pages = await _context.PublicPageSettings
+            .Include(p => p.Translations)
             .OrderBy(p => p.PageKey)
             .Select(p => new
             {
                 p.PageKey,
-                p.BannerImageUrl,
-                p.MediaText,
-                p.UpdatedAt
+                Translations = p.Translations.ToDictionary(
+                    t => t.LanguageCode,
+                    t => new { t.BannerImageUrl, t.MediaText, t.UpdatedAt }
+                )
             })
             .ToListAsync();
 

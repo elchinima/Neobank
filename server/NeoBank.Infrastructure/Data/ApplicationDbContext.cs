@@ -22,6 +22,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
     public DbSet<PublicPageSetting> PublicPageSettings { get; set; } = null!;
+    public DbSet<PublicPageSettingTranslation> PublicPageSettingTranslations { get; set; } = null!;
     public DbSet<FooterLink> FooterLinks { get; set; } = null!;
     public DbSet<FooterContact> FooterContacts { get; set; } = null!;
 
@@ -144,7 +145,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasKey(p => p.Id);
             entity.HasIndex(p => p.PageKey).IsUnique();
             entity.Property(p => p.PageKey).IsRequired();
-            entity.Property(p => p.MediaText).IsRequired();
+        });
+
+        builder.Entity<PublicPageSettingTranslation>(entity =>
+        {
+            entity.ToTable("PublicPageSettingTranslations");
+            entity.HasKey(t => t.Id);
+            entity.HasIndex(t => new { t.PublicPageSettingId, t.LanguageCode }).IsUnique();
+            entity.Property(t => t.LanguageCode).IsRequired();
+            entity.Property(t => t.MediaText).IsRequired();
+            
+            entity.HasOne(t => t.PublicPageSetting)
+                  .WithMany(p => p.Translations)
+                  .HasForeignKey(t => t.PublicPageSettingId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<FooterLink>(entity =>

@@ -83,7 +83,16 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetEditablePublicContent()
     {
         var pages = await _context.PublicPageSettings
+            .Include(p => p.Translations)
             .OrderBy(p => p.PageKey)
+            .Select(p => new
+            {
+                p.PageKey,
+                Translations = p.Translations.ToDictionary(
+                    t => t.LanguageCode,
+                    t => new { t.BannerImageUrl, t.MediaText, t.UpdatedAt }
+                )
+            })
             .ToListAsync();
 
         var footerLinks = await _context.FooterLinks
@@ -102,7 +111,9 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> UpdatePageSetting(string pageKey, [FromBody] PageSettingRequest request)
     {
         var normalizedPageKey = pageKey.Trim().ToLower();
-        var page = await _context.PublicPageSettings.FirstOrDefaultAsync(p => p.PageKey == normalizedPageKey);
+        var page = await _context.PublicPageSettings
+            .Include(p => p.Translations)
+            .FirstOrDefaultAsync(p => p.PageKey == normalizedPageKey);
 
         if (page == null)
         {
@@ -110,12 +121,35 @@ public class AdminController : ControllerBase
             _context.PublicPageSettings.Add(page);
         }
 
-        page.BannerImageUrl = string.IsNullOrWhiteSpace(request.BannerImageUrl) ? string.Empty : request.BannerImageUrl.Trim();
-        page.MediaText = request.MediaText?.Trim() ?? string.Empty;
-        page.UpdatedAt = DateTime.UtcNow;
+        if (request.Translations != null)
+        {
+            foreach (var kvp in request.Translations)
+            {
+                var lang = kvp.Key;
+                var transReq = kvp.Value;
+
+                var existingTranslation = page.Translations.FirstOrDefault(t => t.LanguageCode == lang);
+                if (existingTranslation == null)
+                {
+                    existingTranslation = new PublicPageSettingTranslation { LanguageCode = lang };
+                    page.Translations.Add(existingTranslation);
+                }
+
+                existingTranslation.BannerImageUrl = string.IsNullOrWhiteSpace(transReq.BannerImageUrl) ? string.Empty : transReq.BannerImageUrl.Trim();
+                existingTranslation.MediaText = transReq.MediaText?.Trim() ?? string.Empty;
+                existingTranslation.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _context.SaveChangesAsync();
-        return Ok(page);
+        return Ok(new
+        {
+            page.PageKey,
+            Translations = page.Translations.ToDictionary(
+                t => t.LanguageCode,
+                t => new { t.BannerImageUrl, t.MediaText, t.UpdatedAt }
+            )
+        });
     }
 
     [HttpPut("footer-links/{id:int}")]
@@ -156,6 +190,11 @@ public class AdminController : ControllerBase
 }
 
 public class PageSettingRequest
+{
+    public Dictionary<string, PageSettingTranslationRequest>? Translations { get; set; }
+}
+
+public class PageSettingTranslationRequest
 {
     public string? BannerImageUrl { get; set; }
     public string? MediaText { get; set; }

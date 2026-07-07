@@ -55,13 +55,17 @@ export function usePublicContent() {
   return { ...content, loading }
 }
 
+import { useLanguage } from '../context/LanguageContext'
+
 export function usePublicPageSetting(pageKey) {
   const content = usePublicContent()
+  const { lang } = useLanguage()
 
-  const setting = useMemo(
-    () => content.pages.find((page) => page.pageKey === pageKey) || null,
-    [content.pages, pageKey]
-  )
+  const setting = useMemo(() => {
+    const page = content.pages.find((p) => p.pageKey === pageKey)
+    if (!page) return null
+    return page.translations && page.translations[lang] ? page.translations[lang] : null
+  }, [content.pages, pageKey, lang])
 
   return { setting, loading: content.loading }
 }

@@ -46,9 +46,9 @@ const AdminDashboard = () => {
 
   const stats = [
     { label: 'Users', value: dashboard.usersCount, to: '/admin/users' },
-    { label: 'Public pages', value: dashboard.pagesCount, to: '/admin/content' },
-    { label: 'Footer links', value: dashboard.footerLinksCount, to: '/admin/content' },
-    { label: 'Footer contacts', value: dashboard.footerContactsCount, to: '/admin/content' },
+    { label: 'Public pages', value: dashboard.pagesCount, to: '/admin/banner' },
+    { label: 'Footer links', value: dashboard.footerLinksCount, to: '/admin/banner' },
+    { label: 'Footer contacts', value: dashboard.footerContactsCount, to: '/admin/banner' },
   ]
 
   return (
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
           <span className="admin-dashboard__eyebrow">Admin Panel</span>
           <h1>Dashboard</h1>
         </div>
-        <Link className="admin-dashboard__button admin-dashboard__button--primary" to="/admin/content">
+        <Link className="admin-dashboard__button admin-dashboard__button--primary" to="/admin/banner">
           Manage public pages
         </Link>
       </header>

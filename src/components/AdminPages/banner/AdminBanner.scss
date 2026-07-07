@@ -1,6 +1,6 @@
 @use '../../../assets/styles/variables' as *;
 
-.admin-content {
+.admin-banner {
   display: grid;
   gap: 28px;
 
@@ -60,9 +60,31 @@
   }
 
   &__page-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     gap: 16px;
+    padding-bottom: 16px;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 
   &__card,
@@ -80,12 +102,61 @@
     display: grid;
     gap: 14px;
     padding: 18px;
+    flex: 0 0 450px;
+    scroll-snap-align: start;
+    
+    @media (max-width: 768px) {
+      flex: 0 0 85%;
+    }
   }
 
-  &__card-heading span {
-    color: rgba(255, 255, 255, 0.48);
+  &__card-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+      color: rgba(255, 255, 255, 0.48);
+      font-size: 12px;
+      font-weight: 800;
+    }
+  }
+
+  &__lang-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 226, 138, 0.2);
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 8px;
     font-size: 12px;
-    font-weight: 800;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+
+    option {
+      background: #17121f;
+    }
+  }
+
+  &__card-top-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: -4px;
+    min-height: 16px;
+  }
+
+  &__saved-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 600;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
   }
 
   label {
@@ -95,6 +166,19 @@
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
+  }
+
+  &__label-with-count {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__char-count {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+    text-transform: none;
   }
 
   input,
@@ -124,7 +208,7 @@
   textarea {
     min-height: 110px;
     padding: 12px;
-    resize: vertical;
+    resize: none;
   }
 
   &__button {
@@ -195,7 +279,7 @@
 }
 
 @media (max-width: 900px) {
-  .admin-content {
+  .admin-banner {
     &__page-grid {
       grid-template-columns: 1fr;
     }

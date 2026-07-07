@@ -23,7 +23,7 @@ import Settings from '../../components/UserPages/settings/Settings'
 import AdminLayout from '../../components/AdminPages/AdminLayout'
 import AdminDashboard from '../../components/AdminPages/dashboard/AdminDashboard'
 import AdminUsers from '../../components/AdminPages/users/AdminUsers'
-import AdminContent from '../../components/AdminPages/content/AdminContent'
+import AdminBanner from '../../components/AdminPages/banner/AdminBanner'
 
 import ErrorPage from '../../components/ErrorPage/ErrorPage'
 
@@ -49,7 +49,7 @@ function AppRouter() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
-              <Route path="content" element={<AdminContent />} />
+              <Route path="banner" element={<AdminBanner />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>

@@ -285,6 +285,8 @@ function PublicFooter() {
               aria-label="Select language"
             >
               <option value="en">English</option>
+              <option value="az">Azərbaycanca</option>
+              <option value="ru">Русский</option>
             </select>
           </div>
 
