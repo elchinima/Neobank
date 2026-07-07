@@ -6,6 +6,7 @@ import logoMark from '../../../assets/logo/main_logo.png'
 import supportBanner from '../../../assets/images/support_banner_az.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
+import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { supportLang } from './lang.js'
 import './SupportPublic.scss'
@@ -14,6 +15,9 @@ import './SupportPublic_Responsive.scss'
 function SupportPublic() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
+  const { setting } = usePublicPageSetting('support')
+  const bannerImage = setting?.bannerImageUrl ?? supportBanner
+  const hasBanner = bannerImage !== ''
 
   const stats = [
     { labelKey: 'stat0Label', value: '2 min', subKey: 'stat0Sub' },
@@ -94,7 +98,7 @@ function SupportPublic() {
       </nav>
 
       <main className="support-page__main">
-        <section className="support-page__hero" aria-labelledby="support-title">
+        <section className={`support-page__hero${hasBanner || isChatOpen ? '' : ' support-page__hero--no-media'}`} aria-labelledby="support-title">
           <div className="support-page__hero-content">
             <p className="support-page__eyebrow" data-lang-key="heroEyebrow">{t(supportLang, 'heroEyebrow')}</p>
             <h1 id="support-title" data-lang-key="heroTitle">{t(supportLang, 'heroTitle')}</h1>
@@ -130,6 +134,7 @@ function SupportPublic() {
             </div>
           </div>
 
+          {(hasBanner || isChatOpen) && (
           <div className="support-page__hero-media" ref={chatSectionRef} aria-label="NeoBank support campaign">
             {isChatOpen ? (
               <div className="support-chat">
@@ -189,13 +194,14 @@ function SupportPublic() {
               </div>
             ) : (
               <>
-                <img src={supportBanner} alt="NeoBank support" />
+                <img src={bannerImage} alt="NeoBank support" />
                 <p className="support-page__media-copy" data-lang-key="mediaCopy">
-                  {t(supportLang, 'mediaCopy')}
+                  {setting?.mediaText || t(supportLang, 'mediaCopy')}
                 </p>
               </>
             )}
           </div>
+          )}
         </section>
 
         <section className="support-page__channels" id="faq" aria-labelledby="channels-title">

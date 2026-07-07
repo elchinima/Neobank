@@ -291,6 +291,21 @@
     }
   }
 
+  &__hero--no-media {
+    grid-template-columns: minmax(0, 940px);
+    justify-content: center;
+
+    .loans-page__hero-content {
+      display: grid;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .loans-page__hero-actions {
+      justify-content: center;
+    }
+  }
+
   &__hero-content {
     position: relative;
     z-index: 2;

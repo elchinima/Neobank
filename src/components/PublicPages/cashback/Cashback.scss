@@ -410,6 +410,21 @@
     }
   }
 
+  &__hero--no-media {
+    grid-template-columns: minmax(0, 940px);
+    justify-content: center;
+
+    .cashback-page__hero-content {
+      display: grid;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .cashback-page__hero-actions {
+      justify-content: center;
+    }
+  }
+
   &__media-copy {
     padding: 0 18px 18px;
     color: rgba(255, 255, 255, 0.72);

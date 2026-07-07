@@ -6,6 +6,7 @@ import logoMark from '../../../assets/logo/main_logo.png'
 import loansBanner from '../../../assets/images/loans_banner_az.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
+import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { loansLang } from './lang.js'
 import './Loans.scss'
@@ -17,7 +18,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 function Loans() {
   const { t } = useLanguage()
   const { isAuthenticated, user, token } = useAuth()
+  const { setting } = usePublicPageSetting('loans')
   const navigate = useNavigate()
+  const bannerImage = setting?.bannerImageUrl ?? loansBanner
+  const hasBanner = bannerImage !== ''
 
   const loanTypes = [
     {
@@ -170,7 +174,7 @@ function Loans() {
       </nav>
 
       <main className="loans-page__main">
-        <section className="loans-page__hero" aria-labelledby="loans-title">
+        <section className={`loans-page__hero${hasBanner ? '' : ' loans-page__hero--no-media'}`} aria-labelledby="loans-title">
           <div className="loans-page__hero-content">
             <p className="loans-page__eyebrow" data-lang-key="heroEyebrow">{t(loansLang, 'heroEyebrow')}</p>
             <h1 id="loans-title" data-lang-key="heroTitle">{t(loansLang, 'heroTitle')}</h1>
@@ -198,12 +202,14 @@ function Loans() {
             </div>
           </div>
 
-          <div className="loans-page__hero-media" aria-label="NeoBank loan campaign">
-            <img src={loansBanner} alt="NeoBank loan campaign" />
-            <p className="loans-page__media-copy" data-lang-key="mediaCopy">
-              {t(loansLang, 'mediaCopy')}
-            </p>
-          </div>
+          {hasBanner && (
+            <div className="loans-page__hero-media" aria-label="NeoBank loan campaign">
+              <img src={bannerImage} alt="NeoBank loan campaign" />
+              <p className="loans-page__media-copy" data-lang-key="mediaCopy">
+                {setting?.mediaText || t(loansLang, 'mediaCopy')}
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="loans-page__products" id="loan-calculator" aria-labelledby="loan-products-title">

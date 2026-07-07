@@ -1,0 +1,208 @@
+@use '../../../assets/styles/variables' as *;
+
+.admin-content {
+  display: grid;
+  gap: 28px;
+
+  &__header,
+  &__section-heading,
+  &__card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: #ffffff;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  h1 {
+    margin-top: 4px;
+    font-size: 32px;
+  }
+
+  h2 {
+    margin-top: 4px;
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  &__eyebrow {
+    color: $landing-gold-soft;
+    font-size: $font-size-sm;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  &__status {
+    min-height: 36px;
+    padding: 9px 12px;
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 226, 138, 0.08);
+    color: $landing-gold-soft;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  &__section {
+    display: grid;
+    gap: 16px;
+  }
+
+  &__page-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  &__card,
+  &__row-card {
+    border: 1px solid rgba(255, 226, 138, 0.1);
+    border-radius: $border-radius;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+      rgba(23, 18, 31, 0.58);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(16px);
+  }
+
+  &__card {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  &__card-heading span {
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  label {
+    display: grid;
+    gap: 7px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: $border-radius-sm;
+    background: rgba(23, 18, 31, 0.62);
+    color: #ffffff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    outline: none;
+    text-transform: none;
+
+    &:focus {
+      border-color: rgba(255, 226, 138, 0.42);
+      box-shadow: 0 0 0 3px rgba(255, 226, 138, 0.08);
+    }
+  }
+
+  input {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  textarea {
+    min-height: 110px;
+    padding: 12px;
+    resize: vertical;
+  }
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 226, 138, 0.2);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: $transition;
+
+    &:disabled {
+      opacity: 0.62;
+      cursor: wait;
+    }
+
+    &--primary {
+      background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 48%, #b47012);
+      color: #211405;
+      border-color: transparent;
+    }
+  }
+
+  &__link-group,
+  &__contacts {
+    display: grid;
+    gap: 12px;
+  }
+
+  &__link-group > h3 {
+    color: $landing-gold-soft;
+    font-size: 14px;
+    text-transform: capitalize;
+  }
+
+  &__row-card {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(220px, 1.4fr) auto auto;
+    align-items: end;
+    gap: 12px;
+    padding: 14px;
+
+    &--contact {
+      grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr) minmax(220px, 1.3fr) auto;
+    }
+  }
+
+  &__check {
+    display: inline-flex;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    min-height: 42px;
+    gap: 8px;
+
+    input {
+      width: 18px;
+      min-height: 18px;
+      accent-color: $landing-gold;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-content {
+    &__page-grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__row-card,
+    &__row-card--contact {
+      grid-template-columns: 1fr;
+    }
+  }
+}

@@ -122,6 +122,16 @@ public class AuthService : IAuthService
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return false;
 
+        var fifteenMinutesAgo = DateTime.UtcNow.AddMinutes(-15);
+        var recentCode = await _dbContext.EmailVerificationCodes
+            .Where(c => c.UserId == userId && c.Purpose == "EmailVerification" && c.CreatedAt > fifteenMinutesAgo)
+            .FirstOrDefaultAsync();
+
+        if (recentCode != null)
+        {
+            throw new InvalidOperationException("Please wait 15 minutes before requesting a new code.");
+        }
+
         var code = GenerateCode();
         await SaveVerificationCode(user.Id, code, "EmailVerification");
         await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "EmailVerification");
@@ -354,5 +364,22 @@ public class AuthService : IAuthService
             IsEmailVerified = user.IsEmailVerified,
             TwoFactorEnabled = user.TwoFactorEnabled
         };
+    }
+
+    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+    {
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.CurrentPassword);
+        if (result == PasswordVerificationResult.Failed)
+        {
+            throw new InvalidOperationException("Invalid current password");
+        }
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
+        await _dbContext.SaveChangesAsync();
+
+        return true;
     }
 }

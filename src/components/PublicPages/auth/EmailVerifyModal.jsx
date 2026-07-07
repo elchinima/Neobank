@@ -3,7 +3,7 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { verifyModalLang } from './verifyModalLang.js'
 import './EmailVerifyModal.scss'
 
-const RESEND_COOLDOWN = 60 // seconds
+const RESEND_COOLDOWN = 900 // seconds (15 minutes)
 
 function EmailVerifyModal({
   isOpen,
@@ -121,8 +121,8 @@ function EmailVerifyModal({
       setDigits(Array(7).fill(''))
       setError('')
       setTimeout(() => inputRefs.current[0]?.focus(), 50)
-    } catch {
-      setError(t(verifyModalLang, 'resendError'))
+    } catch (err) {
+      setError(err.message || t(verifyModalLang, 'resendError'))
     }
   }
 

@@ -94,6 +94,10 @@ public class AuthController : ControllerBase
             if (!result) return NotFound(new { message = "User not found." });
             return Ok(new { message = "Verification code sent." });
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Failed to send verification code.", details = ex.Message });
@@ -157,6 +161,30 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Failed to toggle 2FA.", details = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _authService.ChangePasswordAsync(userId, dto);
+            if (!result) return NotFound(new { message = "User not found." });
+
+            return Ok(new { message = "Password successfully changed." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Failed to change password.", details = ex.Message });
         }
     }
 

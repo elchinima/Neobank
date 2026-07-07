@@ -3,20 +3,16 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const LanguageContext = createContext()
 
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState(() => {
-    return localStorage.getItem('app_lang') || 'en'
-  })
+  const [lang, setLangState] = useState('en')
 
   useEffect(() => {
-    localStorage.setItem('app_lang', lang)
-    document.documentElement.setAttribute('lang', lang)
-    document.documentElement.setAttribute('data-lang', lang)
-  }, [lang])
+    localStorage.setItem('app_lang', 'en')
+    document.documentElement.setAttribute('lang', 'en')
+    document.documentElement.setAttribute('data-lang', 'en')
+  }, [])
 
-  const setLang = (newLang) => {
-    if (['en', 'az', 'ru'].includes(newLang)) {
-      setLangState(newLang)
-    }
+  const setLang = () => {
+    setLangState('en')
   }
 
   const t = (dict, key) => {

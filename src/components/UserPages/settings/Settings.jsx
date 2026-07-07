@@ -73,7 +73,7 @@ const Settings = () => {
     }
   }
 
-  const handlePasswordSave = () => {
+  const handlePasswordSave = async () => {
     setPasswordError('')
     setPasswordSuccess('')
     
@@ -97,12 +97,33 @@ const Settings = () => {
       return
     }
 
-    setPasswordSuccess(t(settingsLang, 'passwordChanged'))
-    setTimeout(() => {
-      setIsPasswordModalOpen(false)
-      setPassword({ current: '', new: '', confirm: '' })
-      setPasswordSuccess('')
-    }, 2000)
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: password.current,
+          newPassword: password.new
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to change password')
+      }
+
+      setPasswordSuccess(t(settingsLang, 'passwordChanged'))
+      setTimeout(() => {
+        setIsPasswordModalOpen(false)
+        setPassword({ current: '', new: '', confirm: '' })
+        setPasswordSuccess('')
+      }, 2000)
+    } catch (err) {
+      setPasswordError(err.message)
+    }
   }
 
   const closePasswordModal = () => {

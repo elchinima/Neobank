@@ -4,6 +4,7 @@ import logoMark from '../../../assets/logo/main_logo.png'
 import cashbackBanner from '../../../assets/images/cashback_banner_az.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
+import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { cashbackLang } from './lang.js'
 import './Cashback.scss'
@@ -12,6 +13,9 @@ import './Cashback_Responsive.scss'
 function Cashback() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
+  const { setting } = usePublicPageSetting('cashback')
+  const bannerImage = setting?.bannerImageUrl ?? cashbackBanner
+  const hasBanner = bannerImage !== ''
 
   const categoryProgram = [
     { titleKey: 'cat0Title', rate: '100%', textKey: 'cat0Text' },
@@ -71,7 +75,7 @@ function Cashback() {
       </nav>
 
       <main className="cashback-page__main">
-        <section className="cashback-page__hero" aria-labelledby="cashback-title">
+        <section className={`cashback-page__hero${hasBanner ? '' : ' cashback-page__hero--no-media'}`} aria-labelledby="cashback-title">
           <div className="cashback-page__hero-content">
             <p className="cashback-page__eyebrow" data-lang-key="heroEyebrow">{t(cashbackLang, 'heroEyebrow')}</p>
             <h1 id="cashback-title" data-lang-key="heroTitle">{t(cashbackLang, 'heroTitle')}</h1>
@@ -86,12 +90,14 @@ function Cashback() {
             </div>
           </div>
 
-          <div className="cashback-page__hero-media" aria-label="Cashback campaign preview">
-            <img src={cashbackBanner} alt="NeoBank cashback campaign" />
-            <p className="cashback-page__media-copy" data-lang-key="mediaCopy">
-              {t(cashbackLang, 'mediaCopy')}
-            </p>
-          </div>
+          {hasBanner && (
+            <div className="cashback-page__hero-media" aria-label="Cashback campaign preview">
+              <img src={bannerImage} alt="NeoBank cashback campaign" />
+              <p className="cashback-page__media-copy" data-lang-key="mediaCopy">
+                {setting?.mediaText || t(cashbackLang, 'mediaCopy')}
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="cashback-page__plans" id="cashback-program" aria-labelledby="cashback-plans-title">

@@ -11,6 +11,7 @@ import eliteVisa from '../../../assets/images/elite_card_visa.png'
 import eliteMc from '../../../assets/images/elite_card_mc.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
+import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { cardsLang } from './lang.js'
 import './CardsPublic.scss'
@@ -19,7 +20,10 @@ import './CardsPublic_Responsive.scss'
 function CardsPublic() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
+  const { setting } = usePublicPageSetting('cards')
   const navigate = useNavigate()
+  const bannerImage = setting?.bannerImageUrl ?? cardsBanner
+  const hasBanner = bannerImage !== ''
 
   const cardProducts = [
     {
@@ -115,7 +119,7 @@ function CardsPublic() {
       </nav>
 
       <main className="cards-page__main">
-        <section className="cards-page__hero" aria-labelledby="cards-title">
+        <section className={`cards-page__hero${hasBanner ? '' : ' cards-page__hero--no-media'}`} aria-labelledby="cards-title">
           <div className="cards-page__hero-content">
             <p className="cards-page__eyebrow" data-lang-key="heroEyebrow">{t(cardsLang, 'heroEyebrow')}</p>
             <h1 id="cards-title" data-lang-key="heroTitle">{t(cardsLang, 'heroTitle')}</h1>
@@ -147,12 +151,14 @@ function CardsPublic() {
             </div>
           </div>
 
-          <div className="cards-page__hero-media" aria-label="NeoBank card campaign">
-            <img src={cardsBanner} alt="NeoBank card campaign" />
-            <p className="cards-page__media-copy" data-lang-key="mediaCopy">
-              {t(cardsLang, 'mediaCopy')}
-            </p>
-          </div>
+          {hasBanner && (
+            <div className="cards-page__hero-media" aria-label="NeoBank card campaign">
+              <img src={bannerImage} alt="NeoBank card campaign" />
+              <p className="cards-page__media-copy" data-lang-key="mediaCopy">
+                {setting?.mediaText || t(cardsLang, 'mediaCopy')}
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="cards-page__lineup" id="card-lineup" aria-labelledby="card-lineup-title">

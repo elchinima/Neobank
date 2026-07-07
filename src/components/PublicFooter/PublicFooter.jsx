@@ -1,6 +1,7 @@
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../app/context/LanguageContext'
+import { usePublicContent } from '../../app/hooks/usePublicContent'
 import { footerLang } from './lang.js'
 import logoMark from '../../assets/logo/main_logo.png'
 import appPreviewImage from '../../assets/images/image_1.png'
@@ -137,6 +138,15 @@ const floatingIcons = [
   { label: 'News', src: newsBubbleIcon, modifier: 'news' },
 ]
 
+const contactIconByKey = {
+  address: contactItems[0].icon,
+  mailUs: contactItems[1].icon,
+  email: contactItems[1].icon,
+  phone: contactItems[2].icon,
+}
+
+const isExternalUrl = (url = '') => /^(https?:|mailto:|tel:)/i.test(url)
+
 function PublicFooter() {
   const {
     isInfoOpen,
@@ -147,6 +157,56 @@ function PublicFooter() {
   } = usePublicFooter()
 
   const { t } = useLanguage()
+  const { footerLinks, footerContacts } = usePublicContent()
+
+  const editableProductLinks = footerLinks.filter((link) => link.section === 'products')
+  const editableInfoLinks = footerLinks.filter((link) => link.section === 'information')
+  const productFooterLinks = editableProductLinks.length ? editableProductLinks : productLinks.map((link, index) => ({
+    id: link.key,
+    label: t(footerLang, link.key),
+    url: link.to,
+    sortOrder: index + 1,
+    isExternal: false,
+  }))
+  const infoFooterLinks = editableInfoLinks.length ? editableInfoLinks : infoLinks.map((link, index) => ({
+    id: link.key,
+    label: t(footerLang, link.key),
+    url: link.to,
+    sortOrder: index + 1,
+    isExternal: false,
+  }))
+  const bankContacts = footerContacts.length ? footerContacts.map((item) => ({
+    id: item.id,
+    key: item.contactKey,
+    label: item.label,
+    value: item.value,
+    href: item.url,
+    icon: contactIconByKey[item.contactKey] || contactIconByKey.email,
+  })) : contactItems.map((item) => ({
+    id: item.key,
+    key: item.key,
+    label: t(footerLang, item.key),
+    value: item.fallbackValue || t(footerLang, item.valueKey),
+    href: item.href,
+    icon: item.icon,
+  }))
+
+  const renderFooterLink = (link) => {
+    const href = link.url || '/'
+    if (link.isExternal || isExternalUrl(href)) {
+      return (
+        <a key={link.id || href} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+          {link.label}
+        </a>
+      )
+    }
+
+    return (
+      <Link key={link.id || href} to={href}>
+        {link.label}
+      </Link>
+    )
+  }
 
   const appFeatures = [
     {
@@ -169,13 +229,13 @@ function PublicFooter() {
         <section className="public-footer__account" aria-labelledby="footer-account-title">
           <h2 id="footer-account-title" data-lang-key="contactUs">{t(footerLang, 'contactUs')}</h2>
           <ul className="public-footer__contact-list">
-            {contactItems.map((item) => (
-              <li key={item.key}>
-                <a href={item.href} target={item.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+            {bankContacts.map((item) => (
+              <li key={item.id}>
+                <a href={item.href || '#'} target={(item.href || '').startsWith('http') ? '_blank' : undefined} rel="noreferrer">
                   <span className="public-footer__icon">{item.icon}</span>
                   <span>
-                    <strong data-lang-key={item.key}>{t(footerLang, item.key)}:</strong>{' '}
-                    <span data-lang-key={item.valueKey}>{item.fallbackValue || t(footerLang, item.valueKey)}</span>
+                    <strong>{item.label}:</strong>{' '}
+                    <span>{item.value}</span>
                   </span>
                 </a>
               </li>
@@ -185,20 +245,12 @@ function PublicFooter() {
 
         <nav className="public-footer__links" aria-labelledby="footer-products-title">
           <h2 id="footer-products-title" data-lang-key="products">{t(footerLang, 'products')}</h2>
-          {productLinks.map((link) => (
-            <Link key={link.to} to={link.to} data-lang-key={link.key}>
-              {t(footerLang, link.key)}
-            </Link>
-          ))}
+          {productFooterLinks.map(renderFooterLink)}
         </nav>
 
         <nav className="public-footer__links" aria-labelledby="footer-info-title">
           <h2 id="footer-info-title" data-lang-key="information">{t(footerLang, 'information')}</h2>
-          {infoLinks.map((link) => (
-            <Link key={link.key} to={link.to} data-lang-key={link.key}>
-              {t(footerLang, link.key)}
-            </Link>
-          ))}
+          {infoFooterLinks.map(renderFooterLink)}
         </nav>
 
         <section className="public-footer__subscribe" aria-labelledby="footer-subscribe-title">
@@ -233,8 +285,6 @@ function PublicFooter() {
               aria-label="Select language"
             >
               <option value="en">English</option>
-              <option value="az">Azərbaycan</option>
-              <option value="ru">Русский</option>
             </select>
           </div>
 

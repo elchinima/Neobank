@@ -163,6 +163,43 @@ using (var scope = app.Services.CreateScope())
             dbContext.CashbackMccs.AddRange(mccCodes);
             dbContext.SaveChanges();
         }
+
+        if (!dbContext.PublicPageSettings.Any())
+        {
+            dbContext.PublicPageSettings.AddRange(
+                new PublicPageSetting { PageKey = "cards", MediaText = "Choose a card line that fits your daily spending, travel and long-term plans." },
+                new PublicPageSetting { PageKey = "loans", MediaText = "Plan the next move with a calmer calculator and transparent monthly payments." },
+                new PublicPageSetting { PageKey = "deposits", MediaText = "Grow savings with flexible terms, clear yield and full control from NeoBank." },
+                new PublicPageSetting { PageKey = "support", MediaText = "Get help from NeoBank support through tickets, guided answers or live chat." },
+                new PublicPageSetting { PageKey = "cashback", MediaText = "Earn more value from everyday categories and track every reward in one place." }
+            );
+            dbContext.SaveChanges();
+        }
+
+        if (!dbContext.FooterLinks.Any())
+        {
+            dbContext.FooterLinks.AddRange(
+                new FooterLink { Section = "products", Label = "Cards", Url = "/cards", SortOrder = 1, IsExternal = false },
+                new FooterLink { Section = "products", Label = "Loans", Url = "/loans", SortOrder = 2, IsExternal = false },
+                new FooterLink { Section = "products", Label = "Deposits", Url = "/deposits", SortOrder = 3, IsExternal = false },
+                new FooterLink { Section = "products", Label = "Cashback", Url = "/cashback", SortOrder = 4, IsExternal = false },
+                new FooterLink { Section = "information", Label = "Home", Url = "/", SortOrder = 1, IsExternal = false },
+                new FooterLink { Section = "information", Label = "Sign in", Url = "/login", SortOrder = 2, IsExternal = false },
+                new FooterLink { Section = "information", Label = "Open account", Url = "/register", SortOrder = 3, IsExternal = false },
+                new FooterLink { Section = "information", Label = "Support", Url = "/support", SortOrder = 4, IsExternal = false }
+            );
+            dbContext.SaveChanges();
+        }
+
+        if (!dbContext.FooterContacts.Any())
+        {
+            dbContext.FooterContacts.AddRange(
+                new FooterContact { ContactKey = "address", Label = "Address", Value = "Baku, Azerbaijan", Url = "https://maps.google.com/?q=Baku%2C%20Azerbaijan", SortOrder = 1 },
+                new FooterContact { ContactKey = "email", Label = "Mail us", Value = "support@neobank.az", Url = "mailto:support@neobank.az", SortOrder = 2 },
+                new FooterContact { ContactKey = "phone", Label = "Phone", Value = "+994 12 555 45 45", Url = "tel:+994125554545", SortOrder = 3 }
+            );
+            dbContext.SaveChanges();
+        }
     }
     catch (Exception ex)
     {

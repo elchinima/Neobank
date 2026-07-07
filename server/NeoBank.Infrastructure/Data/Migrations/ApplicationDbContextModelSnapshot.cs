@@ -44,6 +44,9 @@ namespace NeoBank.Infrastructure.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastIp")
                         .HasColumnType("text");
 
@@ -64,6 +67,9 @@ namespace NeoBank.Infrastructure.Data.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -220,6 +226,121 @@ namespace NeoBank.Infrastructure.Data.Migrations
                     b.ToTable("Deposits", (string)null);
                 });
 
+            modelBuilder.Entity("NeoBank.Core.Entities.EmailVerificationCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TempToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TempToken");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmailVerificationCodes", (string)null);
+                });
+
+            modelBuilder.Entity("NeoBank.Core.Entities.FooterContact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContactKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactKey")
+                        .IsUnique();
+
+                    b.ToTable("FooterContacts", (string)null);
+                });
+
+            modelBuilder.Entity("NeoBank.Core.Entities.FooterLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Section")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Section", "SortOrder");
+
+                    b.ToTable("FooterLinks", (string)null);
+                });
+
             modelBuilder.Entity("NeoBank.Core.Entities.Loan", b =>
                 {
                     b.Property<string>("Id")
@@ -266,6 +387,36 @@ namespace NeoBank.Infrastructure.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Loans", (string)null);
+                });
+
+            modelBuilder.Entity("NeoBank.Core.Entities.PublicPageSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BannerImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MediaText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PageKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PageKey")
+                        .IsUnique();
+
+                    b.ToTable("PublicPageSettings", (string)null);
                 });
 
             modelBuilder.Entity("NeoBank.Core.Entities.RefreshToken", b =>
@@ -396,6 +547,17 @@ namespace NeoBank.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("NeoBank.Core.Entities.EmailVerificationCode", b =>
+                {
+                    b.HasOne("NeoBank.Core.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NeoBank.Core.Entities.RefreshToken", b =>

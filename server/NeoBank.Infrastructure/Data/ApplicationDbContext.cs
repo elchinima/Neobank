@@ -21,6 +21,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UserCashback> UserCashbacks { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
+    public DbSet<PublicPageSetting> PublicPageSettings { get; set; } = null!;
+    public DbSet<FooterLink> FooterLinks { get; set; } = null!;
+    public DbSet<FooterContact> FooterContacts { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -133,6 +136,36 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                   .WithMany(c => c.UserCashbacks)
                   .HasForeignKey(u => u.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PublicPageSetting>(entity =>
+        {
+            entity.ToTable("PublicPageSettings");
+            entity.HasKey(p => p.Id);
+            entity.HasIndex(p => p.PageKey).IsUnique();
+            entity.Property(p => p.PageKey).IsRequired();
+            entity.Property(p => p.MediaText).IsRequired();
+        });
+
+        builder.Entity<FooterLink>(entity =>
+        {
+            entity.ToTable("FooterLinks");
+            entity.HasKey(f => f.Id);
+            entity.HasIndex(f => new { f.Section, f.SortOrder });
+            entity.Property(f => f.Section).IsRequired();
+            entity.Property(f => f.Label).IsRequired();
+            entity.Property(f => f.Url).IsRequired();
+        });
+
+        builder.Entity<FooterContact>(entity =>
+        {
+            entity.ToTable("FooterContacts");
+            entity.HasKey(f => f.Id);
+            entity.HasIndex(f => f.ContactKey).IsUnique();
+            entity.Property(f => f.ContactKey).IsRequired();
+            entity.Property(f => f.Label).IsRequired();
+            entity.Property(f => f.Value).IsRequired();
+            entity.Property(f => f.Url).IsRequired();
         });
     }
 }

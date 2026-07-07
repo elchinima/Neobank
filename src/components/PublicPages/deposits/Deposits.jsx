@@ -6,6 +6,7 @@ import logoMark from '../../../assets/logo/main_logo.png'
 import depositsBanner from '../../../assets/images/deposits_banner_az.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
+import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { depositsLang } from './lang.js'
 import './Deposits.scss'
@@ -17,7 +18,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 function Deposits() {
   const { t } = useLanguage()
   const { isAuthenticated, user, token } = useAuth()
+  const { setting } = usePublicPageSetting('deposits')
   const navigate = useNavigate()
+  const bannerImage = setting?.bannerImageUrl ?? depositsBanner
+  const hasBanner = bannerImage !== ''
 
   const depositTypes = [
     { id: 'term', icon: 'T', name: 'Term', rate: 12.0, caption: 'Fixed return for planned goals' },
@@ -157,7 +161,7 @@ function Deposits() {
       </nav>
 
       <main className="deposits-page__main">
-        <section className="deposits-page__hero" aria-labelledby="deposits-title">
+        <section className={`deposits-page__hero${hasBanner ? '' : ' deposits-page__hero--no-media'}`} aria-labelledby="deposits-title">
           <div className="deposits-page__hero-content">
             <p className="deposits-page__eyebrow" data-lang-key="heroEyebrow">{t(depositsLang, 'heroEyebrow')}</p>
             <h1 id="deposits-title" data-lang-key="heroTitle">{t(depositsLang, 'heroTitle')}</h1>
@@ -185,14 +189,16 @@ function Deposits() {
             </div>
           </div>
 
-          <div className="deposits-page__hero-media" aria-label="Deposit campaign carousel">
-            <div className="deposits-page__carousel-slide">
-              <img src={depositsBanner} alt="NeoBank deposit campaign" />
+          {hasBanner && (
+            <div className="deposits-page__hero-media" aria-label="Deposit campaign carousel">
+              <div className="deposits-page__carousel-slide">
+                <img src={bannerImage} alt="NeoBank deposit campaign" />
+              </div>
+              <p className="deposits-page__media-copy" data-lang-key="mediaCopy">
+                {setting?.mediaText || t(depositsLang, 'mediaCopy')}
+              </p>
             </div>
-            <p className="deposits-page__media-copy" data-lang-key="mediaCopy">
-              {t(depositsLang, 'mediaCopy')}
-            </p>
-          </div>
+          )}
         </section>
 
         <section className="deposits-page__plans" id="open-deposit" aria-labelledby="deposit-plans-title">

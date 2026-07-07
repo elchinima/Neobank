@@ -20,6 +20,11 @@ import Payments from '../../components/UserPages/payments/Payments'
 import History from '../../components/UserPages/history/History'
 import Settings from '../../components/UserPages/settings/Settings'
 
+import AdminLayout from '../../components/AdminPages/AdminLayout'
+import AdminDashboard from '../../components/AdminPages/dashboard/AdminDashboard'
+import AdminUsers from '../../components/AdminPages/users/AdminUsers'
+import AdminContent from '../../components/AdminPages/content/AdminContent'
+
 import ErrorPage from '../../components/ErrorPage/ErrorPage'
 
 function AppRouter() {
@@ -39,6 +44,13 @@ function AppRouter() {
             <Route path="/cashback" element={<Cashback />} />
             <Route path="/support" element={<SupportPublic />} />
             <Route path="/error" element={<ErrorPage />} />
+
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="content" element={<AdminContent />} />
+            </Route>
 
             <Route element={<ProtectedRoute />}>
               <Route path="/user" element={<UserLayout />}>
