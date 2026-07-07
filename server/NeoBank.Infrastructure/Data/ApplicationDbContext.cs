@@ -22,9 +22,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
     public DbSet<PublicPageSetting> PublicPageSettings { get; set; } = null!;
-    public DbSet<PublicPageSettingTranslation> PublicPageSettingTranslations { get; set; } = null!;
-    public DbSet<FooterLink> FooterLinks { get; set; } = null!;
-    public DbSet<FooterContact> FooterContacts { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -143,43 +140,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             entity.ToTable("PublicPageSettings");
             entity.HasKey(p => p.Id);
-            entity.HasIndex(p => p.PageKey).IsUnique();
-            entity.Property(p => p.PageKey).IsRequired();
-        });
-
-        builder.Entity<PublicPageSettingTranslation>(entity =>
-        {
-            entity.ToTable("PublicPageSettingTranslations");
-            entity.HasKey(t => t.Id);
-            entity.HasIndex(t => new { t.PublicPageSettingId, t.LanguageCode }).IsUnique();
-            entity.Property(t => t.LanguageCode).IsRequired();
-            entity.Property(t => t.MediaText).IsRequired();
-            
-            entity.HasOne(t => t.PublicPageSetting)
-                  .WithMany(p => p.Translations)
-                  .HasForeignKey(t => t.PublicPageSettingId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        builder.Entity<FooterLink>(entity =>
-        {
-            entity.ToTable("FooterLinks");
-            entity.HasKey(f => f.Id);
-            entity.HasIndex(f => new { f.Section, f.SortOrder });
-            entity.Property(f => f.Section).IsRequired();
-            entity.Property(f => f.Label).IsRequired();
-            entity.Property(f => f.Url).IsRequired();
-        });
-
-        builder.Entity<FooterContact>(entity =>
-        {
-            entity.ToTable("FooterContacts");
-            entity.HasKey(f => f.Id);
-            entity.HasIndex(f => f.ContactKey).IsUnique();
-            entity.Property(f => f.ContactKey).IsRequired();
-            entity.Property(f => f.Label).IsRequired();
-            entity.Property(f => f.Value).IsRequired();
-            entity.Property(f => f.Url).IsRequired();
+            entity.HasIndex(p => new { p.PageName, p.LanguageCode }).IsUnique();
+            entity.Property(p => p.PageName).IsRequired();
+            entity.Property(p => p.LanguageCode).IsRequired();
+            entity.Property(p => p.MediaText).IsRequired();
         });
     }
 }

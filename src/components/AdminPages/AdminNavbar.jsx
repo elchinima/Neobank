@@ -7,7 +7,7 @@ const AdminNavbar = () => {
   const currentPath = location.pathname
 
   const navLinks = [
-    { to: '/', label: 'Public site' },
+    { to: '/', label: 'Home' },
     { to: '/admin/dashboard', label: 'Dashboard' },
     { to: '/admin/users', label: 'Users' },
     { to: '/admin/banner', label: 'Banner' },

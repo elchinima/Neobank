@@ -166,71 +166,31 @@ using (var scope = app.Services.CreateScope())
 
         if (!dbContext.PublicPageSettings.Any())
         {
-            var pCards = new PublicPageSetting { PageKey = "cards" };
-            var pLoans = new PublicPageSetting { PageKey = "loans" };
-            var pDeposits = new PublicPageSetting { PageKey = "deposits" };
-            var pSupport = new PublicPageSetting { PageKey = "support" };
-            var pCashback = new PublicPageSetting { PageKey = "cashback" };
-            
-            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Choose a card line that fits your daily spending, travel and long-term plans." });
-            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Выберите карту, подходящую для ваших ежедневных расходов, путешествий и долгосрочных планов." });
-            pCards.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Gündəlik xərclərinizə, səyahətlərinizə və uzunmüddətli planlarınıza uyğun kart seçin." });
+            dbContext.PublicPageSettings.AddRange(
+                new PublicPageSetting { PageName = "cards", LanguageCode = "en", MediaText = "Choose a card line that fits your daily spending, travel and long-term plans." },
+                new PublicPageSetting { PageName = "cards", LanguageCode = "ru", MediaText = "Выберите карту, подходящую для ваших ежедневных расходов, путешествий и долгосрочных планов." },
+                new PublicPageSetting { PageName = "cards", LanguageCode = "az", MediaText = "Gündəlik xərclərinizə, səyahətlərinizə və uzunmüddətli planlarınıza uyğun kart seçin." },
 
-            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Plan the next move with a calmer calculator and transparent monthly payments." });
-            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Планируйте следующий шаг с прозрачными ежемесячными платежами." });
-            pLoans.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Növbəti addımınızı daha şəffaf aylıq ödənişlərlə planlaşdırın." });
+                new PublicPageSetting { PageName = "loans", LanguageCode = "en", MediaText = "Plan the next move with a calmer calculator and transparent monthly payments." },
+                new PublicPageSetting { PageName = "loans", LanguageCode = "ru", MediaText = "Планируйте следующий шаг с прозрачными ежемесячными платежами." },
+                new PublicPageSetting { PageName = "loans", LanguageCode = "az", MediaText = "Növbəti addımınızı daha şəffaf aylıq ödənişlərlə planlaşdırın." },
 
-            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Grow savings with flexible terms, clear yield and full control from NeoBank." });
-            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Увеличивайте сбережения на гибких условиях с полным контролем от NeoBank." });
-            pDeposits.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "NeoBank-dan tam nəzarət və çevik şərtlərlə əmanətlərinizi artırın." });
+                new PublicPageSetting { PageName = "deposits", LanguageCode = "en", MediaText = "Grow savings with flexible terms, clear yield and full control from NeoBank." },
+                new PublicPageSetting { PageName = "deposits", LanguageCode = "ru", MediaText = "Увеличивайте сбережения на гибких условиях с полным контролем от NeoBank." },
+                new PublicPageSetting { PageName = "deposits", LanguageCode = "az", MediaText = "NeoBank-dan tam nəzarət və çevik şərtlərlə əmanətlərinizi artırın." },
 
-            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Get help from NeoBank support through tickets, guided answers or live chat." });
-            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Получите помощь от службы поддержки NeoBank через тикеты или живой чат." });
-            pSupport.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "NeoBank dəstək xidmətindən canlı çat vasitəsilə kömək alın." });
+                new PublicPageSetting { PageName = "support", LanguageCode = "en", MediaText = "Get help from NeoBank support through tickets, guided answers or live chat." },
+                new PublicPageSetting { PageName = "support", LanguageCode = "ru", MediaText = "Получите помощь от службы поддержки NeoBank через тикеты или живой чат." },
+                new PublicPageSetting { PageName = "support", LanguageCode = "az", MediaText = "NeoBank dəstək xidmətindən canlı çat vasitəsilə kömək alın." },
 
-            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Earn more value from everyday categories and track every reward in one place." });
-            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Получайте больше выгоды от повседневных покупок и отслеживайте кешбэк." });
-            pCashback.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Gündəlik kateqoriyalardan daha çox qazanın və keşbekləri izləyin." });
-
-            dbContext.PublicPageSettings.AddRange(pCards, pLoans, pDeposits, pSupport, pCashback);
-            dbContext.SaveChanges();
-        }
-        else if (!dbContext.PublicPageSettingTranslations.Any())
-        {
-            var pages = dbContext.PublicPageSettings.ToList();
-            foreach (var p in pages)
-            {
-                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "en", MediaText = "Default English Text" });
-                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "ru", MediaText = "Стандартный русский текст" });
-                p.Translations.Add(new PublicPageSettingTranslation { LanguageCode = "az", MediaText = "Standart Azərbaycan mətni" });
-            }
-            dbContext.SaveChanges();
-        }
-
-        if (!dbContext.FooterLinks.Any())
-        {
-            dbContext.FooterLinks.AddRange(
-                new FooterLink { Section = "products", Label = "Cards", Url = "/cards", SortOrder = 1, IsExternal = false },
-                new FooterLink { Section = "products", Label = "Loans", Url = "/loans", SortOrder = 2, IsExternal = false },
-                new FooterLink { Section = "products", Label = "Deposits", Url = "/deposits", SortOrder = 3, IsExternal = false },
-                new FooterLink { Section = "products", Label = "Cashback", Url = "/cashback", SortOrder = 4, IsExternal = false },
-                new FooterLink { Section = "information", Label = "Home", Url = "/", SortOrder = 1, IsExternal = false },
-                new FooterLink { Section = "information", Label = "Sign in", Url = "/login", SortOrder = 2, IsExternal = false },
-                new FooterLink { Section = "information", Label = "Open account", Url = "/register", SortOrder = 3, IsExternal = false },
-                new FooterLink { Section = "information", Label = "Support", Url = "/support", SortOrder = 4, IsExternal = false }
+                new PublicPageSetting { PageName = "cashback", LanguageCode = "en", MediaText = "Earn more value from everyday categories and track every reward in one place." },
+                new PublicPageSetting { PageName = "cashback", LanguageCode = "ru", MediaText = "Получайте больше выгоды от повседневных покупок и отслеживайте кешбэк." },
+                new PublicPageSetting { PageName = "cashback", LanguageCode = "az", MediaText = "Gündəlik kateqoriyalardan daha çox qazanın və keşbekləri izləyin." }
             );
             dbContext.SaveChanges();
         }
 
-        if (!dbContext.FooterContacts.Any())
-        {
-            dbContext.FooterContacts.AddRange(
-                new FooterContact { ContactKey = "address", Label = "Address", Value = "Baku, Azerbaijan", Url = "https://maps.google.com/?q=Baku%2C%20Azerbaijan", SortOrder = 1 },
-                new FooterContact { ContactKey = "email", Label = "Mail us", Value = "support@neobank.az", Url = "mailto:support@neobank.az", SortOrder = 2 },
-                new FooterContact { ContactKey = "phone", Label = "Phone", Value = "+994 12 555 45 45", Url = "tel:+994125554545", SortOrder = 3 }
-            );
-            dbContext.SaveChanges();
-        }
+
     }
     catch (Exception ex)
     {

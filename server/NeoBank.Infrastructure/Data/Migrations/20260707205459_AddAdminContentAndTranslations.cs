@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeoBank.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAdminPublicContent : Migration
+    public partial class AddAdminContentAndTranslations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,14 +54,34 @@ namespace NeoBank.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    PageKey = table.Column<string>(type: "text", nullable: false),
+                    PageKey = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PublicPageSettings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PublicPageSettingTranslations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PublicPageSettingId = table.Column<int>(type: "integer", nullable: false),
+                    LanguageCode = table.Column<string>(type: "text", nullable: false),
                     BannerImageUrl = table.Column<string>(type: "text", nullable: true),
                     MediaText = table.Column<string>(type: "text", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PublicPageSettings", x => x.Id);
+                    table.PrimaryKey("PK_PublicPageSettingTranslations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PublicPageSettingTranslations_PublicPageSettings_PublicPage~",
+                        column: x => x.PublicPageSettingId,
+                        principalTable: "PublicPageSettings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -80,6 +100,12 @@ namespace NeoBank.Infrastructure.Data.Migrations
                 table: "PublicPageSettings",
                 column: "PageKey",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PublicPageSettingTranslations_PublicPageSettingId_LanguageC~",
+                table: "PublicPageSettingTranslations",
+                columns: new[] { "PublicPageSettingId", "LanguageCode" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -90,6 +116,9 @@ namespace NeoBank.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "FooterLinks");
+
+            migrationBuilder.DropTable(
+                name: "PublicPageSettingTranslations");
 
             migrationBuilder.DropTable(
                 name: "PublicPageSettings");

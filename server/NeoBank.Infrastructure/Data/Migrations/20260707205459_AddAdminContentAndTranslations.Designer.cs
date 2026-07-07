@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeoBank.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260707204057_AddPublicPageSettingTranslations")]
-    partial class AddPublicPageSettingTranslations
+    [Migration("20260707205459_AddAdminContentAndTranslations")]
+    partial class AddAdminContentAndTranslations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
