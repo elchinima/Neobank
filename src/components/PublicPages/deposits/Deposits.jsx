@@ -175,18 +175,20 @@ function Deposits() {
               </button>
             </div>
 
-            <div className="deposits-page__hero-stats" aria-label="Deposit overview">
-              {stats.map((stat) => (
-                <div
-                  className={`deposits-page__hero-stat${stat.mobileOnly ? ' deposits-page__hero-stat--mobile-only' : ''}`}
-                  key={stat.labelKey}
-                >
-                  <span data-lang-key={stat.labelKey}>{t(depositsLang, stat.labelKey)}</span>
-                  <strong>{stat.value}</strong>
-                  <small data-lang-key={stat.subKey}>{t(depositsLang, stat.subKey)}</small>
-                </div>
-              ))}
-            </div>
+            {hasBanner && (
+              <div className="deposits-page__hero-stats" aria-label="Deposit overview">
+                {stats.map((stat) => (
+                  <div
+                    className={`deposits-page__hero-stat${stat.mobileOnly ? ' deposits-page__hero-stat--mobile-only' : ''}`}
+                    key={stat.labelKey}
+                  >
+                    <span data-lang-key={stat.labelKey}>{t(depositsLang, stat.labelKey)}</span>
+                    <strong>{stat.value}</strong>
+                    <small data-lang-key={stat.subKey}>{t(depositsLang, stat.subKey)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {hasBanner && (

@@ -188,18 +188,20 @@ function Loans() {
               </button>
             </div>
 
-            <div className="loans-page__hero-stats" aria-label="Loan overview">
-              {stats.map((stat) => (
-                <div
-                  className={`loans-page__hero-stat${stat.mobileOnly ? ' loans-page__hero-stat--mobile-only' : ''}`}
-                  key={stat.labelKey}
-                >
-                  <span data-lang-key={stat.labelKey}>{t(loansLang, stat.labelKey)}</span>
-                  <strong>{stat.value}</strong>
-                  <small data-lang-key={stat.subKey}>{t(loansLang, stat.subKey)}</small>
-                </div>
-              ))}
-            </div>
+            {hasBanner && (
+              <div className="loans-page__hero-stats" aria-label="Loan overview">
+                {stats.map((stat) => (
+                  <div
+                    className={`loans-page__hero-stat${stat.mobileOnly ? ' loans-page__hero-stat--mobile-only' : ''}`}
+                    key={stat.labelKey}
+                  >
+                    <span data-lang-key={stat.labelKey}>{t(loansLang, stat.labelKey)}</span>
+                    <strong>{stat.value}</strong>
+                    <small data-lang-key={stat.subKey}>{t(loansLang, stat.subKey)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {hasBanner && (

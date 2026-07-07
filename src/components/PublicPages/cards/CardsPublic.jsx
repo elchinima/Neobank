@@ -137,18 +137,20 @@ function CardsPublic() {
               </button>
             </div>
 
-            <div className="cards-page__hero-stats" aria-label="Card overview">
-              {stats.map((stat) => (
-                <div
-                  className={`cards-page__hero-stat${stat.mobileOnly ? ' cards-page__hero-stat--mobile-only' : ''}`}
-                  key={stat.labelKey}
-                >
-                  <span data-lang-key={stat.labelKey}>{t(cardsLang, stat.labelKey)}</span>
-                  <strong>{stat.value}</strong>
-                  <small data-lang-key={stat.subKey}>{t(cardsLang, stat.subKey)}</small>
-                </div>
-              ))}
-            </div>
+            {hasBanner && (
+              <div className="cards-page__hero-stats" aria-label="Card overview">
+                {stats.map((stat) => (
+                  <div
+                    className={`cards-page__hero-stat${stat.mobileOnly ? ' cards-page__hero-stat--mobile-only' : ''}`}
+                    key={stat.labelKey}
+                  >
+                    <span data-lang-key={stat.labelKey}>{t(cardsLang, stat.labelKey)}</span>
+                    <strong>{stat.value}</strong>
+                    <small data-lang-key={stat.subKey}>{t(cardsLang, stat.subKey)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {hasBanner && (

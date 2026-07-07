@@ -56,14 +56,14 @@
 
   &__section {
     display: grid;
-    gap: 16px;
+    gap: 50px;
   }
 
   &__page-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 16px;
+    gap: 32px;
     padding-bottom: 16px;
 
     &::-webkit-scrollbar {

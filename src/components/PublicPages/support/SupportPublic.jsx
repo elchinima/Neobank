@@ -120,18 +120,20 @@ function SupportPublic() {
               </button>
             </div>
 
-            <div className="support-page__hero-stats" aria-label="Support statistics">
-              {stats.map((stat) => (
-                <div
-                  className={`support-page__hero-stat${stat.mobileOnly ? ' support-page__hero-stat--mobile-only' : ''}`}
-                  key={stat.labelKey}
-                >
-                  <span data-lang-key={stat.labelKey}>{t(supportLang, stat.labelKey)}</span>
-                  <strong>{stat.value}</strong>
-                  <small data-lang-key={stat.subKey}>{t(supportLang, stat.subKey)}</small>
-                </div>
-              ))}
-            </div>
+            {hasBanner && (
+              <div className="support-page__hero-stats" aria-label="Support statistics">
+                {stats.map((stat) => (
+                  <div
+                    className={`support-page__hero-stat${stat.mobileOnly ? ' support-page__hero-stat--mobile-only' : ''}`}
+                    key={stat.labelKey}
+                  >
+                    <span data-lang-key={stat.labelKey}>{t(supportLang, stat.labelKey)}</span>
+                    <strong>{stat.value}</strong>
+                    <small data-lang-key={stat.subKey}>{t(supportLang, stat.subKey)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {(hasBanner || isChatOpen) && (
