@@ -163,11 +163,11 @@ using (var scope = app.Services.CreateScope())
             dbContext.CashbackMccs.AddRange(mccCodes);
             dbContext.SaveChanges();
         }
-        try
-        {
-            dbContext.Database.ExecuteSqlRaw(@"DELETE FROM ""PublicPageSettings"" WHERE ""LanguageCode"" = '' OR ""LanguageCode"" IS NULL;");
-        }
-        catch { }
+        // try
+        // {
+        //     dbContext.Database.ExecuteSqlRaw(@"DELETE FROM ""PublicPageSettings"" WHERE ""LanguageCode"" = '' OR ""LanguageCode"" IS NULL;");
+        // }
+        // catch { }
 
         if (!dbContext.PublicPageSettings.Any())
         {

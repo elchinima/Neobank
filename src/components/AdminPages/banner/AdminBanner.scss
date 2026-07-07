@@ -61,8 +61,11 @@
 
   &__page-grid {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     gap: 32px;
     padding-bottom: 16px;
 
@@ -278,9 +281,6 @@
 
 @media (max-width: 900px) {
   .admin-banner {
-    &__page-grid {
-      grid-template-columns: 1fr;
-    }
 
     &__row-card,
     &__row-card--contact {

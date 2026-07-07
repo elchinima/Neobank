@@ -24,6 +24,7 @@ import AdminLayout from '../../components/AdminPages/AdminLayout'
 import AdminDashboard from '../../components/AdminPages/dashboard/AdminDashboard'
 import AdminUsers from '../../components/AdminPages/users/AdminUsers'
 import AdminBanner from '../../components/AdminPages/banner/AdminBanner'
+import AdminDatabase from '../../components/AdminPages/database/AdminDatabase'
 
 import ErrorPage from '../../components/ErrorPage/ErrorPage'
 
@@ -50,6 +51,7 @@ function AppRouter() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="banner" element={<AdminBanner />} />
+              <Route path="database" element={<AdminDatabase />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>

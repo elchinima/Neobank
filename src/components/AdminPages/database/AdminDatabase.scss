@@ -1,0 +1,414 @@
+@use '../../../assets/styles/variables' as *;
+
+.admin-db {
+  display: grid;
+  gap: 24px;
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+
+    h1 {
+      margin-top: 4px;
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+  }
+
+  &__eyebrow {
+    color: $landing-gold-soft;
+    font-size: $font-size-sm;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  &__search {
+    display: grid;
+    gap: 7px;
+    width: min(300px, 100%);
+
+    label {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    input {
+      min-height: 46px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 226, 138, 0.16);
+      border-radius: $border-radius-sm;
+      background: rgba(23, 18, 31, 0.62);
+      color: #ffffff;
+      font: inherit;
+      outline: none;
+
+      &:focus {
+        border-color: rgba(255, 226, 138, 0.42);
+        box-shadow: 0 0 0 3px rgba(255, 226, 138, 0.08);
+      }
+    }
+  }
+
+  &__add-btn {
+    min-height: 46px;
+    padding: 0 24px;
+    border: none;
+    border-radius: $border-radius-sm;
+    background: $landing-gold-soft;
+    color: #000;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  &__table-card {
+    border: 1px solid rgba(255, 226, 138, 0.1);
+    border-radius: $border-radius;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+      rgba(23, 18, 31, 0.58);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+  }
+
+  &__table-meta {
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: $landing-gold-soft;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 16px 18px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+  }
+
+  th {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  td {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+
+    strong {
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 850;
+    }
+  }
+
+  &__img-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__empty {
+    color: rgba(255, 255, 255, 0.58);
+    text-align: center;
+  }
+
+  &__actions-cell {
+    width: 60px;
+    text-align: right;
+  }
+
+  &__menu-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  &__dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+
+    span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: $landing-gold-soft;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    background: #251e30;
+    border: 1px solid rgba(255, 226, 138, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 100;
+    min-width: 150px;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+
+    button {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.8);
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      width: 100%;
+
+      &:hover {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+      }
+
+      &.danger {
+        color: #ff3b30;
+        &:hover {
+          background: rgba(255, 59, 48, 0.1);
+        }
+      }
+    }
+  }
+}
+
+// Modal styles
+.admin-db-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.admin-db-modal {
+  background: #1e1926;
+  border: 1px solid rgba(255, 226, 138, 0.2);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  animation: modalIn 0.2s ease-out;
+
+  &__header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+    }
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    &:hover { color: #fff; }
+  }
+
+  &__content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__error {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid rgba(255, 59, 48, 0.2);
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+
+  &__input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      width: 100%;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px 60px 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+
+      &:focus {
+        border-color: $landing-gold-soft;
+      }
+    }
+  }
+
+  &__counter {
+    position: absolute;
+    right: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  &__dropzone {
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 12px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+
+    &:hover {
+      border-color: $landing-gold-soft;
+      background: rgba(255,226,138,0.05);
+    }
+
+    p {
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      font-size: 14px;
+      margin: 0;
+
+      span {
+        display: block;
+        font-size: 12px;
+        opacity: 0.7;
+        margin-top: 6px;
+      }
+    }
+  }
+
+  &__preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+  }
+
+  &__footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  &__btn-cancel {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    &:hover { background: rgba(255,255,255,0.05); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  &__btn-save {
+    padding: 10px 20px;
+    background: $landing-gold-soft;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    &:hover { opacity: 0.9; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
