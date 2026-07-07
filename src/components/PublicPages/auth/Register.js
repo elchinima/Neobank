@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../app/context/AuthContext'
 
 export function useRegister() {
@@ -15,8 +14,11 @@ export function useRegister() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [serverError, setServerError] = useState('')
 
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  // Verification modal state
+  const [verifyModal, setVerifyModal] = useState(null)
+  // verifyModal shape: { purpose: 'email', userId, email }
+
+  const { register, completeAuth, resendVerification } = useAuth()
 
   const validate = () => {
     const next = {}
@@ -40,14 +42,38 @@ export function useRegister() {
     if (Object.keys(next).length === 0) {
       setIsSubmitting(true)
       try {
-        await register({ firstName, lastName, email, password })
-        navigate('/user/dashboard')
+        const data = await register({ firstName, lastName, email, password })
+
+        // Registration always requires email verification
+        if (data.requiresEmailVerification) {
+          setVerifyModal({
+            purpose: 'email',
+            userId: data.user?.id,
+            email: data.user?.email || email,
+          })
+          return
+        }
+
+        // Fallback: if somehow verification is not required
+        completeAuth(data)
       } catch (err) {
         setServerError(err.message || 'Registration failed. Please try again.')
       } finally {
         setIsSubmitting(false)
       }
     }
+  }
+
+  const handleVerifySuccess = (data) => {
+    completeAuth(data)
+    setVerifyModal(null)
+    // Navigation handled by AuthContext — user will be redirected to dashboard by protected route
+    window.location.href = '/user/dashboard'
+  }
+
+  const handleResendCode = async () => {
+    if (!verifyModal?.userId) return
+    await resendVerification(verifyModal.userId, 'EmailVerification')
   }
 
   return {
@@ -71,5 +97,9 @@ export function useRegister() {
     serverError,
     validate,
     handleSubmit,
+    verifyModal,
+    setVerifyModal,
+    handleVerifySuccess,
+    handleResendCode,
   }
 }

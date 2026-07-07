@@ -149,6 +149,9 @@ export function AuthProvider({ children }) {
     checkAuth()
   }, [refreshTokenFunc])
 
+  // ─── Login ────────────────────────────────────────────────────────────────
+  // Returns: { requiresEmailVerification, requiresTwoFactor, tempToken, user }
+  // Or full auth data if no verification needed
   const login = async (email, password) => {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
@@ -165,6 +168,12 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || 'Login failed')
     }
 
+    // If verification/2FA required, return raw data for caller to handle
+    if (data.requiresEmailVerification || data.requiresTwoFactor) {
+      return data
+    }
+
+    // Full login completed
     Cookies.set('neobank_token', data.token, { expires: 7 })
     if (data.refreshToken) {
       Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
@@ -174,6 +183,8 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  // ─── Register ─────────────────────────────────────────────────────────────
+  // After register, email verification is always required
   const register = async ({ email, password, firstName, lastName }) => {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
@@ -190,12 +201,53 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || 'Registration failed')
     }
 
-    Cookies.set('neobank_token', data.token, { expires: 7 })
-    if (data.refreshToken) {
-      Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
+    // Registration always requires email verification — return data for caller
+    return data
+  }
+
+  // ─── Complete Auth (called after successful verification) ─────────────────
+  const completeAuth = (data) => {
+    if (data.token) {
+      Cookies.set('neobank_token', data.token, { expires: 7 })
+      if (data.refreshToken) {
+        Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
+      }
+      setToken(data.token)
+      setUser(data.user)
     }
-    setToken(data.token)
-    setUser(data.user)
+  }
+
+  // ─── Resend Verification ──────────────────────────────────────────────────
+  const resendVerification = async (userId, purpose = 'EmailVerification') => {
+    const response = await fetch(`${API_BASE_URL}/auth/send-verification`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ userId, purpose }),
+    })
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Failed to resend code')
+    }
+  }
+
+  // ─── Toggle 2FA ───────────────────────────────────────────────────────────
+  const toggleTwoFactor = async (enabled) => {
+    const currentToken = token || Cookies.get('neobank_token')
+    const response = await fetch(`${API_BASE_URL}/auth/toggle-2fa`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ enabled }),
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to toggle 2FA')
+    }
+    setUser((prev) => prev ? { ...prev, twoFactorEnabled: enabled } : null)
     return data
   }
 
@@ -213,6 +265,9 @@ export function AuthProvider({ children }) {
     logout,
     updateUser,
     fetchWithAuth,
+    completeAuth,
+    resendVerification,
+    toggleTwoFactor,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

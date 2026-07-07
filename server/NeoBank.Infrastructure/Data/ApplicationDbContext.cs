@@ -20,6 +20,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<CashbackMcc> CashbackMccs { get; set; } = null!;
     public DbSet<UserCashback> UserCashbacks { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -47,6 +49,21 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(r => r.User)
                   .WithMany(u => u.RefreshTokens)
                   .HasForeignKey(r => r.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<EmailVerificationCode>(entity =>
+        {
+            entity.ToTable("EmailVerificationCodes");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.TempToken);
+            entity.Property(e => e.Code).IsRequired();
+            entity.Property(e => e.Purpose).IsRequired();
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 

@@ -1,6 +1,7 @@
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\bin\Debug\net10.0\NeoBank.Core.deps.json
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\bin\Debug\net10.0\NeoBank.Core.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\bin\Debug\net10.0\NeoBank.Core.pdb
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.csproj.AssemblyReference.cache
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.GeneratedMSBuildEditorConfig.editorconfig
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.AssemblyInfoInputs.cache
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.AssemblyInfo.cs
@@ -10,4 +11,3 @@ D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Deb
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\refint\NeoBank.Core.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.pdb
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\ref\NeoBank.Core.dll
-D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Core\obj\Debug\net10.0\NeoBank.Core.csproj.AssemblyReference.cache

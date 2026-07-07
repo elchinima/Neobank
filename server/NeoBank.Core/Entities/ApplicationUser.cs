@@ -14,5 +14,7 @@ public class ApplicationUser
     public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
+    public bool IsEmailVerified { get; set; } = false;
+    public bool TwoFactorEnabled { get; set; } = false;
     public List<RefreshToken> RefreshTokens { get; set; } = new();
 }

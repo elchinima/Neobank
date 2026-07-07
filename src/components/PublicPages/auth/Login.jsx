@@ -5,6 +5,7 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { authLang } from './lang.js'
+import EmailVerifyModal from './EmailVerifyModal.jsx'
 import './Login.scss'
 
 function Login() {
@@ -21,6 +22,10 @@ function Login() {
     isSubmitting,
     serverError,
     handleSubmit,
+    verifyModal,
+    setVerifyModal,
+    handleVerifySuccess,
+    handleResendCode,
   } = useLogin()
 
   const features = [
@@ -182,6 +187,18 @@ function Login() {
           </section>
         </div>
       </main>
+
+      {/* Email / 2FA verification modal */}
+      <EmailVerifyModal
+        isOpen={!!verifyModal}
+        purpose={verifyModal?.purpose}
+        userId={verifyModal?.userId}
+        tempToken={verifyModal?.tempToken}
+        email={verifyModal?.email}
+        onSuccess={handleVerifySuccess}
+        onResend={handleResendCode}
+        onClose={verifyModal?.purpose === 'email' ? () => setVerifyModal(null) : undefined}
+      />
     </div>
   )
 }

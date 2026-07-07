@@ -14,5 +14,6 @@ public interface IApplicationDbContext
     DbSet<CashbackMcc> CashbackMccs { get; set; }
     DbSet<UserCashback> UserCashbacks { get; set; }
     DbSet<RefreshToken> RefreshTokens { get; set; }
+    DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

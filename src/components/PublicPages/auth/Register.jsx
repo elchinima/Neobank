@@ -5,6 +5,7 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { authLang } from './lang.js'
+import EmailVerifyModal from './EmailVerifyModal.jsx'
 import './Register.scss'
 
 function Register() {
@@ -29,6 +30,9 @@ function Register() {
     isSubmitting,
     serverError,
     handleSubmit,
+    verifyModal,
+    handleVerifySuccess,
+    handleResendCode,
   } = useRegister()
 
   const features = [
@@ -240,6 +244,17 @@ function Register() {
           </section>
         </div>
       </main>
+
+      {/* Email verification modal — always shown after registration */}
+      <EmailVerifyModal
+        isOpen={!!verifyModal}
+        purpose={verifyModal?.purpose}
+        userId={verifyModal?.userId}
+        email={verifyModal?.email}
+        onSuccess={handleVerifySuccess}
+        onResend={handleResendCode}
+        // No close button for registration — user must verify email to continue
+      />
     </div>
   )
 }

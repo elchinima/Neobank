@@ -11,4 +11,6 @@ public class UserDto
     public string? LastIp { get; set; }
     public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool IsEmailVerified { get; set; }
+    public bool TwoFactorEnabled { get; set; }
 }

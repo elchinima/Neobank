@@ -36,33 +36,33 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
 const paymentCategories = [
-  { name: 'Mobile Operators', id: 1, icon: mobileIcon },
-  { name: 'Utilities', id: 2, icon: utilitiesIcon },
-  { name: 'Banking Services', id: 3, icon: bankIcon },
-  { name: 'BakıKart', id: 4, icon: bakikartIcon },
-  { name: 'Transport', id: 5, icon: transportIcon },
-  { name: 'Fines', id: 6, icon: vatIcon },
-  { name: 'Government Payments', id: 7, icon: vatIcon },
-  { name: 'Internet', id: 8, icon: internetIcon },
-  { name: 'Cable TV', id: 9, icon: tvIcon },
-  { name: 'Telephone', id: 10, icon: phoneIcon },
-  { name: 'Insurance', id: 11, icon: insuranceIcon },
-  { name: 'E-commerce', id: 12, icon: shoppingIcon },
-  { name: 'Delivery Services', id: 13, icon: foodIcon },
-  { name: 'Ads & Coupons', id: 14, icon: newsIcon },
-  { name: 'Medical Services', id: 15, icon: medicalIcon },
-  { name: 'Entertainment', id: 16, icon: entertainmentIcon },
-  { name: 'Betting', id: 17, icon: bettingIcon },
-  { name: 'Agency Network', id: 18, icon: agencyIcon },
-  { name: 'Education', id: 19, icon: educationIcon },
-  { name: 'Hotels', id: 20, icon: hotelsIcon },
-  { name: 'Taxi', id: 21, icon: taxiIcon },
-  { name: 'Parking', id: 22, icon: parkingIcon },
-  { name: 'Charity', id: 23, icon: charityIcon },
-  { name: 'Housing Payments', id: 24, icon: housingIcon },
-  { name: 'POS Operators', id: 25, icon: controlIcon },
-  { name: 'Brokerage Services', id: 26, icon: brokerIcon },
-  { name: 'Other', id: 27, icon: otherIcon },
+  { name: 'Mobile Operators', langKey: 'catMobile', id: 1, icon: mobileIcon },
+  { name: 'Utilities', langKey: 'catUtilities', id: 2, icon: utilitiesIcon },
+  { name: 'Banking Services', langKey: 'catBanking', id: 3, icon: bankIcon },
+  { name: 'BakıKart', langKey: 'catBakikart', id: 4, icon: bakikartIcon },
+  { name: 'Transport', langKey: 'catTransport', id: 5, icon: transportIcon },
+  { name: 'Fines', langKey: 'catFines', id: 6, icon: vatIcon },
+  { name: 'Government Payments', langKey: 'catGovernment', id: 7, icon: vatIcon },
+  { name: 'Internet', langKey: 'catInternet', id: 8, icon: internetIcon },
+  { name: 'Cable TV', langKey: 'catCableTv', id: 9, icon: tvIcon },
+  { name: 'Telephone', langKey: 'catTelephone', id: 10, icon: phoneIcon },
+  { name: 'Insurance', langKey: 'catInsurance', id: 11, icon: insuranceIcon },
+  { name: 'E-commerce', langKey: 'catEcommerce', id: 12, icon: shoppingIcon },
+  { name: 'Delivery Services', langKey: 'catDelivery', id: 13, icon: foodIcon },
+  { name: 'Ads & Coupons', langKey: 'catAds', id: 14, icon: newsIcon },
+  { name: 'Medical Services', langKey: 'catMedical', id: 15, icon: medicalIcon },
+  { name: 'Entertainment', langKey: 'catEntertainment', id: 16, icon: entertainmentIcon },
+  { name: 'Betting', langKey: 'catBetting', id: 17, icon: bettingIcon },
+  { name: 'Agency Network', langKey: 'catAgency', id: 18, icon: agencyIcon },
+  { name: 'Education', langKey: 'catEducation', id: 19, icon: educationIcon },
+  { name: 'Hotels', langKey: 'catHotels', id: 20, icon: hotelsIcon },
+  { name: 'Taxi', langKey: 'catTaxi', id: 21, icon: taxiIcon },
+  { name: 'Parking', langKey: 'catParking', id: 22, icon: parkingIcon },
+  { name: 'Charity', langKey: 'catCharity', id: 23, icon: charityIcon },
+  { name: 'Housing Payments', langKey: 'catHousing', id: 24, icon: housingIcon },
+  { name: 'POS Operators', langKey: 'catPos', id: 25, icon: controlIcon },
+  { name: 'Brokerage Services', langKey: 'catBrokerage', id: 26, icon: brokerIcon },
+  { name: 'Other', langKey: 'catOther', id: 27, icon: otherIcon },
 ]
 
 const avatarColors = [
@@ -162,6 +162,7 @@ const Payments = () => {
   }
 
   const filteredCategories = paymentCategories.filter(cat =>
+    t(paymentsLang, cat.langKey).toLowerCase().includes(search.toLowerCase()) || 
     cat.name.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -195,7 +196,7 @@ const Payments = () => {
               <img src={category.icon} alt={category.name} />
             </div>
             <div className="payment-category-item__name">
-              {category.name}
+              {t(paymentsLang, category.langKey) || category.name}
             </div>
           </div>
         ))}

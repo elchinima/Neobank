@@ -10,7 +10,11 @@ export function useLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [serverError, setServerError] = useState('')
 
-  const { login } = useAuth()
+  // Verification modal state
+  const [verifyModal, setVerifyModal] = useState(null)
+  // verifyModal shape: { purpose: 'email'|'2fa', userId, tempToken, email }
+
+  const { login, completeAuth, resendVerification } = useAuth()
   const navigate = useNavigate()
 
   const validate = () => {
@@ -31,7 +35,26 @@ export function useLogin() {
     if (Object.keys(next).length === 0) {
       setIsSubmitting(true)
       try {
-        await login(email, password)
+        const data = await login(email, password)
+
+        if (data.requiresEmailVerification) {
+          setVerifyModal({
+            purpose: 'email',
+            userId: data.user?.id,
+            email: data.user?.email || email,
+          })
+          return
+        }
+
+        if (data.requiresTwoFactor) {
+          setVerifyModal({
+            purpose: '2fa',
+            tempToken: data.tempToken,
+            email: data.user?.email || email,
+          })
+          return
+        }
+
         navigate('/user/dashboard')
       } catch (err) {
         setServerError(err.message || 'Failed to sign in. Check your credentials.')
@@ -39,6 +62,21 @@ export function useLogin() {
         setIsSubmitting(false)
       }
     }
+  }
+
+  const handleVerifySuccess = (data) => {
+    completeAuth(data)
+    setVerifyModal(null)
+    navigate('/user/dashboard')
+  }
+
+  const handleResendCode = async () => {
+    if (!verifyModal) return
+    if (verifyModal.purpose === 'email' && verifyModal.userId) {
+      await resendVerification(verifyModal.userId, 'EmailVerification')
+    }
+    // For 2FA resend, we need to re-trigger login — not supported without re-auth
+    // so just inform the user no resend is possible for 2FA in this flow
   }
 
   return {
@@ -54,5 +92,9 @@ export function useLogin() {
     serverError,
     validate,
     handleSubmit,
+    verifyModal,
+    setVerifyModal,
+    handleVerifySuccess,
+    handleResendCode,
   }
 }

@@ -23,7 +23,18 @@ export const settingsLang = {
     fullName: 'Full Name',
     updatePasswordDesc: 'Update your account password regularly to keep your funds safe.',
     updatePasswordBtn: 'Update Password',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    fillAllFields: 'All fields must be filled',
+    passwordTooShort: 'Password must be at least 8 characters',
+    newPasswordSameAsOld: 'New password cannot be the current password',
+    passwordsDoNotMatch: 'Passwords do not match',
+    passwordChanged: 'Password successfully changed!',
+    emailVerified: 'Email verified',
+    emailNotVerified: 'Email not verified',
+    verifyEmailNow: 'Verify now',
+    twoFactorEnabled: '2FA enabled successfully',
+    twoFactorDisabled: '2FA disabled',
+    twoFactorError: 'Failed to update 2FA setting'
   },
   az: {
     title: 'Parametrlər və Təhlükəsizlik',
@@ -49,7 +60,18 @@ export const settingsLang = {
     fullName: 'Tam Adınız',
     updatePasswordDesc: 'Vəsaitlərinizi təhlükəsiz saxlamaq üçün hesabınızın şifrəsini müntəzəm olaraq yeniləyin.',
     updatePasswordBtn: 'Şifrəni Yenilə',
-    cancel: 'Ləğv et'
+    cancel: 'Ləğv et',
+    fillAllFields: 'Bütün sahələr doldurulmalıdır',
+    passwordTooShort: 'Şifrə ən azı 8 simvol olmalıdır',
+    newPasswordSameAsOld: 'Yeni şifrə cari şifrə ilə eyni ola bilməz',
+    passwordsDoNotMatch: 'Şifrələr uyğun gəlmir',
+    passwordChanged: 'Şifrə uğurla dəyişdirildi!',
+    emailVerified: 'E-poçt təsdiqlənib',
+    emailNotVerified: 'E-poçt təsdiqlənməyib',
+    verifyEmailNow: 'İndi təsdiqlə',
+    twoFactorEnabled: '2FA uğurla aktivləşdirildi',
+    twoFactorDisabled: '2FA söndürüldü',
+    twoFactorError: '2FA parametrini yeniləmək alınmadı'
   },
   ru: {
     title: 'Настройки и безопасность',
@@ -75,6 +97,17 @@ export const settingsLang = {
     fullName: 'Полное имя',
     updatePasswordDesc: 'Регулярно обновляйте пароль, чтобы ваши средства были в безопасности.',
     updatePasswordBtn: 'Сменить пароль',
-    cancel: 'Отмена'
+    cancel: 'Отмена',
+    fillAllFields: 'Все поля должны быть заполнены',
+    passwordTooShort: 'Пароль должен состоять минимум из 8 символов',
+    newPasswordSameAsOld: 'Новый пароль не может совпадать с текущим',
+    passwordsDoNotMatch: 'Пароли не совпадают',
+    passwordChanged: 'Пароль успешно изменен!',
+    emailVerified: 'Email подтверждён',
+    emailNotVerified: 'Email не подтверждён',
+    verifyEmailNow: 'Подтвердить сейчас',
+    twoFactorEnabled: '2FA успешно включён',
+    twoFactorDisabled: '2FA отключён',
+    twoFactorError: 'Не удалось изменить настройку 2FA'
   }
 }

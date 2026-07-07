@@ -47,7 +47,6 @@ public class AuthController : ControllerBase
         {
             var ip = GetClientIpAddress();
             var response = await _authService.RegisterAsync(dto, ip);
-            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
             return Ok(response);
         }
         catch (InvalidOperationException ex)
@@ -67,7 +66,13 @@ public class AuthController : ControllerBase
         {
             var ip = GetClientIpAddress();
             var response = await _authService.LoginAsync(dto, ip);
-            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+
+            // Only set cookie if full login completed (no verification pending)
+            if (!response.RequiresEmailVerification && !response.RequiresTwoFactor)
+            {
+                SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+            }
+
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)
@@ -77,6 +82,81 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "An error occurred during login.", details = ex.Message });
+        }
+    }
+
+    [HttpPost("send-verification")]
+    public async Task<IActionResult> SendVerification([FromBody] ResendVerificationDto dto)
+    {
+        try
+        {
+            var result = await _authService.SendEmailVerificationAsync(dto.UserId);
+            if (!result) return NotFound(new { message = "User not found." });
+            return Ok(new { message = "Verification code sent." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Failed to send verification code.", details = ex.Message });
+        }
+    }
+
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailCodeDto dto)
+    {
+        try
+        {
+            var ip = GetClientIpAddress();
+            var response = await _authService.VerifyEmailCodeAsync(dto.UserId, dto.Code, ip);
+            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Email verification failed.", details = ex.Message });
+        }
+    }
+
+    [HttpPost("verify-2fa")]
+    public async Task<IActionResult> VerifyTwoFactor([FromBody] TwoFactorLoginDto dto)
+    {
+        try
+        {
+            var ip = GetClientIpAddress();
+            var response = await _authService.VerifyTwoFactorCodeAsync(dto.TempToken, dto.Code, ip);
+            SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "2FA verification failed.", details = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("toggle-2fa")]
+    public async Task<IActionResult> ToggleTwoFactor([FromBody] ToggleTwoFactorDto dto)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _authService.ToggleTwoFactorAsync(userId, dto.Enabled);
+            if (!result) return NotFound(new { message = "User not found." });
+
+            return Ok(new { message = dto.Enabled ? "2FA enabled." : "2FA disabled.", twoFactorEnabled = dto.Enabled });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Failed to toggle 2FA.", details = ex.Message });
         }
     }
 
