@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
 import logoMark from '../../../assets/logo/main_logo.png'
@@ -17,6 +18,7 @@ import partnerDeltaPay from '../../../assets/icons/Public/DeltaPay.png'
 function Landing() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
+  const [selectedPartner, setSelectedPartner] = useState(null)
 
   const products = [
     {
@@ -53,6 +55,7 @@ function Landing() {
     {
       id: 1,
       icon: partnerSoftLine,
+      companyName: 'SoftLine',
       nameKey: 'partner1Name',
       titleKey: 'partner1Title',
       textKey: 'partner1Text'
@@ -60,6 +63,7 @@ function Landing() {
     {
       id: 2,
       icon: partnerCaspiMarket,
+      companyName: 'Caspi Market',
       nameKey: 'partner2Name',
       titleKey: 'partner2Title',
       textKey: 'partner2Text'
@@ -67,6 +71,7 @@ function Landing() {
     {
       id: 3,
       icon: partnerMagnitus,
+      companyName: 'Magnitus',
       nameKey: 'partner3Name',
       titleKey: 'partner3Title',
       textKey: 'partner3Text'
@@ -74,6 +79,7 @@ function Landing() {
     {
       id: 4,
       icon: partnerNextLogistics,
+      companyName: 'NextLogistics',
       nameKey: 'partner4Name',
       titleKey: 'partner4Title',
       textKey: 'partner4Text'
@@ -81,6 +87,7 @@ function Landing() {
     {
       id: 5,
       icon: partnerDeltaPay,
+      companyName: 'DeltaPay',
       nameKey: 'partner5Name',
       titleKey: 'partner5Title',
       textKey: 'partner5Text'
@@ -231,14 +238,28 @@ function Landing() {
 
           <div className="landing__partners-grid">
             {partners.map(partner => (
-              <article className="landing__partner-card" key={partner.id}>
+              <article 
+                className="landing__partner-card" 
+                key={partner.id}
+                onClick={() => {
+                  if (window.innerWidth <= 768) setSelectedPartner(partner)
+                }}
+              >
                 <div className="landing__partner-header">
                   <div className="landing__partner-logo-wrapper">
                     <img src={partner.icon} alt={t(landingLang, partner.nameKey)} className="landing__partner-logo" />
                   </div>
                   <div className="landing__partner-info">
-                    <h4 data-lang-key={partner.nameKey}>{t(landingLang, partner.nameKey)}</h4>
-                    <span data-lang-key={partner.titleKey}>{t(landingLang, partner.titleKey)}</span>
+                    <div className="partner-default">
+                      <h4 data-lang-key={partner.nameKey}>{t(landingLang, partner.nameKey)}</h4>
+                      <span data-lang-key={partner.titleKey}>{t(landingLang, partner.titleKey)}</span>
+                    </div>
+                    <div className="partner-hover">
+                      <h4>{partner.companyName}</h4>
+                      <span className="landing__partner-person">
+                        <strong data-lang-key={partner.nameKey}>{t(landingLang, partner.nameKey)}</strong> &mdash; <span data-lang-key={partner.titleKey}>{t(landingLang, partner.titleKey)}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <p className="landing__partner-text" data-lang-key={partner.textKey}>{t(landingLang, partner.textKey)}</p>
@@ -247,6 +268,27 @@ function Landing() {
           </div>
         </section>
       </main>
+
+      {selectedPartner && (
+        <div className="landing__partner-modal" onClick={() => setSelectedPartner(null)}>
+          <div className="landing__partner-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="landing__partner-modal-close" onClick={() => setSelectedPartner(null)}>&times;</button>
+            <div className="landing__partner-modal-header">
+              <div className="landing__partner-logo-wrapper">
+                <img src={selectedPartner.icon} alt={t(landingLang, selectedPartner.nameKey)} className="landing__partner-logo" />
+              </div>
+              <div className="landing__partner-info">
+                <h4>{selectedPartner.companyName}</h4>
+                <span className="landing__partner-person">
+                  <strong data-lang-key={selectedPartner.nameKey}>{t(landingLang, selectedPartner.nameKey)}</strong> <br/>
+                  <span data-lang-key={selectedPartner.titleKey}>{t(landingLang, selectedPartner.titleKey)}</span>
+                </span>
+              </div>
+            </div>
+            <p className="landing__partner-text" data-lang-key={selectedPartner.textKey}>{t(landingLang, selectedPartner.textKey)}</p>
+          </div>
+        </div>
+      )}
 
       <PublicFooter />
     </div>
