@@ -452,7 +452,7 @@ public class AdminController : ControllerBase
                 if (string.IsNullOrEmpty(req.Category) || string.IsNullOrEmpty(req.Key))
                     continue;
 
-                var existing = existingSettings.FirstOrDefault(s => s.Category == req.Category && s.Key == req.Key);
+                var existing = existingSettings.FirstOrDefault(s => s.Category == req.Category && s.Key.ToLower() == req.Key.ToLower());
                 if (existing != null)
                 {
                     existing.Value = req.Value ?? string.Empty;

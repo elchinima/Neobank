@@ -37,10 +37,13 @@ const AdminFooter = () => {
       const newSocials = { ...socials }
 
       data.forEach(item => {
-        if (item.category === 'Contact' && newContacts[item.key] !== undefined) {
-          newContacts[item.key] = { value: item.value || '', url: item.url || '' }
-        } else if (item.category === 'Social' && newSocials[item.key] !== undefined) {
-          newSocials[item.key] = { url: item.url || '' }
+        const contactKey = Object.keys(newContacts).find(k => k.toLowerCase() === item.key.toLowerCase())
+        const socialKey = Object.keys(newSocials).find(k => k.toLowerCase() === item.key.toLowerCase())
+
+        if (item.category === 'Contact' && contactKey) {
+          newContacts[contactKey] = { value: item.value || '', url: item.url || '' }
+        } else if (item.category === 'Social' && socialKey) {
+          newSocials[socialKey] = { url: item.url || '' }
         }
       })
 
