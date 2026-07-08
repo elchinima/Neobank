@@ -75,7 +75,8 @@ public class AdminController : ControllerBase
                 u.LastName,
                 u.Email,
                 u.Role,
-                u.CreatedAt
+                u.CreatedAt,
+                u.IsActive
             })
             .ToListAsync();
 

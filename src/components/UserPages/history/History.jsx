@@ -101,6 +101,7 @@ const History = () => {
   const { token } = useAuth()
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [selectedDate, setSelectedDate] = useState(() => new Date())
 
   const locale = useMemo(() => {
     if (language === 'az') return 'az-Latn-AZ'
@@ -214,14 +215,19 @@ const History = () => {
 
   const filteredHistory = useMemo(() => {
     return formattedHistory.filter(txn => {
+      const txnDate = new Date(txn.date)
+      const isSameDay = txnDate.getDate() === selectedDate.getDate() &&
+                        txnDate.getMonth() === selectedDate.getMonth() &&
+                        txnDate.getFullYear() === selectedDate.getFullYear()
+
       const matchesFilter = filter === 'all' || txn.type === filter
       const matchesSearch = txn.title.toLowerCase().includes(search.toLowerCase()) ||
                             txn.translatedCategory.toLowerCase().includes(search.toLowerCase()) ||
                             txn.amount.toString().includes(search) ||
                             (txn.cardInfo && txn.cardInfo.toLowerCase().includes(search.toLowerCase()))
-      return matchesFilter && matchesSearch
+      return isSameDay && matchesFilter && matchesSearch
     })
-  }, [formattedHistory, filter, search])
+  }, [formattedHistory, filter, search, selectedDate])
 
   const groupedHistory = useMemo(() => {
     const groups = {}
@@ -242,6 +248,35 @@ const History = () => {
     return new Date(dateStr).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   }
 
+  const handlePrevDay = () => {
+    setSelectedDate(prev => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() - 1)
+      return d
+    })
+  }
+
+  const handleNextDay = () => {
+    setSelectedDate(prev => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() + 1)
+      return d
+    })
+  }
+
+  const isToday = (date) => {
+    const today = new Date()
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear()
+  }
+
+  const formattedSelectedDate = selectedDate.toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
   return (
     <div className="history-page">
       <div className="history-page__header">
@@ -255,6 +290,19 @@ const History = () => {
           <button className={filter === 'payment' ? 'active' : ''} onClick={() => setFilter('payment')}>{t(historyLang, 'expenses')}</button>
           <button className={filter === 'deposit' ? 'active' : ''} onClick={() => setFilter('deposit')}>{t(historyLang, 'income')}</button>
         </div>
+      </div>
+
+      <div className="history-page__date-nav">
+        <button onClick={handlePrevDay} className="history-page__date-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div className="history-page__current-date">
+          {formattedSelectedDate}
+          {isToday(selectedDate) && <span className="history-page__today-badge">{t(historyLang, 'today') || 'Today'}</span>}
+        </div>
+        <button onClick={handleNextDay} className="history-page__date-btn" disabled={isToday(selectedDate)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
       </div>
 
       <div className="history-page__search">

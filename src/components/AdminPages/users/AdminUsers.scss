@@ -125,6 +125,30 @@
     font-weight: 900;
   }
 
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+
+    &--active {
+      border-color: rgba(46, 204, 113, 0.2);
+      background: rgba(46, 204, 113, 0.1);
+      color: #2ecc71;
+    }
+
+    &--blocked {
+      border-color: rgba(231, 76, 60, 0.2);
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+  }
+
   &__dots {
     display: inline-flex;
     align-items: center;

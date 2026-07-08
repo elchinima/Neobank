@@ -4,8 +4,8 @@ import './AdminUsers.scss'
 
 const formatTableName = (user) => {
   const firstName = user.firstName || 'User'
-  const lastInitial = user.lastName?.trim()?.[0]
-  return `${lastInitial ? `${lastInitial}. ` : ''}${firstName}`
+  const lastName = user.lastName || ''
+  return `${firstName} ${lastName}`.trim()
 }
 
 const AdminUsers = () => {
@@ -82,8 +82,9 @@ const AdminUsers = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>F/Name/O</th>
+                <th>Name</th>
                 <th>Role</th>
+                <th>Status</th>
                 <th aria-label="Actions"></th>
               </tr>
             </thead>
@@ -98,6 +99,11 @@ const AdminUsers = () => {
                     <span className="admin-users__role">{user.role || 'User'}</span>
                   </td>
                   <td>
+                    <span className={`admin-users__status admin-users__status--${user.isActive ? 'active' : 'blocked'}`}>
+                      {user.isActive ? 'Active' : 'Block'}
+                    </span>
+                  </td>
+                  <td>
                     <button className="admin-users__dots" type="button" aria-label="Future user actions">
                       <span />
                       <span />
@@ -108,7 +114,7 @@ const AdminUsers = () => {
               ))}
               {!users.length && !loading && (
                 <tr>
-                  <td colSpan="4" className="admin-users__empty">No users found.</td>
+                  <td colSpan="5" className="admin-users__empty">No users found.</td>
                 </tr>
               )}
             </tbody>

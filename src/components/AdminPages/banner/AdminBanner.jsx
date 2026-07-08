@@ -27,6 +27,7 @@ const defaultPageRows = Object.keys(pageLabels).map((pageKey) => {
 
 const AdminBanner = () => {
   const [pages, setPages] = useState(defaultPageRows)
+  const [initialPages, setInitialPages] = useState(defaultPageRows)
   const [savingKey, setSavingKey] = useState('')
   const [status, setStatus] = useState('')
   const [activeLang, setActiveLang] = useState(() => {
@@ -65,6 +66,7 @@ const AdminBanner = () => {
 
         if (!ignore) {
           setPages(nextPages)
+          setInitialPages(JSON.parse(JSON.stringify(nextPages)))
         }
       } catch (err) {
         console.warn(err)
@@ -100,6 +102,18 @@ const AdminBanner = () => {
   }
 
   const savePage = async (page) => {
+    const initialPage = initialPages.find((p) => p.pageKey === page.pageKey)
+    const hasChanges = langs.some((lang) => {
+      const initT = initialPage?.translations[lang] || {}
+      const currT = page.translations[lang] || {}
+      return initT.bannerImageUrl !== currT.bannerImageUrl || initT.mediaText !== currT.mediaText
+    })
+
+    if (!hasChanges) {
+      setStatus(`No changes to save for ${pageLabels[page.pageKey]}`)
+      return
+    }
+
     setSavingKey(`page-${page.pageKey}`)
     setStatus('')
     try {
@@ -115,7 +129,7 @@ const AdminBanner = () => {
       }
       const updated = await response.json()
       
-      setPages((current) => current.map((item) => {
+      const updateFn = (current) => current.map((item) => {
         if (item.pageKey === updated.pageKey) {
           const mergedTranslations = { ...item.translations }
           if (updated.translations) {
@@ -128,7 +142,10 @@ const AdminBanner = () => {
           return { ...item, translations: mergedTranslations }
         }
         return item
-      }))
+      })
+
+      setPages(updateFn)
+      setInitialPages(updateFn)
 
       setStatus(`${pageLabels[page.pageKey]} saved`)
     } catch (err) {
