@@ -235,10 +235,7 @@ public class EmailService : IEmailService
         </table>
 
         <!-- Title -->
-        <h1 class=""email-title"" style=""text-align:center; font-size:26px; font-weight:700; color:#f1f5f9; margin:0 0 12px 0; letter-spacing:-0.5px;"">{contentTitle}</h1>
-
-        <!-- Greeting -->
-        <p style=""text-align:center; color:#a092b1; font-size:15px; line-height:1.6; margin:0 0 24px 0;"">Hello, <strong style=""color:#F3C24A;"">{firstName}</strong>.</p>
+        <h1 class=""email-title"" style=""text-align:center; font-size:26px; font-weight:700; color:#f1f5f9; margin:0 0 24px 0; letter-spacing:-0.5px;"">{contentTitle}</h1>
         
         <!-- Content Block -->
         <table cellpadding=""0"" cellspacing=""0"" border=""0"" style=""margin: 0 auto 36px auto; width: 100%;"">

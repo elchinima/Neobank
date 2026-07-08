@@ -17,6 +17,7 @@ const AdminUsers = () => {
   const [emailModal, setEmailModal] = useState({ open: false, user: null })
   const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
   const [sendingEmail, setSendingEmail] = useState(false)
+  const [alertModal, setAlertModal] = useState({ open: false, message: '', isError: false })
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -96,9 +97,10 @@ const AdminUsers = () => {
           u.id === user.id ? { ...u, isActive: result.isActive } : u
         )
       )
+      await loadUsers()
       setStatusModal({ open: false, user: null })
     } catch (err) {
-      alert(err.message)
+      setAlertModal({ open: true, message: err.message, isError: true })
     }
   }
 
@@ -130,10 +132,10 @@ const AdminUsers = () => {
         throw new Error(err || 'Failed to send email')
       }
 
-      alert('Email sent successfully!')
       setEmailModal({ open: false, user: null })
+      setAlertModal({ open: true, message: 'Email sent successfully!', isError: false })
     } catch (err) {
-      alert(err.message)
+      setAlertModal({ open: true, message: err.message, isError: true })
     } finally {
       setSendingEmail(false)
     }
@@ -318,6 +320,34 @@ const AdminUsers = () => {
                 disabled={sendingEmail || !emailData.emailTitle.trim() || !emailData.contentTitle.trim() || !emailData.contentMessage.trim()}
               >
                 {sendingEmail ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Alert Modal */}
+      {alertModal.open && (
+        <div className="admin-users-modal-overlay" style={{ zIndex: 2000 }} onClick={() => setAlertModal({ open: false, message: '', isError: false })}>
+          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <div className="admin-users-modal__content" style={{ padding: '32px 24px 24px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                {alertModal.isError ? '❌' : '✅'}
+              </div>
+              <h2 style={{ color: '#fff', fontSize: '20px', margin: '0 0 12px 0' }}>
+                {alertModal.isError ? 'Error' : 'Success'}
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+                {alertModal.message}
+              </p>
+            </div>
+            <div className="admin-users-modal__footer" style={{ justifyContent: 'center', borderTop: 'none', paddingBottom: '24px' }}>
+              <button 
+                className="admin-users-modal__btn-save" 
+                onClick={() => setAlertModal({ open: false, message: '', isError: false })}
+                style={{ width: '120px' }}
+              >
+                OK
               </button>
             </div>
           </div>
