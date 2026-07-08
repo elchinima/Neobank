@@ -83,6 +83,18 @@ public class AdminController : ControllerBase
         return Ok(users);
     }
 
+    [HttpPut("users/{userId}/toggle-status")]
+    public async Task<IActionResult> ToggleUserStatus(string userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        user.IsActive = !user.IsActive;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, isActive = user.IsActive });
+    }
+
     [HttpGet("public-content")]
     public async Task<IActionResult> GetEditablePublicContent()
     {

@@ -60,6 +60,22 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"] ?? "NeoBankClient",
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
+            var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId != null)
+            {
+                var user = await dbContext.Users.FindAsync(userId);
+                if (user == null || !user.IsActive)
+                {
+                    context.Fail("User account is disabled.");
+                }
+            }
+        }
+    };
 });
 
 
