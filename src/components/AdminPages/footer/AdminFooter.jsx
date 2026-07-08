@@ -4,9 +4,9 @@ import './AdminFooter.scss'
 
 const AdminFooter = () => {
   const [contacts, setContacts] = useState({
-    address: { value: '', url: '' },
-    email: { value: '', url: '' },
-    phone: { value: '', url: '' }
+    Address: { value: '', url: '' },
+    Email: { value: '', url: '' },
+    Phone: { value: '', url: '' }
   })
   
   const [socials, setSocials] = useState({
@@ -15,6 +15,9 @@ const AdminFooter = () => {
     LinkedIn: { url: '' },
     Instagram: { url: '' }
   })
+
+  const [initialContacts, setInitialContacts] = useState(null)
+  const [initialSocials, setInitialSocials] = useState(null)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -43,6 +46,8 @@ const AdminFooter = () => {
 
       setContacts(newContacts)
       setSocials(newSocials)
+      setInitialContacts(JSON.stringify(newContacts))
+      setInitialSocials(JSON.stringify(newSocials))
     } catch (err) {
       showMessage(err.message, 'error')
     } finally {
@@ -64,29 +69,53 @@ const AdminFooter = () => {
     }))
   }
 
+  const hasChanges = () => {
+    if (!initialContacts || !initialSocials) return false
+    return JSON.stringify(contacts) !== initialContacts || JSON.stringify(socials) !== initialSocials
+  }
+
   const handleSave = async () => {
+    if (!hasChanges()) return
+
     setSaving(true)
     setMessage(null)
 
     const payload = []
     
+    // Add only changed contacts
+    const parsedInitialContacts = JSON.parse(initialContacts)
     Object.keys(contacts).forEach(key => {
-      payload.push({
-        category: 'Contact',
-        key,
-        value: contacts[key].value,
-        url: contacts[key].url
-      })
+      const current = contacts[key]
+      const initial = parsedInitialContacts[key]
+      if (current.value !== initial.value || current.url !== initial.url) {
+        payload.push({
+          category: 'Contact',
+          key,
+          value: current.value,
+          url: current.url
+        })
+      }
     })
 
+    // Add only changed socials
+    const parsedInitialSocials = JSON.parse(initialSocials)
     Object.keys(socials).forEach(key => {
-      payload.push({
-        category: 'Social',
-        key,
-        value: key,
-        url: socials[key].url
-      })
+      const current = socials[key]
+      const initial = parsedInitialSocials[key]
+      if (current.url !== initial.url) {
+        payload.push({
+          category: 'Social',
+          key,
+          value: key,
+          url: current.url
+        })
+      }
     })
+
+    if (payload.length === 0) {
+      setSaving(false)
+      return
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL}/admin/footer-settings`, {
@@ -99,6 +128,8 @@ const AdminFooter = () => {
 
       if (!res.ok) throw new Error('Failed to update settings')
       
+      setInitialContacts(JSON.stringify(contacts))
+      setInitialSocials(JSON.stringify(socials))
       showMessage('Footer settings successfully updated!', 'success')
     } catch (err) {
       showMessage(err.message, 'error')
@@ -117,86 +148,89 @@ const AdminFooter = () => {
   }
 
   return (
-    <div className="admin-footer-page">
-      <div className="header">
-        <h1>Footer Settings</h1>
+    <div className="admin-footer">
+      <div className="admin-footer__header">
+        <div>
+          <div className="admin-footer__eyebrow">Settings</div>
+          <h1>Footer Settings</h1>
+        </div>
         <button 
-          className="save-btn" 
+          className="admin-footer__save-btn" 
           onClick={handleSave} 
-          disabled={saving}
+          disabled={saving || !hasChanges()}
         >
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
       {message && (
-        <div className={`message ${message.type}`}>
+        <div className={`admin-footer__message ${message.type}`}>
           {message.text}
         </div>
       )}
 
-      <div className="form-section">
+      <div className="admin-footer__card">
         <h2>Contact Details</h2>
         
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>Address</label>
           <div className="input-row">
             <input 
               type="text" 
               placeholder="Display text (e.g. Baku, Azerbaijan)" 
-              value={contacts.address.value} 
-              onChange={e => handleContactChange('address', 'value', e.target.value)} 
+              value={contacts.Address.value} 
+              onChange={e => handleContactChange('Address', 'value', e.target.value)} 
             />
             <input 
               type="text" 
               placeholder="Map URL (e.g. https://maps.google.com/?q=Baku)" 
-              value={contacts.address.url} 
-              onChange={e => handleContactChange('address', 'url', e.target.value)} 
+              value={contacts.Address.url} 
+              onChange={e => handleContactChange('Address', 'url', e.target.value)} 
             />
           </div>
         </div>
 
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>Email</label>
           <div className="input-row">
             <input 
               type="text" 
               placeholder="Display text (e.g. support@neobank.az)" 
-              value={contacts.email.value} 
-              onChange={e => handleContactChange('email', 'value', e.target.value)} 
+              value={contacts.Email.value} 
+              onChange={e => handleContactChange('Email', 'value', e.target.value)} 
             />
             <input 
               type="text" 
               placeholder="Mailto URL (e.g. mailto:support@neobank.az)" 
-              value={contacts.email.url} 
-              onChange={e => handleContactChange('email', 'url', e.target.value)} 
+              value={contacts.Email.url} 
+              onChange={e => handleContactChange('Email', 'url', e.target.value)} 
             />
           </div>
         </div>
 
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>Phone</label>
           <div className="input-row">
             <input 
               type="text" 
               placeholder="Display text (e.g. +994 12 555 45 45)" 
-              value={contacts.phone.value} 
-              onChange={e => handleContactChange('phone', 'value', e.target.value)} 
+              value={contacts.Phone.value} 
+              onChange={e => handleContactChange('Phone', 'value', e.target.value)} 
             />
             <input 
               type="text" 
               placeholder="Tel URL (e.g. tel:+994125554545)" 
-              value={contacts.phone.url} 
-              onChange={e => handleContactChange('phone', 'url', e.target.value)} 
+              value={contacts.Phone.url} 
+              onChange={e => handleContactChange('Phone', 'url', e.target.value)} 
             />
           </div>
         </div>
       </div>
 
-      <div className="form-section">
+      <div className="admin-footer__card">
         <h2>Social Media Links</h2>
         
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>Facebook</label>
           <div className="input-row">
             <input 
@@ -208,7 +242,7 @@ const AdminFooter = () => {
           </div>
         </div>
 
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>X (Twitter)</label>
           <div className="input-row">
             <input 
@@ -220,7 +254,7 @@ const AdminFooter = () => {
           </div>
         </div>
 
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>LinkedIn</label>
           <div className="input-row">
             <input 
@@ -232,7 +266,7 @@ const AdminFooter = () => {
           </div>
         </div>
 
-        <div className="field-group">
+        <div className="admin-footer__field-group">
           <label>Instagram</label>
           <div className="input-row">
             <input 

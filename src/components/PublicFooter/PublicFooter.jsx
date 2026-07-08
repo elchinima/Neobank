@@ -181,7 +181,7 @@ function PublicFooter() {
     label: item.label,
     value: item.value,
     href: item.url,
-    icon: contactIconByKey[item.contactKey] || contactIconByKey.email,
+    icon: contactIconByKey[item.contactKey?.toLowerCase()] || contactIconByKey.email,
   })) : contactItems.map((item) => ({
     id: item.key,
     key: item.key,

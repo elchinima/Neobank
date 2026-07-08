@@ -446,17 +446,29 @@ public class AdminController : ControllerBase
         try
         {
             var existingSettings = await _context.FooterSettings.ToListAsync();
-            _context.FooterSettings.RemoveRange(existingSettings);
 
             foreach (var req in requests)
             {
-                _context.FooterSettings.Add(new NeoBank.Core.Entities.FooterSetting
+                if (string.IsNullOrEmpty(req.Category) || string.IsNullOrEmpty(req.Key))
+                    continue;
+
+                var existing = existingSettings.FirstOrDefault(s => s.Category == req.Category && s.Key == req.Key);
+                if (existing != null)
                 {
-                    Category = req.Category ?? string.Empty,
-                    Key = req.Key ?? string.Empty,
-                    Value = req.Value ?? string.Empty,
-                    Url = req.Url ?? string.Empty
-                });
+                    existing.Value = req.Value ?? string.Empty;
+                    existing.Url = req.Url ?? string.Empty;
+                    _context.FooterSettings.Update(existing);
+                }
+                else
+                {
+                    _context.FooterSettings.Add(new NeoBank.Core.Entities.FooterSetting
+                    {
+                        Category = req.Category,
+                        Key = req.Key,
+                        Value = req.Value ?? string.Empty,
+                        Url = req.Url ?? string.Empty
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();

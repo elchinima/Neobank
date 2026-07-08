@@ -157,9 +157,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(f => f.Url).IsRequired(false);
 
             entity.HasData(
-                new FooterSetting { Id = 1, Category = "Contact", Key = "address", Value = "Baku, Azerbaijan", Url = "https://maps.google.com/?q=Baku%2C%20Azerbaijan" },
-                new FooterSetting { Id = 2, Category = "Contact", Key = "email", Value = "support@neobank.az", Url = "mailto:support@neobank.az" },
-                new FooterSetting { Id = 3, Category = "Contact", Key = "phone", Value = "+994 12 555 45 45", Url = "tel:+994125554545" },
+                new FooterSetting { Id = 1, Category = "Contact", Key = "Address", Value = "Baku, Azerbaijan", Url = "https://maps.google.com/?q=Baku%2C%20Azerbaijan" },
+                new FooterSetting { Id = 2, Category = "Contact", Key = "Email", Value = "support@neobank.az", Url = "mailto:support@neobank.az" },
+                new FooterSetting { Id = 3, Category = "Contact", Key = "Phone", Value = "+994 12 555 45 45", Url = "tel:+994125554545" },
                 new FooterSetting { Id = 4, Category = "Social", Key = "Facebook", Value = "Facebook", Url = "https://www.facebook.com/" },
                 new FooterSetting { Id = 5, Category = "Social", Key = "X", Value = "X", Url = "https://x.com/" },
                 new FooterSetting { Id = 6, Category = "Social", Key = "LinkedIn", Value = "LinkedIn", Url = "https://www.linkedin.com/" },
