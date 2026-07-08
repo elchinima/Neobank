@@ -32,6 +32,16 @@ public class PublicContentController : ControllerBase
                 )
             });
 
-        return Ok(new { pages });
+        var footerSettings = await _context.FooterSettings.ToListAsync();
+        
+        var footerContacts = footerSettings
+            .Where(f => f.Category == "Contact")
+            .Select(f => new { contactKey = f.Key, label = f.Key, value = f.Value, url = f.Url });
+            
+        var footerSocials = footerSettings
+            .Where(f => f.Category == "Social")
+            .Select(f => new { section = "social", label = f.Key, url = f.Url, isExternal = true });
+
+        return Ok(new { pages, footerContacts, footerSocials });
     }
 }

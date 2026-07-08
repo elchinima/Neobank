@@ -552,6 +552,13 @@
     justify-content: center;
     gap: 16px;
     z-index: 100;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+
+    &.hidden-by-footer {
+      transform: translateX(-50%) translateY(150px);
+      opacity: 0;
+      pointer-events: none;
+    }
 
     .scan-qr-btn, .add-product-btn {
       display: flex;

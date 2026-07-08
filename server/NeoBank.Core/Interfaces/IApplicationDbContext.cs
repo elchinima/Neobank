@@ -16,6 +16,7 @@ public interface IApplicationDbContext
     DbSet<RefreshToken> RefreshTokens { get; set; }
     DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; }
     DbSet<PublicPageSetting> PublicPageSettings { get; set; }
+    DbSet<FooterSetting> FooterSettings { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

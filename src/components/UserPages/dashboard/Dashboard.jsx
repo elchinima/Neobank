@@ -14,8 +14,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
 const Dashboard = () => {
-  const { t } = useLanguage()
-  const { token, user } = useAuth()
+  const { user, token, fetchWithAuth } = useAuth()
+  const { language, t } = useLanguage()
   const [activeFilter, setActiveFilter] = useState('7d')
   const [dashboardData, setDashboardData] = useState({
     totalBalance: 0,
@@ -28,6 +28,7 @@ const Dashboard = () => {
   const [hoveredBar, setHoveredBar] = useState(null)
   const [hoveredCategory, setHoveredCategory] = useState(null)
   const [animateIn, setAnimateIn] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setAnimateIn(true)
@@ -35,7 +36,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (token) {
-      fetch(`${API_BASE_URL}/dashboard/summary?period=${activeFilter}`, {
+      setLoading(true)
+      fetchWithAuth(`${API_BASE_URL}/dashboard/summary?period=${activeFilter}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

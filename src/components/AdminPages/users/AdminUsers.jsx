@@ -13,6 +13,7 @@ const AdminUsers = () => {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [activeMenuId, setActiveMenuId] = useState(null)
+  const [statusModal, setStatusModal] = useState({ open: false, user: null })
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -68,16 +69,17 @@ const AdminUsers = () => {
     setActiveMenuId(activeMenuId === id ? null : id)
   }
 
-  const handleToggleStatus = async (userId, currentStatus) => {
+  const openStatusModal = (user) => {
+    setStatusModal({ open: true, user })
     setActiveMenuId(null)
-    const confirmMessage = currentStatus 
-      ? 'Are you sure you want to block this user? They will not be able to log in.'
-      : 'Are you sure you want to unblock this user?'
-    
-    if (!window.confirm(confirmMessage)) return
+  }
+
+  const confirmToggleStatus = async () => {
+    const { user } = statusModal
+    if (!user) return
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/toggle-status`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/toggle-status`, {
         method: 'PUT'
       })
       if (!response.ok) {
@@ -88,9 +90,10 @@ const AdminUsers = () => {
       
       setUsers(currentUsers => 
         currentUsers.map(u => 
-          u.id === userId ? { ...u, isActive: result.isActive } : u
+          u.id === user.id ? { ...u, isActive: result.isActive } : u
         )
       )
+      setStatusModal({ open: false, user: null })
     } catch (err) {
       alert(err.message)
     }
@@ -160,7 +163,7 @@ const AdminUsers = () => {
                         <div className="admin-users__dropdown">
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
-                            onClick={() => handleToggleStatus(user.id, user.isActive)}
+                            onClick={() => openStatusModal(user)}
                           >
                             {user.isActive ? 'Block User' : 'Unblock User'}
                           </button>
@@ -179,8 +182,40 @@ const AdminUsers = () => {
           </table>
         </div>
       </section>
+
+      {/* Status Modal */}
+      {statusModal.open && statusModal.user && (
+        <div className="admin-users-modal-overlay" onClick={() => setStatusModal({ open: false, user: null })}>
+          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="admin-users-modal__header">
+              <h2>{statusModal.user.isActive ? 'Block User' : 'Unblock User'}</h2>
+              <button className="admin-users-modal__close" onClick={() => setStatusModal({ open: false, user: null })}>&times;</button>
+            </div>
+            <div className="admin-users-modal__content">
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+                {statusModal.user.isActive 
+                  ? <>Are you sure you want to block <strong>{formatTableName(statusModal.user)}</strong>? They will not be able to log in.</>
+                  : <>Are you sure you want to unblock <strong>{formatTableName(statusModal.user)}</strong>?</>
+                }
+              </p>
+            </div>
+            <div className="admin-users-modal__footer">
+              <button className="admin-users-modal__btn-cancel" onClick={() => setStatusModal({ open: false, user: null })}>Cancel</button>
+              <button 
+                className="admin-users-modal__btn-save" 
+                onClick={confirmToggleStatus}
+                style={statusModal.user.isActive ? { background: '#ff3b30', color: '#fff' } : { background: '#2ecc71', color: '#fff' }}
+              >
+                {statusModal.user.isActive ? 'Block' : 'Unblock'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default AdminUsers
+
+

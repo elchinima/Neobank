@@ -95,7 +95,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 
 const Cards = () => {
   const { t } = useLanguage()
-  const { token, user } = useAuth()
+  const { token, user , fetchWithAuth} = useAuth()
   const location = useLocation()
 
   const [cards, setCards] = useState([])
@@ -120,7 +120,7 @@ const Cards = () => {
 
   const fetchCashbackData = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/cashback`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cashback`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -137,6 +137,26 @@ const Cards = () => {
       fetchCashbackData()
     }
   }, [token])
+
+  const [isFooterVisible, setIsFooterVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting)
+      },
+      { root: null, threshold: 0.01 }
+    )
+
+    setTimeout(() => {
+      const footer = document.querySelector('.public-footer')
+      if (footer) {
+        observer.observe(footer)
+      }
+    }, 500)
+
+    return () => observer.disconnect()
+  }, [])
 
   const [showInternalTransferModal, setShowInternalTransferModal] = useState(false)
   const [showUnavailableModal, setShowUnavailableModal] = useState(false)
@@ -201,7 +221,7 @@ const Cards = () => {
     setWithdrawDepositError('');
     
     try {
-      const res = await fetch(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ targetCardId: withdrawDepositForm.targetCardId })
@@ -258,7 +278,7 @@ const Cards = () => {
   const fetchCards = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${API_BASE_URL}/cards`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -280,7 +300,7 @@ const Cards = () => {
 
   const fetchLoans = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/loans`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -294,7 +314,7 @@ const Cards = () => {
 
   const fetchDeposits = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/deposits`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -312,7 +332,7 @@ const Cards = () => {
     setNewLoanStatus('loading')
     setNewLoanError('')
     try {
-      const res = await fetch(`${API_BASE_URL}/loans/apply`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -347,7 +367,7 @@ const Cards = () => {
     setPayLoanError('');
     
     try {
-      const res = await fetch(`${API_BASE_URL}/loans/${loanId}/pay`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans/${loanId}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ sourceCardId: payLoanForm.sourceCardId })
@@ -392,7 +412,7 @@ const Cards = () => {
     setNewDepositStatus('loading')
     setNewDepositError('')
     try {
-      const res = await fetch(`${API_BASE_URL}/deposits/open`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/open`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -444,7 +464,7 @@ const Cards = () => {
   const submitCardOrderFromSession = async (cardType, network, sessionId) => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -498,7 +518,7 @@ const Cards = () => {
     if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
       try {
         setSubmittingCard(true);
-        const res = await fetch(`${API_BASE_URL}/cards/create-checkout-session`, {
+        const res = await fetchWithAuth(`${API_BASE_URL}/cards/create-checkout-session`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -534,7 +554,7 @@ const Cards = () => {
     const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
     try {
       setSubmittingCard(true)
-      const res = await fetch(`${API_BASE_URL}/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -575,7 +595,7 @@ const Cards = () => {
 
   const handleToggleBlock = async (cardId) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/cards/toggle-block`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-block`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -595,7 +615,7 @@ const Cards = () => {
 
   const handleToggleCreditLimit = async (cardId) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/cards/toggle-credit-limit`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-credit-limit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -635,7 +655,7 @@ const Cards = () => {
     setPinError('')
 
     try {
-      const res = await fetch(`${API_BASE_URL}/cards/change-pin`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/change-pin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -684,7 +704,7 @@ const Cards = () => {
     try {
       const destCard = cards.find(c => c.id.toString() === internalTransferForm.destCardId)
 
-      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -749,7 +769,7 @@ const Cards = () => {
     setIbanTransferError('')
 
     try {
-      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -811,7 +831,7 @@ const Cards = () => {
     setNeoBankTransferError('')
 
     try {
-      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1185,7 +1205,7 @@ const Cards = () => {
       </div>
 
       {!isAnyModalOpen && (
-        <div className="cards-footer">
+        <div className={`cards-footer ${isFooterVisible ? 'hidden-by-footer' : ''}`}>
           <button className="scan-qr-btn">
             <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
             <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
@@ -2011,3 +2031,4 @@ const Cards = () => {
 }
 
 export default Cards
+

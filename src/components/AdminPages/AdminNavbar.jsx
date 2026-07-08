@@ -12,6 +12,7 @@ const AdminNavbar = () => {
     { to: '/admin/users', label: 'Users' },
     { to: '/admin/banner', label: 'Banner' },
     { to: '/admin/database', label: 'Database' },
+    { to: '/admin/footer', label: 'Footer' },
   ]
 
   const filteredLinks = navLinks.filter((link) => currentPath !== link.to)

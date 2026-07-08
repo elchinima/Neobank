@@ -22,6 +22,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
     public DbSet<PublicPageSetting> PublicPageSettings { get; set; } = null!;
+    public DbSet<FooterSetting> FooterSettings { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -143,7 +144,27 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasIndex(p => new { p.PageName, p.LanguageCode }).IsUnique();
             entity.Property(p => p.PageName).IsRequired();
             entity.Property(p => p.LanguageCode).IsRequired();
-            entity.Property(p => p.MediaText).IsRequired();
+            entity.Property(p => p.MediaText).IsRequired(false);
+        });
+
+        builder.Entity<FooterSetting>(entity =>
+        {
+            entity.ToTable("FooterSettings");
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.Category).IsRequired();
+            entity.Property(f => f.Key).IsRequired();
+            entity.Property(f => f.Value).IsRequired(false);
+            entity.Property(f => f.Url).IsRequired(false);
+
+            entity.HasData(
+                new FooterSetting { Id = 1, Category = "Contact", Key = "address", Value = "Baku, Azerbaijan", Url = "https://maps.google.com/?q=Baku%2C%20Azerbaijan" },
+                new FooterSetting { Id = 2, Category = "Contact", Key = "email", Value = "support@neobank.az", Url = "mailto:support@neobank.az" },
+                new FooterSetting { Id = 3, Category = "Contact", Key = "phone", Value = "+994 12 555 45 45", Url = "tel:+994125554545" },
+                new FooterSetting { Id = 4, Category = "Social", Key = "Facebook", Value = "Facebook", Url = "https://www.facebook.com/" },
+                new FooterSetting { Id = 5, Category = "Social", Key = "X", Value = "X", Url = "https://x.com/" },
+                new FooterSetting { Id = 6, Category = "Social", Key = "LinkedIn", Value = "LinkedIn", Url = "https://www.linkedin.com/" },
+                new FooterSetting { Id = 7, Category = "Social", Key = "Instagram", Value = "Instagram", Url = "https://www.instagram.com/" }
+            );
         });
     }
 }

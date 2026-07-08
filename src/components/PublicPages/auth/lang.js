@@ -40,7 +40,9 @@ export const authLang = {
     regFeat2Title: 'Up to 100% cashback',
     regFeat2Text: 'Earn automatic rewards at supermarkets, fuel stations, pharmacies, and more.',
     regFeat3Title: 'Loans from 9.9% per year',
-    regFeat3Text: 'Apply online and receive a pre-check decision in under 2 minutes.'
+    regFeat3Text: 'Apply online and receive a pre-check decision in under 2 minutes.',
+    invalidCredentials: 'Invalid email or password.',
+    accountDisabled: 'Your account has been blocked. Please contact support.'
   },
   az: {
     navHome: 'Ana səhifə',
@@ -83,7 +85,9 @@ export const authLang = {
     regFeat2Title: '100%-dək kəşbək',
     regFeat2Text: 'Supermarketlərdə, yanacaqdoldurma məntəqələrində və apteklərdə avtomatik mükafatlar qazanın.',
     regFeat3Title: 'İllik 9.9%-dən kreditlər',
-    regFeat3Text: 'Onlayn müraciət edin və 2 dəqiqədən az müddətdə ön yoxlama qərarı alın.'
+    regFeat3Text: 'Onlayn müraciət edin və 2 dəqiqədən az müddətdə ön yoxlama qərarı alın.',
+    invalidCredentials: 'E-poçt ünvanı və ya şifrə yanlışdır.',
+    accountDisabled: 'Hesabınız bloklanıb. Zəhmət olmasa dəstək xidməti ilə əlaqə saxlayın.'
   },
   ru: {
     navHome: 'Главная',
@@ -126,6 +130,8 @@ export const authLang = {
     regFeat2Title: 'Кэшбэк до 100%',
     regFeat2Text: 'Автоматические бонусы в супермаркетах, АЗС и аптеках.',
     regFeat3Title: 'Кредиты от 9.9% годовых',
-    regFeat3Text: 'Подайте заявку онлайн и получите решение за 2 минуты.'
+    regFeat3Text: 'Подайте заявку онлайн и получите решение за 2 минуты.',
+    invalidCredentials: 'Неверный адрес электронной почты или пароль.',
+    accountDisabled: 'Ваш аккаунт заблокирован. Пожалуйста, обратитесь в поддержку.'
   }
 }

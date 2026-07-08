@@ -56,7 +56,6 @@ public class AuthService : IAuthService
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
 
-        // Send email verification code
         var code = GenerateCode();
         await SaveVerificationCode(user.Id, code, "EmailVerification");
         await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "EmailVerification");
@@ -72,9 +71,14 @@ public class AuthService : IAuthService
     {
         var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
-        if (user == null || !user.IsActive)
+        if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
+        }
+
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Account is disabled.");
         }
 
         var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
@@ -83,7 +87,6 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        // If email not verified — send verification code, block login
         if (!user.IsEmailVerified)
         {
             var code = GenerateCode();
@@ -97,7 +100,6 @@ public class AuthService : IAuthService
             };
         }
 
-        // If 2FA is enabled — send 2FA code, return tempToken
         if (user.TwoFactorEnabled)
         {
             var tempToken = GenerateTempToken();
@@ -113,7 +115,6 @@ public class AuthService : IAuthService
             };
         }
 
-        // Normal login
         return await CompleteLoginAsync(user, ipAddress);
     }
 
@@ -140,7 +141,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> VerifyEmailCodeAsync(string userId, string code, string ipAddress)
     {
-        // Clean up expired codes first
         await CleanupExpiredCodesAsync();
 
         var entry = await _dbContext.EmailVerificationCodes
@@ -166,7 +166,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> VerifyTwoFactorCodeAsync(string tempToken, string code, string ipAddress)
     {
-        // Clean up expired codes first
         await CleanupExpiredCodesAsync();
 
         var entry = await _dbContext.EmailVerificationCodes
@@ -254,8 +253,6 @@ public class AuthService : IAuthService
         return MapToUserDto(user);
     }
 
-    // ─── Helpers ────────────────────────────────────────────────────────────────
-
     private async Task<AuthResponseDto> CompleteLoginAsync(ApplicationUser user, string ipAddress)
     {
         user.LastIp = ipAddress;
@@ -284,7 +281,6 @@ public class AuthService : IAuthService
 
     private async Task SaveVerificationCode(string userId, string code, string purpose, string? tempToken = null)
     {
-        // Invalidate any previous unused codes for same user+purpose
         var oldCodes = _dbContext.EmailVerificationCodes
             .Where(c => c.UserId == userId && c.Purpose == purpose && !c.IsUsed);
         foreach (var old in oldCodes)

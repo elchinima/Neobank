@@ -14,7 +14,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 
 const Settings = () => {
   const { t } = useLanguage()
-  const { user, token, updateUser, toggleTwoFactor, resendVerification, completeAuth } = useAuth()
+  const { user, token, updateUser, toggleTwoFactor, resendVerification, completeAuth , fetchWithAuth} = useAuth()
   const [password, setPassword] = useState({ current: '', new: '', confirm: '' })
   const [email, setEmail] = useState(user?.email || 'user@example.com')
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(user?.twoFactorEnabled ?? false)
@@ -48,7 +48,7 @@ const Settings = () => {
       setUploadingAvatar(true)
       setUploadError('')
 
-      const res = await fetch(`${API_BASE_URL}/users/avatar`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/users/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -98,7 +98,7 @@ const Settings = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/auth/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,18 +220,27 @@ const Settings = () => {
 
               <div className="field-group">
                 <label data-lang-key="email">{t(settingsLang, 'email')}</label>
-                <div className="input-with-button">
+                {isEmailVerified ? (
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="settings-input"
+                    readOnly
+                    className="settings-input readonly"
                   />
-                  <button className="save-btn" data-lang-key="saveChanges">
-                    <img src={updateIcon} className="btn-icon" alt="" />
-                    {t(settingsLang, 'saveChanges')}
-                  </button>
-                </div>
+                ) : (
+                  <div className="input-with-button">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="settings-input"
+                    />
+                    <button className="save-btn" data-lang-key="saveChanges">
+                      <img src={updateIcon} className="btn-icon" alt="" />
+                      {t(settingsLang, 'saveChanges')}
+                    </button>
+                  </div>
+                )}
 
                 {/* Email verification status */}
                 <div className="email-verify-status">
@@ -369,3 +378,4 @@ const Settings = () => {
 }
 
 export default Settings
+

@@ -433,6 +433,48 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpGet("footer-settings")]
+    public async Task<IActionResult> GetFooterSettings()
+    {
+        var settings = await _context.FooterSettings.ToListAsync();
+        return Ok(settings);
+    }
+
+    [HttpPut("footer-settings")]
+    public async Task<IActionResult> UpdateFooterSettings([FromBody] List<FooterSettingRequest> requests)
+    {
+        try
+        {
+            var existingSettings = await _context.FooterSettings.ToListAsync();
+            _context.FooterSettings.RemoveRange(existingSettings);
+
+            foreach (var req in requests)
+            {
+                _context.FooterSettings.Add(new NeoBank.Core.Entities.FooterSetting
+                {
+                    Category = req.Category ?? string.Empty,
+                    Key = req.Key ?? string.Empty,
+                    Value = req.Value ?? string.Empty,
+                    Url = req.Url ?? string.Empty
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Footer settings updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+}
+
+public class FooterSettingRequest
+{
+    public string? Category { get; set; }
+    public string? Key { get; set; }
+    public string? Value { get; set; }
+    public string? Url { get; set; }
 }
 
 public class RenameImageRequest

@@ -157,7 +157,7 @@ function PublicFooter() {
   } = usePublicFooter()
 
   const { t } = useLanguage()
-  const { footerLinks, footerContacts } = usePublicContent()
+  const { footerLinks, footerContacts, footerSocials = [] } = usePublicContent()
 
   const editableProductLinks = footerLinks.filter((link) => link.section === 'products')
   const editableInfoLinks = footerLinks.filter((link) => link.section === 'information')
@@ -190,6 +190,11 @@ function PublicFooter() {
     href: item.href,
     icon: item.icon,
   }))
+
+  const displaySocialLinks = socialLinks.map(link => {
+    const dynamicUrl = footerSocials.find(s => s.label === link.label)?.url;
+    return { ...link, href: dynamicUrl || link.href };
+  })
 
   const renderFooterLink = (link) => {
     const href = link.url || '/'
@@ -322,7 +327,7 @@ function PublicFooter() {
         </div>
 
         <div className="public-footer__socials" aria-label="Social links">
-          {socialLinks.map((link) => (
+          {displaySocialLinks.map((link) => (
             <a key={link.label} href={link.href} target="_blank" rel="noreferrer" aria-label={link.label}>
               {link.icon}
             </a>

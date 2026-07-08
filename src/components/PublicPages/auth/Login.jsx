@@ -46,6 +46,12 @@ function Login() {
     },
   ]
 
+  const getTranslatedError = (errorMsg) => {
+    if (errorMsg === 'Invalid email or password.') return t(authLang, 'invalidCredentials')
+    if (errorMsg === 'Account is disabled.') return t(authLang, 'accountDisabled')
+    return errorMsg
+  }
+
   return (
     <div className="auth-page">
       <nav className="auth-page__nav" aria-label="NeoBank navigation">
@@ -120,7 +126,7 @@ function Login() {
                   fontSize: '14px',
                   marginBottom: '20px'
                 }}>
-                  {serverError}
+                  {getTranslatedError(serverError)}
                 </div>
               )}
 

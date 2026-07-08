@@ -98,7 +98,7 @@ const statusLangKeyMap = {
 
 const History = () => {
   const { language, t } = useLanguage()
-  const { token } = useAuth()
+  const { token, fetchWithAuth } = useAuth()
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [selectedDate, setSelectedDate] = useState(() => new Date())
@@ -115,7 +115,7 @@ const History = () => {
   useEffect(() => {
     if (token) {
       setLoading(true)
-      fetch(`${API_BASE_URL}/history`, {
+      fetchWithAuth(`${API_BASE_URL}/history`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

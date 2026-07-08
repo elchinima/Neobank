@@ -100,7 +100,7 @@ const getPaymentFieldInfo = (categoryId) => {
 
 const Payments = () => {
   const { t } = useLanguage()
-  const { token } = useAuth()
+  const { token , fetchWithAuth} = useAuth()
   const [search, setSearch] = useState('')
   const [userCards, setUserCards] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -111,7 +111,7 @@ const Payments = () => {
 
   useEffect(() => {
     if (token) {
-      fetch(`${API_BASE_URL}/cards`, {
+      fetchWithAuth(`${API_BASE_URL}/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -133,7 +133,7 @@ const Payments = () => {
     setErrorMessage('')
 
     try {
-      const res = await fetch(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -312,3 +312,4 @@ const Payments = () => {
 }
 
 export default Payments
+
