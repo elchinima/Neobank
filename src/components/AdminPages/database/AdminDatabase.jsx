@@ -18,6 +18,7 @@ const AdminDatabase = () => {
   // Actions state
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [renameModal, setRenameModal] = useState({ open: false, img: null, newName: '' })
+  const [deleteModal, setDeleteModal] = useState({ open: false, img: null })
   
   const fileInputRef = useRef(null)
 
@@ -152,11 +153,17 @@ const AdminDatabase = () => {
     setActiveMenuId(null)
   }
 
-  const handleDelete = async (fileName) => {
-    if (!window.confirm('Are you sure you want to delete this image?')) return
+  const openDeleteModal = (img) => {
+    setDeleteModal({ open: true, img })
+    setActiveMenuId(null)
+  }
+
+  const confirmDelete = async () => {
+    const { img } = deleteModal
+    if (!img) return
     
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(fileName)}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(img.fileName)}`, {
         method: 'DELETE'
       })
       if (!response.ok) {
@@ -164,10 +171,9 @@ const AdminDatabase = () => {
         throw new Error(err || 'Failed to delete')
       }
       await loadImages()
+      setDeleteModal({ open: false, img: null })
     } catch (err) {
       alert(err.message)
-    } finally {
-      setActiveMenuId(null)
     }
   }
 
@@ -270,7 +276,7 @@ const AdminDatabase = () => {
                         <div className="admin-db__dropdown">
                           <button onClick={() => openRenameModal(img)}>Rename</button>
                           <button onClick={() => handleCopyUrl(img.url)}>Copy URL</button>
-                          <button className="danger" onClick={() => handleDelete(img.fileName)}>Delete</button>
+                          <button className="danger" onClick={() => openDeleteModal(img)}>Delete</button>
                         </div>
                       )}
                     </div>
@@ -370,6 +376,33 @@ const AdminDatabase = () => {
             <div className="admin-db-modal__footer">
               <button className="admin-db-modal__btn-cancel" onClick={() => setRenameModal({ open: false, img: null, newName: '' })}>Cancel</button>
               <button className="admin-db-modal__btn-save" onClick={handleRename}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {deleteModal.open && (
+        <div className="admin-db-modal-overlay" onClick={() => setDeleteModal({ open: false, img: null })}>
+          <div className="admin-db-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="admin-db-modal__header">
+              <h2>Delete Image</h2>
+              <button className="admin-db-modal__close" onClick={() => setDeleteModal({ open: false, img: null })}>&times;</button>
+            </div>
+            <div className="admin-db-modal__content">
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to delete <strong>{deleteModal.img?.name}</strong>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="admin-db-modal__footer">
+              <button className="admin-db-modal__btn-cancel" onClick={() => setDeleteModal({ open: false, img: null })}>Cancel</button>
+              <button 
+                className="admin-db-modal__btn-save" 
+                onClick={confirmDelete}
+                style={{ background: '#ff3b30', color: '#fff', border: 'none' }}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

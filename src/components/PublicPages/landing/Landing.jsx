@@ -8,6 +8,12 @@ import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { landingLang } from './lang.js'
 import './Landing.scss'
 
+import partnerSoftLine from '../../../assets/icons/Public/SoftLine.png'
+import partnerCaspiMarket from '../../../assets/icons/Public/Caspi_Market.png'
+import partnerMagnitus from '../../../assets/icons/Public/Magnitus.png'
+import partnerNextLogistics from '../../../assets/icons/Public/NextLogistics.png'
+import partnerDeltaPay from '../../../assets/icons/Public/DeltaPay.png'
+
 function Landing() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
@@ -42,6 +48,44 @@ function Landing() {
   ]
 
   const securityItemKeys = ['sec0', 'sec1', 'sec2']
+
+  const partners = [
+    {
+      id: 1,
+      icon: partnerSoftLine,
+      nameKey: 'partner1Name',
+      titleKey: 'partner1Title',
+      textKey: 'partner1Text'
+    },
+    {
+      id: 2,
+      icon: partnerCaspiMarket,
+      nameKey: 'partner2Name',
+      titleKey: 'partner2Title',
+      textKey: 'partner2Text'
+    },
+    {
+      id: 3,
+      icon: partnerMagnitus,
+      nameKey: 'partner3Name',
+      titleKey: 'partner3Title',
+      textKey: 'partner3Text'
+    },
+    {
+      id: 4,
+      icon: partnerNextLogistics,
+      nameKey: 'partner4Name',
+      titleKey: 'partner4Title',
+      textKey: 'partner4Text'
+    },
+    {
+      id: 5,
+      icon: partnerDeltaPay,
+      nameKey: 'partner5Name',
+      titleKey: 'partner5Title',
+      textKey: 'partner5Text'
+    }
+  ]
 
   return (
     <div className="landing">
@@ -177,6 +221,30 @@ function Landing() {
           <Link to="/register" className="landing__button landing__button--primary" data-lang-key="createAccount">
             {t(landingLang, 'createAccount')}
           </Link>
+        </section>
+
+        <section className="landing__partners" id="partners">
+          <div className="landing__section-heading">
+            <p className="landing__eyebrow" data-lang-key="eyebrowReviews">{t(landingLang, 'eyebrowReviews')}</p>
+            <h2 data-lang-key="headingReviews">{t(landingLang, 'headingReviews')}</h2>
+          </div>
+
+          <div className="landing__partners-grid">
+            {partners.map(partner => (
+              <article className="landing__partner-card" key={partner.id}>
+                <div className="landing__partner-header">
+                  <div className="landing__partner-logo-wrapper">
+                    <img src={partner.icon} alt={t(landingLang, partner.nameKey)} className="landing__partner-logo" />
+                  </div>
+                  <div className="landing__partner-info">
+                    <h4 data-lang-key={partner.nameKey}>{t(landingLang, partner.nameKey)}</h4>
+                    <span data-lang-key={partner.titleKey}>{t(landingLang, partner.titleKey)}</span>
+                  </div>
+                </div>
+                <p className="landing__partner-text" data-lang-key={partner.textKey}>{t(landingLang, partner.textKey)}</p>
+              </article>
+            ))}
+          </div>
         </section>
       </main>
 
