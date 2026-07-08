@@ -64,17 +64,32 @@ public class EmailService : IEmailService
         }
     }
 
-    public async Task SendCustomEmailAsync(string toEmail, string firstName, string emailTitle, string contentTitle, string contentMessage)
+    public async Task SendCustomEmailAsync(string toEmail, string firstName, string emailTitle, string contentTitle, string contentMessage, byte[]? attachmentBytes = null, string? attachmentName = null)
     {
-        var html = BuildCustomEmailHtml(firstName, emailTitle, contentTitle, contentMessage);
+        var html = BuildCustomEmailHtml(firstName, emailTitle, contentTitle, contentMessage, attachmentBytes, attachmentName);
 
-        var payload = new
+        object payload;
+        if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
         {
-            sender = new { email = _fromEmail, name = _fromName },
-            to = new[] { new { email = toEmail, name = firstName } },
-            subject = emailTitle,
-            htmlContent = html
-        };
+            payload = new
+            {
+                sender = new { email = _fromEmail, name = _fromName },
+                to = new[] { new { email = toEmail, name = firstName } },
+                subject = emailTitle,
+                htmlContent = html,
+                attachment = new[] { new { content = Convert.ToBase64String(attachmentBytes), name = attachmentName } }
+            };
+        }
+        else
+        {
+            payload = new
+            {
+                sender = new { email = _fromEmail, name = _fromName },
+                to = new[] { new { email = toEmail, name = firstName } },
+                subject = emailTitle,
+                htmlContent = html
+            };
+        }
 
         var json = JsonSerializer.Serialize(payload);
         var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email")
@@ -92,6 +107,22 @@ public class EmailService : IEmailService
             throw new InvalidOperationException($"Brevo API error ({response.StatusCode}): {error}");
         }
     }
+
+    public async Task Send2FaResetEmailAsync(string toEmail, string firstName, string resetLink)
+    {
+        var subject = "NeoBank — Reset Your Two-Factor Authentication";
+        var contentTitle = "Disable Two-Factor Authentication";
+        
+        var message = $@"We received a request to disable Two-Factor Authentication (2FA) for your NeoBank account.<br><br>
+If you requested this, please click the link below to disable 2FA. This link is valid for 15 minutes.<br><br>
+<div style=""text-align: center; margin: 30px 0;"">
+  <a href=""{resetLink}"" style=""background-color: #F3C24A; color: #000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;"">Disable 2FA</a>
+</div><br>
+If you did not request to disable 2FA, you can safely ignore this email. Your account remains secure.";
+
+        await SendCustomEmailAsync(toEmail, firstName, subject, contentTitle, message);
+    }
+
 
     private static string BuildEmailHtml(string firstName, string code, string purposeTitle, string purposeDesc)
     {
@@ -181,10 +212,24 @@ public class EmailService : IEmailService
 </html>";
     }
 
-    private static string BuildCustomEmailHtml(string firstName, string emailTitle, string contentTitle, string contentMessage)
+    private static string BuildCustomEmailHtml(string firstName, string emailTitle, string contentTitle, string contentMessage, byte[]? attachmentBytes, string? attachmentName)
     {
         // Replace newlines with <br> to preserve formatting in HTML
         var formattedMessage = contentMessage.Replace("\n", "<br>");
+        
+        string inlineImageHtml = "";
+        if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
+        {
+            var ext = Path.GetExtension(attachmentName).ToLowerInvariant();
+            if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".gif" || ext == ".webp")
+            {
+                var base64 = Convert.ToBase64String(attachmentBytes);
+                var mimeType = ext == ".jpg" ? "jpeg" : ext.TrimStart('.');
+                inlineImageHtml = $@"<div style=""margin-top: 16px; text-align: center;"">
+                  <img src=""data:image/{mimeType};base64,{base64}"" style=""max-width: 100%; border-radius: 8px; display: block; margin: 0 auto;"" alt=""Attached Image"" />
+                </div>";
+            }
+        }
 
         return $@"<!DOCTYPE html>
 <html lang=""en"">
@@ -242,6 +287,7 @@ public class EmailService : IEmailService
           <tr>
             <td class=""email-content-box"" style=""background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 24px 32px; text-align: left;"">
               <p style=""font-size: 15px; color: #f1f5f9; line-height: 1.7; margin: 0;"">{formattedMessage}</p>
+              {inlineImageHtml}
             </td>
           </tr>
         </table>

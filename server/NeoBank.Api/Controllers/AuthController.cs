@@ -11,10 +11,12 @@ namespace NeoBank.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IConfiguration configuration)
     {
         _authService = authService;
+        _configuration = configuration;
     }
 
     private string GetClientIpAddress()
@@ -252,5 +254,22 @@ public class AuthController : ControllerBase
         }
 
         return Ok(user);
+    }
+
+    [HttpGet("confirm-disable-2fa")]
+    public async Task<IActionResult> ConfirmDisableTwoFactor([FromQuery] string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return BadRequest("Token is required");
+
+        var result = await _authService.ConfirmDisableTwoFactorAsync(token);
+        if (!result)
+        {
+            return BadRequest("Invalid or expired token.");
+        }
+
+        // Redirect to frontend login page with a success message flag
+        var frontendUrl = _configuration?["FrontendUrl"] ?? "http://localhost:5173";
+        return Redirect($"{frontendUrl.TrimEnd('/')}/login?2faDisabled=true");
     }
 }

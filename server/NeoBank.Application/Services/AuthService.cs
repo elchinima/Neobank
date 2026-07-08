@@ -378,4 +378,21 @@ public class AuthService : IAuthService
 
         return true;
     }
+
+    public async Task<bool> ConfirmDisableTwoFactorAsync(string token)
+    {
+        var verification = await _dbContext.EmailVerificationCodes
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.TempToken == token && c.Purpose == "Disable2FA" && !c.IsUsed && c.ExpiresAt > DateTime.UtcNow);
+
+        if (verification == null)
+            return false;
+
+        verification.IsUsed = true;
+        verification.User.TwoFactorEnabled = false;
+
+        await _dbContext.SaveChangesAsync();
+
+        return true;
+    }
 }

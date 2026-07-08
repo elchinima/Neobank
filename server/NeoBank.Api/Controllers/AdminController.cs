@@ -96,15 +96,121 @@ public class AdminController : ControllerBase
         return Ok(new { success = true, isActive = user.IsActive });
     }
 
+    [HttpGet("users/{userId}/details")]
+    public async Task<IActionResult> GetUserDetails(string userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        var cards = await _context.Cards
+            .Where(c => c.UserId == userId)
+            .Select(c => new { c.CardNumber, c.Iban, c.Status, c.Balance })
+            .ToListAsync();
+
+        var deposits = await _context.Deposits
+            .Where(d => d.UserId == userId && d.Status == "Active")
+            .ToListAsync();
+
+        var loans = await _context.Loans
+            .Where(l => l.UserId == userId && l.Status == "Active")
+            .ToListAsync();
+
+        return Ok(new
+        {
+            user.AvatarUrl,
+            user.FirstName,
+            user.LastName,
+            user.Id,
+            user.Role,
+            user.IsActive,
+            user.RegistrationIp,
+            user.LastIp,
+            user.CreatedAt,
+            user.LastLoginAt,
+            user.Email,
+            user.TwoFactorEnabled,
+            user.Note,
+            Cards = cards,
+            Deposits = deposits,
+            Loans = loans
+        });
+    }
+
+    public class UpdateNoteRequest
+    {
+        public string? Note { get; set; }
+    }
+
+    [HttpPut("users/{userId}/note")]
+    public async Task<IActionResult> UpdateUserNote(string userId, [FromBody] UpdateNoteRequest request)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        if (request.Note != null && request.Note.Length > 1000)
+        {
+            return BadRequest("Note cannot exceed 1000 characters.");
+        }
+
+        user.Note = request.Note;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, note = user.Note });
+    }
+
+    [HttpPost("users/{userId}/reset-2fa")]
+    public async Task<IActionResult> ResetUser2Fa(string userId, [FromServices] IEmailService emailService)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        if (!user.TwoFactorEnabled)
+            return BadRequest("User does not have 2FA enabled.");
+
+        // Invalidate old Disable2FA codes
+        var oldCodes = await _context.EmailVerificationCodes
+            .Where(c => c.UserId == userId && c.Purpose == "Disable2FA" && !c.IsUsed)
+            .ToListAsync();
+        
+        foreach (var code in oldCodes)
+        {
+            code.IsUsed = true;
+        }
+
+        var token = Guid.NewGuid().ToString("N");
+        var entry = new EmailVerificationCode
+        {
+            UserId = userId,
+            Code = "LINK", // Not used for link-based reset
+            Purpose = "Disable2FA",
+            TempToken = token,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.EmailVerificationCodes.Add(entry);
+        await _context.SaveChangesAsync();
+
+        var baseUrl = _configuration["ApiUrl"] ?? "http://localhost:5031";
+        // Call the backend API route directly from the email
+        var resetLink = $"{baseUrl.TrimEnd('/')}/api/auth/confirm-disable-2fa?token={token}";
+
+        await emailService.Send2FaResetEmailAsync(user.Email, user.FirstName, resetLink);
+
+        return Ok(new { success = true });
+    }
+
     public class SendCustomEmailRequest
     {
         public string EmailTitle { get; set; } = string.Empty;
         public string ContentTitle { get; set; } = string.Empty;
         public string ContentMessage { get; set; } = string.Empty;
+        public IFormFile? Attachment { get; set; }
     }
 
     [HttpPost("users/{userId}/send-email")]
-    public async Task<IActionResult> SendCustomEmail(string userId, [FromBody] SendCustomEmailRequest request, [FromServices] IEmailService emailService)
+    public async Task<IActionResult> SendCustomEmail(string userId, [FromForm] SendCustomEmailRequest request, [FromServices] IEmailService emailService)
     {
         if (string.IsNullOrWhiteSpace(request.EmailTitle) || request.EmailTitle.Length > 100)
             return BadRequest("Email Title must be between 1 and 100 characters.");
@@ -115,12 +221,31 @@ public class AdminController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.ContentMessage) || request.ContentMessage.Length > 1000)
             return BadRequest("Content Message must be between 1 and 1000 characters.");
 
+        byte[]? attachmentBytes = null;
+        string? attachmentName = null;
+
+        if (request.Attachment != null)
+        {
+            if (request.Attachment.Length > 5 * 1024 * 1024)
+                return BadRequest("File size exceeds 5 MB limit.");
+
+            var ext = Path.GetExtension(request.Attachment.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".docx", ".pdf" };
+            if (!allowedExtensions.Contains(ext))
+                return BadRequest("Invalid file type. Only PNG, JPG, JPEG, GIF, WEBP, DOCX, and PDF are allowed.");
+
+            attachmentName = request.Attachment.FileName;
+            using var ms = new MemoryStream();
+            await request.Attachment.CopyToAsync(ms);
+            attachmentBytes = ms.ToArray();
+        }
+
         var user = await _context.Users.FindAsync(userId);
         if (user == null) return NotFound("User not found.");
 
         try
         {
-            await emailService.SendCustomEmailAsync(user.Email, user.FirstName, request.EmailTitle, request.ContentTitle, request.ContentMessage);
+            await emailService.SendCustomEmailAsync(user.Email, user.FirstName, request.EmailTitle, request.ContentTitle, request.ContentMessage, attachmentBytes, attachmentName);
             return Ok(new { success = true });
         }
         catch (Exception ex)

@@ -17,6 +17,7 @@ public interface IAuthService
     // 2FA
     Task<AuthResponseDto> VerifyTwoFactorCodeAsync(string tempToken, string code, string ipAddress);
     Task<bool> ToggleTwoFactorAsync(string userId, bool enabled);
+    Task<bool> ConfirmDisableTwoFactorAsync(string token);
 
     // Password Management
     Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto);

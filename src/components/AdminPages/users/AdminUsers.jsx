@@ -18,6 +18,16 @@ const AdminUsers = () => {
   const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
   const [sendingEmail, setSendingEmail] = useState(false)
   const [alertModal, setAlertModal] = useState({ open: false, message: '', isError: false })
+  const [emailFile, setEmailFile] = useState(null)
+  const [emailPreviewUrl, setEmailPreviewUrl] = useState(null)
+  const fileInputRef = useRef(null)
+
+  const [infoModal, setInfoModal] = useState({ open: false, user: null })
+  const [infoData, setInfoData] = useState(null)
+  const [loadingInfo, setLoadingInfo] = useState(false)
+  const [noteValue, setNoteValue] = useState('')
+  const [savingNote, setSavingNote] = useState(false)
+  const [resetting2Fa, setResetting2Fa] = useState(false)
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -107,6 +117,8 @@ const AdminUsers = () => {
   const openEmailModal = (user) => {
     setEmailModal({ open: true, user })
     setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
+    setEmailFile(null)
+    setEmailPreviewUrl(null)
     setActiveMenuId(null)
   }
 
@@ -115,16 +127,56 @@ const AdminUsers = () => {
     setEmailData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file) validateAndSetFile(file)
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file) validateAndSetFile(file)
+  }
+
+  const validateAndSetFile = (file) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setAlertModal({ open: true, message: 'File size must be less than 5MB', isError: true })
+      return
+    }
+    const validTypes = [
+      'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp',
+      'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ]
+    if (!validTypes.includes(file.type)) {
+      setAlertModal({ open: true, message: 'Only PNG, JPG, GIF, WEBP, DOCX, and PDF are allowed', isError: true })
+      return
+    }
+    
+    setEmailFile(file)
+    if (file.type.startsWith('image/')) {
+      setEmailPreviewUrl(URL.createObjectURL(file))
+    } else {
+      setEmailPreviewUrl(null)
+    }
+  }
+
   const handleSendEmail = async () => {
     const { user } = emailModal
     if (!user) return
 
     setSendingEmail(true)
     try {
+      const formData = new FormData()
+      formData.append('EmailTitle', emailData.emailTitle)
+      formData.append('ContentTitle', emailData.contentTitle)
+      formData.append('ContentMessage', emailData.contentMessage)
+      if (emailFile) {
+        formData.append('Attachment', emailFile)
+      }
+
       const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/send-email`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailData)
+        body: formData
       })
 
       if (!response.ok) {
@@ -138,6 +190,71 @@ const AdminUsers = () => {
       setAlertModal({ open: true, message: err.message, isError: true })
     } finally {
       setSendingEmail(false)
+    }
+  }
+
+  const openInfoModal = async (user) => {
+    setActiveMenuId(null)
+    setInfoModal({ open: true, user })
+    setLoadingInfo(true)
+    setInfoData(null)
+    setNoteValue('')
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/details`)
+      if (!response.ok) throw new Error('Failed to load user details')
+      const data = await response.json()
+      setInfoData(data)
+      setNoteValue(data.note || '')
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+      setInfoModal({ open: false, user: null })
+    } finally {
+      setLoadingInfo(false)
+    }
+  }
+
+  const handleSaveNote = async () => {
+    const { user } = infoModal
+    if (!user) return
+
+    setSavingNote(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/note`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: noteValue })
+      })
+      if (!response.ok) {
+        const err = await response.text()
+        throw new Error(err || 'Failed to save note')
+      }
+      setAlertModal({ open: true, message: 'Note saved successfully!', isError: false })
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+    } finally {
+      setSavingNote(false)
+    }
+  }
+
+  const handleReset2Fa = async () => {
+    const { user } = infoModal
+    if (!user) return
+
+    setResetting2Fa(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/reset-2fa`, {
+        method: 'POST'
+      })
+      if (!response.ok) {
+        const err = await response.text()
+        throw new Error(err || 'Failed to reset 2FA')
+      }
+      setAlertModal({ open: true, message: '2FA reset email sent successfully!', isError: false })
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+    } finally {
+      setResetting2Fa(false)
     }
   }
 
@@ -203,6 +320,7 @@ const AdminUsers = () => {
 
                       {activeMenuId === user.id && (
                         <div className="admin-users__dropdown">
+                          <button onClick={() => openInfoModal(user)}>View Info</button>
                           <button onClick={() => openEmailModal(user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
@@ -310,6 +428,32 @@ const AdminUsers = () => {
                   <span className="admin-users-modal__counter">{emailData.contentMessage.length}/1000</span>
                 </div>
               </div>
+
+              <div 
+                className="admin-users-modal__dropzone" 
+                onDragOver={e => e.preventDefault()} 
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange} 
+                  accept="image/png, image/jpeg, image/jpg, image/gif, image/webp, application/pdf, .docx" 
+                  hidden 
+                />
+                {emailFile ? (
+                  emailPreviewUrl ? (
+                    <img src={emailPreviewUrl} alt="Attachment Preview" className="admin-users-modal__preview-img" />
+                  ) : (
+                    <div className="admin-users-modal__file-info">
+                      📄 {emailFile.name} ({(emailFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>
+                  )
+                ) : (
+                  <p>Drag & drop file here or click to select<br/><span>Max 5MB (PNG, JPG, WEBP, GIF, PDF, DOCX)</span></p>
+                )}
+              </div>
             </div>
             
             <div className="admin-users-modal__footer">
@@ -321,6 +465,215 @@ const AdminUsers = () => {
               >
                 {sendingEmail ? 'Sending...' : 'Send'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info Modal */}
+      {infoModal.open && infoModal.user && (
+        <div className="admin-users-modal-overlay" onClick={() => setInfoModal({ open: false, user: null })}>
+          <div className="admin-users-modal admin-users-modal--info" onClick={e => e.stopPropagation()}>
+            <div className="admin-users-modal__header">
+              <h2>User Details: {formatTableName(infoModal.user)}</h2>
+              <button className="admin-users-modal__close" onClick={() => setInfoModal({ open: false, user: null })}>&times;</button>
+            </div>
+            
+            <div className="admin-users-modal__content">
+              {loadingInfo ? (
+                <div style={{ color: '#fff', textAlign: 'center', padding: '40px' }}>Loading...</div>
+              ) : infoData ? (
+                <>
+                  <div className="admin-users-modal__profile-header">
+                    {infoData.avatarUrl ? (
+                      <img src={infoData.avatarUrl} alt="Avatar" />
+                    ) : (
+                      <div className="profile-placeholder">
+                        {infoData.firstName ? infoData.firstName[0].toUpperCase() : 'U'}
+                      </div>
+                    )}
+                    <div>
+                      <h4>{formatTableName(infoData)}</h4>
+                      <span>ID: {infoData.id}</span>
+                    </div>
+                  </div>
+
+                  <div className="admin-users-modal__grid-2">
+                    <div className="admin-users-modal__info-section">
+                      <h3>General Info</h3>
+                      <div className="admin-users-modal__list-item" style={{ gap: '16px' }}>
+                        <dl className="admin-users-modal__kv" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: 0 }}>
+                          <div>
+                            <dt>Role</dt>
+                            <dd>{infoData.role}</dd>
+                          </div>
+                          <div>
+                            <dt>Status</dt>
+                            <dd style={{ color: infoData.isActive ? '#2ecc71' : '#e74c3c' }}>{infoData.isActive ? 'Active' : 'Blocked'}</dd>
+                          </div>
+                          <div>
+                            <dt>Email</dt>
+                            <dd>{infoData.email}</dd>
+                          </div>
+                          <div>
+                            <dt>2FA Status</dt>
+                            <dd style={{ color: infoData.twoFactorEnabled ? '#2ecc71' : '#f3c24a' }}>{infoData.twoFactorEnabled ? 'Enabled' : 'Disabled'}</dd>
+                          </div>
+                          <div>
+                            <dt>Created At</dt>
+                            <dd>{new Date(infoData.createdAt).toLocaleString()}</dd>
+                          </div>
+                          <div>
+                            <dt>Last Login At</dt>
+                            <dd>{infoData.lastLoginAt ? new Date(infoData.lastLoginAt).toLocaleString() : 'Never'}</dd>
+                          </div>
+                          <div>
+                            <dt>Registration IP</dt>
+                            <dd>{infoData.registrationIp || 'N/A'}</dd>
+                          </div>
+                          <div>
+                            <dt>Last Login IP</dt>
+                            <dd>{infoData.lastIp || 'N/A'}</dd>
+                          </div>
+                        </dl>
+                        
+                        {infoData.twoFactorEnabled && (
+                          <div className="admin-users-modal__action-row">
+                            <button 
+                              className="admin-users-modal__btn-save" 
+                              style={{ background: '#e74c3c', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
+                              onClick={handleReset2Fa}
+                              disabled={resetting2Fa}
+                            >
+                              {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="admin-users-modal__info-section">
+                      <h3>Note</h3>
+                      <div className="admin-users-modal__field">
+                        <div className="admin-users-modal__input-wrap" style={{ height: '100%' }}>
+                          <textarea
+                            value={noteValue}
+                            onChange={(e) => setNoteValue(e.target.value)}
+                            maxLength={1000}
+                            placeholder="Add a note about this user..."
+                            style={{ height: '160px', minHeight: '160px' }}
+                          ></textarea>
+                          <span className="admin-users-modal__counter">{noteValue.length}/1000</span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button 
+                          className="admin-users-modal__btn-save"
+                          style={{ fontSize: '13px', padding: '8px 24px' }}
+                          onClick={handleSaveNote}
+                          disabled={savingNote}
+                        >
+                          {savingNote ? 'Saving...' : 'Save Note'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {infoData.cards && infoData.cards.length > 0 && (
+                    <div className="admin-users-modal__info-section">
+                      <h3>Cards ({infoData.cards.length})</h3>
+                      <div className="admin-users-modal__grid-2">
+                        {infoData.cards.map((card, i) => (
+                          <div key={i} className="admin-users-modal__list-item">
+                            <div className="admin-users-modal__list-item-header">
+                              <strong>**** **** **** {card.cardNumber.slice(-4)}</strong>
+                              <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
+                            </div>
+                            <div className="admin-users-modal__list-item-body">
+                              <dl className="admin-users-modal__kv">
+                                <dt>Balance</dt>
+                                <dd>${card.balance.toFixed(2)}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>IBAN</dt>
+                                <dd>{card.iban}</dd>
+                              </dl>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {infoData.deposits && infoData.deposits.length > 0 && (
+                    <div className="admin-users-modal__info-section">
+                      <h3>Active Deposits ({infoData.deposits.length})</h3>
+                      <div className="admin-users-modal__grid-2">
+                        {infoData.deposits.map((dep, i) => (
+                          <div key={i} className="admin-users-modal__list-item">
+                            <div className="admin-users-modal__list-item-header">
+                              <strong>Deposit</strong>
+                              <span className="active">Active</span>
+                            </div>
+                            <div className="admin-users-modal__list-item-body">
+                              <dl className="admin-users-modal__kv">
+                                <dt>Amount</dt>
+                                <dd>${dep.amount.toFixed(2)}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Interest Rate</dt>
+                                <dd>{dep.interestRate}%</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Term (Months)</dt>
+                                <dd>{dep.termMonths}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Created At</dt>
+                                <dd>{new Date(dep.createdAt).toLocaleDateString()}</dd>
+                              </dl>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {infoData.loans && infoData.loans.length > 0 && (
+                    <div className="admin-users-modal__info-section">
+                      <h3>Active Loans ({infoData.loans.length})</h3>
+                      <div className="admin-users-modal__grid-2">
+                        {infoData.loans.map((loan, i) => (
+                          <div key={i} className="admin-users-modal__list-item">
+                            <div className="admin-users-modal__list-item-header">
+                              <strong>Loan</strong>
+                              <span className="active">Active</span>
+                            </div>
+                            <div className="admin-users-modal__list-item-body">
+                              <dl className="admin-users-modal__kv">
+                                <dt>Amount</dt>
+                                <dd>${loan.amount.toFixed(2)}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Remaining</dt>
+                                <dd>${loan.remainingBalance.toFixed(2)}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Monthly Payment</dt>
+                                <dd>${loan.monthlyPayment.toFixed(2)}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Interest Rate</dt>
+                                <dd>{loan.interestRate}%</dd>
+                              </dl>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : null}
             </div>
           </div>
         </div>

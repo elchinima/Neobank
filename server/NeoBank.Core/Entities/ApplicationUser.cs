@@ -17,4 +17,7 @@ public class ApplicationUser
     public bool IsEmailVerified { get; set; } = false;
     public bool TwoFactorEnabled { get; set; } = false;
     public List<RefreshToken> RefreshTokens { get; set; } = new();
+    
+    [System.ComponentModel.DataAnnotations.MaxLength(1000)]
+    public string? Note { get; set; }
 }
