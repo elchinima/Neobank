@@ -14,6 +14,9 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true)
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [statusModal, setStatusModal] = useState({ open: false, user: null })
+  const [emailModal, setEmailModal] = useState({ open: false, user: null })
+  const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
+  const [sendingEmail, setSendingEmail] = useState(false)
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -99,6 +102,43 @@ const AdminUsers = () => {
     }
   }
 
+  const openEmailModal = (user) => {
+    setEmailModal({ open: true, user })
+    setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
+    setActiveMenuId(null)
+  }
+
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target
+    setEmailData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSendEmail = async () => {
+    const { user } = emailModal
+    if (!user) return
+
+    setSendingEmail(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailData)
+      })
+
+      if (!response.ok) {
+        const err = await response.text()
+        throw new Error(err || 'Failed to send email')
+      }
+
+      alert('Email sent successfully!')
+      setEmailModal({ open: false, user: null })
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSendingEmail(false)
+    }
+  }
+
   return (
     <div className="admin-users">
       <header className="admin-users__header">
@@ -161,6 +201,7 @@ const AdminUsers = () => {
 
                       {activeMenuId === user.id && (
                         <div className="admin-users__dropdown">
+                          <button onClick={() => openEmailModal(user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
                             onClick={() => openStatusModal(user)}
@@ -207,6 +248,76 @@ const AdminUsers = () => {
                 style={statusModal.user.isActive ? { background: '#ff3b30', color: '#fff' } : { background: '#2ecc71', color: '#fff' }}
               >
                 {statusModal.user.isActive ? 'Block' : 'Unblock'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Modal */}
+      {emailModal.open && emailModal.user && (
+        <div className="admin-users-modal-overlay" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null })}>
+          <div className="admin-users-modal admin-users-modal--email" onClick={e => e.stopPropagation()}>
+            <div className="admin-users-modal__header">
+              <h2>Send Email to {formatTableName(emailModal.user)}</h2>
+              <button className="admin-users-modal__close" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null })}>&times;</button>
+            </div>
+            
+            <div className="admin-users-modal__content">
+              <div className="admin-users-modal__field">
+                <label>Email Title (Subject)</label>
+                <div className="admin-users-modal__input-wrap">
+                  <input
+                    type="text"
+                    name="emailTitle"
+                    value={emailData.emailTitle}
+                    onChange={handleEmailChange}
+                    maxLength={100}
+                    placeholder="Enter email subject"
+                  />
+                  <span className="admin-users-modal__counter">{emailData.emailTitle.length}/100</span>
+                </div>
+              </div>
+
+              <div className="admin-users-modal__field">
+                <label>Content Title</label>
+                <div className="admin-users-modal__input-wrap">
+                  <input
+                    type="text"
+                    name="contentTitle"
+                    value={emailData.contentTitle}
+                    onChange={handleEmailChange}
+                    maxLength={100}
+                    placeholder="Enter title displayed inside the email"
+                  />
+                  <span className="admin-users-modal__counter">{emailData.contentTitle.length}/100</span>
+                </div>
+              </div>
+
+              <div className="admin-users-modal__field">
+                <label>Content Message</label>
+                <div className="admin-users-modal__input-wrap">
+                  <textarea
+                    name="contentMessage"
+                    value={emailData.contentMessage}
+                    onChange={handleEmailChange}
+                    maxLength={1000}
+                    rows="6"
+                    placeholder="Enter the main content of the email"
+                  ></textarea>
+                  <span className="admin-users-modal__counter">{emailData.contentMessage.length}/1000</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="admin-users-modal__footer">
+              <button className="admin-users-modal__btn-cancel" disabled={sendingEmail} onClick={() => setEmailModal({ open: false, user: null })}>Cancel</button>
+              <button 
+                className="admin-users-modal__btn-save" 
+                onClick={handleSendEmail}
+                disabled={sendingEmail || !emailData.emailTitle.trim() || !emailData.contentTitle.trim() || !emailData.contentMessage.trim()}
+              >
+                {sendingEmail ? 'Sending...' : 'Send'}
               </button>
             </div>
           </div>

@@ -7,7 +7,6 @@ const AdminDatabase = () => {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [uploadName, setUploadName] = useState('')
   const [uploadFile, setUploadFile] = useState(null)
@@ -15,10 +14,10 @@ const AdminDatabase = () => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   
-  // Actions state
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [renameModal, setRenameModal] = useState({ open: false, img: null, newName: '' })
   const [deleteModal, setDeleteModal] = useState({ open: false, img: null })
+  const [previewModal, setPreviewModal] = useState({ open: false, img: null })
   
   const fileInputRef = useRef(null)
 
@@ -40,7 +39,6 @@ const AdminDatabase = () => {
     loadImages()
   }, [])
 
-  // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
     document.addEventListener('click', handleClickOutside)
@@ -182,6 +180,11 @@ const AdminDatabase = () => {
     setActiveMenuId(null)
   }
 
+  const openPreviewModal = (img) => {
+    setPreviewModal({ open: true, img })
+    setActiveMenuId(null)
+  }
+
   const handleRename = async () => {
     const { img, newName } = renameModal
     if (!newName.trim() || newName.trim() === img.name) {
@@ -240,7 +243,6 @@ const AdminDatabase = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Preview</th>
                 <th>Name</th>
                 <th>Upload Date</th>
                 <th aria-label="Actions"></th>
@@ -250,11 +252,6 @@ const AdminDatabase = () => {
               {filteredImages.map((img) => (
                 <tr key={img.id}>
                   <td>{img.id}</td>
-                  <td>
-                    <div className="admin-db__img-preview">
-                       <img src={img.url} alt={img.name} />
-                    </div>
-                  </td>
                   <td>
                     <strong>{img.name}</strong>
                   </td>
@@ -274,6 +271,7 @@ const AdminDatabase = () => {
                       
                       {activeMenuId === img.id && (
                         <div className="admin-db__dropdown">
+                          <button onClick={() => openPreviewModal(img)}>Preview Image</button>
                           <button onClick={() => openRenameModal(img)}>Rename</button>
                           <button onClick={() => handleCopyUrl(img.url)}>Copy URL</button>
                           <button className="danger" onClick={() => openDeleteModal(img)}>Delete</button>
@@ -285,7 +283,7 @@ const AdminDatabase = () => {
               ))}
               {!filteredImages.length && !loading && (
                 <tr>
-                  <td colSpan="5" className="admin-db__empty">No images found.</td>
+                  <td colSpan="4" className="admin-db__empty">No images found.</td>
                 </tr>
               )}
             </tbody>
@@ -293,7 +291,6 @@ const AdminDatabase = () => {
         </div>
       </section>
 
-      {/* Upload Modal */}
       {isModalOpen && (
         <div className="admin-db-modal-overlay" onClick={closeModal}>
           <div className="admin-db-modal" onClick={e => e.stopPropagation()}>
@@ -350,7 +347,6 @@ const AdminDatabase = () => {
         </div>
       )}
 
-      {/* Rename Modal */}
       {renameModal.open && (
         <div className="admin-db-modal-overlay" onClick={() => setRenameModal({ open: false, img: null, newName: '' })}>
           <div className="admin-db-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
@@ -381,7 +377,6 @@ const AdminDatabase = () => {
         </div>
       )}
 
-      {/* Delete Modal */}
       {deleteModal.open && (
         <div className="admin-db-modal-overlay" onClick={() => setDeleteModal({ open: false, img: null })}>
           <div className="admin-db-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
@@ -408,6 +403,19 @@ const AdminDatabase = () => {
         </div>
       )}
 
+      {previewModal.open && previewModal.img && (
+        <div className="admin-db-modal-overlay" onClick={() => setPreviewModal({ open: false, img: null })}>
+          <div className="admin-db-modal admin-db-modal--preview" onClick={e => e.stopPropagation()}>
+            <div className="admin-db-modal__header">
+              <h2>{previewModal.img.name}</h2>
+              <button className="admin-db-modal__close" onClick={() => setPreviewModal({ open: false, img: null })}>&times;</button>
+            </div>
+            <div className="admin-db-modal__content admin-db-modal__content--preview">
+              <img src={previewModal.img.url} alt={previewModal.img.name} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

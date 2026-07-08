@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
+using NeoBank.Application.Interfaces;
 
 namespace NeoBank.Api.Controllers;
 
@@ -93,6 +94,39 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { success = true, isActive = user.IsActive });
+    }
+
+    public class SendCustomEmailRequest
+    {
+        public string EmailTitle { get; set; } = string.Empty;
+        public string ContentTitle { get; set; } = string.Empty;
+        public string ContentMessage { get; set; } = string.Empty;
+    }
+
+    [HttpPost("users/{userId}/send-email")]
+    public async Task<IActionResult> SendCustomEmail(string userId, [FromBody] SendCustomEmailRequest request, [FromServices] IEmailService emailService)
+    {
+        if (string.IsNullOrWhiteSpace(request.EmailTitle) || request.EmailTitle.Length > 100)
+            return BadRequest("Email Title must be between 1 and 100 characters.");
+        
+        if (string.IsNullOrWhiteSpace(request.ContentTitle) || request.ContentTitle.Length > 100)
+            return BadRequest("Content Title must be between 1 and 100 characters.");
+
+        if (string.IsNullOrWhiteSpace(request.ContentMessage) || request.ContentMessage.Length > 1000)
+            return BadRequest("Content Message must be between 1 and 1000 characters.");
+
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        try
+        {
+            await emailService.SendCustomEmailAsync(user.Email, user.FirstName, request.EmailTitle, request.ContentTitle, request.ContentMessage);
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Failed to send email: {ex.Message}");
+        }
     }
 
     [HttpGet("public-content")]
