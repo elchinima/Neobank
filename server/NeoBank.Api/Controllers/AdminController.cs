@@ -104,7 +104,7 @@ public class AdminController : ControllerBase
 
         var cards = await _context.Cards
             .Where(c => c.UserId == userId)
-            .Select(c => new { c.CardNumber, c.Iban, c.Status, c.Balance })
+            .Select(c => new { c.Id, c.CardNumber, c.Iban, c.Status, c.Balance, c.CreditLimit, c.Network })
             .ToListAsync();
 
         var deposits = await _context.Deposits
@@ -134,6 +134,18 @@ public class AdminController : ControllerBase
             Deposits = deposits,
             Loans = loans
         });
+    }
+
+    [HttpPut("cards/{cardId}/toggle-status")]
+    public async Task<IActionResult> ToggleCardStatus(string cardId)
+    {
+        var card = await _context.Cards.FindAsync(cardId);
+        if (card == null) return NotFound("Card not found.");
+
+        card.Status = card.Status == "Active" ? "Blocked" : "Active";
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, status = card.Status });
     }
 
     public class UpdateNoteRequest

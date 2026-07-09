@@ -258,8 +258,27 @@ const AdminUsers = () => {
     }
   }
 
+  const handleToggleCardStatus = async (cardId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/cards/${cardId}/toggle-status`, {
+        method: 'PUT'
+      })
+      if (!response.ok) {
+        throw new Error('Failed to toggle card status')
+      }
+      const result = await response.json()
+      
+      setInfoData(prev => ({
+        ...prev,
+        cards: prev.cards.map(c => c.id === cardId ? { ...c, status: result.status } : c)
+      }))
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+    }
+  }
+
   return (
-    <div className="admin-users">
+    <div className="admin-users" lang="en">
       <header className="admin-users__header">
         <div>
           <span className="admin-users__eyebrow">Admin Panel</span>
@@ -586,8 +605,25 @@ const AdminUsers = () => {
                         {infoData.cards.map((card, i) => (
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
-                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'}</strong>
-                              <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
+                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'})</strong>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
+                                <button 
+                                  onClick={() => handleToggleCardStatus(card.id)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '11px',
+                                    cursor: 'pointer',
+                                    borderRadius: '4px',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: 'transparent',
+                                    color: '#fff',
+                                    textTransform: 'uppercase'
+                                  }}
+                                >
+                                  {card.status === 'Active' ? 'Block' : 'Unblock'}
+                                </button>
+                              </div>
                             </div>
                             <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 2fr' }}>
                               <dl className="admin-users-modal__kv">
