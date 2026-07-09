@@ -28,6 +28,7 @@ const AdminUsers = () => {
   const [noteValue, setNoteValue] = useState('')
   const [savingNote, setSavingNote] = useState(false)
   const [resetting2Fa, setResetting2Fa] = useState(false)
+  const [confirmModal, setConfirmModal] = useState({ open: false, message: '', onConfirm: null })
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -561,7 +562,11 @@ const AdminUsers = () => {
                             <button 
                               className="admin-users-modal__btn-save" 
                               style={{ background: '#e74c3c', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
-                              onClick={handleReset2Fa}
+                              onClick={() => setConfirmModal({
+                                open: true,
+                                message: 'Are you sure you want to send a 2FA reset email to this user?',
+                                onConfirm: () => handleReset2Fa()
+                              })}
                               disabled={resetting2Fa}
                             >
                               {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
@@ -589,8 +594,12 @@ const AdminUsers = () => {
                         <button 
                           className="admin-users-modal__btn-save"
                           style={{ fontSize: '13px', padding: '8px 24px' }}
-                          onClick={handleSaveNote}
-                          disabled={savingNote}
+                          onClick={() => setConfirmModal({
+                            open: true,
+                            message: 'Are you sure you want to save this note?',
+                            onConfirm: () => handleSaveNote()
+                          })}
+                          disabled={savingNote || noteValue === (infoData?.note || '')}
                         >
                           {savingNote ? 'Saving...' : 'Save Note'}
                         </button>
@@ -605,11 +614,15 @@ const AdminUsers = () => {
                         {infoData.cards.map((card, i) => (
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
-                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'})</strong>
+                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'}) - {card.type || card.cardType || 'Standard'}</strong>
                               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                 <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
                                 <button 
-                                  onClick={() => handleToggleCardStatus(card.id)}
+                                  onClick={() => setConfirmModal({
+                                    open: true,
+                                    message: `Are you sure you want to ${card.status === 'Active' ? 'block' : 'unblock'} this card?`,
+                                    onConfirm: () => handleToggleCardStatus(card.id)
+                                  })}
                                   style={{
                                     padding: '4px 8px',
                                     fontSize: '11px',
@@ -741,6 +754,39 @@ const AdminUsers = () => {
                 style={{ width: '120px' }}
               >
                 OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Modal */}
+      {confirmModal.open && (
+        <div className="admin-users-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}>
+          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <div className="admin-users-modal__content" style={{ padding: '32px 24px 24px' }}>
+              <h2 style={{ color: '#fff', fontSize: '20px', margin: '0 0 12px 0' }}>Confirm Action</h2>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+                {confirmModal.message}
+              </p>
+            </div>
+            <div className="admin-users-modal__footer" style={{ justifyContent: 'center', borderTop: 'none', paddingBottom: '24px', gap: '16px' }}>
+              <button 
+                className="admin-users-modal__btn-cancel" 
+                onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
+                style={{ width: '120px' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="admin-users-modal__btn-save" 
+                onClick={() => {
+                  if (confirmModal.onConfirm) confirmModal.onConfirm();
+                  setConfirmModal({ open: false, message: '', onConfirm: null });
+                }}
+                style={{ width: '120px' }}
+              >
+                Confirm
               </button>
             </div>
           </div>

@@ -1,0 +1,70 @@
+<svg width="100%" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="eyeOuter" cx="50%" cy="35%" r="70%">
+    <stop offset="0%" stop-color="#ffe28a" stop-opacity="0.85"/>
+    <stop offset="55%" stop-color="#f3c24a" stop-opacity="0.6"/>
+    <stop offset="100%" stop-color="#a020f0" stop-opacity="0"/>
+  </radialGradient>
+
+  <radialGradient id="eyeIris" cx="45%" cy="40%" r="60%">
+    <stop offset="0%" stop-color="#fff6dd"/>
+    <stop offset="50%" stop-color="#ffe28a"/>
+    <stop offset="100%" stop-color="#c88ef0"/>
+  </radialGradient>
+
+  <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="0.2"/>
+  </filter>
+
+  <clipPath id="clipL">
+    <circle cx="97.9" cy="25" r="1.6"/>
+  </clipPath>
+  <clipPath id="clipR">
+    <circle cx="102.1" cy="25" r="1.6"/>
+  </clipPath>
+</defs>
+
+<style>
+  .eye-l { transform-origin: 97.9px 25px; animation: blink 4s infinite; }
+  .eye-r { transform-origin: 102.1px 25px; animation: blink 4s infinite; }
+  
+  .pupils { animation: lookAround 6s infinite ease-in-out; }
+  
+  @keyframes blink {
+    0%, 94%, 100% { transform: scaleY(1); }
+    97% { transform: scaleY(0.1); }
+  }
+  
+  @keyframes lookAround {
+    0%, 15%, 100% { transform: translate(0px, 0px); }
+    25%, 40% { transform: translate(0.4px, -0.1px); }
+    55%, 70% { transform: translate(-0.4px, 0.1px); }
+    80%, 90% { transform: translate(0.1px, -0.2px); }
+  }
+</style>
+
+<g class="eye-l">
+  <circle cx="97.9" cy="25" r="2.1" fill="url(#eyeOuter)" filter="url(#softBlur)" />
+  <circle cx="97.9" cy="25" r="1.6" fill="url(#eyeIris)" />
+  <g class="pupils" clip-path="url(#clipL)">
+    <circle cx="97.9" cy="25.3" r="0.75" fill="#3a1a52" />
+    <circle cx="97.55" cy="24.85" r="0.28" fill="#ffffff" />
+    <circle cx="98.4" cy="25.7" r="0.15" fill="#ffffff" opacity="0.8" />
+  </g>
+</g>
+
+<g class="eye-r">
+  <circle cx="102.1" cy="25" r="2.1" fill="url(#eyeOuter)" filter="url(#softBlur)" />
+  <circle cx="102.1" cy="25" r="1.6" fill="url(#eyeIris)" />
+  <g class="pupils" clip-path="url(#clipR)">
+    <circle cx="102.1" cy="25.3" r="0.75" fill="#3a1a52" />
+    <circle cx="101.75" cy="24.85" r="0.28" fill="#ffffff" />
+    <circle cx="102.6" cy="25.7" r="0.15" fill="#ffffff" opacity="0.8" />
+  </g>
+</g>
+
+<g class="mouth-group">
+  <path d="M 98.1 28.4 Q 100 29.8 101.9 28.4" fill="none" stroke="url(#eyeOuter)" stroke-width="1.0" stroke-linecap="round" filter="url(#softBlur)"/>
+  <path d="M 98.1 28.4 Q 100 29.8 101.9 28.4" fill="none" stroke="url(#eyeIris)" stroke-width="0.4" stroke-linecap="round" />
+</g>
+</svg>
