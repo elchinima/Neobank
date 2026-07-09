@@ -396,7 +396,7 @@ const AdminUsers = () => {
                       {activeMenuId === user.id && (
                         <div className="admin-users__dropdown">
                           <button onClick={() => openInfoModal(user)}>View Info</button>
-                          <button onClick={() => openRoleModal(user)}>Выдать роль</button>
+                          <button onClick={() => openRoleModal(user)}>Assign Role</button>
                           <button onClick={() => openEmailModal(user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
@@ -455,7 +455,7 @@ const AdminUsers = () => {
         <div className="admin-users-modal-overlay" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>
           <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
             <div className="admin-users-modal__header">
-              <h2>Выдать роль</h2>
+              <h2>Assign Role</h2>
               <button className="admin-users-modal__close" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>&times;</button>
             </div>
             <div className="admin-users-modal__content">
@@ -470,9 +470,15 @@ const AdminUsers = () => {
                     <select
                       value={roleModal.selectedRole}
                       onChange={(e) => setRoleModal(prev => ({ ...prev, selectedRole: e.target.value }))}
-                      style={{ width: '100%', padding: '10px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                      className="admin-users-modal__select"
                     >
-                      {roles.map(r => (
+                      {roles
+                        .filter(r => {
+                          const currentUserRoleObj = roles.find(cr => cr.id === user.role);
+                          // Only allow assigning roles with a higher Order value (lower rank)
+                          return currentUserRoleObj && r.order > currentUserRoleObj.order;
+                        })
+                        .map(r => (
                         <option key={r.id} value={r.id} style={{ background: '#0a0d14' }}>
                           {r.name}
                         </option>
@@ -488,7 +494,6 @@ const AdminUsers = () => {
                 className="admin-users-modal__btn-save" 
                 onClick={confirmAssignRole}
                 disabled={loadingRoles}
-                style={{ background: '#6366f1', color: '#fff' }}
               >
                 Assign
               </button>
