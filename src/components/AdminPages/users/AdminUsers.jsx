@@ -566,7 +566,7 @@ const AdminUsers = () => {
                           <span className="admin-users-modal__counter">{noteValue.length}/1000</span>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '30px' }}>
                         <button 
                           className="admin-users-modal__btn-save"
                           style={{ fontSize: '13px', padding: '8px 24px' }}
@@ -582,17 +582,21 @@ const AdminUsers = () => {
                   {infoData.cards && infoData.cards.length > 0 && (
                     <div className="admin-users-modal__info-section">
                       <h3>Cards ({infoData.cards.length})</h3>
-                      <div className="admin-users-modal__grid-2">
+                      <div className="admin-users-modal__list">
                         {infoData.cards.map((card, i) => (
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
-                              <strong>**** **** **** {card.cardNumber.slice(-4)}</strong>
+                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'}</strong>
                               <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
                             </div>
-                            <div className="admin-users-modal__list-item-body">
+                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 2fr' }}>
                               <dl className="admin-users-modal__kv">
                                 <dt>Balance</dt>
-                                <dd>${card.balance.toFixed(2)}</dd>
+                                <dd>{card.balance?.toFixed(2) || '0.00'} ₼</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Credit Limit</dt>
+                                <dd>{card.creditLimit?.toFixed(2) || '0.00'} ₼</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>IBAN</dt>
@@ -608,7 +612,7 @@ const AdminUsers = () => {
                   {infoData.deposits && infoData.deposits.length > 0 && (
                     <div className="admin-users-modal__info-section">
                       <h3>Active Deposits ({infoData.deposits.length})</h3>
-                      <div className="admin-users-modal__grid-2">
+                      <div className="admin-users-modal__list">
                         {infoData.deposits.map((dep, i) => (
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
@@ -618,7 +622,7 @@ const AdminUsers = () => {
                             <div className="admin-users-modal__list-item-body">
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
-                                <dd>${dep.amount.toFixed(2)}</dd>
+                                <dd>₼{dep.amount?.toFixed(2) || '0.00'}</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>Interest Rate</dt>
@@ -642,7 +646,7 @@ const AdminUsers = () => {
                   {infoData.loans && infoData.loans.length > 0 && (
                     <div className="admin-users-modal__info-section">
                       <h3>Active Loans ({infoData.loans.length})</h3>
-                      <div className="admin-users-modal__grid-2">
+                      <div className="admin-users-modal__list">
                         {infoData.loans.map((loan, i) => (
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
@@ -652,15 +656,15 @@ const AdminUsers = () => {
                             <div className="admin-users-modal__list-item-body">
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
-                                <dd>${loan.amount.toFixed(2)}</dd>
+                                <dd>₼{loan.amount?.toFixed(2) || '0.00'}</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>Remaining</dt>
-                                <dd>${loan.remainingBalance.toFixed(2)}</dd>
+                                <dd>₼{loan.remainingBalance?.toFixed(2) || '0.00'}</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>Monthly Payment</dt>
-                                <dd>${loan.monthlyPayment.toFixed(2)}</dd>
+                                <dd>₼{loan.monthlyPayment?.toFixed(2) || '0.00'}</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>Interest Rate</dt>
