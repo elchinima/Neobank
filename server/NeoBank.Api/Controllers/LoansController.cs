@@ -69,9 +69,10 @@ public class LoansController : ControllerBase
 
         decimal baseRate = 9.9m;
         decimal rate = Math.Round(baseRate + ((decimal)Math.Ceiling(request.TermMonths / 12.0) - 1) * 2m, 1);
-        decimal monthlyRate = (rate / 100) / 12;
-        double monthlyPaymentDouble = (double)request.Amount * ((double)monthlyRate * Math.Pow(1 + (double)monthlyRate, request.TermMonths)) / (Math.Pow(1 + (double)monthlyRate, request.TermMonths) - 1);
-        decimal monthlyPayment = Math.Round((decimal)monthlyPaymentDouble, 2);
+        decimal years = (decimal)request.TermMonths / 12m;
+        decimal totalInterest = request.Amount * (rate / 100m) * years;
+        decimal totalAmount = request.Amount + totalInterest;
+        decimal monthlyPayment = Math.Round(totalAmount / request.TermMonths, 2);
 
 
         targetCard.Balance += request.Amount;

@@ -10,13 +10,12 @@ export function useLoans(loanTypes) {
   const baseRate = 9.9
   const dynamicRate = Number((baseRate + (Math.ceil(term / 12) - 1) * 2).toFixed(1))
 
-  const monthlyRate = dynamicRate / 100 / 12
-  const monthlyPayment = (
-    (amount * monthlyRate) /
-    (1 - Math.pow(1 + monthlyRate, -term))
-  ).toFixed(2)
-  const total = (Number(monthlyPayment) * term).toFixed(2)
-  const overpayment = (Number(total) - amount).toFixed(2)
+  const years = term / 12
+  const totalInterest = amount * (dynamicRate / 100) * years
+  const totalAmount = amount + totalInterest
+  const monthlyPayment = (totalAmount / term).toFixed(2)
+  const total = totalAmount.toFixed(2)
+  const overpayment = totalInterest.toFixed(2)
 
   return {
     selected,

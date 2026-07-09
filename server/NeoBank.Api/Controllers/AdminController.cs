@@ -104,7 +104,7 @@ public class AdminController : ControllerBase
 
         var cards = await _context.Cards
             .Where(c => c.UserId == userId)
-            .Select(c => new { c.Id, c.CardNumber, c.Iban, c.Status, c.Balance, c.CreditLimit, c.Network })
+            .Select(c => new { c.Id, c.CardNumber, c.Iban, c.Status, c.Balance, c.CreditLimit, c.Network, c.CardType })
             .ToListAsync();
 
         var deposits = await _context.Deposits

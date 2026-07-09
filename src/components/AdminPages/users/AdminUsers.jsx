@@ -11,6 +11,7 @@ const formatTableName = (user) => {
 const AdminUsers = () => {
   const [users, setUsers] = useState([])
   const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [statusModal, setStatusModal] = useState({ open: false, user: null })
@@ -285,15 +286,28 @@ const AdminUsers = () => {
           <span className="admin-users__eyebrow">Admin Panel</span>
           <h1>Users</h1>
         </div>
-        <div className="admin-users__search">
-          <label htmlFor="admin-user-search">Search</label>
-          <input
-            id="admin-user-search"
-            type="search"
-            placeholder="Search by id, name, email or role"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+        <div className="admin-users__search" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <label htmlFor="admin-user-search">Search</label>
+            <input
+              id="admin-user-search"
+              type="search"
+              placeholder="Search by id, name, email or role"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setSearch(searchInput)
+              }}
+            />
+          </div>
+          <button 
+            type="button" 
+            className="admin-users-modal__btn-save" 
+            style={{ height: '42px', padding: '0 20px', borderRadius: '8px' }}
+            onClick={() => setSearch(searchInput)}
+          >
+            Search
+          </button>
         </div>
       </header>
 
@@ -668,7 +682,7 @@ const AdminUsers = () => {
                               <strong>Deposit</strong>
                               <span className="active">Active</span>
                             </div>
-                            <div className="admin-users-modal__list-item-body">
+                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
                                 <dd>₼{dep.amount?.toFixed(2) || '0.00'}</dd>
@@ -678,12 +692,20 @@ const AdminUsers = () => {
                                 <dd>{dep.interestRate}%</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
+                                <dt>Profit</dt>
+                                <dd>₼{dep.totalIncome?.toFixed(2) || '0.00'}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
                                 <dt>Term (Months)</dt>
                                 <dd>{dep.termMonths}</dd>
                               </dl>
                               <dl className="admin-users-modal__kv">
                                 <dt>Created At</dt>
                                 <dd>{new Date(dep.createdAt).toLocaleDateString()}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Payout Date</dt>
+                                <dd>{new Date(new Date(dep.createdAt).setMonth(new Date(dep.createdAt).getMonth() + dep.termMonths)).toLocaleDateString()}</dd>
                               </dl>
                             </div>
                           </div>
@@ -702,7 +724,7 @@ const AdminUsers = () => {
                               <strong>Loan</strong>
                               <span className="active">Active</span>
                             </div>
-                            <div className="admin-users-modal__list-item-body">
+                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
                                 <dd>₼{loan.amount?.toFixed(2) || '0.00'}</dd>
@@ -718,6 +740,14 @@ const AdminUsers = () => {
                               <dl className="admin-users-modal__kv">
                                 <dt>Interest Rate</dt>
                                 <dd>{loan.interestRate}%</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Term (Months)</dt>
+                                <dd>{loan.termMonths}</dd>
+                              </dl>
+                              <dl className="admin-users-modal__kv">
+                                <dt>Next Payment</dt>
+                                <dd>{loan.nextPaymentDate ? new Date(loan.nextPaymentDate).toLocaleDateString() : 'N/A'}</dd>
                               </dl>
                             </div>
                           </div>
