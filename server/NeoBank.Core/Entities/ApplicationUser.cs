@@ -7,7 +7,8 @@ public class ApplicationUser
     public string PasswordHash { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public string Role { get; set; } = "User";
+    public string RoleId { get; set; } = "User";
+    public Role? Role { get; set; }
     public string? AvatarUrl { get; set; }
     public string? RegistrationIp { get; set; }
     public string? LastIp { get; set; }

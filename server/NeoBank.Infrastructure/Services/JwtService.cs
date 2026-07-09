@@ -29,7 +29,7 @@ public class JwtService : IJwtService
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.GivenName, user.FirstName),
             new(ClaimTypes.Surname, user.LastName),
-            new(ClaimTypes.Role, user.Role),
+            new(ClaimTypes.Role, user.RoleId),
             new("avatarUrl", user.AvatarUrl ?? string.Empty)
         };
 

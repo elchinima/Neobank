@@ -64,7 +64,7 @@ public class AdminController : ControllerBase
                 u.FirstName.ToLower().Contains(normalizedSearch) ||
                 u.LastName.ToLower().Contains(normalizedSearch) ||
                 u.Email.ToLower().Contains(normalizedSearch) ||
-                u.Role.ToLower().Contains(normalizedSearch));
+                u.RoleId.ToLower().Contains(normalizedSearch));
         }
 
         var users = await usersQuery
@@ -75,7 +75,7 @@ public class AdminController : ControllerBase
                 u.FirstName,
                 u.LastName,
                 u.Email,
-                u.Role,
+                Role = u.RoleId,
                 u.CreatedAt,
                 u.IsActive
             })
@@ -650,6 +650,34 @@ public class AdminController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+    [HttpGet("roles")]
+    public async Task<IActionResult> GetRoles()
+    {
+        var roles = await _context.Roles.OrderBy(r => r.Order).ToListAsync();
+        return Ok(roles);
+    }
+
+    [HttpPut("users/{id}/role")]
+    public async Task<IActionResult> AssignRole(string id, [FromBody] AssignRoleDto dto)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return NotFound("User not found");
+
+        var role = await _context.Roles.FindAsync(dto.RoleId);
+        if (role == null)
+            return BadRequest("Invalid role");
+
+        user.RoleId = role.Id;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Role assigned successfully", role = role.Id });
+    }
+}
+
+public class AssignRoleDto
+{
+    public string RoleId { get; set; } = string.Empty;
 }
 
 public class FooterSettingRequest

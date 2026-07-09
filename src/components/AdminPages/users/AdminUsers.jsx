@@ -19,6 +19,9 @@ const AdminUsers = () => {
   const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
   const [sendingEmail, setSendingEmail] = useState(false)
   const [alertModal, setAlertModal] = useState({ open: false, message: '', isError: false })
+  const [roleModal, setRoleModal] = useState({ open: false, user: null, selectedRole: '' })
+  const [roles, setRoles] = useState([])
+  const [loadingRoles, setLoadingRoles] = useState(false)
   const [emailFile, setEmailFile] = useState(null)
   const [emailPreviewUrl, setEmailPreviewUrl] = useState(null)
   const fileInputRef = useRef(null)
@@ -109,8 +112,47 @@ const AdminUsers = () => {
           u.id === user.id ? { ...u, isActive: result.isActive } : u
         )
       )
-      await loadUsers()
       setStatusModal({ open: false, user: null })
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+    }
+  }
+
+  const openRoleModal = async (user) => {
+    setActiveMenuId(null)
+    setRoleModal({ open: true, user, selectedRole: user.role || 'User' })
+    if (roles.length === 0) {
+      setLoadingRoles(true)
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/roles`)
+        if (res.ok) {
+          const data = await res.json()
+          setRoles(data)
+        }
+      } catch (err) {
+        setAlertModal({ open: true, message: 'Failed to load roles', isError: true })
+      } finally {
+        setLoadingRoles(false)
+      }
+    }
+  }
+
+  const confirmAssignRole = async () => {
+    const { user, selectedRole } = roleModal
+    if (!user) return
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roleId: selectedRole })
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update role')
+      }
+      
+      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, role: selectedRole } : u))
+      setRoleModal({ open: false, user: null, selectedRole: '' })
     } catch (err) {
       setAlertModal({ open: true, message: err.message, isError: true })
     }
@@ -280,14 +322,14 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="admin-users" lang="en">
+    <div className="admin-users">
       <header className="admin-users__header">
         <div>
           <span className="admin-users__eyebrow">Admin Panel</span>
           <h1>Users</h1>
         </div>
-        <div className="admin-users__search" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div className="admin-users__actions" style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
+          <div className="admin-users__search">
             <label htmlFor="admin-user-search">Search</label>
             <input
               id="admin-user-search"
@@ -302,8 +344,7 @@ const AdminUsers = () => {
           </div>
           <button 
             type="button" 
-            className="admin-users-modal__btn-save" 
-            style={{ height: '42px', padding: '0 20px', borderRadius: '8px' }}
+            className="admin-users__search-btn" 
             onClick={() => setSearch(searchInput)}
           >
             Search
@@ -355,6 +396,7 @@ const AdminUsers = () => {
                       {activeMenuId === user.id && (
                         <div className="admin-users__dropdown">
                           <button onClick={() => openInfoModal(user)}>View Info</button>
+                          <button onClick={() => openRoleModal(user)}>Выдать роль</button>
                           <button onClick={() => openEmailModal(user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
@@ -402,6 +444,53 @@ const AdminUsers = () => {
                 style={statusModal.user.isActive ? { background: '#ff3b30', color: '#fff' } : { background: '#2ecc71', color: '#fff' }}
               >
                 {statusModal.user.isActive ? 'Block' : 'Unblock'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Modal */}
+      {roleModal.open && roleModal.user && (
+        <div className="admin-users-modal-overlay" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>
+          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="admin-users-modal__header">
+              <h2>Выдать роль</h2>
+              <button className="admin-users-modal__close" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>&times;</button>
+            </div>
+            <div className="admin-users-modal__content">
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', marginBottom: '16px' }}>
+                Select a new role for <strong>{formatTableName(roleModal.user)}</strong>.
+              </p>
+              {loadingRoles ? (
+                <p>Loading roles...</p>
+              ) : (
+                <div className="admin-users-modal__field">
+                  <div className="admin-users-modal__input-wrap">
+                    <select
+                      value={roleModal.selectedRole}
+                      onChange={(e) => setRoleModal(prev => ({ ...prev, selectedRole: e.target.value }))}
+                      style={{ width: '100%', padding: '10px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                    >
+                      {roles.map(r => (
+                        <option key={r.id} value={r.id} style={{ background: '#0a0d14' }}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="admin-users-modal__footer">
+              <button className="admin-users-modal__btn-cancel" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>Cancel</button>
+              <button 
+                className="admin-users-modal__btn-save" 
+                onClick={confirmAssignRole}
+                disabled={loadingRoles}
+                style={{ background: '#6366f1', color: '#fff' }}
+              >
+                Assign
               </button>
             </div>
           </div>

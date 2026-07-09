@@ -56,6 +56,23 @@
     }
   }
 
+  &__search-btn {
+    align-self: flex-end;
+    min-height: 46px;
+    padding: 0 24px;
+    border: none;
+    border-radius: $border-radius-sm;
+    background: $landing-gold-soft;
+    color: #111;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+
+    &:hover {
+      background: lighten($landing-gold-soft, 5%);
+    }
+  }
+
   &__table-card {
     border: 1px solid rgba(255, 226, 138, 0.1);
     border-radius: $border-radius;

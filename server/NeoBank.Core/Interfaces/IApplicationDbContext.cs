@@ -5,6 +5,7 @@ namespace NeoBank.Core.Interfaces;
 
 public interface IApplicationDbContext
 {
+    DbSet<Role> Roles { get; set; }
     DbSet<ApplicationUser> Users { get; set; }
     DbSet<Card> Cards { get; set; }
     DbSet<Transaction> Transactions { get; set; }

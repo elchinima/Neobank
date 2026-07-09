@@ -4,7 +4,7 @@ import './AdminLayout.scss'
 
 const AdminLayout = () => {
   return (
-    <div className="admin-layout">
+    <div className="admin-layout" lang="en">
       <AdminNavbar />
       <main className="admin-layout__main">
         <Outlet />

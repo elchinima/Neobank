@@ -221,29 +221,26 @@ const AdminDatabase = () => {
           <h1>Database</h1>
         </div>
         <div className="admin-db__actions">
-          <div className="admin-db__search" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <label htmlFor="admin-db-search">Search</label>
-              <input
-                id="admin-db-search"
-                type="search"
-                placeholder="Search by id or name"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') setSearch(searchInput)
-                }}
-              />
-            </div>
-            <button 
-              type="button" 
-              className="admin-users-modal__btn-save" 
-              style={{ height: '42px', padding: '0 20px', borderRadius: '8px', cursor: 'pointer', background: '#eab308', color: '#000', border: 'none', fontWeight: 'bold' }}
-              onClick={() => setSearch(searchInput)}
-            >
-              Search
-            </button>
+          <div className="admin-db__search">
+            <label htmlFor="admin-db-search">Search</label>
+            <input
+              id="admin-db-search"
+              type="search"
+              placeholder="Search by id or name"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setSearch(searchInput)
+              }}
+            />
           </div>
+          <button 
+            type="button" 
+            className="admin-db__add-btn" 
+            onClick={() => setSearch(searchInput)}
+          >
+            Search
+          </button>
           <button className="admin-db__add-btn" onClick={openModal}>
             Add Image
           </button>

@@ -11,6 +11,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
     }
 
+    public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<ApplicationUser> Users { get; set; } = null!;
     public DbSet<Card> Cards { get; set; } = null!;
     public DbSet<Transaction> Transactions { get; set; } = null!;
@@ -29,6 +30,21 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Roles");
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.Name).IsRequired();
+            entity.HasData(
+                new Role { Id = "Developer", Name = "Developer", Order = 1 },
+                new Role { Id = "Super Admin", Name = "Super Admin", Order = 2 },
+                new Role { Id = "Admin", Name = "Admin", Order = 3 },
+                new Role { Id = "Support", Name = "Support", Order = 4 },
+                new Role { Id = "Business", Name = "Business", Order = 5 },
+                new Role { Id = "User", Name = "User", Order = 6 }
+            );
+        });
+
         builder.Entity<ApplicationUser>(entity =>
         {
             entity.ToTable("Users");
@@ -38,6 +54,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(u => u.PasswordHash).IsRequired();
             entity.Property(u => u.FirstName).IsRequired();
             entity.Property(u => u.LastName).IsRequired();
+
+            entity.HasOne(u => u.Role)
+                  .WithMany()
+                  .HasForeignKey(u => u.RoleId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<RefreshToken>(entity =>

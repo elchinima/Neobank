@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext'
 import { LanguageProvider } from '../context/LanguageContext'
 import ProtectedRoute from './ProtectedRoute'
+import AdminProtectedRoute from './AdminProtectedRoute'
 import PageLoader from '../../components/PageLoader/PageLoader'
 
 import Landing from '../../components/PublicPages/landing/Landing'
@@ -47,13 +48,15 @@ function AppRouter() {
             <Route path="/support" element={<SupportPublic />} />
             <Route path="/error" element={<ErrorPage />} />
 
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="banner" element={<AdminBanner />} />
-              <Route path="database" element={<AdminDatabase />} />
-              <Route path="footer" element={<AdminFooter />} />
+            <Route element={<AdminProtectedRoute />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="banner" element={<AdminBanner />} />
+                <Route path="database" element={<AdminDatabase />} />
+                <Route path="footer" element={<AdminFooter />} />
+              </Route>
             </Route>
 
             <Route element={<ProtectedRoute />}>

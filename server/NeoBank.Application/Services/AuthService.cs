@@ -41,7 +41,7 @@ public class AuthService : IAuthService
             Email = dto.Email.Trim(),
             FirstName = dto.FirstName.Trim(),
             LastName = dto.LastName.Trim(),
-            Role = "User",
+            RoleId = "User",
             RegistrationIp = ipAddress,
             LastIp = ipAddress,
             LastLoginAt = DateTime.UtcNow,
@@ -215,7 +215,7 @@ public class AuthService : IAuthService
         _dbContext.RefreshTokens.Add(newRefreshToken);
         await _dbContext.SaveChangesAsync();
 
-        var roles = new List<string> { refreshToken.User.Role };
+        var roles = new List<string> { refreshToken.User.RoleId };
         var (accessToken, expiration) = _jwtService.GenerateToken(refreshToken.User, roles);
 
         return new AuthResponseDto
@@ -266,7 +266,7 @@ public class AuthService : IAuthService
 
         await _dbContext.SaveChangesAsync();
 
-        var roles = new List<string> { user.Role };
+        var roles = new List<string> { user.RoleId };
         var (token, expiration) = _jwtService.GenerateToken(user, roles);
 
         return new AuthResponseDto
@@ -352,6 +352,7 @@ public class AuthService : IAuthService
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Role = user.RoleId,
             AvatarUrl = user.AvatarUrl,
             RegistrationIp = user.RegistrationIp,
             LastIp = user.LastIp,
