@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
+import { useAuth } from '../../../app/context/AuthContext'
 import './AdminUsers.scss'
 
 const formatTableName = (user) => {
@@ -9,6 +10,7 @@ const formatTableName = (user) => {
 }
 
 const AdminUsers = () => {
+  const { user: authUser } = useAuth()
   const [users, setUsers] = useState([])
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
@@ -474,7 +476,7 @@ const AdminUsers = () => {
                     >
                       {roles
                         .filter(r => {
-                          const currentUserRoleObj = roles.find(cr => cr.id === user.role);
+                          const currentUserRoleObj = roles.find(cr => cr.id === authUser?.role);
                           // Only allow assigning roles with a higher Order value (lower rank)
                           return currentUserRoleObj && r.order > currentUserRoleObj.order;
                         })
