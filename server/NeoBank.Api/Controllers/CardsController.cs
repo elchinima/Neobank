@@ -357,6 +357,18 @@ public class CardsController : ControllerBase
             return NotFound(new { message = "User email not found." });
         }
 
+        int periodMonths = int.TryParse(request.Period, out var p) ? p : 3;
+        var fromDate = DateTime.UtcNow.AddMonths(-periodMonths);
+
+        var transactionsQuery = _context.Transactions.Where(t => t.UserId == userId && t.CreatedAt >= fromDate);
+
+        if (request.CardId != "all")
+        {
+            transactionsQuery = transactionsQuery.Where(t => t.CardId == request.CardId || t.RecipientAccount == request.CardId);
+        }
+
+        var transactions = await transactionsQuery.OrderByDescending(t => t.CreatedAt).ToListAsync();
+
         string title = request.Language switch
         {
             "en" => "Your Account Statement",
@@ -367,20 +379,49 @@ public class CardsController : ControllerBase
 
         string content = request.Language switch
         {
-            "en" => $"Dear {user.FirstName},\n\nPlease find attached the statement for card {request.CardId} for the period of {request.Period} months.",
-            "ru" => $"Уважаемый(ая) {user.FirstName},\n\nВо вложении находится выписка по карте {request.CardId} за период {request.Period} месяцев.",
-            "az" => $"Hörmətli {user.FirstName},\n\n{request.CardId} nömrəli kart üzrə {request.Period} aylıq çıxarışınız əlavə olunur.",
-            _ => $"Dear {user.FirstName},\n\nPlease find attached the statement for card {request.CardId} for the period of {request.Period} months."
+            "en" => $"Dear {user.FirstName},\n\nPlease find attached the statement for the period of {request.Period} months.",
+            "ru" => $"Уважаемый(ая) {user.FirstName},\n\nВо вложении находится выписка за период {request.Period} месяцев.",
+            "az" => $"Hörmətli {user.FirstName},\n\n{request.Period} aylıq çıxarışınız əlavə olunur.",
+            _ => $"Dear {user.FirstName},\n\nPlease find attached the statement for the period of {request.Period} months."
         };
 
-        var textContent = request.Language switch
+        var sb = new System.Text.StringBuilder();
+        
+        if (request.Language == "az") {
+            sb.AppendLine("Çıxarış / Statement");
+            sb.AppendLine($"Kart: {(request.CardId == "all" ? "Bütün kartlar" : request.CardId)}");
+            sb.AppendLine($"Müddət: {request.Period} ay");
+            sb.AppendLine($"Tarix aralığı: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
+            sb.AppendLine("--------------------------------------------------");
+            foreach (var t in transactions) {
+                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
+            }
+        } else if (request.Language == "ru") {
+            sb.AppendLine("Выписка / Statement");
+            sb.AppendLine($"Карта: {(request.CardId == "all" ? "Все карты" : request.CardId)}");
+            sb.AppendLine($"Период: {request.Period} мес.");
+            sb.AppendLine($"Временной промежуток: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
+            sb.AppendLine("--------------------------------------------------");
+            foreach (var t in transactions) {
+                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
+            }
+        } else {
+            sb.AppendLine("Account Statement");
+            sb.AppendLine($"Card: {(request.CardId == "all" ? "All cards" : request.CardId)}");
+            sb.AppendLine($"Period: {request.Period} months");
+            sb.AppendLine($"Date Range: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
+            sb.AppendLine("--------------------------------------------------");
+            foreach (var t in transactions) {
+                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
+            }
+        }
+
+        if (transactions.Count == 0)
         {
-            "az" => $"Çıxarış / Statement\nKart: {request.CardId}\nMüddət: {request.Period} ay\n\nBu sənəd avtomatik olaraq generasiya edilmişdir.",
-            "ru" => $"Выписка / Statement\nКарта: {request.CardId}\nПериод: {request.Period} мес.\n\nЭтот документ сгенерирован автоматически.",
-            "en" => $"Statement\nCard: {request.CardId}\nPeriod: {request.Period} months\n\nThis document is automatically generated.",
-            _ => $"Statement\nCard: {request.CardId}\nPeriod: {request.Period} months\n\nThis document is automatically generated."
-        };
-        var fileBytes = System.Text.Encoding.UTF8.GetBytes(textContent);
+            sb.AppendLine("\nNo transactions found for this period.");
+        }
+
+        var fileBytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
 
         await _emailService.SendCustomEmailAsync(
             toEmail: user.Email,
