@@ -369,7 +369,7 @@ public class CardsController : ControllerBase
 
         var transactions = await transactionsQuery.OrderByDescending(t => t.CreatedAt).ToListAsync();
 
-        Card? card = null;
+        NeoBank.Core.Entities.Card? card = null;
         decimal currentBalance = 0m;
 
         if (request.CardId != "all")
