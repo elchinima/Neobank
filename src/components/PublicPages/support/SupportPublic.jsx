@@ -29,23 +29,13 @@ function SupportPublic() {
   const {
     isModalOpen,
     setIsModalOpen,
-    isChatOpen,
-    setIsChatOpen,
     name,
     setName,
     category,
     setCategory,
     message,
     setMessage,
-    chatInput,
-    setChatInput,
-    messages,
-    setMessages,
-    isTyping,
-    messagesContainerRef,
-    chatSectionRef,
     handleFormSubmit,
-    handleSendMessage,
   } = useSupportPublic()
 
   useEffect(() => {
@@ -98,7 +88,7 @@ function SupportPublic() {
       </nav>
 
       <main className="support-page__main">
-        <section className={`support-page__hero${hasBanner || isChatOpen ? '' : ' support-page__hero--no-media'}`} aria-labelledby="support-title">
+        <section className={`support-page__hero${hasBanner ? '' : ' support-page__hero--no-media'}`} aria-labelledby="support-title">
           <div className="support-page__hero-content">
             <p className="support-page__eyebrow" data-lang-key="heroEyebrow">{t(supportLang, 'heroEyebrow')}</p>
             <h1 id="support-title" data-lang-key="heroTitle">{t(supportLang, 'heroTitle')}</h1>
@@ -110,13 +100,6 @@ function SupportPublic() {
                 data-lang-key="openTicket"
               >
                 {t(supportLang, 'openTicket')}
-              </button>
-              <button
-                onClick={() => setIsChatOpen(true)}
-                className="support-page__button support-page__button--light"
-                data-lang-key="startChat"
-              >
-                {t(supportLang, 'startChat')}
               </button>
             </div>
 
@@ -136,72 +119,12 @@ function SupportPublic() {
             )}
           </div>
 
-          {(hasBanner || isChatOpen) && (
-          <div className="support-page__hero-media" ref={chatSectionRef} aria-label="NeoBank support campaign">
-            {isChatOpen ? (
-              <div className="support-chat">
-                <div className="support-chat__header">
-                  <div className="support-chat__avatar">S</div>
-                  <div className="support-chat__agent-info">
-                    <strong>Sarah</strong>
-                    <span>Online • NeoBank Agent</span>
-                  </div>
-                  <button
-                    className="support-chat__reset-btn"
-                    onClick={() => {
-                      setIsChatOpen(false)
-                      setName('')
-                      setMessage('')
-                      setMessages([])
-                    }}
-                    title="End chat and reset"
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                <div className="support-chat__messages" ref={messagesContainerRef}>
-                  {messages.map((msg) => (
-                    <div className={`support-chat__message-wrapper ${msg.sender}`} key={msg.id}>
-                      <div className="support-chat__message-bubble">
-                        <p>{msg.text}</p>
-                        <span className="support-chat__message-time">{msg.time}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {isTyping && (
-                    <div className="support-chat__message-wrapper support typing">
-                      <div className="support-chat__message-bubble">
-                        <div className="typing-indicator">
-                          <span />
-                          <span />
-                          <span />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <form className="support-chat__input-area" onSubmit={handleSendMessage}>
-                  <input
-                    type="text"
-                    placeholder={t(supportLang, 'chatInputPlaceholder')}
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                  />
-                  <button type="submit" disabled={!chatInput.trim()}>
-                    Send
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <>
-                <img src={bannerImage} alt="NeoBank support" />
-                <p className="support-page__media-copy" data-lang-key="mediaCopy">
-                  {setting?.mediaText || t(supportLang, 'mediaCopy')}
-                </p>
-              </>
-            )}
+          {hasBanner && (
+          <div className="support-page__hero-media" aria-label="NeoBank support campaign">
+            <img src={bannerImage} alt="NeoBank support" />
+            <p className="support-page__media-copy" data-lang-key="mediaCopy">
+              {setting?.mediaText || t(supportLang, 'mediaCopy')}
+            </p>
           </div>
           )}
         </section>

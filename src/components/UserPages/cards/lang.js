@@ -166,7 +166,16 @@ export const userCardsLang = {
     statementSentSuccess: 'Document sent to your email successfully!',
     threeMonths: '3 months',
     sixMonths: '6 months',
-    twelveMonths: '12 months'
+    twelveMonths: '12 months',
+    arayislarModalTitle: 'Order a Certificate (Arayış)',
+    certificateType: 'Certificate Type',
+    certCreditLine: 'Certificate of Credit Line',
+    certDebt: 'Certificate of Debt',
+    certDeposits: 'Certificate of Deposits',
+    certificateFee: 'Certificate Fee',
+    certificateFeeValue: '10.00 AZN (will be deducted)',
+    orderCertificateBtn: 'Order (10 AZN)',
+    certificateSentSuccess: 'Certificate generated and sent to your email successfully!'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -335,7 +344,16 @@ export const userCardsLang = {
     statementSentSuccess: 'Sənəd e-poçtunuza uğurla göndərildi!',
     threeMonths: '3 ay',
     sixMonths: '6 ay',
-    twelveMonths: '12 ay'
+    twelveMonths: '12 ay',
+    arayislarModalTitle: 'Arayış sifarişi',
+    certificateType: 'Arayış növü',
+    certCreditLine: 'Kredit xətti haqqında arayış',
+    certDebt: 'Bank qarşısında borc haqqında arayış',
+    certDeposits: 'Mövcud depozitlər haqqında arayış',
+    certificateFee: 'Arayış rüsumu',
+    certificateFeeValue: '10.00 AZN (hesabdan çıxılacaq)',
+    orderCertificateBtn: 'Sifariş et (10 AZN)',
+    certificateSentSuccess: 'Arayış uğurla yaradıldı və poçtunuza göndərildi!'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -504,6 +522,15 @@ export const userCardsLang = {
     statementSentSuccess: 'Документ успешно отправлен на вашу почту!',
     threeMonths: '3 месяца',
     sixMonths: '6 месяцев',
-    twelveMonths: '12 месяцев'
+    twelveMonths: '12 месяцев',
+    arayislarModalTitle: 'Заказ справки',
+    certificateType: 'Тип справки',
+    certCreditLine: 'Справка о кредитной линии',
+    certDebt: 'Справка о задолженности',
+    certDeposits: 'Справка о депозитах',
+    certificateFee: 'Комиссия',
+    certificateFeeValue: '10.00 AZN (будет списана)',
+    orderCertificateBtn: 'Заказать (10 AZN)',
+    certificateSentSuccess: 'Справка успешно сформирована и отправлена на вашу почту!'
   }
 }

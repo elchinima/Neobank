@@ -190,6 +190,66 @@
         color: $landing-gold-soft;
       }
     }
+
+    &--danger {
+      background: rgba(220, 38, 38, 0.15);
+      color: #ff9999;
+      border-color: rgba(220, 38, 38, 0.3);
+
+      &:hover {
+        background: rgba(220, 38, 38, 0.3);
+        border-color: rgba(220, 38, 38, 0.5);
+        color: #fff;
+      }
+    }
+  }
+
+  &__modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(12, 9, 18, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: userNavReveal $landing-animation-fast $landing-animation-ease both;
+  }
+
+  &__modal {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)), rgba(23, 18, 31, 0.9);
+    border: 1px solid rgba(255, 226, 138, 0.18);
+    border-radius: $border-radius;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 34px 90px rgba(0, 0, 0, 0.4), 0 0 60px rgba(160, 32, 240, 0.15);
+    text-align: center;
+
+    h3 {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+  }
+
+  &__modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    .user-navbar__button {
+      min-width: 120px;
+    }
   }
 
   &__toggle {

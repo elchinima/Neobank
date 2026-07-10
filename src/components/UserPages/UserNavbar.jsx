@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
 import { useAuth } from '../../app/context/AuthContext'
@@ -6,6 +7,7 @@ import { navbarLang } from './navbar.lang.js'
 import './UserNavbar.scss'
 
 const UserNavbar = () => {
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const currentPath = location.pathname
@@ -43,7 +45,8 @@ const UserNavbar = () => {
     : 'Client'
 
   return (
-    <nav className="user-navbar" aria-label="Client navigation">
+    <>
+      <nav className="user-navbar" aria-label="Client navigation">
       <Link className="user-navbar__brand" to="/user/dashboard">
         <span className="user-navbar__brand-mark" aria-hidden="true">
           <img src={logoMark} alt="NeoBank logo" />
@@ -78,11 +81,29 @@ const UserNavbar = () => {
             <span>{user?.email || 'User'}</span>
           </div>
         </Link>
-        <button className="user-navbar__button user-navbar__button--ghost" onClick={handleLogout} data-lang-key="logout">
+        <button className="user-navbar__button user-navbar__button--ghost" onClick={() => setIsLogoutModalOpen(true)} data-lang-key="logout">
           {t(navbarLang, 'logout')}
         </button>
       </div>
     </nav>
+
+      {isLogoutModalOpen && (
+        <div className="user-navbar__modal-overlay" onClick={() => setIsLogoutModalOpen(false)}>
+          <div className="user-navbar__modal" onClick={(e) => e.stopPropagation()}>
+            <h3 data-lang-key="logoutConfirmTitle">{t(navbarLang, 'logoutConfirmTitle')}</h3>
+            <p data-lang-key="logoutConfirmText">{t(navbarLang, 'logoutConfirmText')}</p>
+            <div className="user-navbar__modal-actions">
+              <button onClick={() => setIsLogoutModalOpen(false)} className="user-navbar__button user-navbar__button--ghost" data-lang-key="cancel">
+                {t(navbarLang, 'cancel')}
+              </button>
+              <button onClick={handleLogout} className="user-navbar__button user-navbar__button--danger" data-lang-key="logout">
+                {t(navbarLang, 'logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

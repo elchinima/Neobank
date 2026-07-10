@@ -205,8 +205,49 @@ const Cards = () => {
 
   const [showStatementsChoiceModal, setShowStatementsChoiceModal] = useState(false)
   const [showReferencesModal, setShowReferencesModal] = useState(false)
+  const [showArayislarModal, setShowArayislarModal] = useState(false)
   const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
+  const [arayislarForm, setArayislarForm] = useState({ type: 'CreditLine', language: 'az', paymentCardId: '' })
   const [referencesStatus, setReferencesStatus] = useState('idle')
+  const [arayislarStatus, setArayislarStatus] = useState('idle')
+  const [arayislarError, setArayislarError] = useState('')
+
+  const handleArayislarSubmit = async (e) => {
+    e.preventDefault();
+    setArayislarStatus('loading');
+    setArayislarError('');
+    
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/Documents/references`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          type: arayislarForm.type,
+          language: arayislarForm.language,
+          paymentCardId: arayislarForm.paymentCardId
+        })
+      });
+
+      if (!res.ok) {
+        let errMsg = `Server error: ${res.status}`;
+        try {
+          const errData = await res.json();
+          errMsg = errData.message || errMsg;
+        } catch {}
+        throw new Error(errMsg);
+      }
+
+      setArayislarStatus('success');
+      setTimeout(() => {
+        setShowArayislarModal(false);
+        setArayislarStatus('idle');
+      }, 2000);
+    } catch (error) {
+      console.error('Arayislar error:', error);
+      setArayislarStatus('idle');
+      setArayislarError(error.message);
+    }
+  };
 
   const handleSendReference = async (e) => {
     e.preventDefault();
@@ -2078,7 +2119,7 @@ const Cards = () => {
               <div className="settings-section">
                 <button className="settings-action-btn" onClick={() => {
                   setShowStatementsChoiceModal(false);
-                  setShowUnavailableModal(true);
+                  setShowArayislarModal(true);
                 }}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
@@ -2095,6 +2136,86 @@ const Cards = () => {
                   </div>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showArayislarModal && (
+        <div className="card-modal-overlay" onClick={() => setShowArayislarModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {arayislarStatus === 'success' ? (
+                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                  <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleArayislarSubmit} className="modal-form">
+                  {arayislarError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{arayislarError}</div>}
+                  
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'certificateType')}</label>
+                    <select
+                      value={arayislarForm.type}
+                      onChange={e => setArayislarForm({ ...arayislarForm, type: e.target.value })}
+                      required
+                    >
+                      <option value="CreditLine" style={{ color: '#111' }}>{t(userCardsLang, 'certCreditLine')}</option>
+                      <option value="Debt" style={{ color: '#111' }}>{t(userCardsLang, 'certDebt')}</option>
+                      <option value="Deposits" style={{ color: '#111' }}>{t(userCardsLang, 'certDeposits')}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'languageLabel')}</label>
+                    <select
+                      value={arayislarForm.language}
+                      onChange={e => setArayislarForm({ ...arayislarForm, language: e.target.value })}
+                      required
+                    >
+                      <option value="en" style={{ color: '#111' }}>English</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'selectSourceCard')}</label>
+                    <select
+                      value={arayislarForm.paymentCardId}
+                      onChange={e => setArayislarForm({ ...arayislarForm, paymentCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.filter(c => c.status === 'Active').map(c => (
+                        <option key={c.id} value={c.id} style={{ color: '#111' }}>
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label>{t(userCardsLang, 'certificateFee')}</label>
+                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', color: '#ffcc00', border: '1px solid rgba(255,204,0,0.3)', textAlign: 'center', fontWeight: 'bold' }}>
+                      {t(userCardsLang, 'certificateFeeValue')}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={arayislarStatus === 'loading' || !arayislarForm.paymentCardId}
+                  >
+                    {arayislarStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'orderCertificateBtn')}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

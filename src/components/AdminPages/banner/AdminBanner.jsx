@@ -244,13 +244,57 @@ const AdminBanner = () => {
                   >
                     {savingKey === `page-${page.pageKey}` ? 'Saving' : 'Save page'}
                   </button>
-                  <button 
-                    type="button" 
-                    className="admin-banner__button admin-banner__button--purple-square"
-                    title="Write with AI"
-                  >
-                    <img src={glowingSmiley} alt="Write with AI" />
-                  </button>
+                  <div className="admin-banner__ai-btn-wrap">
+                    <button 
+                      type="button" 
+                      className="admin-banner__button admin-banner__button--purple-square"
+                    >
+                      <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14">
+                        <defs>
+                          <radialGradient id={`eyeOuter-${page.pageKey}`} cx="50%" cy="35%" r="70%">
+                            <stop offset="0%" stopColor="#ffe28a" stopOpacity="0.85"/>
+                            <stop offset="55%" stopColor="#f3c24a" stopOpacity="0.6"/>
+                            <stop offset="100%" stopColor="#a020f0" stopOpacity="0"/>
+                          </radialGradient>
+                          <radialGradient id={`eyeIris-${page.pageKey}`} cx="45%" cy="40%" r="60%">
+                            <stop offset="0%" stopColor="#fff6dd"/>
+                            <stop offset="50%" stopColor="#ffe28a"/>
+                            <stop offset="100%" stopColor="#c88ef0"/>
+                          </radialGradient>
+                          <filter id={`softBlur-${page.pageKey}`} x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="0.2"/>
+                          </filter>
+                          <clipPath id={`clipL-${page.pageKey}`}>
+                            <circle cx="97.9" cy="25" r="1.6"/>
+                          </clipPath>
+                          <clipPath id={`clipR-${page.pageKey}`}>
+                            <circle cx="102.1" cy="25" r="1.6"/>
+                          </clipPath>
+                        </defs>
+                        <g style={{transformOrigin: '97.9px 25px', animation: 'blink 4s infinite'}}>
+                          <circle cx="97.9" cy="25" r="2.1" fill={`url(#eyeOuter-${page.pageKey})`} filter={`url(#softBlur-${page.pageKey})`}/>
+                          <circle cx="97.9" cy="25" r="1.6" fill={`url(#eyeIris-${page.pageKey})`}/>
+                          <g style={{animation: 'lookAround 6s infinite ease-in-out'}} clipPath={`url(#clipL-${page.pageKey})`}>
+                            <circle cx="97.9" cy="25.3" r="0.75" fill="#3a1a52"/>
+                            <circle cx="97.55" cy="24.85" r="0.28" fill="#ffffff"/>
+                          </g>
+                        </g>
+                        <g style={{transformOrigin: '102.1px 25px', animation: 'blink 4s infinite'}}>
+                          <circle cx="102.1" cy="25" r="2.1" fill={`url(#eyeOuter-${page.pageKey})`} filter={`url(#softBlur-${page.pageKey})`}/>
+                          <circle cx="102.1" cy="25" r="1.6" fill={`url(#eyeIris-${page.pageKey})`}/>
+                          <g style={{animation: 'lookAround 6s infinite ease-in-out'}} clipPath={`url(#clipR-${page.pageKey})`}>
+                            <circle cx="102.1" cy="25.3" r="0.75" fill="#3a1a52"/>
+                            <circle cx="101.75" cy="24.85" r="0.28" fill="#ffffff"/>
+                          </g>
+                        </g>
+                        <path d="M 98.1 28.4 Q 100 29.8 101.9 28.4" fill="none" stroke={`url(#eyeOuter-${page.pageKey})`} strokeWidth="1.0" strokeLinecap="round" filter={`url(#softBlur-${page.pageKey})`}/>
+                        <path d="M 98.1 28.4 Q 100 29.8 101.9 28.4" fill="none" stroke={`url(#eyeIris-${page.pageKey})`} strokeWidth="0.4" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                    <div className="admin-banner__ai-tooltip">
+                      <span>✦</span> Write with AI
+                    </div>
+                  </div>
                 </div>
               </article>
             )
