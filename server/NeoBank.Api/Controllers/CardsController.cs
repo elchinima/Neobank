@@ -369,6 +369,26 @@ public class CardsController : ControllerBase
 
         var transactions = await transactionsQuery.OrderByDescending(t => t.CreatedAt).ToListAsync();
 
+        Card? card = null;
+        decimal currentBalance = 0m;
+
+        if (request.CardId != "all")
+        {
+            card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId);
+            currentBalance = card?.Balance ?? 0m;
+        }
+        else
+        {
+            currentBalance = await _context.Cards.Where(c => c.UserId == userId).SumAsync(c => c.Balance);
+        }
+
+        var totalInc = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+        var totalExp = transactions.Where(t => t.Type != "Income").Sum(t => t.Amount);
+        var netChange = totalInc - totalExp;
+        
+        var endBalance = currentBalance;
+        var startBalance = endBalance - netChange;
+
         string title = request.Language switch
         {
             "en" => "Your Account Statement",
@@ -385,43 +405,15 @@ public class CardsController : ControllerBase
             _ => $"Dear {user.FirstName},\n\nPlease find attached the statement for the period of {request.Period} months."
         };
 
-        var sb = new System.Text.StringBuilder();
-        
-        if (request.Language == "az") {
-            sb.AppendLine("Çıxarış / Statement");
-            sb.AppendLine($"Kart: {(request.CardId == "all" ? "Bütün kartlar" : request.CardId)}");
-            sb.AppendLine($"Müddət: {request.Period} ay");
-            sb.AppendLine($"Tarix aralığı: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
-            sb.AppendLine("--------------------------------------------------");
-            foreach (var t in transactions) {
-                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
-            }
-        } else if (request.Language == "ru") {
-            sb.AppendLine("Выписка / Statement");
-            sb.AppendLine($"Карта: {(request.CardId == "all" ? "Все карты" : request.CardId)}");
-            sb.AppendLine($"Период: {request.Period} мес.");
-            sb.AppendLine($"Временной промежуток: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
-            sb.AppendLine("--------------------------------------------------");
-            foreach (var t in transactions) {
-                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
-            }
-        } else {
-            sb.AppendLine("Account Statement");
-            sb.AppendLine($"Card: {(request.CardId == "all" ? "All cards" : request.CardId)}");
-            sb.AppendLine($"Period: {request.Period} months");
-            sb.AppendLine($"Date Range: {fromDate:dd.MM.yyyy} - {DateTime.UtcNow:dd.MM.yyyy}");
-            sb.AppendLine("--------------------------------------------------");
-            foreach (var t in transactions) {
-                sb.AppendLine($"{t.CreatedAt:dd.MM.yyyy HH:mm} | {t.Type,-10} | {t.Amount,8:F2} AZN | {t.Description}");
-            }
-        }
-
-        if (transactions.Count == 0)
-        {
-            sb.AppendLine("\nNo transactions found for this period.");
-        }
-
-        var fileBytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+        var fileBytes = NeoBank.Api.Helpers.StatementPdfBuilder.Generate(
+            user, 
+            card, 
+            transactions, 
+            request.Language, 
+            fromDate, 
+            DateTime.UtcNow, 
+            startBalance, 
+            endBalance);
 
         await _emailService.SendCustomEmailAsync(
             toEmail: user.Email,
@@ -430,7 +422,7 @@ public class CardsController : ControllerBase
             contentTitle: title,
             contentMessage: content,
             attachmentBytes: fileBytes,
-            attachmentName: "Statement.txt"
+            attachmentName: "Statement.pdf"
         );
 
         return Ok(new { message = "Statement sent to email." });

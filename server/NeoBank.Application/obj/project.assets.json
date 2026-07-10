@@ -1287,11 +1287,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj",
+      "projectUniqueName": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj",
       "projectName": "NeoBank.Application",
-      "projectPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj",
+      "projectPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\NeoBank.Application.csproj",
       "packagesPath": "C:\\Users\\dmatc\\.nuget\\packages\\",
-      "outputPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\obj\\",
+      "outputPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1313,8 +1313,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj": {
-              "projectPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj"
+            "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj": {
+              "projectPath": "d:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj"
             }
           }
         }
