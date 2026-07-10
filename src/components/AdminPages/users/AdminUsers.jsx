@@ -398,7 +398,9 @@ const AdminUsers = () => {
                       {activeMenuId === user.id && (
                         <div className="admin-users__dropdown">
                           <button onClick={() => openInfoModal(user)}>View Info</button>
-                          <button onClick={() => openRoleModal(user)}>Assign Role</button>
+                          {user.id !== authUser?.id && (
+                            <button onClick={() => openRoleModal(user)}>Assign Role</button>
+                          )}
                           <button onClick={() => openEmailModal(user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 

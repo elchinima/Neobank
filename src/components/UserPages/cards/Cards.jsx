@@ -202,6 +202,23 @@ const Cards = () => {
   const [withdrawDepositError, setWithdrawDepositError] = useState('')
   const [withdrawingDepositId, setWithdrawingDepositId] = useState(null)
   const [withdrawingDepositExpired, setWithdrawingDepositExpired] = useState(false)
+  
+  const [showStatementsChoiceModal, setShowStatementsChoiceModal] = useState(false)
+  const [showReferencesModal, setShowReferencesModal] = useState(false)
+  const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
+  const [referencesStatus, setReferencesStatus] = useState('idle')
+
+  const handleSendReference = (e) => {
+    e.preventDefault()
+    setReferencesStatus('loading')
+    setTimeout(() => {
+      setReferencesStatus('success')
+      setTimeout(() => {
+        setShowReferencesModal(false)
+        setReferencesStatus('idle')
+      }, 2000)
+    }, 1500)
+  }
 
   const openWithdrawDepositModal = (depositId, isExpired) => {
     setWithdrawDepositForm({ depositId, targetCardId: cards.length > 0 ? cards[0].id : '' });
@@ -1583,7 +1600,7 @@ const Cards = () => {
                   </div>
                 </button>
 
-                <button className="settings-action-btn" onClick={() => alert('Statements clicked')}>
+                <button className="settings-action-btn" onClick={() => setShowStatementsChoiceModal(true)}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'statementsAndCerts')}</span>
@@ -1981,7 +1998,7 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleChangePinSubmit} className="modal-form">
-                {pinError && <div className="error-message">{pinError}</div>}
+                {pinError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '12px' }}>{pinError}</div>}
                 {selectedSettingsCard?.hasPin && (
                   <div className="form-group">
                     <label>{t(userCardsLang, 'oldPin')}</label>
@@ -2021,6 +2038,109 @@ const Cards = () => {
                   {pinStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'changePinTitle')}
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStatementsChoiceModal && (
+        <div className="card-modal-overlay" onClick={() => setShowStatementsChoiceModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <button className="settings-action-btn" onClick={() => {
+                  setShowStatementsChoiceModal(false);
+                  setShowReferencesModal(true);
+                }}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'referencesBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => {
+                  setShowStatementsChoiceModal(false);
+                  setShowReferencesModal(true); 
+                }}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'extractsBtn')}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReferencesModal && (
+        <div className="card-modal-overlay" onClick={() => setShowReferencesModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {referencesStatus === 'success' ? (
+                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
+                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                  <p>{t(userCardsLang, 'statementSentSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSendReference} className="modal-form">
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'selectCard')}</label>
+                    <select
+                      value={referencesForm.cardId}
+                      onChange={e => setReferencesForm({ ...referencesForm, cardId: e.target.value })}
+                      required
+                    >
+                      <option value="all" style={{ color: '#111' }}>{t(userCardsLang, 'selectAllCards')}</option>
+                      {cards.map(c => (
+                        <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'periodLabel')}</label>
+                    <select
+                      value={referencesForm.period}
+                      onChange={e => setReferencesForm({ ...referencesForm, period: e.target.value })}
+                      required
+                    >
+                      <option value="3" style={{ color: '#111' }}>{t(userCardsLang, 'threeMonths')}</option>
+                      <option value="6" style={{ color: '#111' }}>{t(userCardsLang, 'sixMonths')}</option>
+                      <option value="12" style={{ color: '#111' }}>{t(userCardsLang, 'twelveMonths')}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'languageLabel')}</label>
+                    <select
+                      value={referencesForm.language}
+                      onChange={e => setReferencesForm({ ...referencesForm, language: e.target.value })}
+                      required
+                    >
+                      <option value="en" style={{ color: '#111' }}>English</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={referencesStatus === 'loading'}
+                    style={{ marginTop: '16px' }}
+                  >
+                    {referencesStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'sendToEmailBtn')}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

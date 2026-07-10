@@ -154,7 +154,19 @@ export const userCardsLang = {
     withdrawDepositSuccess: 'Deposit successfully withdrawn!',
     withdrawDepositBtn: 'Withdraw to Card',
     neoCredit: 'NeoCredit',
-    neoDeposit: 'NeoDeposit'
+    neoDeposit: 'NeoDeposit',
+    statementsChoiceTitle: 'Choose Document Type',
+    extractsBtn: 'Extracts / Statements',
+    referencesBtn: 'References / Certificates',
+    referencesModalTitle: 'Order a Document',
+    selectAllCards: 'General account (All cards & actions)',
+    periodLabel: 'Period',
+    languageLabel: 'Language',
+    sendToEmailBtn: 'Send to email',
+    statementSentSuccess: 'Document sent to your email successfully!',
+    threeMonths: '3 months',
+    sixMonths: '6 months',
+    twelveMonths: '12 months'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -311,7 +323,19 @@ export const userCardsLang = {
     withdrawDepositSuccess: 'Depozit uğurla çıxarıldı!',
     withdrawDepositBtn: 'Karta Çıxar',
     neoCredit: 'NeoKredit',
-    neoDeposit: 'NeoDepozit'
+    neoDeposit: 'NeoDepozit',
+    statementsChoiceTitle: 'Sənəd növünü seçin',
+    extractsBtn: 'Çıxarışlar',
+    referencesBtn: 'Arayışlar',
+    referencesModalTitle: 'Sənəd sifarişi',
+    selectAllCards: 'Ümumi hesab (Bütün kartlar və əməliyyatlar)',
+    periodLabel: 'Müddət',
+    languageLabel: 'Dil',
+    sendToEmailBtn: 'E-poçta göndər',
+    statementSentSuccess: 'Sənəd e-poçtunuza uğurla göndərildi!',
+    threeMonths: '3 ay',
+    sixMonths: '6 ay',
+    twelveMonths: '12 ay'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -468,6 +492,18 @@ export const userCardsLang = {
     withdrawDepositSuccess: 'Депозит успешно снят!',
     withdrawDepositBtn: 'Снять на карту',
     neoCredit: 'NeoКредит',
-    neoDeposit: 'NeoДепозит'
+    neoDeposit: 'NeoДепозит',
+    statementsChoiceTitle: 'Выберите тип документа',
+    extractsBtn: 'Выписки',
+    referencesBtn: 'Справки',
+    referencesModalTitle: 'Заказ документа',
+    selectAllCards: 'Общий счет (Все карты и операции)',
+    periodLabel: 'Период',
+    languageLabel: 'Язык',
+    sendToEmailBtn: 'Отправить на почту',
+    statementSentSuccess: 'Документ успешно отправлен на вашу почту!',
+    threeMonths: '3 месяца',
+    sixMonths: '6 месяцев',
+    twelveMonths: '12 месяцев'
   }
 }
