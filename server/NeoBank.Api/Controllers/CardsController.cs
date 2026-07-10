@@ -371,15 +371,22 @@ public class CardsController : ControllerBase
 
         NeoBank.Core.Entities.Card? card = null;
         decimal currentBalance = 0m;
+        decimal totalCreditLimit = 0m;
+        decimal totalDebt = 0m;
 
         if (request.CardId != "all")
         {
             card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == request.CardId);
             currentBalance = card?.Balance ?? 0m;
+            totalCreditLimit = card?.CreditLimit ?? 0m;
+            totalDebt = card != null && card.Balance < 0 ? Math.Abs(card.Balance) : 0m;
         }
         else
         {
-            currentBalance = await _context.Cards.Where(c => c.UserId == userId).SumAsync(c => c.Balance);
+            var allCards = await _context.Cards.Where(c => c.UserId == userId).ToListAsync();
+            currentBalance = allCards.Sum(c => c.Balance);
+            totalCreditLimit = allCards.Sum(c => c.CreditLimit);
+            totalDebt = allCards.Where(c => c.Balance < 0).Sum(c => Math.Abs(c.Balance));
         }
 
         var totalInc = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
@@ -405,6 +412,10 @@ public class CardsController : ControllerBase
             _ => $"Dear {user.FirstName},\n\nPlease find attached the statement for the period of {request.Period} months."
         };
 
+        var contacts = await _context.FooterSettings.Where(f => f.Category == "Contact").ToListAsync();
+        var address = contacts.FirstOrDefault(c => c.Key.Equals("address", StringComparison.OrdinalIgnoreCase))?.Value ?? "Baku, Azerbaijan";
+        var phone = contacts.FirstOrDefault(c => c.Key.Equals("phone", StringComparison.OrdinalIgnoreCase))?.Value ?? "+994 12 555 45 45";
+
         var fileBytes = NeoBank.Api.Helpers.StatementPdfBuilder.Generate(
             user, 
             card, 
@@ -413,7 +424,11 @@ public class CardsController : ControllerBase
             fromDate, 
             DateTime.UtcNow, 
             startBalance, 
-            endBalance);
+            endBalance,
+            address,
+            phone,
+            totalCreditLimit,
+            totalDebt);
 
         await _emailService.SendCustomEmailAsync(
             toEmail: user.Email,

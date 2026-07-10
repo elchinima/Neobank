@@ -153,7 +153,7 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("Invalid or expired verification code.");
         }
 
-        entry.IsUsed = true;
+        _dbContext.EmailVerificationCodes.Remove(entry);
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) throw new InvalidOperationException("User not found.");
@@ -179,7 +179,7 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("Invalid or expired 2FA code.");
         }
 
-        entry.IsUsed = true;
+        _dbContext.EmailVerificationCodes.Remove(entry);
         await _dbContext.SaveChangesAsync();
 
         return await CompleteLoginAsync(entry.User, ipAddress);
@@ -282,11 +282,9 @@ public class AuthService : IAuthService
     private async Task SaveVerificationCode(string userId, string code, string purpose, string? tempToken = null)
     {
         var oldCodes = _dbContext.EmailVerificationCodes
-            .Where(c => c.UserId == userId && c.Purpose == purpose && !c.IsUsed);
-        foreach (var old in oldCodes)
-        {
-            old.IsUsed = true;
-        }
+            .Where(c => c.UserId == userId && c.Purpose == purpose);
+        
+        _dbContext.EmailVerificationCodes.RemoveRange(oldCodes);
 
         var entry = new EmailVerificationCode
         {
@@ -389,7 +387,7 @@ public class AuthService : IAuthService
         if (verification == null)
             return false;
 
-        verification.IsUsed = true;
+        _dbContext.EmailVerificationCodes.Remove(verification);
         verification.User.TwoFactorEnabled = false;
 
         await _dbContext.SaveChangesAsync();

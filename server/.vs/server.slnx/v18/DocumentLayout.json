@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0483927E-4D59-43A5-A249-8F8DEDDC9DF4}|NeoBank.Api\\NeoBank.Api.csproj|d:\\code academy\\final project\\neobank\\neobank-client\\server\\neobank.api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{0483927E-4D59-43A5-A249-8F8DEDDC9DF4}|NeoBank.Api\\NeoBank.Api.csproj|solutionrelative:neobank.api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{2F15ABBA-9ED1-BE13-8326-17C59F17E87E}|NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj|d:\\code academy\\final project\\neobank\\neobank-client\\server\\neobank.infrastructure\\neobank.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{2F15ABBA-9ED1-BE13-8326-17C59F17E87E}|NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj|solutionrelative:neobank.infrastructure\\neobank.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0483927E-4D59-43A5-A249-8F8DEDDC9DF4}|NeoBank.Api\\NeoBank.Api.csproj|d:\\code academy\\final project\\neobank\\neobank-client\\server\\neobank.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0483927E-4D59-43A5-A249-8F8DEDDC9DF4}|NeoBank.Api\\NeoBank.Api.csproj|solutionrelative:neobank.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1BDD6ECB-C3EB-9548-F38C-CB3DE49938AC}|NeoBank.Core\\NeoBank.Core.csproj|d:\\code academy\\final project\\neobank\\neobank-client\\server\\neobank.core\\neobank.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{1BDD6ECB-C3EB-9548-F38C-CB3DE49938AC}|NeoBank.Core\\NeoBank.Core.csproj|solutionrelative:neobank.core\\neobank.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5216E733-EA86-89E3-F051-7201ACEF8D3F}|NeoBank.Api\\NeoBank.Api.csproj|d:\\code academy\\final project\\neobank\\neobank-client\\server\\neobank.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5216E733-EA86-89E3-F051-7201ACEF8D3F}|NeoBank.Api\\NeoBank.Api.csproj|solutionrelative:neobank.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,25 +47,38 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Api\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "NeoBank.Api\\Properties\\launchSettings.json",
-              "ToolTip": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Api\\Properties\\launchSettings.json",
-              "RelativeToolTip": "NeoBank.Api\\Properties\\launchSettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-07-03T15:44:49.537Z",
+              "Title": "NeoBank.Infrastructure",
+              "DocumentMoniker": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+              "ToolTip": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+              "RelativeToolTip": "NeoBank.Infrastructure\\NeoBank.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-07-10T11:16:17.216Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "NeoBank.Core",
+              "DocumentMoniker": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj",
+              "RelativeDocumentMoniker": "NeoBank.Core\\NeoBank.Core.csproj",
+              "ToolTip": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Core\\NeoBank.Core.csproj",
+              "RelativeToolTip": "NeoBank.Core\\NeoBank.Core.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-07-10T11:16:13.731Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Api\\Program.cs",
               "RelativeDocumentMoniker": "NeoBank.Api\\Program.cs",
               "ToolTip": "D:\\Code Academy\\Final Project\\Neobank\\neobank-client\\server\\NeoBank.Api\\Program.cs",
               "RelativeToolTip": "NeoBank.Api\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-07-03T15:44:31.588Z",
               "EditorCaption": ""

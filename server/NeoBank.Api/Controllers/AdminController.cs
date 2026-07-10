@@ -121,7 +121,7 @@ public class AdminController : ControllerBase
             user.FirstName,
             user.LastName,
             user.Id,
-            user.Role,
+            Role = user.RoleId,
             user.IsActive,
             user.RegistrationIp,
             user.LastIp,
@@ -179,15 +179,25 @@ public class AdminController : ControllerBase
         if (!user.TwoFactorEnabled)
             return BadRequest("User does not have 2FA enabled.");
 
-        // Invalidate old Disable2FA codes
+        var activeCode = await _context.EmailVerificationCodes
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Purpose == "Disable2FA" && c.ExpiresAt > DateTime.UtcNow);
+
+        if (activeCode != null)
+        {
+            var timeLeft = activeCode.ExpiresAt - DateTime.UtcNow;
+            var timeString = timeLeft.TotalHours >= 1 
+                ? $"{(int)timeLeft.TotalHours}h {timeLeft.Minutes}m" 
+                : $"{timeLeft.Minutes}m {timeLeft.Seconds}s";
+            
+            return BadRequest($"An active 2FA reset link has already been sent. Please wait {timeString} before requesting a new one.");
+        }
+
+        // Clean up any old/expired Disable2FA codes
         var oldCodes = await _context.EmailVerificationCodes
-            .Where(c => c.UserId == userId && c.Purpose == "Disable2FA" && !c.IsUsed)
+            .Where(c => c.UserId == userId && c.Purpose == "Disable2FA")
             .ToListAsync();
         
-        foreach (var code in oldCodes)
-        {
-            code.IsUsed = true;
-        }
+        _context.EmailVerificationCodes.RemoveRange(oldCodes);
 
         var token = Guid.NewGuid().ToString("N");
         var entry = new EmailVerificationCode
@@ -196,7 +206,7 @@ public class AdminController : ControllerBase
             Code = "LINK", // Not used for link-based reset
             Purpose = "Disable2FA",
             TempToken = token,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+            ExpiresAt = DateTime.UtcNow.AddHours(24),
             IsUsed = false,
             CreatedAt = DateTime.UtcNow
         };

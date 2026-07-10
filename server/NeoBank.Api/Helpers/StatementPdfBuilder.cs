@@ -21,7 +21,11 @@ public static class StatementPdfBuilder
         DateTime fromDate, 
         DateTime toDate,
         decimal startBalance,
-        decimal endBalance)
+        decimal endBalance,
+        string bankAddress,
+        string bankPhone,
+        decimal creditLimit,
+        decimal debt)
     {
         var doc = Document.Create(container =>
         {
@@ -32,15 +36,15 @@ public static class StatementPdfBuilder
                 page.PageColor(Colors.White);
                 page.DefaultTextStyle(x => x.FontSize(9).FontFamily(Fonts.Arial));
 
-                page.Header().Element(x => ComposeHeader(x, language));
-                page.Content().Element(x => ComposeContent(x, user, card, transactions, language, fromDate, toDate, startBalance, endBalance));
+                page.Header().Element(x => ComposeHeader(x, language, bankAddress, bankPhone));
+                page.Content().Element(x => ComposeContent(x, user, card, transactions, language, fromDate, toDate, startBalance, endBalance, creditLimit, debt));
             });
         });
 
         return doc.GeneratePdf();
     }
 
-    private static void ComposeHeader(IContainer container, string lang)
+    private static void ComposeHeader(IContainer container, string lang, string bankAddress, string bankPhone)
     {
         container.Row(row =>
         {
@@ -54,25 +58,25 @@ public static class StatementPdfBuilder
                     _ => "NeoBank Commercial Bank Open Joint Stock Company"
                 };
                 column.Item().Text(desc).FontSize(9);
-                column.Item().Text("1300017201");
-                column.Item().Text("Bakı ş., AZ1014, Rəşid Behbudov küç., 55");
-                column.Item().Text("Tel. *7773");
+                column.Item().Text("31415926535"); // Static random registration number
+                column.Item().Text(bankAddress);
+                column.Item().Text(bankPhone);
                 column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Medium);
             });
         });
     }
 
-    private static void ComposeContent(IContainer container, ApplicationUser user, Card? card, List<Transaction> transactions, string lang, DateTime fromDate, DateTime toDate, decimal startBalance, decimal endBalance)
+    private static void ComposeContent(IContainer container, ApplicationUser user, Card? card, List<Transaction> transactions, string lang, DateTime fromDate, DateTime toDate, decimal startBalance, decimal endBalance, decimal creditLimit, decimal debt)
     {
         container.PaddingVertical(0.5f, Unit.Centimetre).Column(column =>
         {
             column.Spacing(15);
-            column.Item().Element(x => ComposeDetails(x, user, card, lang, fromDate, toDate, startBalance, endBalance, transactions));
+            column.Item().Element(x => ComposeDetails(x, user, card, lang, fromDate, toDate, startBalance, endBalance, transactions, creditLimit, debt));
             column.Item().Element(x => ComposeTable(x, transactions, lang, startBalance));
         });
     }
 
-    private static void ComposeDetails(IContainer container, ApplicationUser user, Card? card, string lang, DateTime fromDate, DateTime toDate, decimal startBalance, decimal endBalance, List<Transaction> transactions)
+    private static void ComposeDetails(IContainer container, ApplicationUser user, Card? card, string lang, DateTime fromDate, DateTime toDate, decimal startBalance, decimal endBalance, List<Transaction> transactions, decimal creditLimit, decimal debt)
     {
         var lblPeriod = lang == "az" ? "Dövr" : (lang == "ru" ? "Период" : "Period");
         var lblAccount = lang == "az" ? "Hesabın nömrəsi" : (lang == "ru" ? "Номер счета" : "Account number");
@@ -95,9 +99,6 @@ public static class StatementPdfBuilder
         
         var totalInc = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
         var totalExp = transactions.Where(t => t.Type != "Income").Sum(t => t.Amount);
-        
-        var creditLimit = card?.CreditLimit ?? 0m;
-        var debt = card != null && card.Balance < 0 ? Math.Abs(card.Balance) : 0m;
 
         container.Column(col =>
         {
