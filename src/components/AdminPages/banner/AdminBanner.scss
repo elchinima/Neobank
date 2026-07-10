@@ -237,7 +237,33 @@
       background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 48%, #b47012);
       color: #211405;
       border-color: transparent;
+      flex-grow: 1;
     }
+
+    &--purple-square {
+      background: rgba(91, 22, 143, 0.28);
+      border-color: rgba(219, 154, 255, 0.3);
+      width: 42px;
+      padding: 0;
+      flex-shrink: 0;
+
+      &:hover {
+        background: rgba(160, 32, 240, 0.36);
+        border-color: rgba(255, 226, 138, 0.44);
+      }
+
+      img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
   }
 
   &__link-group,

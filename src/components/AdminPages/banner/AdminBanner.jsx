@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
+import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
 import './AdminBanner.scss'
 
 const pageLabels = {
@@ -234,14 +235,23 @@ const AdminBanner = () => {
                     onChange={(event) => updatePageField(page.pageKey, currentLang, 'mediaText', event.target.value)}
                   />
                 </label>
-                <button
-                  className="admin-banner__button admin-banner__button--primary"
-                  type="button"
-                  onClick={() => savePage(page)}
-                  disabled={savingKey === `page-${page.pageKey}`}
-                >
-                  {savingKey === `page-${page.pageKey}` ? 'Saving' : 'Save page'}
-                </button>
+                <div className="admin-banner__actions">
+                  <button
+                    className="admin-banner__button admin-banner__button--primary"
+                    type="button"
+                    onClick={() => savePage(page)}
+                    disabled={savingKey === `page-${page.pageKey}`}
+                  >
+                    {savingKey === `page-${page.pageKey}` ? 'Saving' : 'Save page'}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="admin-banner__button admin-banner__button--purple-square"
+                    title="Write with AI"
+                  >
+                    <img src={glowingSmiley} alt="Write with AI" />
+                  </button>
+                </div>
               </article>
             )
           })}
