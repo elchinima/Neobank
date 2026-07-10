@@ -17,11 +17,13 @@ public class CardsController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
     private readonly ICardDebitService _cardDebitService;
+    private readonly IEmailService _emailService;
 
-    public CardsController(IApplicationDbContext context, ICardDebitService cardDebitService)
+    public CardsController(IApplicationDbContext context, ICardDebitService cardDebitService, IEmailService emailService)
     {
         _context = context;
         _cardDebitService = cardDebitService;
+        _emailService = emailService;
         StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
     }
 
@@ -335,5 +337,61 @@ public class CardsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(card);
+    }
+
+    public class StatementRequest
+    {
+        public string CardId { get; set; } = string.Empty;
+        public string Period { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+    }
+
+    [HttpPost("statement")]
+    public async Task<IActionResult> RequestStatement([FromBody] StatementRequest request)
+    {
+        var userId = GetUserId();
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null || string.IsNullOrEmpty(user.Email))
+        {
+            return NotFound(new { message = "User email not found." });
+        }
+
+        string title = request.Language switch
+        {
+            "en" => "Your Account Statement",
+            "ru" => "Выписка по вашему счету",
+            "az" => "Hesabdan Çıxarış",
+            _ => "Your Account Statement"
+        };
+
+        string content = request.Language switch
+        {
+            "en" => $"Dear {user.FirstName},\n\nPlease find attached the statement for card {request.CardId} for the period of {request.Period} months.",
+            "ru" => $"Уважаемый(ая) {user.FirstName},\n\nВо вложении находится выписка по карте {request.CardId} за период {request.Period} месяцев.",
+            "az" => $"Hörmətli {user.FirstName},\n\n{request.CardId} nömrəli kart üzrə {request.Period} aylıq çıxarışınız əlavə olunur.",
+            _ => $"Dear {user.FirstName},\n\nPlease find attached the statement for card {request.CardId} for the period of {request.Period} months."
+        };
+
+        var textContent = request.Language switch
+        {
+            "az" => $"Çıxarış / Statement\nKart: {request.CardId}\nMüddət: {request.Period} ay\n\nBu sənəd avtomatik olaraq generasiya edilmişdir.",
+            "ru" => $"Выписка / Statement\nКарта: {request.CardId}\nПериод: {request.Period} мес.\n\nЭтот документ сгенерирован автоматически.",
+            "en" => $"Statement\nCard: {request.CardId}\nPeriod: {request.Period} months\n\nThis document is automatically generated.",
+            _ => $"Statement\nCard: {request.CardId}\nPeriod: {request.Period} months\n\nThis document is automatically generated."
+        };
+        var fileBytes = System.Text.Encoding.UTF8.GetBytes(textContent);
+
+        await _emailService.SendCustomEmailAsync(
+            toEmail: user.Email,
+            firstName: user.FirstName,
+            emailTitle: title,
+            contentTitle: title,
+            contentMessage: content,
+            attachmentBytes: fileBytes,
+            attachmentName: "Statement.txt"
+        );
+
+        return Ok(new { message = "Statement sent to email." });
     }
 }

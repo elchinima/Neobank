@@ -23,7 +23,7 @@ const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) =>
       },
       redirect: 'if_required'
     });
-    
+
     if (submitError) {
       setError(submitError.message);
       setProcessing(false);
@@ -44,7 +44,7 @@ const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) =>
           {processing ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payNow')}
         </button>
         <button type="button" onClick={onCancel} className="cards-page__button" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}>
-           ✕
+          ✕
         </button>
       </div>
     </form>
@@ -95,7 +95,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 
 const Cards = () => {
   const { t } = useLanguage()
-  const { token, user , fetchWithAuth} = useAuth()
+  const { token, user, fetchWithAuth } = useAuth()
   const location = useLocation()
 
   const [cards, setCards] = useState([])
@@ -202,7 +202,7 @@ const Cards = () => {
   const [withdrawDepositError, setWithdrawDepositError] = useState('')
   const [withdrawingDepositId, setWithdrawingDepositId] = useState(null)
   const [withdrawingDepositExpired, setWithdrawingDepositExpired] = useState(false)
-  
+
   const [showStatementsChoiceModal, setShowStatementsChoiceModal] = useState(false)
   const [showReferencesModal, setShowReferencesModal] = useState(false)
   const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
@@ -232,11 +232,11 @@ const Cards = () => {
     if (e) e.preventDefault();
     const depositId = withdrawDepositForm.depositId;
     if (withdrawingDepositId || !depositId || !withdrawDepositForm.targetCardId) return;
-    
+
     setWithdrawingDepositId(depositId);
     setWithdrawDepositStatus('loading');
     setWithdrawDepositError('');
-    
+
     try {
       const res = await fetchWithAuth(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
         method: 'POST',
@@ -378,11 +378,11 @@ const Cards = () => {
     if (e) e.preventDefault();
     const loanId = payLoanForm.loanId;
     if (payingLoanId || !loanId) return;
-    
+
     setPayingLoanId(loanId);
     setPayLoanStatus('loading');
     setPayLoanError('');
-    
+
     try {
       const res = await fetchWithAuth(`${API_BASE_URL}/loans/${loanId}/pay`, {
         method: 'POST',
@@ -496,7 +496,7 @@ const Cards = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || t(userCardsLang, 'orderCardError'));
-      
+
       localStorage.removeItem('pendingCardOrder');
       window.history.replaceState({}, document.title, window.location.pathname);
       fetchCards();
@@ -550,12 +550,12 @@ const Cards = () => {
           throw new Error('Server returned an invalid response. Please try again.');
         }
         if (!res.ok) throw new Error(data?.message || t(userCardsLang, 'orderCardError'));
-        
+
         localStorage.setItem('pendingCardOrder', JSON.stringify({
           cardType: newCardForm.cardType,
           network: newCardForm.network
         }));
-        
+
         window.location.href = data.url;
       } catch (err) {
         setNewCardError(translateErrorMsg(err.message));
@@ -688,7 +688,7 @@ const Cards = () => {
       const data = await res.json()
       if (!res.ok) {
         if (data.message === 'incorrectOldPin') {
-           throw new Error(t(userCardsLang, 'incorrectOldPin'))
+          throw new Error(t(userCardsLang, 'incorrectOldPin'))
         }
         throw new Error(data.message || 'Error changing PIN')
       }
@@ -774,7 +774,7 @@ const Cards = () => {
   const handleIbanTransferSubmit = async (e) => {
     e.preventDefault()
     if (!ibanTransferForm.sourceCardId || !ibanTransferForm.destIban || !ibanTransferForm.amount) return
-    
+
     const ibanClean = ibanTransferForm.destIban.replace(/\s+/g, '').toUpperCase()
     const ibanRegex = /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/
     if (!ibanRegex.test(ibanClean)) {
@@ -957,17 +957,17 @@ const Cards = () => {
                       </span>
                     </div>
                     {card.creditLimit > 0 && (
-                      <button 
-                        className="toggle-balance-btn" 
+                      <button
+                        className="toggle-balance-btn"
                         onClick={(e) => toggleCreditLimitView(card.id, e)}
                         style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
                         title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M7 10L3 14L7 18"/>
-                          <path d="M21 14H3"/>
-                          <path d="M17 4L21 8L17 12"/>
-                          <path d="M3 8H21"/>
+                          <path d="M7 10L3 14L7 18" />
+                          <path d="M21 14H3" />
+                          <path d="M17 4L21 8L17 12" />
+                          <path d="M3 8H21" />
                         </svg>
                       </button>
                     )}
@@ -978,8 +978,8 @@ const Cards = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!card.hasPin) {
-                           setShowPinAlertModal(true);
-                           return;
+                          setShowPinAlertModal(true);
+                          return;
                         }
                         setSelectedTransferCard(card);
                       }}
@@ -1011,13 +1011,13 @@ const Cards = () => {
           ) : (
             loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid').map(loan => (
               <div key={loan.id} className="card-item">
-                <div className="card-image-wrapper" style={{ 
+                <div className="card-image-wrapper" style={{
                   background: 'linear-gradient(135deg, rgba(160, 32, 240, 0.15), rgba(96, 16, 144, 0.1))',
                   border: '1px solid rgba(160, 32, 240, 0.3)',
-                  padding: '20px', 
-                  display: 'flex', 
+                  padding: '20px',
+                  display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between', 
+                  justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   aspectRatio: '1.58',
                   borderRadius: '16px',
@@ -1028,20 +1028,20 @@ const Cards = () => {
                   {/* Decorative background elements */}
                   <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.1)', filter: 'blur(20px)' }}></div>
                   <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.05)', filter: 'blur(15px)' }}></div>
-                  
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(160, 32, 240, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b185fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="2" y="6" width="20" height="12" rx="2"/>
-                          <circle cx="12" cy="12" r="2"/>
-                          <path d="M6 12h.01M18 12h.01"/>
+                          <rect x="2" y="6" width="20" height="12" rx="2" />
+                          <circle cx="12" cy="12" r="2" />
+                          <path d="M6 12h.01M18 12h.01" />
                         </svg>
                       </div>
                       <span style={{ color: '#b185fa', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoCredit')}</span>
                     </div>
                   </div>
-                  
+
                   {/* Loan Data Grid INSIDE the virtual card */}
                   <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -1099,13 +1099,13 @@ const Cards = () => {
           ) : (
             deposits.filter(d => d.status !== 'Closed').map(deposit => (
               <div key={deposit.id} className="card-item">
-                <div className="card-image-wrapper" style={{ 
+                <div className="card-image-wrapper" style={{
                   background: 'linear-gradient(135deg, rgba(0, 214, 86, 0.15), rgba(0, 160, 60, 0.1))',
                   border: '1px solid rgba(0, 214, 86, 0.3)',
-                  padding: '20px', 
-                  display: 'flex', 
+                  padding: '20px',
+                  display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between', 
+                  justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   aspectRatio: '1.58',
                   borderRadius: '16px',
@@ -1116,20 +1116,20 @@ const Cards = () => {
                   {/* Decorative background elements */}
                   <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.1)', filter: 'blur(20px)' }}></div>
                   <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.05)', filter: 'blur(15px)' }}></div>
-                  
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(0, 214, 86, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d656" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="2" y="6" width="20" height="12" rx="2"/>
-                          <circle cx="12" cy="12" r="2"/>
-                          <path d="M6 12h.01M18 12h.01"/>
+                          <rect x="2" y="6" width="20" height="12" rx="2" />
+                          <circle cx="12" cy="12" r="2" />
+                          <path d="M6 12h.01M18 12h.01" />
                         </svg>
                       </div>
                       <span style={{ color: '#00d656', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoDeposit')}</span>
                     </div>
                   </div>
-                  
+
                   {/* Deposit Data Grid INSIDE the virtual card */}
                   <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -1167,7 +1167,7 @@ const Cards = () => {
                       const expiryDate = new Date(depositCreatedAt);
                       expiryDate.setMonth(expiryDate.getMonth() + deposit.termMonths);
                       const isExpired = expiryDate <= new Date();
-                      
+
                       return (
                         <button
                           className="action-btn"
@@ -1286,19 +1286,19 @@ const Cards = () => {
                   {payLoanError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{payLoanError}</div>}
                   <div className="form-group">
                     <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
-                    <select 
-                      value={payLoanForm.sourceCardId} 
-                      onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })} 
+                    <select
+                      value={payLoanForm.sourceCardId}
+                      onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })}
                       required
                     >
                       <option value="" disabled style={{ color: '#111' }}>Select a card</option>
                       {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
                     </select>
                   </div>
-                  <button 
-                    type="submit" 
-                    className="cards-page__button cards-page__button--primary submit-order-btn" 
-                    disabled={payLoanStatus === 'loading'} 
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary submit-order-btn"
+                    disabled={payLoanStatus === 'loading'}
                     style={{ marginTop: '16px' }}
                   >
                     {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
@@ -1333,19 +1333,19 @@ const Cards = () => {
                   )}
                   <div className="form-group">
                     <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel') || 'Select Card to Withdraw To'}</label>
-                    <select 
-                      value={withdrawDepositForm.targetCardId} 
-                      onChange={e => setWithdrawDepositForm({ ...withdrawDepositForm, targetCardId: e.target.value })} 
+                    <select
+                      value={withdrawDepositForm.targetCardId}
+                      onChange={e => setWithdrawDepositForm({ ...withdrawDepositForm, targetCardId: e.target.value })}
                       required
                     >
                       <option value="" disabled style={{ color: '#111' }}>Select a card</option>
                       {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
                     </select>
                   </div>
-                  <button 
-                    type="submit" 
-                    className="cards-page__button cards-page__button--primary submit-order-btn" 
-                    disabled={withdrawDepositStatus === 'loading'} 
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary submit-order-btn"
+                    disabled={withdrawDepositStatus === 'loading'}
                     style={{ marginTop: '16px' }}
                   >
                     {withdrawDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'withdrawDepositBtn')}
@@ -1820,8 +1820,8 @@ const Cards = () => {
             </div>
             <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
               <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
-              <button 
-                className="cards-page__button cards-page__button--primary" 
+              <button
+                className="cards-page__button cards-page__button--primary"
                 style={{ marginTop: '20px' }}
                 onClick={() => setShowPinAlertModal(false)}
               >
@@ -1841,8 +1841,8 @@ const Cards = () => {
             </div>
             <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
               <p>{creditLimitError}</p>
-              <button 
-                className="cards-page__button cards-page__button--primary" 
+              <button
+                className="cards-page__button cards-page__button--primary"
                 style={{ marginTop: '20px' }}
                 onClick={() => setCreditLimitError(null)}
               >
@@ -1863,8 +1863,8 @@ const Cards = () => {
             <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
               <div className="success-icon" style={{ fontSize: '48px', color: '#4caf50', marginBottom: '16px' }}>✓</div>
               <p>{t(userCardsLang, 'pinSuccess')}</p>
-              <button 
-                className="cards-page__button cards-page__button--primary" 
+              <button
+                className="cards-page__button cards-page__button--primary"
                 style={{ marginTop: '20px' }}
                 onClick={() => setShowPinSuccessModal(false)}
               >
@@ -1891,10 +1891,10 @@ const Cards = () => {
               ) : (
                 <form onSubmit={handleNeoBankTransferSubmit} className="modal-form">
                   {neoBankTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{neoBankTransferError}</div>}
-                  
+
                   <div className="form-group">
                     <label>{t(userCardsLang, 'sourceCard')}</label>
-                    <select 
+                    <select
                       className="form-control"
                       value={neoBankTransferForm.sourceCardId}
                       onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, sourceCardId: e.target.value })}
@@ -1958,8 +1958,8 @@ const Cards = () => {
                   <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff', wordBreak: 'break-all', paddingRight: '10px' }}>
                     {formatCardNumber(selectedSettingsCard.iban)}
                   </span>
-                  <button 
-                    className="copy-btn" 
+                  <button
+                    className="copy-btn"
                     onClick={() => handleCopy(selectedSettingsCard.iban, 'iban')}
                     style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
@@ -1974,8 +1974,8 @@ const Cards = () => {
                   <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff' }}>
                     {selectedSettingsCard.swift}
                   </span>
-                  <button 
-                    className="copy-btn" 
+                  <button
+                    className="copy-btn"
                     onClick={() => handleCopy(selectedSettingsCard.swift, 'swift')}
                     style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
@@ -2063,7 +2063,7 @@ const Cards = () => {
                 </button>
                 <button className="settings-action-btn" onClick={() => {
                   setShowStatementsChoiceModal(false);
-                  setShowReferencesModal(true); 
+                  setShowReferencesModal(true);
                 }}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
@@ -2104,7 +2104,7 @@ const Cards = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="form-group">
                     <label>{t(userCardsLang, 'periodLabel')}</label>
                     <select
@@ -2130,7 +2130,7 @@ const Cards = () => {
                       <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
                     </select>
                   </div>
-                  
+
                   <button
                     type="submit"
                     className="cards-page__button cards-page__button--primary"
