@@ -214,7 +214,11 @@ public class AdminController : ControllerBase
         _context.EmailVerificationCodes.Add(entry);
         await _context.SaveChangesAsync();
 
-        var baseUrl = _configuration["ApiUrl"] ?? "http://localhost:5031";
+        var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
+        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? Request.Host.ToString();
+        var dynamicBaseUrl = $"{scheme}://{host}{Request.PathBase}";
+        
+        var baseUrl = _configuration["ApiUrl"] ?? dynamicBaseUrl;
         // Call the backend API route directly from the email
         var resetLink = $"{baseUrl.TrimEnd('/')}/api/auth/confirm-disable-2fa?token={token}";
 
