@@ -208,17 +208,41 @@ const Cards = () => {
   const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
   const [referencesStatus, setReferencesStatus] = useState('idle')
 
-  const handleSendReference = (e) => {
-    e.preventDefault()
-    setReferencesStatus('loading')
-    setTimeout(() => {
-      setReferencesStatus('success')
+  const handleSendReference = async (e) => {
+    e.preventDefault();
+    setReferencesStatus('loading');
+    
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/Cards/statement`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          cardId: referencesForm.cardId,
+          period: referencesForm.period,
+          language: referencesForm.language
+        })
+      });
+
+      if (!res.ok) {
+        let errMsg = `Server error: ${res.status}`;
+        try {
+          const errData = await res.json();
+          errMsg = errData.message || errMsg;
+        } catch {}
+        throw new Error(errMsg);
+      }
+
+      setReferencesStatus('success');
       setTimeout(() => {
-        setShowReferencesModal(false)
-        setReferencesStatus('idle')
-      }, 2000)
-    }, 1500)
-  }
+        setShowReferencesModal(false);
+        setReferencesStatus('idle');
+      }, 2000);
+    } catch (error) {
+      console.error('Statement error:', error);
+      setReferencesStatus('idle');
+      alert(`Xəta: ${error.message}`);
+    }
+  };
 
   const openWithdrawDepositModal = (depositId, isExpired) => {
     setWithdrawDepositForm({ depositId, targetCardId: cards.length > 0 ? cards[0].id : '' });
@@ -2054,7 +2078,7 @@ const Cards = () => {
               <div className="settings-section">
                 <button className="settings-action-btn" onClick={() => {
                   setShowStatementsChoiceModal(false);
-                  setShowReferencesModal(true);
+                  setShowUnavailableModal(true);
                 }}>
                   <img src={statementsIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
