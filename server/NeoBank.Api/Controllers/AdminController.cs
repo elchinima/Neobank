@@ -757,6 +757,78 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = "Role assigned successfully", role = newRole.ToString() });
     }
+
+    [HttpGet("cashbacks")]
+    public async Task<IActionResult> GetCashbacks()
+    {
+        var cashbacks = await _context.CashbackCategories
+            .Include(c => c.MccCodes)
+            .Select(c => new
+            {
+                c.Id,
+                c.TitleEn, c.TitleRu, c.TitleAz,
+                c.TextEn, c.TextRu, c.TextAz,
+                c.Rate,
+                MccCodes = c.MccCodes.Select(m => m.Code).ToList()
+            })
+            .ToListAsync();
+        return Ok(cashbacks);
+    }
+
+    [HttpPost("cashbacks")]
+    public async Task<IActionResult> CreateCashback([FromBody] CashbackCategoryDto dto)
+    {
+        var category = new CashbackCategory
+        {
+            TitleEn = dto.TitleEn ?? "", TitleRu = dto.TitleRu ?? "", TitleAz = dto.TitleAz ?? "",
+            TextEn = dto.TextEn ?? "", TextRu = dto.TextRu ?? "", TextAz = dto.TextAz ?? "",
+            Rate = dto.Rate,
+            MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m }).ToList() ?? new List<CashbackMcc>()
+        };
+        _context.CashbackCategories.Add(category);
+        await _context.SaveChangesAsync();
+        return Ok(category);
+    }
+
+    [HttpPut("cashbacks/{id}")]
+    public async Task<IActionResult> UpdateCashback(string id, [FromBody] CashbackCategoryDto dto)
+    {
+        var category = await _context.CashbackCategories.Include(c => c.MccCodes).FirstOrDefaultAsync(c => c.Id == id);
+        if (category == null) return NotFound("Cashback category not found");
+
+        category.TitleEn = dto.TitleEn ?? ""; category.TitleRu = dto.TitleRu ?? ""; category.TitleAz = dto.TitleAz ?? "";
+        category.TextEn = dto.TextEn ?? ""; category.TextRu = dto.TextRu ?? ""; category.TextAz = dto.TextAz ?? "";
+        category.Rate = dto.Rate;
+
+        _context.CashbackMccs.RemoveRange(category.MccCodes);
+        category.MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m, CategoryId = id }).ToList() ?? new List<CashbackMcc>();
+
+        await _context.SaveChangesAsync();
+        return Ok(category);
+    }
+
+    [HttpDelete("cashbacks/{id}")]
+    public async Task<IActionResult> DeleteCashback(string id)
+    {
+        var category = await _context.CashbackCategories.FindAsync(id);
+        if (category == null) return NotFound("Cashback category not found");
+
+        _context.CashbackCategories.Remove(category);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true });
+    }
+}
+
+public class CashbackCategoryDto
+{
+    public string? TitleEn { get; set; }
+    public string? TitleRu { get; set; }
+    public string? TitleAz { get; set; }
+    public string? TextEn { get; set; }
+    public string? TextRu { get; set; }
+    public string? TextAz { get; set; }
+    public decimal Rate { get; set; }
+    public List<string>? MccCodes { get; set; }
 }
 
 public class AssignRoleDto

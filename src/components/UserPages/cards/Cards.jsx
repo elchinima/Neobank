@@ -1298,7 +1298,7 @@ const Cards = () => {
           </div>
         </div>
         <div className="cashback-offers">
-          {[...cashbackData.categories].sort((a, b) => Number(b.rate) - Number(a.rate)).map((item) => (
+          {[...(cashbackData?.categories || cashbackData?.Categories || [])].sort((a, b) => Number(b.rate) - Number(a.rate)).map((item) => (
             <div className="cashback-offer" key={item.id}>
               <strong>{item.rate}%</strong>
               <div className="cashback-offer-info">

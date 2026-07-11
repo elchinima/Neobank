@@ -37,11 +37,19 @@ const AdminCashbacks = () => {
     try {
       setLoading(true)
       const res = await adminFetch(`${API_BASE_URL}/admin/cashbacks`)
-      if (!res.ok) throw new Error('Failed to load cashbacks')
+      if (!res.ok) {
+        // Fallback for HTML 404 response
+        const text = await res.text()
+        if (text.includes('<!DOCTYPE') || text.includes('<!doctype')) {
+           throw new Error('API Endpoint not available yet. Please restart the backend server.')
+        }
+        throw new Error('Failed to load cashbacks')
+      }
       const data = await res.json()
       setCashbacks(data)
     } catch (err) {
       showMessage(err.message, 'error')
+      setCashbacks([])
     } finally {
       setLoading(false)
     }
@@ -49,7 +57,7 @@ const AdminCashbacks = () => {
 
   const showMessage = (text, type) => {
     setMessage({ text, type })
-    setTimeout(() => setMessage(null), 3000)
+    setTimeout(() => setMessage(null), 5000)
   }
 
   const handleOpenModal = (cashback = null) => {
@@ -114,6 +122,7 @@ const AdminCashbacks = () => {
 
   const handleDelete = async () => {
     if (!selectedCashback) return
+    setSaving(true)
     try {
       const res = await adminFetch(`${API_BASE_URL}/admin/cashbacks/${selectedCashback.id}`, {
         method: 'DELETE'
@@ -125,33 +134,35 @@ const AdminCashbacks = () => {
       loadCashbacks()
     } catch (err) {
       showMessage(err.message, 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
   return (
-    <div className="admin-cashbacks">
-      <div className="admin-cashbacks__header">
+    <div className="admin-cb">
+      <header className="admin-cb__header">
         <div>
-          <div className="admin-cashbacks__eyebrow">Finance</div>
+          <span className="admin-cb__eyebrow">Finance</span>
           <h1>Cashback Categories</h1>
         </div>
-        <button className="admin-cashbacks__add-btn" onClick={() => handleOpenModal()}>
+        <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
           + Add Category
         </button>
-      </div>
+      </header>
 
       {message && (
-        <div className={`admin-cashbacks__message ${message.type}`}>
+        <div className={`admin-cb__message ${message.type}`}>
           {message.text}
         </div>
       )}
 
-      <div className="admin-cashbacks__content">
-        {loading ? (
-          <div className="admin-loading">Loading cashbacks...</div>
-        ) : (
-          <div className="admin-table-container">
-            <table className="admin-table">
+      <section className="admin-cb__table-card">
+        <div className="admin-cb__table-wrap">
+          {loading ? (
+            <div className="admin-cb__empty">Loading cashbacks...</div>
+          ) : (
+            <table>
               <thead>
                 <tr>
                   <th>Title (EN)</th>
@@ -159,21 +170,21 @@ const AdminCashbacks = () => {
                   <th>Title (AZ)</th>
                   <th>Rate (%)</th>
                   <th>MCC Codes</th>
-                  <th>Actions</th>
+                  <th aria-label="Actions"></th>
                 </tr>
               </thead>
               <tbody>
                 {cashbacks.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="admin-table-empty">No cashbacks found</td>
+                    <td colSpan="6" className="admin-cb__empty">No cashbacks found</td>
                   </tr>
                 ) : (
                   cashbacks.map(c => (
                     <tr key={c.id}>
-                      <td>{c.titleEn}</td>
+                      <td><strong>{c.titleEn}</strong></td>
                       <td>{c.titleRu}</td>
                       <td>{c.titleAz}</td>
-                      <td>{c.rate}%</td>
+                      <td><strong>{c.rate}%</strong></td>
                       <td>
                         <div className="mcc-tags">
                           {(c.mccCodes || []).map(mcc => (
@@ -181,82 +192,91 @@ const AdminCashbacks = () => {
                           ))}
                         </div>
                       </td>
-                      <td className="admin-table-actions">
-                        <button onClick={() => handleOpenModal(c)}>Edit</button>
-                        <button className="delete-btn" onClick={() => confirmDelete(c)}>Delete</button>
+                      <td className="admin-cb__actions-cell">
+                        <button className="admin-cb__btn-action" onClick={() => handleOpenModal(c)}>Edit</button>
+                        <button className="admin-cb__btn-action danger" onClick={() => confirmDelete(c)}>Delete</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </section>
 
       {modalOpen && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <h2>{selectedCashback ? 'Edit Cashback Category' : 'Create Cashback Category'}</h2>
-            <div className="admin-modal-form">
-              <div className="form-group-row">
-                <div className="form-group">
+        <div className="admin-cb-modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="admin-cb-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-cb-modal__header">
+              <h2>{selectedCashback ? 'Edit Cashback Category' : 'Create Cashback Category'}</h2>
+              <button className="admin-cb-modal__close" onClick={() => setModalOpen(false)}>&times;</button>
+            </div>
+            
+            <div className="admin-cb-modal__content">
+              <div className="admin-cb-modal__form-row">
+                <div className="admin-cb-modal__field">
                   <label>Title (EN)</label>
                   <input type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} />
                 </div>
-                <div className="form-group">
+                <div className="admin-cb-modal__field">
                   <label>Title (RU)</label>
                   <input type="text" value={formData.titleRu} onChange={e => setFormData({...formData, titleRu: e.target.value})} />
                 </div>
-                <div className="form-group">
+                <div className="admin-cb-modal__field">
                   <label>Title (AZ)</label>
                   <input type="text" value={formData.titleAz} onChange={e => setFormData({...formData, titleAz: e.target.value})} />
                 </div>
               </div>
 
-              <div className="form-group-row">
-                <div className="form-group">
+              <div className="admin-cb-modal__form-row">
+                <div className="admin-cb-modal__field">
                   <label>Description (EN)</label>
                   <textarea value={formData.textEn} onChange={e => setFormData({...formData, textEn: e.target.value})}></textarea>
                 </div>
-                <div className="form-group">
+                <div className="admin-cb-modal__field">
                   <label>Description (RU)</label>
                   <textarea value={formData.textRu} onChange={e => setFormData({...formData, textRu: e.target.value})}></textarea>
                 </div>
-                <div className="form-group">
+                <div className="admin-cb-modal__field">
                   <label>Description (AZ)</label>
                   <textarea value={formData.textAz} onChange={e => setFormData({...formData, textAz: e.target.value})}></textarea>
                 </div>
               </div>
 
-              <div className="form-group-row two-cols">
-                <div className="form-group">
+              <div className="admin-cb-modal__form-row">
+                <div className="admin-cb-modal__field">
                   <label>Rate (%)</label>
                   <input type="number" step="0.1" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
                 </div>
-                <div className="form-group">
+                <div className="admin-cb-modal__field">
                   <label>MCC Codes (comma separated)</label>
                   <input type="text" placeholder="e.g. 001, 002, 003" value={formData.mccCodes} onChange={e => setFormData({...formData, mccCodes: e.target.value})} />
                 </div>
               </div>
             </div>
             
-            <div className="admin-modal-actions">
-              <button className="btn-cancel" onClick={() => setModalOpen(false)}>Cancel</button>
-              <button className="btn-save" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+            <div className="admin-cb-modal__footer">
+              <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
+              <button className="save-btn" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
             </div>
           </div>
         </div>
       )}
 
       {confirmDeleteOpen && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal delete-modal">
-            <h2>Delete Category</h2>
-            <p>Are you sure you want to delete this cashback category? This action cannot be undone.</p>
-            <div className="admin-modal-actions">
-              <button className="btn-cancel" onClick={() => setConfirmDeleteOpen(false)}>Cancel</button>
-              <button className="btn-delete" onClick={handleDelete}>Delete</button>
+        <div className="admin-cb-modal-overlay" onClick={() => setConfirmDeleteOpen(false)}>
+          <div className="admin-cb-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-cb-modal__header">
+              <h2>Confirm Delete</h2>
+              <button className="admin-cb-modal__close" onClick={() => setConfirmDeleteOpen(false)}>&times;</button>
+            </div>
+            <div className="admin-cb-modal__content">
+              <p style={{ color: '#fff' }}>Are you sure you want to delete this category?</p>
+            </div>
+            <div className="admin-cb-modal__footer">
+              <button className="cancel-btn" onClick={() => setConfirmDeleteOpen(false)}>Cancel</button>
+              <button className="delete-btn" onClick={handleDelete} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
             </div>
           </div>
         </div>
