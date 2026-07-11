@@ -16,6 +16,7 @@ const AdminUsers = () => {
   const [searchInput, setSearchInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [activeMenuId, setActiveMenuId] = useState(null)
+  const [dropdownUp, setDropdownUp] = useState(false)
   const [statusModal, setStatusModal] = useState({ open: false, user: null })
   const [emailModal, setEmailModal] = useState({ open: false, user: null })
   const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
@@ -87,7 +88,14 @@ const AdminUsers = () => {
 
   const toggleMenu = (e, id) => {
     e.stopPropagation()
-    setActiveMenuId(activeMenuId === id ? null : id)
+    if (activeMenuId === id) {
+      setActiveMenuId(null)
+    } else {
+      setActiveMenuId(id)
+      const buttonRect = e.currentTarget.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - buttonRect.bottom
+      setDropdownUp(spaceBelow < 200)
+    }
   }
 
   const openStatusModal = (user) => {
@@ -396,7 +404,7 @@ const AdminUsers = () => {
                       </button>
 
                       {activeMenuId === user.id && (
-                        <div className="admin-users__dropdown">
+                        <div className={`admin-users__dropdown ${dropdownUp ? 'admin-users__dropdown--up' : ''}`}>
                           <button onClick={() => openInfoModal(user)}>View Info</button>
                           {user.id !== authUser?.id && (
                             <button onClick={() => openRoleModal(user)}>Assign Role</button>

@@ -249,7 +249,7 @@ const AdminBanner = () => {
                       type="button" 
                       className="admin-banner__button admin-banner__button--purple-square"
                     >
-                      <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14">
+                      <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14" style={{ transform: 'scale(10)' }}>
                         <defs>
                           <radialGradient id={`eyeOuter-${page.pageKey}`} cx="50%" cy="35%" r="70%">
                             <stop offset="0%" stopColor="#ffe28a" stopOpacity="0.85"/>

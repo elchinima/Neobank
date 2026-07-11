@@ -206,6 +206,28 @@ const Cards = () => {
   const [showStatementsChoiceModal, setShowStatementsChoiceModal] = useState(false)
   const [showReferencesModal, setShowReferencesModal] = useState(false)
   const [showArayislarModal, setShowArayislarModal] = useState(false)
+  
+  const [showQrModal, setShowQrModal] = useState(false)
+  const videoRef = React.useRef(null)
+
+  useEffect(() => {
+    let stream = null;
+    if (showQrModal && videoRef.current) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then((s) => {
+          stream = s;
+          if (videoRef.current) {
+            videoRef.current.srcObject = s;
+          }
+        })
+        .catch(err => console.error("Camera error:", err));
+    }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [showQrModal]);
   const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
   const [arayislarForm, setArayislarForm] = useState({ type: 'CreditLine', language: 'az', paymentCardId: '' })
   const [referencesStatus, setReferencesStatus] = useState('idle')
@@ -1288,7 +1310,7 @@ const Cards = () => {
 
       {!isAnyModalOpen && (
         <div className={`cards-footer ${isFooterVisible ? 'hidden-by-footer' : ''}`}>
-          <button className="scan-qr-btn">
+          <button className="scan-qr-btn" onClick={() => setShowQrModal(true)}>
             <img src={qrCodeIcon} className="btn-svg-icon" alt="" />
             <span data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</span>
           </button>
@@ -2286,6 +2308,29 @@ const Cards = () => {
                   </button>
                 </form>
               )}
+            </div>
+          </div>
+        </div>
+      {showQrModal && (
+        <div className="card-modal-overlay" onClick={() => setShowQrModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
+              <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', minHeight: '300px', position: 'relative', padding: 0 }}>
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+              />
+              {/* Target frame */}
+              <div style={{ position: 'absolute', width: '200px', height: '200px', border: '2px solid rgba(255,255,255,0.8)', borderRadius: '12px', boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)' }}></div>
+              <div style={{ position: 'absolute', bottom: '20px', color: '#fff', fontSize: '14px', zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                {t(userCardsLang, 'scanQrCode')}...
+              </div>
             </div>
           </div>
         </div>

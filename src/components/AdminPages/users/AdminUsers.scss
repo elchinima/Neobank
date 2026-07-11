@@ -211,6 +211,11 @@
     flex-direction: column;
     gap: 2px;
 
+    &--up {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
     button {
       width: 100%;
       text-align: left;

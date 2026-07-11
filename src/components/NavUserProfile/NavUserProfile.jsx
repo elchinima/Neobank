@@ -25,7 +25,11 @@ const NavUserProfile = ({ customUser }) => {
         )}
       </div>
       <div className="nav-user-profile__details">
-        <span className="nav-user-profile__name">{displayName}</span>
+        <span className="nav-user-profile__name">
+          {user.firstName || ''}
+          {user.lastName && <span className="nav-user-profile__last-name"> {user.lastName}</span>}
+          {!user.firstName && !user.lastName && (user.email || fallbackName)}
+        </span>
       </div>
     </Link>
   )

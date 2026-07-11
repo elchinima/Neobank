@@ -105,6 +105,12 @@
     padding: 36px;
     flex: 0 0 450px;
     scroll-snap-align: start;
+    position: relative;
+    z-index: 1;
+
+    &:hover {
+      z-index: 10;
+    }
     
     @media (max-width: 768px) {
       flex: 0 0 85%;

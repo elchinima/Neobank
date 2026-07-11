@@ -16,6 +16,7 @@ const AdminDatabase = () => {
   const [error, setError] = useState('')
   
   const [activeMenuId, setActiveMenuId] = useState(null)
+  const [dropdownUp, setDropdownUp] = useState(false)
   const [renameModal, setRenameModal] = useState({ open: false, img: null, newName: '' })
   const [deleteModal, setDeleteModal] = useState({ open: false, img: null })
   const [previewModal, setPreviewModal] = useState({ open: false, img: null })
@@ -144,7 +145,14 @@ const AdminDatabase = () => {
 
   const toggleMenu = (e, id) => {
     e.stopPropagation()
-    setActiveMenuId(activeMenuId === id ? null : id)
+    if (activeMenuId === id) {
+      setActiveMenuId(null)
+    } else {
+      setActiveMenuId(id)
+      const buttonRect = e.currentTarget.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - buttonRect.bottom
+      setDropdownUp(spaceBelow < 200)
+    }
   }
 
   const handleCopyUrl = (url) => {
@@ -281,7 +289,7 @@ const AdminDatabase = () => {
                       </button>
                       
                       {activeMenuId === img.id && (
-                        <div className="admin-db__dropdown">
+                        <div className={`admin-db__dropdown ${dropdownUp ? 'admin-db__dropdown--up' : ''}`}>
                           <button onClick={() => openPreviewModal(img)}>Preview Image</button>
                           <button onClick={() => openRenameModal(img)}>Rename</button>
                           <button onClick={() => handleCopyUrl(img.url)}>Copy URL</button>
