@@ -45,6 +45,23 @@ public class PublicContentController : ControllerBase
         return Ok(new { pages, footerContacts, footerSocials });
     }
 
+    [HttpGet("cashbacks")]
+    public async Task<IActionResult> GetPublicCashbacks()
+    {
+        var categories = await _context.CashbackCategories
+            .Select(c => new
+            {
+                c.Id,
+                c.TitleEn, c.TitleRu, c.TitleAz,
+                c.TextEn, c.TextRu, c.TextAz,
+                c.Rate,
+                c.Variant
+            })
+            .ToListAsync();
+
+        return Ok(categories);
+    }
+
     [HttpPost("newsletter/request")]
     public async Task<IActionResult> RequestNewsletterSubscription([FromBody] NewsletterRequestDto dto, [FromServices] NeoBank.Application.Interfaces.IEmailService emailService)
     {

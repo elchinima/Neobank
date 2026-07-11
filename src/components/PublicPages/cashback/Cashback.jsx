@@ -23,8 +23,7 @@ function Cashback() {
 
   useEffect(() => {
     let isMounted = true
-    // Assume public endpoint is /cashbacks
-    fetch(`${API_BASE_URL}/cashbacks`)
+    fetch(`${API_BASE_URL}/public-content/cashbacks`)
       .then(res => {
         // Fallback to /admin/cashbacks if /cashbacks is not found or fails
         if (!res.ok && res.status === 404) {

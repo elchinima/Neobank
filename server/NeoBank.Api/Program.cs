@@ -15,6 +15,29 @@ using NeoBank.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load .env if present
+var root = Directory.GetCurrentDirectory();
+var dotenvPath = Path.Combine(root, "..", "..", "secret", ".env");
+if (!File.Exists(dotenvPath))
+{
+    dotenvPath = Path.Combine(root, "..", "secret", ".env");
+}
+
+if (File.Exists(dotenvPath))
+{
+    foreach (var line in File.ReadAllLines(dotenvPath))
+    {
+        var parts = line.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 2)
+        {
+            Environment.SetEnvironmentVariable(parts[0], parts[1]);
+        }
+    }
+}
+// Manually override config from env
+builder.Configuration.AddEnvironmentVariables();
+
+
 
 builder.Services.AddControllers();
 
@@ -210,6 +233,50 @@ using (var scope = app.Services.CreateScope())
             dbContext.CashbackMccs.AddRange(mccCodes);
             dbContext.SaveChanges();
         }
+
+        if (!dbContext.CashbackCategories.Any(c => c.Variant == "B"))
+        {
+            var categoriesB = new List<CashbackCategory>
+            {
+                new CashbackCategory { 
+                    TitleEn = "Utility bills", TitleAz = "Kommunal ödənişlər", TitleRu = "Коммунальные платежи", 
+                    TextEn = "Base reward for utility payments.", TextAz = "Kommunal ödənişlər üçün baza mükafatı.", TextRu = "Базовый кэшбэк за оплату коммунальных услуг.", 
+                    Rate = 1.5m,
+                    Variant = "B"
+                },
+                new CashbackCategory { 
+                    TitleEn = "Government services", TitleAz = "Dövlət xidmətləri", TitleRu = "Государственные услуги", 
+                    TextEn = "Cashback for government fees and services.", TextAz = "Dövlət rüsumları və xidmətləri üçün kəşbək.", TextRu = "Кэшбэк на государственные пошлины и услуги.", 
+                    Rate = 1m,
+                    Variant = "B"
+                },
+                new CashbackCategory { 
+                    TitleEn = "Insurance", TitleAz = "Sığorta", TitleRu = "Страхование", 
+                    TextEn = "Reward on all insurance payments.", TextAz = "Bütün sığorta ödənişlərində mükafat.", TextRu = "Кэшбэк на все страховые выплаты.", 
+                    Rate = 2m,
+                    Variant = "B"
+                },
+                new CashbackCategory { 
+                    TitleEn = "Other payments", TitleAz = "Digər ödənişlər", TitleRu = "Прочие платежи", 
+                    TextEn = "A base reward for payments outside the main categories.", TextAz = "Əsas kateqoriyalardan kənar ödənişlər üçün baza mükafatı.", TextRu = "Базовый кэшбэк для платежей вне основных категорий.", 
+                    Rate = 0.5m,
+                    Variant = "B"
+                }
+            };
+            dbContext.CashbackCategories.AddRange(categoriesB);
+            dbContext.SaveChanges();
+
+            var mccCodesB = new List<CashbackMcc>();
+            int codeCounter = 100;
+            foreach(var cat in categoriesB)
+            {
+                mccCodesB.Add(new CashbackMcc { Code = codeCounter.ToString("D3"), CategoryId = cat.Id });
+                codeCounter++;
+            }
+            dbContext.CashbackMccs.AddRange(mccCodesB);
+            dbContext.SaveChanges();
+        }
+
         // try
         // {
         //     dbContext.Database.ExecuteSqlRaw(@"DELETE FROM ""PublicPageSettings"" WHERE ""LanguageCode"" = '' OR ""LanguageCode"" IS NULL;");
