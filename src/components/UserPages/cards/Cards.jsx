@@ -1302,8 +1302,8 @@ const Cards = () => {
             <div className="cashback-offer" key={item.id}>
               <strong>{item.rate}%</strong>
               <div className="cashback-offer-info">
-                <h4>{t(userCardsLang, item.titleKey)}</h4>
-                <p>{t(userCardsLang, item.textKey)}</p>
+                <h4>{item[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || item.titleEn}</h4>
+                <p>{item[`text${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || item.textEn}</p>
                 {showLimits && (
                   <div className="cashback-limits">
                     <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>

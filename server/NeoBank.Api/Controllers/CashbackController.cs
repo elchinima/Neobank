@@ -40,8 +40,12 @@ public class CashbackController : ControllerBase
             return new
             {
                 Id = c.Id,
-                TitleKey = c.TitleKey,
-                TextKey = c.TextKey,
+                TitleEn = c.TitleEn,
+                TitleRu = c.TitleRu,
+                TitleAz = c.TitleAz,
+                TextEn = c.TextEn,
+                TextRu = c.TextRu,
+                TextAz = c.TextAz,
                 Rate = c.Rate,
                 Earned = userCashback?.AmountEarned ?? 0m,
                 MccCodes = c.MccCodes.Select(m => m.Code).ToList()

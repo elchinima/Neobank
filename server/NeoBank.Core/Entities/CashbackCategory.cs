@@ -3,8 +3,12 @@ namespace NeoBank.Core.Entities;
 public class CashbackCategory
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    public string TitleKey { get; set; } = string.Empty; // e.g. "catMetroTitle"
-    public string TextKey { get; set; } = string.Empty; // e.g. "catMetroText"
+    public string TitleEn { get; set; } = string.Empty;
+    public string TitleRu { get; set; } = string.Empty;
+    public string TitleAz { get; set; } = string.Empty;
+    public string TextEn { get; set; } = string.Empty;
+    public string TextRu { get; set; } = string.Empty;
+    public string TextAz { get; set; } = string.Empty;
     public decimal Rate { get; set; } // e.g. 100 for 100%, 5 for 5%
 
     // Navigation properties

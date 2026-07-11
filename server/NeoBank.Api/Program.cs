@@ -156,14 +156,46 @@ using (var scope = app.Services.CreateScope())
         {
             var categories = new List<CashbackCategory>
             {
-                new CashbackCategory { TitleKey = "catMetroTitle", TextKey = "catMetroText", Rate = 100m },
-                new CashbackCategory { TitleKey = "catSuperTitle", TextKey = "catSuperText", Rate = 5m },
-                new CashbackCategory { TitleKey = "catPharmTitle", TextKey = "catPharmText", Rate = 3m },
-                new CashbackCategory { TitleKey = "catFuelTitle", TextKey = "catFuelText", Rate = 3m },
-                new CashbackCategory { TitleKey = "catRestTitle", TextKey = "catRestText", Rate = 2m },
-                new CashbackCategory { TitleKey = "catClothTitle", TextKey = "catClothText", Rate = 2m },
-                new CashbackCategory { TitleKey = "catTrendTitle", TextKey = "catTrendText", Rate = 1m },
-                new CashbackCategory { TitleKey = "catOtherTitle", TextKey = "catOtherText", Rate = 0.1m }
+                new CashbackCategory { 
+                    TitleEn = "Every 5th metro or bus ride", TitleAz = "Hər 5-ci metro və ya avtobus gedişi", TitleRu = "Каждая 5-я поездка в метро или автобусе", 
+                    TextEn = "Calculated from the average fare across all five rides.", TextAz = "Bütün beş gediş üzrə orta gediş haqqından hesablanır.", TextRu = "Рассчитывается из средней стоимости пяти поездок.", 
+                    Rate = 100m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Supermarkets", TitleAz = "Supermarketlər", TitleRu = "Супермаркеты", 
+                    TextEn = "Everyday grocery spending earns the highest retail rate.", TextAz = "Gündəlik ərzaq xərcləri ən yüksək pərakəndə satış dərəcəsi qazandırır.", TextRu = "Ежедневные траты на продукты приносят максимальный кэшбэк.", 
+                    Rate = 5m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Pharmacies", TitleAz = "Apteklər", TitleRu = "Аптеки", 
+                    TextEn = "Health and pharmacy purchases are included automatically.", TextAz = "Sağlamlıq və aptek alışları avtomatik daxil edilir.", TextRu = "Покупки для здоровья и аптеки включаются автоматически.", 
+                    Rate = 3m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Fuel stations", TitleAz = "Yanacaqdoldurma məntəqələri", TitleRu = "АЗС", 
+                    TextEn = "Cashback for regular car expenses and fuel payments.", TextAz = "Daimi avtomobil xərcləri və yanacaq ödənişləri üçün kəşbək.", TextRu = "Кэшбэк на регулярные расходы на автомобиль и топливо.", 
+                    Rate = 3m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Restaurants, cafes, sweets", TitleAz = "Restoranlar, kafelər, şirniyyatlar", TitleRu = "Рестораны, кафе, сладости", 
+                    TextEn = "Dining, coffee, desserts, and similar food categories.", TextAz = "Yemək, qəhvə, desertlər və oxşar qida kateqoriyaları.", TextRu = "Ужины, кофе, десерты и подобные категории.", 
+                    Rate = 2m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Clothing and shoes", TitleAz = "Geyim və ayaqqabı", TitleRu = "Одежда и обувь", 
+                    TextEn = "Fashion, footwear, and wardrobe essentials.", TextAz = "Moda, ayaqqabı və qarderob.", TextRu = "Мода, обувь и гардероб.", 
+                    Rate = 2m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Trendyol and Temu", TitleAz = "Trendyol və Temu", TitleRu = "Trendyol и Temu", 
+                    TextEn = "Online marketplace purchases through popular platforms.", TextAz = "Məşhur platformalar vasitəsilə onlayn bazar alışları.", TextRu = "Покупки на популярных онлайн-площадках.", 
+                    Rate = 1m 
+                },
+                new CashbackCategory { 
+                    TitleEn = "Other payments", TitleAz = "Digər ödənişlər", TitleRu = "Прочие платежи", 
+                    TextEn = "A base reward for payments outside the main categories.", TextAz = "Əsas kateqoriyalardan kənar ödənişlər üçün baza mükafatı.", TextRu = "Базовый кэшбэк для платежей вне основных категорий.", 
+                    Rate = 0.1m 
+                }
             };
             dbContext.CashbackCategories.AddRange(categories);
             dbContext.SaveChanges();
