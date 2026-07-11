@@ -94,7 +94,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 
 
 const Cards = () => {
-  const { t } = useLanguage()
+  const { lang, t } = useLanguage()
   const { token, user, fetchWithAuth } = useAuth()
   const location = useLocation()
 
@@ -1294,25 +1294,37 @@ const Cards = () => {
           </div>
           <div className="total-cashback">
             <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
-            <strong>{Number(cashbackData.totalEarned).toFixed(2)} ₼</strong>
+            <strong>{Number(cashbackData?.totalEarned || cashbackData?.TotalEarned || 0).toFixed(2)} ₼</strong>
           </div>
         </div>
         <div className="cashback-offers">
-          {[...(cashbackData?.categories || cashbackData?.Categories || [])].sort((a, b) => Number(b.rate) - Number(a.rate)).map((item) => (
-            <div className="cashback-offer" key={item.id}>
-              <strong>{item.rate}%</strong>
-              <div className="cashback-offer-info">
-                <h4>{item[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || item.titleEn}</h4>
-                <p>{item[`text${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || item.textEn}</p>
-                {showLimits && (
-                  <div className="cashback-limits">
-                    <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
-                    <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(item.earned).toFixed(2)} ₼</span>
+          {[...(cashbackData?.categories || cashbackData?.Categories || [])]
+            .filter(item => item != null)
+            .sort((a, b) => Number(b?.rate || b?.Rate || 0) - Number(a?.rate || a?.Rate || 0))
+            .map((item, index) => {
+              const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
+              
+              const rate = item?.rate !== undefined ? item.rate : (item?.Rate || 0);
+              const title = item[`title${langCap}`] || item[`Title${langCap}`] || item?.titleEn || item?.TitleEn || '';
+              const text = item[`text${langCap}`] || item[`Text${langCap}`] || item?.textEn || item?.TextEn || '';
+              const earned = item?.earned !== undefined ? item.earned : (item?.Earned || 0);
+              
+              return (
+                <div className="cashback-offer" key={item?.id || item?.Id || `cashback-${index}`}>
+                  <strong>{rate}%</strong>
+                  <div className="cashback-offer-info">
+                    <h4>{title}</h4>
+                    <p>{text}</p>
+                    {showLimits && (
+                      <div className="cashback-limits">
+                        <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
+                        <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} ₼</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
+                </div>
+              );
+          })}
         </div>
       </div>
 
