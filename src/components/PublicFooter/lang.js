@@ -28,7 +28,18 @@ export const footerLang = {
     feat2Title: 'Control cards',
     feat2Text: 'Freeze cards and check limits anytime.',
     feat3Title: 'Stay updated',
-    feat3Text: 'Follow deposits, loans and support updates faster.'
+    feat3Text: 'Follow deposits, loans and support updates faster.',
+    emailNotFound: 'Email address not found in our database.',
+    verifyCodeTitle: 'Enter verification code',
+    verifyCodeDesc: 'We sent a 4-digit code to your email. Enter it below to subscribe.',
+    verifyBtn: 'Verify',
+    unsubscribeConfirmTitle: 'Unsubscribe',
+    unsubscribeConfirmDesc: 'You are already subscribed. Do you want to unsubscribe?',
+    yesBtn: 'Yes',
+    noBtn: 'No',
+    subSuccess: 'Successfully subscribed to the newsletter!',
+    unsubSuccess: 'Successfully unsubscribed from the newsletter.',
+    errorOccurred: 'An error occurred. Please try again.'
   },
   az: {
     contactUs: 'Əlaqə',
@@ -59,7 +70,18 @@ export const footerLang = {
     feat2Title: 'Kartlara nəzarət',
     feat2Text: 'İstənilən vaxt kartları dondurun və limitləri yoxlayın.',
     feat3Title: 'Yeniliklərdən xəbərdar olun',
-    feat3Text: 'Depozit, kredit və dəstək yeniləmələrini daha sürətli izləyin.'
+    feat3Text: 'Depozit, kredit və dəstək yeniləmələrini daha sürətli izləyin.',
+    emailNotFound: 'E-poçt ünvanı bazamızda tapılmadı.',
+    verifyCodeTitle: 'Təsdiq kodunu daxil edin',
+    verifyCodeDesc: 'E-poçt ünvanınıza 4 rəqəmli kod göndərdik. Abunə olmaq üçün onu aşağıya daxil edin.',
+    verifyBtn: 'Təsdiqlə',
+    unsubscribeConfirmTitle: 'Abunəliyi ləğv et',
+    unsubscribeConfirmDesc: 'Siz artıq abunəsiniz. Abunəliyi ləğv etmək istəyirsiniz?',
+    yesBtn: 'Bəli',
+    noBtn: 'Xeyr',
+    subSuccess: 'Xəbər bülleteninə uğurla abunə oldunuz!',
+    unsubSuccess: 'Xəbər bülletenindən uğurla ayrıldınız.',
+    errorOccurred: 'Xəta baş verdi. Zəhmət olmasa bir daha cəhd edin.'
   },
   ru: {
     contactUs: 'Контакты',
@@ -90,6 +112,17 @@ export const footerLang = {
     feat2Title: 'Управляйте картами',
     feat2Text: 'Замораживайте карты и проверяйте лимиты в любое время.',
     feat3Title: 'Будьте в курсе',
-    feat3Text: 'Следите за депозитами, кредитами и обновлениями поддержки.'
+    feat3Text: 'Следите за депозитами, кредитами и обновлениями поддержки.',
+    emailNotFound: 'Электронная почта не найдена в нашей базе данных.',
+    verifyCodeTitle: 'Введите код подтверждения',
+    verifyCodeDesc: 'Мы отправили 4-значный код на вашу электронную почту. Введите его ниже, чтобы подписаться.',
+    verifyBtn: 'Подтвердить',
+    unsubscribeConfirmTitle: 'Отписаться',
+    unsubscribeConfirmDesc: 'Вы уже подписаны. Хотите отписаться?',
+    yesBtn: 'Да',
+    noBtn: 'Нет',
+    subSuccess: 'Вы успешно подписались на рассылку!',
+    unsubSuccess: 'Вы успешно отписались от рассылки.',
+    errorOccurred: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.'
   }
 }

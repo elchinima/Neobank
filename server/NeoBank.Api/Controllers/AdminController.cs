@@ -280,6 +280,57 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpPost("users/send-newsletter")]
+    public async Task<IActionResult> SendNewsletterToAllSubscribed([FromForm] SendCustomEmailRequest request, [FromServices] IEmailService emailService)
+    {
+        if (string.IsNullOrWhiteSpace(request.EmailTitle) || request.EmailTitle.Length > 100)
+            return BadRequest("Email Title must be between 1 and 100 characters.");
+        
+        if (string.IsNullOrWhiteSpace(request.ContentTitle) || request.ContentTitle.Length > 100)
+            return BadRequest("Content Title must be between 1 and 100 characters.");
+
+        if (string.IsNullOrWhiteSpace(request.ContentMessage) || request.ContentMessage.Length > 1000)
+            return BadRequest("Content Message must be between 1 and 1000 characters.");
+
+        byte[]? attachmentBytes = null;
+        string? attachmentName = null;
+
+        if (request.Attachment != null)
+        {
+            if (request.Attachment.Length > 5 * 1024 * 1024)
+                return BadRequest("File size exceeds 5 MB limit.");
+
+            var ext = Path.GetExtension(request.Attachment.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".docx", ".pdf" };
+            if (!allowedExtensions.Contains(ext))
+                return BadRequest("Invalid file type. Only PNG, JPG, JPEG, GIF, WEBP, DOCX, and PDF are allowed.");
+
+            attachmentName = request.Attachment.FileName;
+            using var ms = new MemoryStream();
+            await request.Attachment.CopyToAsync(ms);
+            attachmentBytes = ms.ToArray();
+        }
+
+        var subscribedUsers = await _context.Users.Where(u => u.IsSubscribedToNewsletter).ToListAsync();
+        if (!subscribedUsers.Any()) return BadRequest("No subscribed users found.");
+
+        int successCount = 0;
+        foreach (var user in subscribedUsers)
+        {
+            try
+            {
+                await emailService.SendCustomEmailAsync(user.Email, user.FirstName, request.EmailTitle, request.ContentTitle, request.ContentMessage, attachmentBytes, attachmentName);
+                successCount++;
+            }
+            catch
+            {
+                // Optionally log the exception here
+            }
+        }
+
+        return Ok(new { success = true, sentCount = successCount });
+    }
+
     [HttpGet("public-content")]
     public async Task<IActionResult> GetEditablePublicContent()
     {

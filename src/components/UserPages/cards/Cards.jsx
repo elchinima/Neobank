@@ -2311,6 +2311,8 @@ const Cards = () => {
             </div>
           </div>
         </div>
+      )}
+
       {showQrModal && (
         <div className="card-modal-overlay" onClick={() => setShowQrModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>

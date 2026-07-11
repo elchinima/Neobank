@@ -18,7 +18,7 @@ const AdminUsers = () => {
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [dropdownUp, setDropdownUp] = useState(false)
   const [statusModal, setStatusModal] = useState({ open: false, user: null })
-  const [emailModal, setEmailModal] = useState({ open: false, user: null })
+  const [emailModal, setEmailModal] = useState({ open: false, user: null, isNewsletter: false })
   const [emailData, setEmailData] = useState({ emailTitle: '', contentTitle: '', contentMessage: '' })
   const [sendingEmail, setSendingEmail] = useState(false)
   const [alertModal, setAlertModal] = useState({ open: false, message: '', isError: false })
@@ -169,7 +169,15 @@ const AdminUsers = () => {
   }
 
   const openEmailModal = (user) => {
-    setEmailModal({ open: true, user })
+    setEmailModal({ open: true, user, isNewsletter: false })
+    setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
+    setEmailFile(null)
+    setEmailPreviewUrl(null)
+    setActiveMenuId(null)
+  }
+
+  const openNewsletterEmailModal = () => {
+    setEmailModal({ open: true, user: null, isNewsletter: true })
     setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
     setEmailFile(null)
     setEmailPreviewUrl(null)
@@ -215,8 +223,8 @@ const AdminUsers = () => {
   }
 
   const handleSendEmail = async () => {
-    const { user } = emailModal
-    if (!user) return
+    const { user, isNewsletter } = emailModal
+    if (!user && !isNewsletter) return
 
     setSendingEmail(true)
     try {
@@ -228,7 +236,11 @@ const AdminUsers = () => {
         formData.append('Attachment', emailFile)
       }
 
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/send-email`, {
+      let endpoint = isNewsletter 
+        ? `${API_BASE_URL}/admin/users/send-newsletter`
+        : `${API_BASE_URL}/admin/users/${user.id}/send-email`
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
       })
@@ -238,8 +250,14 @@ const AdminUsers = () => {
         throw new Error(err || 'Failed to send email')
       }
 
-      setEmailModal({ open: false, user: null })
-      setAlertModal({ open: true, message: 'Email sent successfully!', isError: false })
+      const data = await response.json().catch(() => ({}))
+      
+      let successMsg = isNewsletter 
+        ? `Email sent successfully to ${data.sentCount !== undefined ? data.sentCount : 'all'} subscribers!`
+        : 'Email sent successfully!'
+
+      setEmailModal({ open: false, user: null, isNewsletter: false })
+      setAlertModal({ open: true, message: successMsg, isError: false })
     } catch (err) {
       setAlertModal({ open: true, message: err.message, isError: true })
     } finally {
@@ -352,13 +370,23 @@ const AdminUsers = () => {
               }}
             />
           </div>
-          <button 
-            type="button" 
-            className="admin-users__search-btn" 
-            onClick={() => setSearch(searchInput)}
-          >
-            Search
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              type="button" 
+              className="admin-users__search-btn" 
+              onClick={() => setSearch(searchInput)}
+            >
+              Search
+            </button>
+            <button 
+              type="button" 
+              className="admin-users__search-btn" 
+              onClick={openNewsletterEmailModal}
+              style={{ background: '#7e57c2', color: '#fff' }}
+            >
+              Send to Subscribers
+            </button>
+          </div>
         </div>
       </header>
 
@@ -515,12 +543,12 @@ const AdminUsers = () => {
       )}
 
       {/* Email Modal */}
-      {emailModal.open && emailModal.user && (
-        <div className="admin-users-modal-overlay" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null })}>
+      {emailModal.open && (emailModal.user || emailModal.isNewsletter) && (
+        <div className="admin-users-modal-overlay" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}>
           <div className="admin-users-modal admin-users-modal--email" onClick={e => e.stopPropagation()}>
             <div className="admin-users-modal__header">
-              <h2>Send Email to {formatTableName(emailModal.user)}</h2>
-              <button className="admin-users-modal__close" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null })}>&times;</button>
+              <h2>Send Email to {emailModal.isNewsletter ? 'All Subscribed Users' : formatTableName(emailModal.user)}</h2>
+              <button className="admin-users-modal__close" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}>&times;</button>
             </div>
             
             <div className="admin-users-modal__content">
@@ -597,7 +625,7 @@ const AdminUsers = () => {
             </div>
             
             <div className="admin-users-modal__footer">
-              <button className="admin-users-modal__btn-cancel" disabled={sendingEmail} onClick={() => setEmailModal({ open: false, user: null })}>Cancel</button>
+              <button className="admin-users-modal__btn-cancel" disabled={sendingEmail} onClick={() => setEmailModal({ open: false, user: null, isNewsletter: false })}>Cancel</button>
               <button 
                 className="admin-users-modal__btn-save" 
                 onClick={handleSendEmail}

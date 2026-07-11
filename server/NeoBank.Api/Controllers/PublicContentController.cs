@@ -44,4 +44,87 @@ public class PublicContentController : ControllerBase
 
         return Ok(new { pages, footerContacts, footerSocials });
     }
+
+    [HttpPost("newsletter/request")]
+    public async Task<IActionResult> RequestNewsletterSubscription([FromBody] NewsletterRequestDto dto, [FromServices] NeoBank.Application.Interfaces.IEmailService emailService)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email)) return BadRequest(new { message = "Email is required" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        if (user == null)
+        {
+            return Ok(new { exists = false });
+        }
+
+        if (user.IsSubscribedToNewsletter)
+        {
+            return Ok(new { exists = true, isSubscribed = true });
+        }
+
+        var code = Random.Shared.Next(1000, 9999).ToString();
+        var verification = new NeoBank.Core.Entities.EmailVerificationCode
+        {
+            UserId = user.Id,
+            Code = code,
+            Purpose = "NewsletterSubscribe",
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15)
+        };
+        _context.EmailVerificationCodes.Add(verification);
+        await _context.SaveChangesAsync();
+
+        await emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "NewsletterSubscribe");
+
+        return Ok(new { exists = true, isSubscribed = false });
+    }
+
+    [HttpPost("newsletter/verify")]
+    public async Task<IActionResult> VerifyNewsletterSubscription([FromBody] NewsletterVerifyDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Code)) 
+            return BadRequest(new { message = "Email and code are required" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        if (user == null) return BadRequest(new { message = "User not found" });
+
+        var verification = await _context.EmailVerificationCodes
+            .Where(x => x.UserId == user.Id && x.Purpose == "NewsletterSubscribe" && !x.IsUsed)
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (verification == null || verification.Code != dto.Code || verification.ExpiresAt < DateTime.UtcNow)
+        {
+            return BadRequest(new { message = "Invalid or expired code." });
+        }
+
+        verification.IsUsed = true;
+        user.IsSubscribedToNewsletter = true;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Successfully subscribed" });
+    }
+
+    [HttpPost("newsletter/unsubscribe")]
+    public async Task<IActionResult> UnsubscribeNewsletter([FromBody] NewsletterRequestDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email)) return BadRequest(new { message = "Email is required" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        if (user == null) return BadRequest(new { message = "User not found" });
+
+        user.IsSubscribedToNewsletter = false;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Successfully unsubscribed" });
+    }
+}
+
+public class NewsletterRequestDto
+{
+    public string Email { get; set; } = string.Empty;
+}
+
+public class NewsletterVerifyDto
+{
+    public string Email { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
 }

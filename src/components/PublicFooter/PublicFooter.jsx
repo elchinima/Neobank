@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from 'react'
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../app/context/LanguageContext'
@@ -158,6 +159,111 @@ function PublicFooter() {
 
   const { t } = useLanguage()
   const { footerLinks, footerContacts, footerSocials = [] } = usePublicContent()
+  
+  const [email, setEmail] = useState('')
+  const [modalType, setModalType] = useState(null) // 'verify', 'unsubscribe', null
+  const [code, setCode] = useState(['', '', '', ''])
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState({ text: '', isError: false })
+  const inputRefs = useRef([])
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL ||
+    (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
+
+  const handleSubscribeSubmit = async (e) => {
+    e.preventDefault()
+    if (!email) return
+    setLoading(true)
+    setMessage({ text: '', isError: false })
+    try {
+      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (!data.exists) {
+        setMessage({ text: t(footerLang, 'emailNotFound'), isError: true })
+      } else if (data.isSubscribed) {
+        setModalType('unsubscribe')
+      } else {
+        setModalType('verify')
+        setCode(['', '', '', ''])
+        setTimeout(() => inputRefs.current[0]?.focus(), 100)
+      }
+    } catch (err) {
+      setMessage({ text: t(footerLang, 'errorOccurred'), isError: true })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerify = async (e) => {
+    e?.preventDefault()
+    const fullCode = code.join('')
+    if (fullCode.length < 4) return
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: fullCode })
+      })
+      if (!res.ok) throw new Error()
+      setMessage({ text: t(footerLang, 'subSuccess'), isError: false })
+      setModalType(null)
+      setEmail('')
+      setCode(['', '', '', ''])
+    } catch (err) {
+      setMessage({ text: t(footerLang, 'errorOccurred'), isError: true })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleUnsubscribe = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/unsubscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      if (!res.ok) throw new Error()
+      setMessage({ text: t(footerLang, 'unsubSuccess'), isError: false })
+      setModalType(null)
+      setEmail('')
+    } catch (err) {
+      setMessage({ text: t(footerLang, 'errorOccurred'), isError: true })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDigitChange = (index, value) => {
+    const cleaned = value.replace(/\D/g, '')
+    if (!cleaned) {
+      const next = [...code]
+      next[index] = ''
+      setCode(next)
+      return
+    }
+    const next = [...code]
+    next[index] = cleaned[cleaned.length - 1]
+    setCode(next)
+    if (index < 3) {
+      inputRefs.current[index + 1]?.focus()
+    } else if (index === 3) {
+      handleVerify()
+    }
+  }
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus()
+    }
+  }
 
   const editableProductLinks = footerLinks.filter((link) => link.section === 'products')
   const editableInfoLinks = footerLinks.filter((link) => link.section === 'information')
@@ -262,16 +368,29 @@ function PublicFooter() {
           <h2 id="footer-subscribe-title" data-lang-key="subscribe">{t(footerLang, 'subscribe')}</h2>
           <form
             className="public-footer__form"
-            onSubmit={(event) => {
-              event.preventDefault()
-            }}
+            onSubmit={handleSubscribeSubmit}
           >
             <label className="public-footer__sr-only" htmlFor="footer-email" data-lang-key="emailPlaceholder">
               {t(footerLang, 'emailPlaceholder')}
             </label>
-            <input id="footer-email" type="email" placeholder={t(footerLang, 'emailPlaceholder')} />
-            <button type="submit" data-lang-key="subscribeBtn">{t(footerLang, 'subscribeBtn')}</button>
+            <input 
+              id="footer-email" 
+              type="email" 
+              placeholder={t(footerLang, 'emailPlaceholder')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required 
+            />
+            <button type="submit" data-lang-key="subscribeBtn" disabled={loading}>
+              {loading ? '...' : t(footerLang, 'subscribeBtn')}
+            </button>
           </form>
+          {message.text && (
+            <p style={{ color: message.isError ? '#ff4d4d' : '#2ecc71', fontSize: '13px', marginTop: '8px' }}>
+              {message.text}
+            </p>
+          )}
         </section>
       </div>
 
@@ -405,6 +524,79 @@ function PublicFooter() {
               </div>
             </div>
           </section>
+        </div>
+      )}
+
+      {modalType === 'verify' && (
+        <div className="card-modal-overlay" onClick={() => !loading && setModalType(null)} style={{ zIndex: 9999 }}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(footerLang, 'verifyCodeTitle')}</h2>
+              <button className="close-btn" onClick={() => !loading && setModalType(null)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '24px' }}>
+              <p style={{ marginBottom: '24px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                {t(footerLang, 'verifyCodeDesc')}
+              </p>
+              <form onSubmit={handleVerify}>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
+                  {code.map((digit, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => (inputRefs.current[i] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      value={digit}
+                      onChange={(e) => handleDigitChange(i, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(i, e)}
+                      disabled={loading}
+                      style={{
+                        width: '48px', height: '56px', fontSize: '24px', textAlign: 'center',
+                        backgroundColor: '#1c1823', border: '1px solid rgba(255,226,138,0.2)',
+                        borderRadius: '8px', color: '#fff'
+                      }}
+                    />
+                  ))}
+                </div>
+                <button type="submit" disabled={loading} style={{
+                  width: '100%', padding: '12px', background: '#ffe28a', color: '#111',
+                  border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer'
+                }}>
+                  {loading ? '...' : t(footerLang, 'verifyBtn')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modalType === 'unsubscribe' && (
+        <div className="card-modal-overlay" onClick={() => !loading && setModalType(null)} style={{ zIndex: 9999 }}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(footerLang, 'unsubscribeConfirmTitle')}</h2>
+              <button className="close-btn" onClick={() => !loading && setModalType(null)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ textAlign: 'center', padding: '24px' }}>
+              <p style={{ marginBottom: '24px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                {t(footerLang, 'unsubscribeConfirmDesc')}
+              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button disabled={loading} onClick={handleUnsubscribe} style={{
+                  flex: 1, padding: '12px', background: '#ff3b30', color: '#fff',
+                  border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer'
+                }}>
+                  {loading ? '...' : t(footerLang, 'yesBtn')}
+                </button>
+                <button disabled={loading} onClick={() => setModalType(null)} style={{
+                  flex: 1, padding: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff',
+                  border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer'
+                }}>
+                  {t(footerLang, 'noBtn')}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </footer>

@@ -21,4 +21,6 @@ public class ApplicationUser
     
     [System.ComponentModel.DataAnnotations.MaxLength(1000)]
     public string? Note { get; set; }
+    
+    public bool IsSubscribedToNewsletter { get; set; } = false;
 }

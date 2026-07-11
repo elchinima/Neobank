@@ -24,18 +24,25 @@ public class EmailService : IEmailService
     public async Task SendVerificationCodeAsync(string toEmail, string firstName, string code, string purpose)
     {
         var isTwoFactor = purpose == "TwoFactor";
+        var isNewsletter = purpose == "NewsletterSubscribe";
 
         var subject = isTwoFactor
             ? "NeoBank — Your 2FA Login Code"
-            : "NeoBank — Confirm Your Email Address";
+            : isNewsletter 
+                ? "NeoBank — Newsletter Subscription Verification" 
+                : "NeoBank — Confirm Your Email Address";
 
         var purposeTitle = isTwoFactor
             ? "Two-Factor Authentication"
-            : "Email Verification";
+            : isNewsletter
+                ? "Newsletter Subscription"
+                : "Email Verification";
 
         var purposeDesc = isTwoFactor
             ? "A sign-in attempt was made to your account. Enter this code to complete your login."
-            : "Welcome to NeoBank! Please confirm your email address by entering the code below.";
+            : isNewsletter
+                ? "You requested to subscribe to our newsletter. Enter this code to confirm your subscription."
+                : "Welcome to NeoBank! Please confirm your email address by entering the code below.";
 
         var html = BuildEmailHtml(firstName, code, purposeTitle, purposeDesc);
 
