@@ -57,19 +57,24 @@
   }
 
   &__search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     align-self: flex-end;
-    min-height: 46px;
-    padding: 0 24px;
-    border: none;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid transparent;
     border-radius: $border-radius-sm;
-    background: $landing-gold-soft;
-    color: #111;
+    background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 48%, #b47012);
+    color: #211405;
     font: inherit;
-    font-weight: 900;
+    font-size: 13px;
+    font-weight: 850;
     cursor: pointer;
+    transition: $transition;
 
     &:hover {
-      background: lighten($landing-gold-soft, 5%);
+      opacity: 0.9;
     }
   }
 

@@ -250,6 +250,20 @@ const AdminBanner = () => {
                       className="admin-banner__button admin-banner__button--purple-square"
                     >
                       <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14" style={{ transform: 'scale(10)' }}>
+                        <style>
+                          {`
+                            @keyframes blink {
+                              0%, 94%, 100% { transform: scaleY(1); }
+                              97% { transform: scaleY(0.1); }
+                            }
+                            @keyframes lookAround {
+                              0%, 15%, 100% { transform: translate(0px, 0px); }
+                              25%, 40% { transform: translate(0.4px, -0.1px); }
+                              55%, 70% { transform: translate(-0.4px, 0.1px); }
+                              80%, 90% { transform: translate(0.1px, -0.2px); }
+                            }
+                          `}
+                        </style>
                         <defs>
                           <radialGradient id={`eyeOuter-${page.pageKey}`} cx="50%" cy="35%" r="70%">
                             <stop offset="0%" stopColor="#ffe28a" stopOpacity="0.85"/>

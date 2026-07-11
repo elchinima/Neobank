@@ -32,24 +32,25 @@
   }
 
   &__save-btn {
-    min-height: 46px;
-    padding: 0 24px;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid transparent;
     border-radius: $border-radius-sm;
-    background: $landing-gold-soft;
-    color: #000;
-    font-weight: 800;
+    background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 48%, #b47012);
+    color: #211405;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 850;
     cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
+    transition: $transition;
 
     &:hover:not(:disabled) {
       opacity: 0.9;
     }
     
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;

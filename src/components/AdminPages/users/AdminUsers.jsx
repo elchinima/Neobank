@@ -382,7 +382,6 @@ const AdminUsers = () => {
               type="button" 
               className="admin-users__search-btn" 
               onClick={openNewsletterEmailModal}
-              style={{ background: '#7e57c2', color: '#fff' }}
             >
               Send to Subscribers
             </button>

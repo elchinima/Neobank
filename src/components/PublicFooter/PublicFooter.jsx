@@ -525,6 +525,7 @@ function PublicFooter() {
             </div>
           </section>
         </div>
+
       )}
 
       {modalType === 'verify' && (
@@ -559,8 +560,8 @@ function PublicFooter() {
                   ))}
                 </div>
                 <button type="submit" disabled={loading} style={{
-                  width: '100%', padding: '12px', background: '#ffe28a', color: '#111',
-                  border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer'
+                  width: '100%', padding: '12px', background: 'linear-gradient(135deg, #FFE28A, #F3C24A 48%, #b47012)', color: '#211405',
+                  border: 'none', borderRadius: '8px', fontWeight: '850', cursor: 'pointer', fontSize: '13px'
                 }}>
                   {loading ? '...' : t(footerLang, 'verifyBtn')}
                 </button>
@@ -583,8 +584,8 @@ function PublicFooter() {
               </p>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button disabled={loading} onClick={handleUnsubscribe} style={{
-                  flex: 1, padding: '12px', background: '#ff3b30', color: '#fff',
-                  border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer'
+                  flex: 1, padding: '12px', background: 'linear-gradient(135deg, #FFE28A, #F3C24A 48%, #b47012)', color: '#211405',
+                  border: 'none', borderRadius: '8px', fontWeight: '850', cursor: 'pointer', fontSize: '13px'
                 }}>
                   {loading ? '...' : t(footerLang, 'yesBtn')}
                 </button>
