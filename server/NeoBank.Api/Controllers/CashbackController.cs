@@ -47,6 +47,7 @@ public class CashbackController : ControllerBase
                 TextRu = c.TextRu,
                 TextAz = c.TextAz,
                 Rate = c.Rate,
+                Variant = c.Variant,
                 Earned = userCashback?.AmountEarned ?? 0m,
                 MccCodes = c.MccCodes.Select(m => m.Code).ToList()
             };

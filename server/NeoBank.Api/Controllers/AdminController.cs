@@ -769,6 +769,7 @@ public class AdminController : ControllerBase
                 c.TitleEn, c.TitleRu, c.TitleAz,
                 c.TextEn, c.TextRu, c.TextAz,
                 c.Rate,
+                c.Variant,
                 TotalEarned = _context.UserCashbacks.Where(uc => uc.CategoryId == c.Id).Sum(uc => (decimal?)uc.AmountEarned) ?? 0m,
                 MccCodes = c.MccCodes.Select(m => m.Code).ToList()
             })
@@ -784,6 +785,7 @@ public class AdminController : ControllerBase
             TitleEn = dto.TitleEn ?? "", TitleRu = dto.TitleRu ?? "", TitleAz = dto.TitleAz ?? "",
             TextEn = dto.TextEn ?? "", TextRu = dto.TextRu ?? "", TextAz = dto.TextAz ?? "",
             Rate = dto.Rate,
+            Variant = string.IsNullOrEmpty(dto.Variant) ? "A" : dto.Variant,
             MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m }).ToList() ?? new List<CashbackMcc>()
         };
         _context.CashbackCategories.Add(category);
@@ -800,6 +802,7 @@ public class AdminController : ControllerBase
         category.TitleEn = dto.TitleEn ?? ""; category.TitleRu = dto.TitleRu ?? ""; category.TitleAz = dto.TitleAz ?? "";
         category.TextEn = dto.TextEn ?? ""; category.TextRu = dto.TextRu ?? ""; category.TextAz = dto.TextAz ?? "";
         category.Rate = dto.Rate;
+        category.Variant = string.IsNullOrEmpty(dto.Variant) ? "A" : dto.Variant;
 
         _context.CashbackMccs.RemoveRange(category.MccCodes);
         category.MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m, CategoryId = id }).ToList() ?? new List<CashbackMcc>();
@@ -829,6 +832,7 @@ public class CashbackCategoryDto
     public string? TextRu { get; set; }
     public string? TextAz { get; set; }
     public decimal Rate { get; set; }
+    public string? Variant { get; set; }
     public List<string>? MccCodes { get; set; }
 }
 

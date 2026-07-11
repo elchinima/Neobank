@@ -23,6 +23,7 @@ const AdminCashbacks = () => {
     titleEn: '', titleRu: '', titleAz: '',
     textEn: '', textRu: '', textAz: '',
     rate: 0,
+    variant: 'A',
     mccCodes: ''
   })
   
@@ -86,6 +87,7 @@ const AdminCashbacks = () => {
         titleEn: cashback.titleEn || '', titleRu: cashback.titleRu || '', titleAz: cashback.titleAz || '',
         textEn: cashback.textEn || '', textRu: cashback.textRu || '', textAz: cashback.textAz || '',
         rate: cashback.rate || 0,
+        variant: cashback.variant || 'A',
         mccCodes: (cashback.mccCodes || []).join(', ')
       })
     } else {
@@ -94,20 +96,47 @@ const AdminCashbacks = () => {
         titleEn: '', titleRu: '', titleAz: '',
         textEn: '', textRu: '', textAz: '',
         rate: 0,
+        variant: 'A',
         mccCodes: ''
       })
     }
     setModalOpen(true)
   }
 
+  const getMccErrors = () => {
+    if (formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes)) {
+      return 'Invalid format. Use comma-separated 3-5 digit numbers.';
+    }
+    const mccList = formData.mccCodes.split(',').map(m => m.trim()).filter(m => m);
+    if (new Set(mccList).size !== mccList.length) {
+      return 'Duplicate MCC codes in input.';
+    }
+    const duplicateMccs = [];
+    cashbacks.forEach(cb => {
+      if (selectedCashback && cb.id === selectedCashback.id) return;
+      const existingMccs = cb.mccCodes || [];
+      mccList.forEach(mcc => {
+        if (existingMccs.includes(mcc)) duplicateMccs.push(mcc);
+      });
+    });
+    if (duplicateMccs.length > 0) {
+      return `MCC already in use: ${[...new Set(duplicateMccs)].join(', ')}`;
+    }
+    return null;
+  };
+
   const handleSave = async () => {
     setSaving(true)
     try {
-      const mccList = formData.mccCodes.split(',').map(m => m.trim()).filter(m => m)
+      const errorMsg = getMccErrors();
+      if (errorMsg) throw new Error(errorMsg);
+
+      const mccList = [...new Set(formData.mccCodes.split(',').map(m => m.trim()).filter(m => m))]
       const payload = {
         titleEn: formData.titleEn, titleRu: formData.titleRu, titleAz: formData.titleAz,
         textEn: formData.textEn, textRu: formData.textRu, textAz: formData.textAz,
         rate: parseFloat(formData.rate) || 0,
+        variant: formData.variant,
         mccCodes: mccList
       }
 
@@ -196,7 +225,7 @@ const AdminCashbacks = () => {
             Search
           </button>
           <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
-            + Add Category
+            Add Category
           </button>
         </div>
       </header>
@@ -217,6 +246,7 @@ const AdminCashbacks = () => {
                 <tr>
                   <th>Title</th>
                   <th>Rate (%)</th>
+                  <th>Variant</th>
                   <th>Total Earned</th>
                   <th>MCC Codes</th>
                   <th aria-label="Actions"></th>
@@ -236,6 +266,7 @@ const AdminCashbacks = () => {
                       <tr key={c.id}>
                         <td><strong>{c.titleEn}</strong></td>
                         <td><strong>{c.rate}%</strong></td>
+                        <td>{c.variant || 'A'}</td>
                         <td>{Number(c.totalEarned || 0).toFixed(2)} ₼</td>
                         <td>
                           <div className="mcc-tags">
@@ -318,6 +349,26 @@ const AdminCashbacks = () => {
                   <input type="number" step="0.1" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
                 </div>
                 <div className="admin-cb-modal__field">
+                  <label>Variant</label>
+                  <select 
+                    value={formData.variant} 
+                    onChange={e => setFormData({...formData, variant: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      fontSize: '14px',
+                      marginTop: '4px'
+                    }}
+                  >
+                    <option value="A">Variant A</option>
+                    <option value="B">Variant B</option>
+                  </select>
+                </div>
+                <div className="admin-cb-modal__field">
                   <label>MCC Codes</label>
                   <input 
                     type="text" 
@@ -325,14 +376,14 @@ const AdminCashbacks = () => {
                     value={formData.mccCodes} 
                     onChange={e => setFormData({...formData, mccCodes: e.target.value})}
                     style={
-                      formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes)
+                      getMccErrors()
                         ? { borderColor: '#ff3b30' }
                         : {}
                     }
                   />
-                  {formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes) && (
+                  {getMccErrors() && (
                     <span style={{ color: '#ff3b30', fontSize: '11px', marginTop: '4px', display: 'block' }}>
-                      Invalid format. Use comma-separated 3-5 digit numbers.
+                      {getMccErrors()}
                     </span>
                   )}
                 </div>
@@ -344,7 +395,7 @@ const AdminCashbacks = () => {
               <button 
                 className="save-btn" 
                 onClick={handleSave} 
-                disabled={saving || (formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes))}
+                disabled={saving || !!getMccErrors()}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>

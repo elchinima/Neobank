@@ -1,37 +1,56 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
 import logoMark from '../../../assets/logo/main_logo.png'
 import cashbackBanner from '../../../assets/images/cashback_banner_az.png'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
-import { usePublicPageSetting } from '../../../app/hooks/usePublicContent'
+import { usePublicPageSetting, API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { cashbackLang } from './lang.js'
 import './Cashback.scss'
 import './Cashback_Responsive.scss'
 
 function Cashback() {
-  const { t } = useLanguage()
+  const { lang, t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
   const { setting } = usePublicPageSetting('cashback')
   const bannerImage = setting?.bannerImageUrl ?? cashbackBanner
   const hasBanner = bannerImage !== ''
 
-  const categoryProgram = [
-    { titleKey: 'cat0Title', rate: '100%', textKey: 'cat0Text' },
-    { titleKey: 'cat1Title', rate: '5%', textKey: 'cat1Text' },
-    { titleKey: 'cat2Title', rate: '3%', textKey: 'cat2Text' },
-    { titleKey: 'cat3Title', rate: '3%', textKey: 'cat3Text' },
-    { titleKey: 'cat4Title', rate: '2%', textKey: 'cat4Text' },
-    { titleKey: 'cat5Title', rate: '2%', textKey: 'cat5Text' },
-    { titleKey: 'cat6Title', rate: '1%', textKey: 'cat6Text' },
-    { titleKey: 'cat7Title', rate: '0.1%', textKey: 'cat7Text' },
-  ]
+  const [dbCategories, setDbCategories] = useState([])
+  const [loadingCashbacks, setLoadingCashbacks] = useState(true)
 
-  const simpleProgram = [
-    { titleKey: 'simple0Title', rate: '100%', textKey: 'simple0Text' },
-    { titleKey: 'simple1Title', rate: '1%', textKey: 'simple1Text' },
-  ]
+  useEffect(() => {
+    let isMounted = true
+    // Assume public endpoint is /cashbacks
+    fetch(`${API_BASE_URL}/cashbacks`)
+      .then(res => {
+        // Fallback to /admin/cashbacks if /cashbacks is not found or fails
+        if (!res.ok && res.status === 404) {
+          return fetch(`${API_BASE_URL}/admin/cashbacks`)
+        }
+        return res
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Network error')
+        return res.json()
+      })
+      .then(data => {
+        if (isMounted) {
+          setDbCategories(Array.isArray(data) ? data : [])
+          setLoadingCashbacks(false)
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load cashbacks', err)
+        if (isMounted) setLoadingCashbacks(false)
+      })
+    return () => { isMounted = false }
+  }, [])
+
+  const variantA = dbCategories.filter(c => c.variant === 'A' || !c.variant);
+  const variantB = dbCategories.filter(c => c.variant === 'B');
 
   const cashbackNotes = [
     'note0',
@@ -99,7 +118,6 @@ function Cashback() {
             </div>
           )}
         </section>
-
         <section className="cashback-page__plans" id="cashback-program" aria-labelledby="cashback-plans-title">
           <div className="cashback-page__plans-heading">
             <p className="cashback-page__eyebrow" data-lang-key="programEyebrow">{t(cashbackLang, 'programEyebrow')}</p>
@@ -117,15 +135,25 @@ function Cashback() {
               </div>
 
               <div className="cashback-page__offers">
-                {categoryProgram.map((item) => (
-                  <div className="cashback-page__offer" key={item.titleKey}>
-                    <strong>{item.rate}</strong>
-                    <div>
-                      <h4 data-lang-key={item.titleKey}>{t(cashbackLang, item.titleKey)}</h4>
-                      <p data-lang-key={item.textKey}>{t(cashbackLang, item.textKey)}</p>
-                    </div>
-                  </div>
-                ))}
+                {loadingCashbacks ? (
+                  <div style={{ padding: '1rem', color: '#fff' }}>Loading cashbacks...</div>
+                ) : variantA.length > 0 ? (
+                  variantA.map((item) => {
+                    const title = lang === 'az' ? item.titleAz : lang === 'ru' ? item.titleRu : item.titleEn;
+                    const text = lang === 'az' ? item.textAz : lang === 'ru' ? item.textRu : item.textEn;
+                    return (
+                      <div className="cashback-page__offer" key={item.id}>
+                        <strong>{item.rate}%</strong>
+                        <div>
+                          <h4>{title}</h4>
+                          <p>{text}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: '1rem', color: '#fff' }}>No cashbacks available.</div>
+                )}
               </div>
             </article>
 
@@ -138,17 +166,26 @@ function Cashback() {
                 <span data-lang-key="optionB">{t(cashbackLang, 'optionB')}</span>
                 <h3 data-lang-key="optionBTitle">{t(cashbackLang, 'optionBTitle')}</h3>
               </div>
-
               <div className="cashback-page__offers">
-                {simpleProgram.map((item) => (
-                  <div className="cashback-page__offer" key={item.titleKey}>
-                    <strong>{item.rate}</strong>
-                    <div>
-                      <h4 data-lang-key={item.titleKey}>{t(cashbackLang, item.titleKey)}</h4>
-                      <p data-lang-key={item.textKey}>{t(cashbackLang, item.textKey)}</p>
-                    </div>
-                  </div>
-                ))}
+                {loadingCashbacks ? (
+                  <div style={{ padding: '1rem', color: '#fff' }}>Loading cashbacks...</div>
+                ) : variantB.length > 0 ? (
+                  variantB.map((item) => {
+                    const title = lang === 'az' ? item.titleAz : lang === 'ru' ? item.titleRu : item.titleEn;
+                    const text = lang === 'az' ? item.textAz : lang === 'ru' ? item.textRu : item.textEn;
+                    return (
+                      <div className="cashback-page__offer" key={item.id}>
+                        <strong>{item.rate}%</strong>
+                        <div>
+                          <h4>{title}</h4>
+                          <p>{text}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: '1rem', color: '#fff' }}>No cashbacks available for Option B.</div>
+                )}
               </div>
             </article>
           </div>

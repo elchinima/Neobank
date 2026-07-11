@@ -10,6 +10,7 @@ public class CashbackCategory
     public string TextRu { get; set; } = string.Empty;
     public string TextAz { get; set; } = string.Empty;
     public decimal Rate { get; set; } // e.g. 100 for 100%, 5 for 5%
+    public string Variant { get; set; } = "A"; // e.g. "A" or "B"
 
     // Navigation properties
     public ICollection<CashbackMcc> MccCodes { get; set; } = new List<CashbackMcc>();
