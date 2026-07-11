@@ -11,8 +11,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
     }
 
-    public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<ApplicationUser> Users { get; set; } = null!;
+    public DbSet<UserSession> UserSessions { get; set; } = null!;
     public DbSet<Card> Cards { get; set; } = null!;
     public DbSet<Transaction> Transactions { get; set; } = null!;
     public DbSet<Loan> Loans { get; set; } = null!;
@@ -30,21 +30,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<Role>(entity =>
-        {
-            entity.ToTable("Roles");
-            entity.HasKey(r => r.Id);
-            entity.Property(r => r.Name).IsRequired();
-            entity.HasData(
-                new Role { Id = "Developer", Name = "Developer", Order = 1 },
-                new Role { Id = "Super Admin", Name = "Super Admin", Order = 2 },
-                new Role { Id = "Admin", Name = "Admin", Order = 3 },
-                new Role { Id = "Support", Name = "Support", Order = 4 },
-                new Role { Id = "Business", Name = "Business", Order = 5 },
-                new Role { Id = "User", Name = "User", Order = 6 }
-            );
-        });
-
         builder.Entity<ApplicationUser>(entity =>
         {
             entity.ToTable("Users");
@@ -55,10 +40,24 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(u => u.FirstName).IsRequired();
             entity.Property(u => u.LastName).IsRequired();
 
-            entity.HasOne(u => u.Role)
-                  .WithMany()
-                  .HasForeignKey(u => u.RoleId)
-                  .OnDelete(DeleteBehavior.Restrict);
+            // Store enum as integer in the database
+            entity.Property(u => u.Role)
+                  .HasConversion<int>()
+                  .HasColumnName("Role")
+                  .IsRequired();
+
+            entity.HasOne(u => u.Session)
+                  .WithOne(s => s.User)
+                  .HasForeignKey<UserSession>(s => s.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<UserSession>(entity =>
+        {
+            entity.ToTable("UserSessions");
+            entity.HasKey(s => s.Id);
+            entity.HasIndex(s => s.UserId).IsUnique();
+            entity.Property(s => s.UserId).IsRequired();
         });
 
         builder.Entity<RefreshToken>(entity =>

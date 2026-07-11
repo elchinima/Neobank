@@ -9,6 +9,12 @@ const formatTableName = (user) => {
   return `${firstName} ${lastName}`.trim()
 }
 
+// Converts enum string (e.g. "SuperAdmin") to display name ("Super Admin")
+const formatRoleName = (role) => {
+  if (!role) return 'User'
+  return role.replace(/([a-z])([A-Z])/g, '$1 $2')
+}
+
 const AdminUsers = () => {
   const { user: authUser } = useAuth()
   const [users, setUsers] = useState([])
@@ -410,7 +416,7 @@ const AdminUsers = () => {
                     <strong>{formatTableName(user)}</strong>
                   </td>
                   <td>
-                    <span className="admin-users__role">{user.role || 'User'}</span>
+                    <span className="admin-users__role">{formatRoleName(user.role)}</span>
                   </td>
                   <td>
                     <span className={`admin-users__status admin-users__status--${user.isActive ? 'active' : 'blocked'}`}>
@@ -672,7 +678,7 @@ const AdminUsers = () => {
                         <dl className="admin-users-modal__kv" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: 0 }}>
                           <div>
                             <dt>Role</dt>
-                            <dd>{infoData.role}</dd>
+                            <dd>{formatRoleName(infoData.role)}</dd>
                           </div>
                           <div>
                             <dt>Status</dt>

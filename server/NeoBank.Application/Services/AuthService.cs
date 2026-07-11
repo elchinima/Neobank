@@ -41,24 +41,34 @@ public class AuthService : IAuthService
             Email = dto.Email.Trim(),
             FirstName = dto.FirstName.Trim(),
             LastName = dto.LastName.Trim(),
-            RoleId = "User",
-            RegistrationIp = ipAddress,
-            LastIp = ipAddress,
-            LastLoginAt = DateTime.UtcNow,
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true,
-            IsEmailVerified = false,
-            TwoFactorEnabled = false
+            Role = UserRole.User,
+            IsActive = true
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
         _dbContext.Users.Add(user);
+
+        var session = new UserSession
+        {
+            UserId = user.Id,
+            RegistrationIp = ipAddress,
+            LastIp = ipAddress,
+            LastLoginAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            IsEmailVerified = false,
+            TwoFactorEnabled = false,
+            IsSubscribedToNewsletter = false
+        };
+
+        _dbContext.UserSessions.Add(session);
         await _dbContext.SaveChangesAsync();
 
         var code = GenerateCode();
         await SaveVerificationCode(user.Id, code, "EmailVerification");
         await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "EmailVerification");
+
+        user.Session = session;
 
         return new AuthResponseDto
         {
@@ -70,7 +80,9 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto, string ipAddress)
     {
         var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
+        var user = await _dbContext.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
         if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
@@ -87,7 +99,9 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        if (!user.IsEmailVerified)
+        var session = user.Session;
+
+        if (session == null || !session.IsEmailVerified)
         {
             var code = GenerateCode();
             await SaveVerificationCode(user.Id, code, "EmailVerification");
@@ -100,7 +114,7 @@ public class AuthService : IAuthService
             };
         }
 
-        if (user.TwoFactorEnabled)
+        if (session.TwoFactorEnabled)
         {
             var tempToken = GenerateTempToken();
             var code = GenerateCode();
@@ -155,10 +169,15 @@ public class AuthService : IAuthService
 
         _dbContext.EmailVerificationCodes.Remove(entry);
 
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _dbContext.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) throw new InvalidOperationException("User not found.");
 
-        user.IsEmailVerified = true;
+        if (user.Session != null)
+        {
+            user.Session.IsEmailVerified = true;
+        }
         await _dbContext.SaveChangesAsync();
 
         return await CompleteLoginAsync(user, ipAddress);
@@ -170,6 +189,7 @@ public class AuthService : IAuthService
 
         var entry = await _dbContext.EmailVerificationCodes
             .Include(c => c.User)
+                .ThenInclude(u => u.Session)
             .Where(c => c.TempToken == tempToken && c.Code == code && c.Purpose == "TwoFactor" && !c.IsUsed)
             .OrderByDescending(c => c.CreatedAt)
             .FirstOrDefaultAsync();
@@ -187,11 +207,16 @@ public class AuthService : IAuthService
 
     public async Task<bool> ToggleTwoFactorAsync(string userId, bool enabled)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _dbContext.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return false;
 
-        user.TwoFactorEnabled = enabled;
-        await _dbContext.SaveChangesAsync();
+        if (user.Session != null)
+        {
+            user.Session.TwoFactorEnabled = enabled;
+            await _dbContext.SaveChangesAsync();
+        }
         return true;
     }
 
@@ -199,6 +224,7 @@ public class AuthService : IAuthService
     {
         var refreshToken = await _dbContext.RefreshTokens
             .Include(r => r.User)
+                .ThenInclude(u => u.Session)
             .FirstOrDefaultAsync(r => r.Token == refreshTokenValue);
 
         if (refreshToken == null || !refreshToken.IsActive || !refreshToken.User.IsActive)
@@ -215,7 +241,7 @@ public class AuthService : IAuthService
         _dbContext.RefreshTokens.Add(newRefreshToken);
         await _dbContext.SaveChangesAsync();
 
-        var roles = new List<string> { refreshToken.User.RoleId };
+        var roles = new List<string> { refreshToken.User.Role.ToString() };
         var (accessToken, expiration) = _jwtService.GenerateToken(refreshToken.User, roles);
 
         return new AuthResponseDto
@@ -247,7 +273,9 @@ public class AuthService : IAuthService
 
     public async Task<UserDto?> GetCurrentUserAsync(string userId)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await _dbContext.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return null;
 
         return MapToUserDto(user);
@@ -255,8 +283,14 @@ public class AuthService : IAuthService
 
     private async Task<AuthResponseDto> CompleteLoginAsync(ApplicationUser user, string ipAddress)
     {
-        user.LastIp = ipAddress;
-        user.LastLoginAt = DateTime.UtcNow;
+        var session = user.Session ?? await _dbContext.UserSessions
+            .FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+        if (session != null)
+        {
+            session.LastIp = ipAddress;
+            session.LastLoginAt = DateTime.UtcNow;
+        }
 
         var oldTokens = _dbContext.RefreshTokens.Where(r => r.UserId == user.Id);
         _dbContext.RefreshTokens.RemoveRange(oldTokens);
@@ -266,8 +300,11 @@ public class AuthService : IAuthService
 
         await _dbContext.SaveChangesAsync();
 
-        var roles = new List<string> { user.RoleId };
+        var roles = new List<string> { user.Role.ToString() };
         var (token, expiration) = _jwtService.GenerateToken(user, roles);
+
+        // Attach session for mapping
+        if (session != null) user.Session = session;
 
         return new AuthResponseDto
         {
@@ -344,20 +381,22 @@ public class AuthService : IAuthService
 
     private static UserDto MapToUserDto(ApplicationUser user)
     {
+        var session = user.Session;
         return new UserDto
         {
             Id = user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Role = user.RoleId,
+            Role = user.Role.ToString(),
             AvatarUrl = user.AvatarUrl,
-            RegistrationIp = user.RegistrationIp,
-            LastIp = user.LastIp,
-            LastLoginAt = user.LastLoginAt,
-            CreatedAt = user.CreatedAt,
-            IsEmailVerified = user.IsEmailVerified,
-            TwoFactorEnabled = user.TwoFactorEnabled
+            RegistrationIp = session?.RegistrationIp,
+            LastIp = session?.LastIp,
+            LastLoginAt = session?.LastLoginAt,
+            CreatedAt = session?.CreatedAt ?? DateTime.UtcNow,
+            IsEmailVerified = session?.IsEmailVerified ?? false,
+            TwoFactorEnabled = session?.TwoFactorEnabled ?? false,
+            IsSubscribedToNewsletter = session?.IsSubscribedToNewsletter ?? false
         };
     }
 
@@ -382,13 +421,18 @@ public class AuthService : IAuthService
     {
         var verification = await _dbContext.EmailVerificationCodes
             .Include(c => c.User)
+                .ThenInclude(u => u.Session)
             .FirstOrDefaultAsync(c => c.TempToken == token && c.Purpose == "Disable2FA" && !c.IsUsed && c.ExpiresAt > DateTime.UtcNow);
 
         if (verification == null)
             return false;
 
         _dbContext.EmailVerificationCodes.Remove(verification);
-        verification.User.TwoFactorEnabled = false;
+
+        if (verification.User.Session != null)
+        {
+            verification.User.Session.TwoFactorEnabled = false;
+        }
 
         await _dbContext.SaveChangesAsync();
 

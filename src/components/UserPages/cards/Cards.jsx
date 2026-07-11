@@ -998,7 +998,15 @@ const Cards = () => {
     showPinAlertModal ||
     showPinSuccessModal ||
     showPayLoanModal ||
-    showWithdrawDepositModal
+    showWithdrawDepositModal ||
+    showInternalTransferModal ||
+    showNeoBankTransferModal ||
+    showAccountDetailsModal ||
+    showUnavailableModal ||
+    showStatementsChoiceModal ||
+    showReferencesModal ||
+    showArayislarModal ||
+    showQrModal
   );
 
   return (

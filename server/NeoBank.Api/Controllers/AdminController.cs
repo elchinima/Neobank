@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NeoBank.Core.Entities;
@@ -8,6 +9,7 @@ namespace NeoBank.Api.Controllers;
 
 [ApiController]
 [Route("api/admin")]
+[Authorize(Roles = "Developer,SuperAdmin,Admin")]
 public class AdminController : ControllerBase
 {
     private readonly IApplicationDbContext _context;
@@ -31,15 +33,16 @@ public class AdminController : ControllerBase
         var pagesCount = await _context.PublicPageSettings.CountAsync();
 
         var recentUsers = await _context.Users
-            .OrderByDescending(u => u.CreatedAt)
+            .Include(u => u.Session)
+            .OrderByDescending(u => u.Session != null ? u.Session.CreatedAt : DateTime.MinValue)
             .Take(5)
             .Select(u => new
             {
                 u.Id,
                 u.FirstName,
                 u.LastName,
-                Role = u.RoleId,
-                u.CreatedAt
+                Role = u.Role.ToString(),
+                CreatedAt = u.Session != null ? u.Session.CreatedAt : (DateTime?)null
             })
             .ToListAsync();
 
@@ -54,7 +57,7 @@ public class AdminController : ControllerBase
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] string? search)
     {
-        var usersQuery = _context.Users.AsQueryable();
+        var usersQuery = _context.Users.Include(u => u.Session).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -64,19 +67,19 @@ public class AdminController : ControllerBase
                 u.FirstName.ToLower().Contains(normalizedSearch) ||
                 u.LastName.ToLower().Contains(normalizedSearch) ||
                 u.Email.ToLower().Contains(normalizedSearch) ||
-                u.RoleId.ToLower().Contains(normalizedSearch));
+                u.Role.ToString().ToLower().Contains(normalizedSearch));
         }
 
         var users = await usersQuery
-            .OrderByDescending(u => u.CreatedAt)
+            .OrderByDescending(u => u.Session != null ? u.Session.CreatedAt : DateTime.MinValue)
             .Select(u => new
             {
                 u.Id,
                 u.FirstName,
                 u.LastName,
                 u.Email,
-                Role = u.RoleId,
-                u.CreatedAt,
+                Role = u.Role.ToString(),
+                CreatedAt = u.Session != null ? u.Session.CreatedAt : (DateTime?)null,
                 u.IsActive
             })
             .ToListAsync();
@@ -99,7 +102,9 @@ public class AdminController : ControllerBase
     [HttpGet("users/{userId}/details")]
     public async Task<IActionResult> GetUserDetails(string userId)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return NotFound("User not found.");
 
         var cards = await _context.Cards
@@ -121,15 +126,17 @@ public class AdminController : ControllerBase
             user.FirstName,
             user.LastName,
             user.Id,
-            Role = user.RoleId,
+            Role = user.Role.ToString(),
             user.IsActive,
-            user.RegistrationIp,
-            user.LastIp,
-            user.CreatedAt,
-            user.LastLoginAt,
+            RegistrationIp = user.Session?.RegistrationIp,
+            LastIp = user.Session?.LastIp,
+            CreatedAt = user.Session?.CreatedAt,
+            LastLoginAt = user.Session?.LastLoginAt,
             user.Email,
-            user.TwoFactorEnabled,
-            user.Note,
+            TwoFactorEnabled = user.Session?.TwoFactorEnabled ?? false,
+            Note = user.Session?.Note,
+            IsEmailVerified = user.Session?.IsEmailVerified ?? false,
+            IsSubscribedToNewsletter = user.Session?.IsSubscribedToNewsletter ?? false,
             Cards = cards,
             Deposits = deposits,
             Loans = loans
@@ -156,27 +163,29 @@ public class AdminController : ControllerBase
     [HttpPut("users/{userId}/note")]
     public async Task<IActionResult> UpdateUserNote(string userId, [FromBody] UpdateNoteRequest request)
     {
-        var user = await _context.Users.FindAsync(userId);
-        if (user == null) return NotFound("User not found.");
+        var session = await _context.UserSessions.FirstOrDefaultAsync(s => s.UserId == userId);
+        if (session == null) return NotFound("User not found.");
 
         if (request.Note != null && request.Note.Length > 1000)
         {
             return BadRequest("Note cannot exceed 1000 characters.");
         }
 
-        user.Note = request.Note;
+        session.Note = request.Note;
         await _context.SaveChangesAsync();
 
-        return Ok(new { success = true, note = user.Note });
+        return Ok(new { success = true, note = session.Note });
     }
 
     [HttpPost("users/{userId}/reset-2fa")]
     public async Task<IActionResult> ResetUser2Fa(string userId, [FromServices] IEmailService emailService)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return NotFound("User not found.");
 
-        if (!user.TwoFactorEnabled)
+        if (user.Session == null || !user.Session.TwoFactorEnabled)
             return BadRequest("User does not have 2FA enabled.");
 
         var activeCode = await _context.EmailVerificationCodes
@@ -311,7 +320,10 @@ public class AdminController : ControllerBase
             attachmentBytes = ms.ToArray();
         }
 
-        var subscribedUsers = await _context.Users.Where(u => u.IsSubscribedToNewsletter).ToListAsync();
+        var subscribedUsers = await _context.Users
+            .Include(u => u.Session)
+            .Where(u => u.Session != null && u.Session.IsSubscribedToNewsletter)
+            .ToListAsync();
         if (!subscribedUsers.Any()) return BadRequest("No subscribed users found.");
 
         int successCount = 0;
@@ -716,9 +728,17 @@ public class AdminController : ControllerBase
         }
     }
     [HttpGet("roles")]
-    public async Task<IActionResult> GetRoles()
+    public IActionResult GetRoles()
     {
-        var roles = await _context.Roles.OrderBy(r => r.Order).ToListAsync();
+        var roles = Enum.GetValues<UserRole>()
+            .Select(r => new
+            {
+                id = r.ToString(),
+                name = r.ToDisplayName(),
+                order = (int)r
+            })
+            .OrderBy(r => r.order)
+            .ToList();
         return Ok(roles);
     }
 
@@ -729,14 +749,13 @@ public class AdminController : ControllerBase
         if (user == null)
             return NotFound("User not found");
 
-        var role = await _context.Roles.FindAsync(dto.RoleId);
-        if (role == null)
+        if (!Enum.TryParse<UserRole>(dto.RoleId, ignoreCase: true, out var newRole))
             return BadRequest("Invalid role");
 
-        user.RoleId = role.Id;
+        user.Role = newRole;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Role assigned successfully", role = role.Id });
+        return Ok(new { message = "Role assigned successfully", role = newRole.ToString() });
     }
 }
 

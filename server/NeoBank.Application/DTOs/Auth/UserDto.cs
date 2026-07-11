@@ -14,4 +14,5 @@ public class UserDto
     public DateTime CreatedAt { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool TwoFactorEnabled { get; set; }
+    public bool IsSubscribedToNewsletter { get; set; }
 }

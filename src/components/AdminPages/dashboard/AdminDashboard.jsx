@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDashboard.scss'
 
+const formatRoleName = (role) => {
+  if (!role) return 'User'
+  return role.replace(/([a-z])([A-Z])/g, '$1 $2')
+}
+
 const initialDashboard = {
   usersCount: 0,
   pagesCount: 0,
@@ -88,7 +93,7 @@ const AdminDashboard = () => {
                 <strong>{user.firstName} {user.lastName}</strong>
                 <span>{user.id}</span>
               </div>
-              <small>{user.role}</small>
+              <small>{formatRoleName(user.role)}</small>
             </article>
           )) : (
             <p className="admin-dashboard__empty">No users yet.</p>

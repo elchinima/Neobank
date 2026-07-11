@@ -36,7 +36,7 @@ export default function AdminProtectedRoute() {
     return <Navigate to="/login" replace />
   }
 
-  const allowedRoles = ['Developer', 'Super Admin', 'Admin']
+  const allowedRoles = ['Developer', 'SuperAdmin', 'Admin']
   
   if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/error" state={{ code: '403' }} replace />

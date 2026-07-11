@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NeoBank.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NeoBank.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260711121452_AddUserSessionsTable")]
+    partial class AddUserSessionsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,14 +52,16 @@ namespace NeoBank.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("Role");
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -460,6 +465,61 @@ namespace NeoBank.Infrastructure.Data.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
+            modelBuilder.Entity("NeoBank.Core.Entities.Role", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "Developer",
+                            Name = "Developer",
+                            Order = 1
+                        },
+                        new
+                        {
+                            Id = "Super Admin",
+                            Name = "Super Admin",
+                            Order = 2
+                        },
+                        new
+                        {
+                            Id = "Admin",
+                            Name = "Admin",
+                            Order = 3
+                        },
+                        new
+                        {
+                            Id = "Support",
+                            Name = "Support",
+                            Order = 4
+                        },
+                        new
+                        {
+                            Id = "Business",
+                            Name = "Business",
+                            Order = 5
+                        },
+                        new
+                        {
+                            Id = "User",
+                            Name = "User",
+                            Order = 6
+                        });
+                });
+
             modelBuilder.Entity("NeoBank.Core.Entities.Transaction", b =>
                 {
                     b.Property<string>("Id")
@@ -574,6 +634,17 @@ namespace NeoBank.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("UserSessions", (string)null);
+                });
+
+            modelBuilder.Entity("NeoBank.Core.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("NeoBank.Core.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("NeoBank.Core.Entities.CashbackMcc", b =>

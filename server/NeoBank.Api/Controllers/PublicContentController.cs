@@ -50,13 +50,15 @@ public class PublicContentController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto.Email)) return BadRequest(new { message = "Email is required" });
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
         if (user == null)
         {
             return Ok(new { exists = false });
         }
 
-        if (user.IsSubscribedToNewsletter)
+        if (user.Session != null && user.Session.IsSubscribedToNewsletter)
         {
             return Ok(new { exists = true, isSubscribed = true });
         }
@@ -83,7 +85,9 @@ public class PublicContentController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Code)) 
             return BadRequest(new { message = "Email and code are required" });
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
         if (user == null) return BadRequest(new { message = "User not found" });
 
         var verification = await _context.EmailVerificationCodes
@@ -97,7 +101,10 @@ public class PublicContentController : ControllerBase
         }
 
         verification.IsUsed = true;
-        user.IsSubscribedToNewsletter = true;
+        if (user.Session != null)
+        {
+            user.Session.IsSubscribedToNewsletter = true;
+        }
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Successfully subscribed" });
@@ -108,10 +115,15 @@ public class PublicContentController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto.Email)) return BadRequest(new { message = "Email is required" });
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
         if (user == null) return BadRequest(new { message = "User not found" });
 
-        user.IsSubscribedToNewsletter = false;
+        if (user.Session != null)
+        {
+            user.Session.IsSubscribedToNewsletter = false;
+        }
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Successfully unsubscribed" });
