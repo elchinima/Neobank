@@ -1,7 +1,18 @@
+import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
 import './AdminBanner.scss'
+
+const adminFetch = (url, options = {}) => {
+  const token = Cookies.get('neobank_token');
+  const headers = {
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 
 const pageLabels = {
   cards: 'Cards',
@@ -42,7 +53,7 @@ const AdminBanner = () => {
 
     async function loadContent() {
       try {
-        const response = await fetch(`${API_BASE_URL}/admin/public-content`)
+        const response = await adminFetch(`${API_BASE_URL}/admin/public-content`)
         if (!response.ok) {
           throw new Error('Failed to load admin content')
         }
@@ -118,7 +129,7 @@ const AdminBanner = () => {
     setSavingKey(`page-${page.pageKey}`)
     setStatus('')
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/page-settings/${page.pageKey}`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/page-settings/${page.pageKey}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

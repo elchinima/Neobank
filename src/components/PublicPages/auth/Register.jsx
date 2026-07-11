@@ -53,6 +53,12 @@ function Register() {
     },
   ]
 
+  const getTranslatedError = (errorMsg) => {
+    if (!errorMsg) return ''
+    if (errorMsg.includes('Unexpected token') || errorMsg.includes('is not valid JSON')) return t(authLang, 'serverError')
+    return errorMsg
+  }
+
   return (
     <div className="auth-page auth-page--register">
       <nav className="auth-page__nav" aria-label="NeoBank navigation">
@@ -127,7 +133,7 @@ function Register() {
                   fontSize: '14px',
                   marginBottom: '20px'
                 }}>
-                  {serverError}
+                  {getTranslatedError(serverError)}
                 </div>
               )}
 

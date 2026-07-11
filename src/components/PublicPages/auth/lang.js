@@ -42,7 +42,8 @@ export const authLang = {
     regFeat3Title: 'Loans from 9.9% per year',
     regFeat3Text: 'Apply online and receive a pre-check decision in under 2 minutes.',
     invalidCredentials: 'Invalid email or password.',
-    accountDisabled: 'Your account has been blocked. Please contact support.'
+    accountDisabled: 'Your account has been blocked. Please contact support.',
+    serverError: 'An unexpected server error occurred. Please try again later.'
   },
   az: {
     navHome: 'Ana səhifə',
@@ -87,7 +88,8 @@ export const authLang = {
     regFeat3Title: 'İllik 9.9%-dən kreditlər',
     regFeat3Text: 'Onlayn müraciət edin və 2 dəqiqədən az müddətdə ön yoxlama qərarı alın.',
     invalidCredentials: 'E-poçt ünvanı və ya şifrə yanlışdır.',
-    accountDisabled: 'Hesabınız bloklanıb. Zəhmət olmasa dəstək xidməti ilə əlaqə saxlayın.'
+    accountDisabled: 'Hesabınız bloklanıb. Zəhmət olmasa dəstək xidməti ilə əlaqə saxlayın.',
+    serverError: 'Gözlənilməz server xətası baş verdi. Zəhmət olmasa daha sonra yenidən cəhd edin.'
   },
   ru: {
     navHome: 'Главная',
@@ -132,6 +134,7 @@ export const authLang = {
     regFeat3Title: 'Кредиты от 9.9% годовых',
     regFeat3Text: 'Подайте заявку онлайн и получите решение за 2 минуты.',
     invalidCredentials: 'Неверный адрес электронной почты или пароль.',
-    accountDisabled: 'Ваш аккаунт заблокирован. Пожалуйста, обратитесь в поддержку.'
+    accountDisabled: 'Ваш аккаунт заблокирован. Пожалуйста, обратитесь в поддержку.',
+    serverError: 'Произошла непредвиденная ошибка сервера. Пожалуйста, повторите попытку позже.'
   }
 }

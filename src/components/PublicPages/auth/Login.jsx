@@ -47,8 +47,10 @@ function Login() {
   ]
 
   const getTranslatedError = (errorMsg) => {
+    if (!errorMsg) return ''
     if (errorMsg === 'Invalid email or password.') return t(authLang, 'invalidCredentials')
     if (errorMsg === 'Account is disabled.') return t(authLang, 'accountDisabled')
+    if (errorMsg.includes('Unexpected token') || errorMsg.includes('is not valid JSON')) return t(authLang, 'serverError')
     return errorMsg
   }
 

@@ -1,6 +1,17 @@
+import Cookies from 'js-cookie'
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDatabase.scss'
+
+const adminFetch = (url, options = {}) => {
+  const token = Cookies.get('neobank_token');
+  const headers = {
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 
 const AdminDatabase = () => {
   const [images, setImages] = useState([])
@@ -26,7 +37,7 @@ const AdminDatabase = () => {
   const loadImages = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/database/images`)
+      const response = await adminFetch(`${API_BASE_URL}/admin/database/images`)
       if (!response.ok) throw new Error('Failed to load images')
       const data = await response.json()
       setImages(Array.isArray(data) ? data : [])
@@ -124,7 +135,7 @@ const AdminDatabase = () => {
     formData.append('name', sanitizedName)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/database/images`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/database/images`, {
         method: 'POST',
         body: formData
       })
@@ -170,7 +181,7 @@ const AdminDatabase = () => {
     if (!img) return
     
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(img.fileName)}`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(img.fileName)}`, {
         method: 'DELETE'
       })
       if (!response.ok) {
@@ -204,7 +215,7 @@ const AdminDatabase = () => {
     const sanitizedName = newName.trim().replace(/\s+/g, '_').replace(/___/g, '_');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(img.fileName)}`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/database/images?fileName=${encodeURIComponent(img.fileName)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newName: sanitizedName })

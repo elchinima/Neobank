@@ -1,6 +1,17 @@
+import Cookies from 'js-cookie'
 import { useState, useEffect } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminFooter.scss'
+
+const adminFetch = (url, options = {}) => {
+  const token = Cookies.get('neobank_token');
+  const headers = {
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 
 const AdminFooter = () => {
   const [contacts, setContacts] = useState({
@@ -29,7 +40,7 @@ const AdminFooter = () => {
 
   const loadSettings = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/footer-settings`)
+      const res = await adminFetch(`${API_BASE_URL}/admin/footer-settings`)
       if (!res.ok) throw new Error('Failed to load settings')
       const data = await res.json()
       
@@ -121,7 +132,7 @@ const AdminFooter = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/footer-settings`, {
+      const res = await adminFetch(`${API_BASE_URL}/admin/footer-settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

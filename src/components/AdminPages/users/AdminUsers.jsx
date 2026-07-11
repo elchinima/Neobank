@@ -1,7 +1,18 @@
+import Cookies from 'js-cookie'
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { useAuth } from '../../../app/context/AuthContext'
 import './AdminUsers.scss'
+
+const adminFetch = (url, options = {}) => {
+  const token = Cookies.get('neobank_token');
+  const headers = {
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 
 const formatTableName = (user) => {
   const firstName = user.firstName || 'User'
@@ -60,7 +71,7 @@ const AdminUsers = () => {
           params.set('search', search.trim())
         }
 
-        const response = await fetch(`${API_BASE_URL}/admin/users?${params.toString()}`, {
+        const response = await adminFetch(`${API_BASE_URL}/admin/users?${params.toString()}`, {
           signal: controller.signal,
         })
         if (!response.ok) {
@@ -114,7 +125,7 @@ const AdminUsers = () => {
     if (!user) return
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/toggle-status`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/toggle-status`, {
         method: 'PUT'
       })
       if (!response.ok) {
@@ -140,7 +151,7 @@ const AdminUsers = () => {
     if (roles.length === 0) {
       setLoadingRoles(true)
       try {
-        const res = await fetch(`${API_BASE_URL}/admin/roles`)
+        const res = await adminFetch(`${API_BASE_URL}/admin/roles`)
         if (res.ok) {
           const data = await res.json()
           setRoles(data)
@@ -158,7 +169,7 @@ const AdminUsers = () => {
     if (!user) return
     
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/role`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roleId: selectedRole })
@@ -246,7 +257,7 @@ const AdminUsers = () => {
         ? `${API_BASE_URL}/admin/users/send-newsletter`
         : `${API_BASE_URL}/admin/users/${user.id}/send-email`
 
-      const response = await fetch(endpoint, {
+      const response = await adminFetch(endpoint, {
         method: 'POST',
         body: formData
       })
@@ -279,7 +290,7 @@ const AdminUsers = () => {
     setNoteValue('')
     
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/details`)
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/details`)
       if (!response.ok) throw new Error('Failed to load user details')
       const data = await response.json()
       setInfoData(data)
@@ -298,7 +309,7 @@ const AdminUsers = () => {
 
     setSavingNote(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/note`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/note`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ note: noteValue })
@@ -321,7 +332,7 @@ const AdminUsers = () => {
 
     setResetting2Fa(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/reset-2fa`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/reset-2fa`, {
         method: 'POST'
       })
       if (!response.ok) {
@@ -338,7 +349,7 @@ const AdminUsers = () => {
 
   const handleToggleCardStatus = async (cardId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/cards/${cardId}/toggle-status`, {
+      const response = await adminFetch(`${API_BASE_URL}/admin/cards/${cardId}/toggle-status`, {
         method: 'PUT'
       })
       if (!response.ok) {

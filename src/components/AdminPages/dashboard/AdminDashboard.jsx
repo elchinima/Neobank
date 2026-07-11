@@ -1,7 +1,18 @@
+import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDashboard.scss'
+
+const adminFetch = (url, options = {}) => {
+  const token = Cookies.get('neobank_token');
+  const headers = {
+    ...options.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+};
+
 
 const formatRoleName = (role) => {
   if (!role) return 'User'
@@ -25,7 +36,7 @@ const AdminDashboard = () => {
 
     async function loadDashboard() {
       try {
-        const response = await fetch(`${API_BASE_URL}/admin/dashboard`)
+        const response = await adminFetch(`${API_BASE_URL}/admin/dashboard`)
         if (!response.ok) {
           throw new Error('Failed to load dashboard')
         }
