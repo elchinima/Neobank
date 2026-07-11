@@ -769,6 +769,7 @@ public class AdminController : ControllerBase
                 c.TitleEn, c.TitleRu, c.TitleAz,
                 c.TextEn, c.TextRu, c.TextAz,
                 c.Rate,
+                TotalEarned = _context.UserCashbacks.Where(uc => uc.CategoryId == c.Id).Sum(uc => (decimal?)uc.AmountEarned) ?? 0m,
                 MccCodes = c.MccCodes.Select(m => m.Code).ToList()
             })
             .ToListAsync();
@@ -787,7 +788,7 @@ public class AdminController : ControllerBase
         };
         _context.CashbackCategories.Add(category);
         await _context.SaveChangesAsync();
-        return Ok(category);
+        return Ok(new { success = true, id = category.Id });
     }
 
     [HttpPut("cashbacks/{id}")]
@@ -804,7 +805,7 @@ public class AdminController : ControllerBase
         category.MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m, CategoryId = id }).ToList() ?? new List<CashbackMcc>();
 
         await _context.SaveChangesAsync();
-        return Ok(category);
+        return Ok(new { success = true, id = category.Id });
     }
 
     [HttpDelete("cashbacks/{id}")]

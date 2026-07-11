@@ -29,16 +29,35 @@ const AdminCashbacks = () => {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
 
+  const [activeMenuId, setActiveMenuId] = useState(null)
+  const [dropdownUp, setDropdownUp] = useState(false)
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+
   useEffect(() => {
     loadCashbacks()
   }, [])
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null)
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [])
+
+  const toggleMenu = (e, id) => {
+    e.stopPropagation()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    setDropdownUp(spaceBelow < 120)
+    setActiveMenuId(activeMenuId === id ? null : id)
+  }
 
   const loadCashbacks = async () => {
     try {
       setLoading(true)
       const res = await adminFetch(`${API_BASE_URL}/admin/cashbacks`)
       if (!res.ok) {
-        // Fallback for HTML 404 response
         const text = await res.text()
         if (text.includes('<!DOCTYPE') || text.includes('<!doctype')) {
            throw new Error('API Endpoint not available yet. Please restart the backend server.')
@@ -139,6 +158,15 @@ const AdminCashbacks = () => {
     }
   }
 
+  const filteredCashbacks = cashbacks.filter(c => {
+    if (!search) return true;
+    const lowerSearch = search.toLowerCase();
+    return (
+      (c.titleEn || '').toLowerCase().includes(lowerSearch) ||
+      (c.mccCodes || []).some(m => m.toLowerCase().includes(lowerSearch))
+    );
+  });
+
   return (
     <div className="admin-cb">
       <header className="admin-cb__header">
@@ -146,9 +174,31 @@ const AdminCashbacks = () => {
           <span className="admin-cb__eyebrow">Finance</span>
           <h1>Cashback Categories</h1>
         </div>
-        <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
-          + Add Category
-        </button>
+        <div className="admin-cb__actions">
+          <div className="admin-cb__search">
+            <label htmlFor="admin-cb-search">Search</label>
+            <input
+              id="admin-cb-search"
+              type="search"
+              placeholder="Search by title or MCC"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setSearch(searchInput)
+              }}
+            />
+          </div>
+          <button 
+            type="button" 
+            className="admin-cb__add-btn" 
+            onClick={() => setSearch(searchInput)}
+          >
+            Search
+          </button>
+          <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
+            + Add Category
+          </button>
+        </div>
       </header>
 
       {message && (
@@ -165,39 +215,57 @@ const AdminCashbacks = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Title (EN)</th>
-                  <th>Title (RU)</th>
-                  <th>Title (AZ)</th>
+                  <th>Title</th>
                   <th>Rate (%)</th>
+                  <th>Total Earned</th>
                   <th>MCC Codes</th>
                   <th aria-label="Actions"></th>
                 </tr>
               </thead>
               <tbody>
-                {cashbacks.length === 0 ? (
+                {filteredCashbacks.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="admin-cb__empty">No cashbacks found</td>
+                    <td colSpan="5" className="admin-cb__empty">No cashbacks found</td>
                   </tr>
                 ) : (
-                  cashbacks.map(c => (
-                    <tr key={c.id}>
-                      <td><strong>{c.titleEn}</strong></td>
-                      <td>{c.titleRu}</td>
-                      <td>{c.titleAz}</td>
-                      <td><strong>{c.rate}%</strong></td>
-                      <td>
-                        <div className="mcc-tags">
-                          {(c.mccCodes || []).map(mcc => (
-                            <span key={mcc} className="mcc-tag">{mcc}</span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="admin-cb__actions-cell">
-                        <button className="admin-cb__btn-action" onClick={() => handleOpenModal(c)}>Edit</button>
-                        <button className="admin-cb__btn-action danger" onClick={() => confirmDelete(c)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))
+                  filteredCashbacks.map(c => {
+                    const mccList = c.mccCodes || [];
+                    const firstMcc = mccList[0];
+                    const extraCount = mccList.length - 1;
+                    return (
+                      <tr key={c.id}>
+                        <td><strong>{c.titleEn}</strong></td>
+                        <td><strong>{c.rate}%</strong></td>
+                        <td>{Number(c.totalEarned || 0).toFixed(2)} ₼</td>
+                        <td>
+                          <div className="mcc-tags">
+                            {firstMcc && <span className="mcc-tag">{firstMcc}</span>}
+                            {extraCount > 0 && <span className="mcc-tag extra">+{extraCount}</span>}
+                          </div>
+                        </td>
+                        <td className="admin-cb__actions-cell">
+                          <div className="admin-cb__menu-container">
+                            <button 
+                              className="admin-cb__dots" 
+                              type="button" 
+                              onClick={(e) => toggleMenu(e, c.id)}
+                            >
+                              <span />
+                              <span />
+                              <span />
+                            </button>
+                            
+                            {activeMenuId === c.id && (
+                              <div className={`admin-cb__dropdown ${dropdownUp ? 'admin-cb__dropdown--up' : ''}`}>
+                                <button onClick={() => { setActiveMenuId(null); handleOpenModal(c); }}>Edit</button>
+                                <button className="danger" onClick={() => { setActiveMenuId(null); confirmDelete(c); }}>Delete</button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -250,15 +318,36 @@ const AdminCashbacks = () => {
                   <input type="number" step="0.1" value={formData.rate} onChange={e => setFormData({...formData, rate: e.target.value})} />
                 </div>
                 <div className="admin-cb-modal__field">
-                  <label>MCC Codes (comma separated)</label>
-                  <input type="text" placeholder="e.g. 001, 002, 003" value={formData.mccCodes} onChange={e => setFormData({...formData, mccCodes: e.target.value})} />
+                  <label>MCC Codes</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 001, 1234, 56789" 
+                    value={formData.mccCodes} 
+                    onChange={e => setFormData({...formData, mccCodes: e.target.value})}
+                    style={
+                      formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes)
+                        ? { borderColor: '#ff3b30' }
+                        : {}
+                    }
+                  />
+                  {formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes) && (
+                    <span style={{ color: '#ff3b30', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+                      Invalid format. Use comma-separated 3-5 digit numbers.
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="admin-cb-modal__footer">
               <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
-              <button className="save-btn" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+              <button 
+                className="save-btn" 
+                onClick={handleSave} 
+                disabled={saving || (formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes))}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
             </div>
           </div>
         </div>
