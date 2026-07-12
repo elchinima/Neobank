@@ -175,7 +175,18 @@ export const userCardsLang = {
     certificateFee: 'Certificate Fee',
     certificateFeeValue: '10.00 AZN (will be deducted)',
     orderCertificateBtn: 'Order (10 AZN)',
-    certificateSentSuccess: 'Certificate generated and sent to your email successfully!'
+    certificateSentSuccess: 'Certificate generated and sent to your email successfully!',
+    selectVariantTitle: 'Choose Your Cashback Plan',
+    selectVariantSubtitle: 'Select a cashback program that suits your spending habits. You can change your choice once a month.',
+    variantA: 'Option A',
+    variantATitle: 'Category Rewards',
+    variantADesc: 'Higher cashback on specific spending categories like supermarkets, pharmacies, fuel, and more.',
+    variantB: 'Option B',
+    variantBTitle: 'Simple Rewards',
+    variantBDesc: 'One flat cashback rate for all your purchases — simple and straightforward.',
+    selectVariantBtn: 'Select this plan',
+    variantChangeCooldown: 'You can change your cashback plan starting from {date}.',
+    changeVariantBtn: 'Change plan'
   },
   az: {
     title: 'Kartlarım və Hesablarım',
@@ -353,7 +364,18 @@ export const userCardsLang = {
     certificateFee: 'Arayış rüsumu',
     certificateFeeValue: '10.00 AZN (hesabdan çıxılacaq)',
     orderCertificateBtn: 'Sifariş et (10 AZN)',
-    certificateSentSuccess: 'Arayış uğurla yaradıldı və poçtunuza göndərildi!'
+    certificateSentSuccess: 'Arayış uğurla yaradıldı və poçtunuza göndərildi!',
+    selectVariantTitle: 'Kəşbək Planınızı Seçin',
+    selectVariantSubtitle: 'Xərcləmə vərdişlərinizə uyğun kəşbək proqramı seçin. Seçiminizi ayda bir dəfə dəyişdirə bilərsiniz.',
+    variantA: 'Variant A',
+    variantATitle: 'Kateqoriya Mükafatları',
+    variantADesc: 'Supermarketlər, apteklər, yanacaq və digər xüsusi kateqoriyalarda yüksək kəşbək.',
+    variantB: 'Variant B',
+    variantBTitle: 'Sadə Mükafatlar',
+    variantBDesc: 'Bütün alış-verişləriniz üçün tək bir sabit kəşbək dərəcəsi — sadə və aydın.',
+    selectVariantBtn: 'Bu planı seç',
+    variantChangeCooldown: '{date} tarixindən etibarən kəşbək planınızı dəyişdirə bilərsiniz.',
+    changeVariantBtn: 'Planı dəyişdir'
   },
   ru: {
     title: 'Мои карты и счета',
@@ -531,6 +553,17 @@ export const userCardsLang = {
     certificateFee: 'Комиссия',
     certificateFeeValue: '10.00 AZN (будет списана)',
     orderCertificateBtn: 'Заказать (10 AZN)',
-    certificateSentSuccess: 'Справка успешно сформирована и отправлена на вашу почту!'
+    certificateSentSuccess: 'Справка успешно сформирована и отправлена на вашу почту!',
+    selectVariantTitle: 'Выберите план кэшбэка',
+    selectVariantSubtitle: 'Выберите программу кэшбэка, которая подходит вашим привычкам. Менять выбор можно раз в месяц.',
+    variantA: 'Вариант А',
+    variantATitle: 'Кэшбэк по категориям',
+    variantADesc: 'Повышенный кэшбэк на определённые категории: супермаркеты, аптеки, АЗС и другие.',
+    variantB: 'Вариант Б',
+    variantBTitle: 'Простой кэшбэк',
+    variantBDesc: 'Единая ставка кэшбэка на все покупки — просто и понятно.',
+    selectVariantBtn: 'Выбрать этот план',
+    variantChangeCooldown: 'Вы сможете изменить план кэшбэка начиная с {date}.',
+    changeVariantBtn: 'Сменить план'
   }
 }

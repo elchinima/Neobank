@@ -59,6 +59,8 @@ builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<ICardDebitService, CardDebitService>();
 builder.Services.AddScoped<IAvatarProcessingService, AvatarProcessingService>();
 
+builder.Services.AddHostedService<MonthlyResetService>();
+
 
 var secretKey = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
 var key = Encoding.UTF8.GetBytes(secretKey);

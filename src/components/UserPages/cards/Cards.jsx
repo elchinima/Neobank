@@ -117,6 +117,12 @@ const Cards = () => {
   const [newDepositStatus, setNewDepositStatus] = useState('idle')
   const [newDepositError, setNewDepositError] = useState('')
   const [cashbackData, setCashbackData] = useState({ totalEarned: 0, categories: [] })
+  const [variantSelected, setVariantSelected] = useState(true)
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [variantAPreview, setVariantAPreview] = useState([])
+  const [variantBPreview, setVariantBPreview] = useState([])
+  const [selectingVariant, setSelectingVariant] = useState(false)
+  const [variantError, setVariantError] = useState('')
 
   const fetchCashbackData = async () => {
     try {
@@ -125,10 +131,46 @@ const Cards = () => {
       })
       const data = await res.json()
       if (res.ok) {
-        setCashbackData(data)
+        if (data.variantSelected === false) {
+          setVariantSelected(false)
+          setSelectedVariant(null)
+          setVariantAPreview(data.variantACategories || [])
+          setVariantBPreview(data.variantBCategories || [])
+        } else {
+          setVariantSelected(true)
+          setSelectedVariant(data.selectedVariant)
+          setCashbackData({ totalEarned: data.totalEarned || 0, categories: data.categories || [] })
+        }
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const handleSelectVariant = async (variant) => {
+    setSelectingVariant(true)
+    setVariantError('')
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cashback/select-variant`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ variant })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.message === 'variantChangeCooldown') {
+          setVariantError(t(userCardsLang, 'variantChangeCooldown').replace('{date}', data.nextChangeDate))
+        } else {
+          setVariantError(data.message || 'Error selecting variant')
+        }
+        return
+      }
+      await fetchCashbackData()
+    } catch (err) {
+      console.error(err)
+      setVariantError('Network error')
+    } finally {
+      setSelectingVariant(false)
     }
   }
 
@@ -1286,47 +1328,134 @@ const Cards = () => {
       )}
 
       <div className="cards-cashback-section">
-        <div className="cashback-section-header">
-          <div className="cashback-title-row">
-            <img src={shoppingBubbleIcon} className="cashback-section-icon" alt="" />
-            <h2 data-lang-key="cashbackCategories">{t(userCardsLang, 'cashbackCategories')}</h2>
-            <button className="info-toggle-btn" onClick={() => setShowLimits(!showLimits)}>i</button>
-          </div>
-          <div className="total-cashback">
-            <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
-            <strong>{Number(cashbackData?.totalEarned || cashbackData?.TotalEarned || 0).toFixed(2)} ₼</strong>
-          </div>
-        </div>
-        <div className="cashback-offers">
-          {[...(cashbackData?.categories || cashbackData?.Categories || [])]
-            .filter(item => item != null)
-            .sort((a, b) => Number(b?.rate || b?.Rate || 0) - Number(a?.rate || a?.Rate || 0))
-            .map((item, index) => {
-              const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
-              
-              const rate = item?.rate !== undefined ? item.rate : (item?.Rate || 0);
-              const limit = item?.limit !== undefined ? item.limit : (item?.Limit !== undefined ? item.Limit : 1);
-              const title = item[`title${langCap}`] || item[`Title${langCap}`] || item?.titleEn || item?.TitleEn || '';
-              const text = item[`text${langCap}`] || item[`Text${langCap}`] || item?.textEn || item?.TextEn || '';
-              const earned = item?.earned !== undefined ? item.earned : (item?.Earned || 0);
-              
-              return (
-                <div className="cashback-offer" key={item?.id || item?.Id || `cashback-${index}`}>
-                  <strong>{rate}%</strong>
-                  <div className="cashback-offer-info">
-                    <h4>{title}</h4>
-                    <p>{text}</p>
-                    {showLimits && (
-                      <div className="cashback-limits">
-                        <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> {Number(limit).toFixed(2)} ₼</span>
-                        <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} ₼</span>
-                      </div>
-                    )}
-                  </div>
+        {!variantSelected ? (
+          /* ── Variant Selection Screen ── */
+          <div className="cashback-variant-selector">
+            <div className="cashback-variant-selector__header">
+              <img src={shoppingBubbleIcon} className="cashback-section-icon" alt="" />
+              <div>
+                <h2>{t(userCardsLang, 'selectVariantTitle')}</h2>
+                <p className="cashback-variant-selector__subtitle">{t(userCardsLang, 'selectVariantSubtitle')}</p>
+              </div>
+            </div>
+
+            {variantError && <div className="cashback-variant-selector__error">{variantError}</div>}
+
+            <div className="cashback-variant-selector__grid">
+              {/* Variant A */}
+              <div className="variant-card variant-card--a">
+                <div className="variant-card__header">
+                  <span className="variant-card__badge">{t(userCardsLang, 'variantA')}</span>
+                  <h3>{t(userCardsLang, 'variantATitle')}</h3>
+                  <p>{t(userCardsLang, 'variantADesc')}</p>
                 </div>
-              );
-          })}
-        </div>
+                <div className="variant-card__categories">
+                  {variantAPreview
+                    .sort((a, b) => Number(b.rate) - Number(a.rate))
+                    .map((item, index) => {
+                      const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
+                      const title = item[`title${langCap}`] || item.titleEn || '';
+                      return (
+                        <div className="variant-card__category" key={item.id || `a-${index}`}>
+                          <strong>{item.rate}%</strong>
+                          <span>{title}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+                <button
+                  className="variant-card__select-btn"
+                  onClick={() => handleSelectVariant('A')}
+                  disabled={selectingVariant}
+                >
+                  {selectingVariant ? '...' : t(userCardsLang, 'selectVariantBtn')}
+                </button>
+              </div>
+
+              {/* OR divider */}
+              <div className="cashback-variant-selector__or">
+                <span>{lang === 'az' ? 'və ya' : lang === 'ru' ? 'или' : 'or'}</span>
+              </div>
+
+              {/* Variant B */}
+              <div className="variant-card variant-card--b">
+                <div className="variant-card__header">
+                  <span className="variant-card__badge">{t(userCardsLang, 'variantB')}</span>
+                  <h3>{t(userCardsLang, 'variantBTitle')}</h3>
+                  <p>{t(userCardsLang, 'variantBDesc')}</p>
+                </div>
+                <div className="variant-card__categories">
+                  {variantBPreview
+                    .sort((a, b) => Number(b.rate) - Number(a.rate))
+                    .map((item, index) => {
+                      const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
+                      const title = item[`title${langCap}`] || item.titleEn || '';
+                      return (
+                        <div className="variant-card__category" key={item.id || `b-${index}`}>
+                          <strong>{item.rate}%</strong>
+                          <span>{title}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+                <button
+                  className="variant-card__select-btn"
+                  onClick={() => handleSelectVariant('B')}
+                  disabled={selectingVariant}
+                >
+                  {selectingVariant ? '...' : t(userCardsLang, 'selectVariantBtn')}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ── Selected Variant: Show Categories ── */
+          <>
+            <div className="cashback-section-header">
+              <div className="cashback-title-row">
+                <img src={shoppingBubbleIcon} className="cashback-section-icon" alt="" />
+                <h2 data-lang-key="cashbackCategories">{t(userCardsLang, 'cashbackCategories')}</h2>
+                <button className="info-toggle-btn" onClick={() => setShowLimits(!showLimits)}>i</button>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="total-cashback">
+                  <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
+                  <strong>{Number(cashbackData?.totalEarned || 0).toFixed(2)} ₼</strong>
+                </div>
+              </div>
+            </div>
+            <div className="cashback-offers">
+              {[...(cashbackData?.categories || [])]
+                .filter(item => item != null)
+                .sort((a, b) => Number(b?.rate || 0) - Number(a?.rate || 0))
+                .map((item, index) => {
+                  const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
+                  
+                  const rate = item?.rate !== undefined ? item.rate : 0;
+                  const limit = item?.limit !== undefined ? item.limit : 1;
+                  const title = item[`title${langCap}`] || item?.titleEn || '';
+                  const text = item[`text${langCap}`] || item?.textEn || '';
+                  const earned = item?.earned !== undefined ? item.earned : 0;
+                  
+                  return (
+                    <div className="cashback-offer" key={item?.id || `cashback-${index}`}>
+                      <strong>{rate}%</strong>
+                      <div className="cashback-offer-info">
+                        <h4>{title}</h4>
+                        <p>{text}</p>
+                        {showLimits && (
+                          <div className="cashback-limits">
+                            <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> {Number(limit).toFixed(2)} ₼</span>
+                            <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} ₼</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {!isAnyModalOpen && (

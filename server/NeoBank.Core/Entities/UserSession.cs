@@ -14,6 +14,8 @@ public class UserSession
     public bool TwoFactorEnabled { get; set; } = false;
     public bool IsSubscribedToNewsletter { get; set; } = false;
 
+    public string? CashbackVariant { get; set; } // "A" or "B", null = not yet selected
+
     [System.ComponentModel.DataAnnotations.MaxLength(1000)]
     public string? Note { get; set; }
 }

@@ -570,7 +570,7 @@ const AdminCashbacks = () => {
                       className="save-btn" 
                       onClick={handleSaveMcc} 
                       disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
-                      style={{ padding: '10px 16px', height: '42px', minWidth: '100px' }}
+                      style={{ padding: '10px 16px', height: '42px', minWidth: '90px', width: '90px' }}
                     >
                       {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
                     </button>
@@ -604,7 +604,7 @@ const AdminCashbacks = () => {
                   <button 
                     className="save-btn" 
                     onClick={() => setAppliedMccSearch(mccListSearchQuery)}
-                    style={{ padding: '10px 24px', height: '42px', minWidth: '100px' }}
+                    style={{ padding: '10px 16px', height: '42px', minWidth: '90px', width: '90px' }}
                   >
                     Search
                   </button>
