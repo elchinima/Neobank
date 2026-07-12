@@ -11,6 +11,7 @@ export default function PageLoader() {
   const { loading: authLoading } = useAuth()
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     let isMounted = true
 
     const isFullyLoaded = () => {

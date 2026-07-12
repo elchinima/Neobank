@@ -212,30 +212,9 @@ const AdminCashbacks = () => {
       return
     }
     if (!formData.mccCodes.includes(mcc.code)) {
-      // Check for duplicates across other categories
-      const duplicateMccs = []
-      cashbacks.forEach(cb => {
-        if (selectedCashback && cb.id === selectedCashback.id) return
-        const existingMccs = cb.mccCodes || []
-        if (existingMccs.includes(mcc.code)) duplicateMccs.push(mcc.code)
-      })
-      if (duplicateMccs.length > 0) {
-        showMessage(`MCC ${mcc.code} is already used in another category.`, 'error')
-        return
-      }
-
       const newMccCodes = [...formData.mccCodes, mcc.code]
 
-      // Check if all available MCCs are now selected
-      const usedMccs = new Set()
-      cashbacks.forEach(cb => {
-        if (selectedCashback && cb.id === selectedCashback.id) return
-        const existingMccs = cb.mccCodes || []
-        existingMccs.forEach(c => usedMccs.add(c))
-      })
-      const availableCount = allMccs.filter(m => !usedMccs.has(m.code)).length
-
-      if (newMccCodes.length === availableCount && availableCount > 0) {
+      if (newMccCodes.length === allMccs.length && allMccs.length > 0) {
         setFormData(prev => ({ ...prev, mccCodes: ['All'] }))
         showMessage('Selected All MCCs.', 'success')
       } else {
@@ -370,7 +349,7 @@ const AdminCashbacks = () => {
         </div>
       </header>
 
-      {message && (
+      {message && !mccModalOpen && !modalOpen && !confirmDeleteOpen && (
         <div className={`admin-cb__message ${message.type}`}>
           {message.text}
         </div>
@@ -455,12 +434,27 @@ const AdminCashbacks = () => {
               <h2>Manage MCC Codes</h2>
               <button className="admin-cb-modal__close" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>&times;</button>
             </div>
+
+            {message && (
+              <div style={{ 
+                margin: '16px 24px 0', 
+                padding: '12px 16px', 
+                borderRadius: '8px', 
+                background: message.type === 'error' ? 'rgba(255, 59, 48, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                color: message.type === 'error' ? '#ff3b30' : '#10b981',
+                fontSize: '14px',
+                fontWeight: '500',
+                flexShrink: 0
+              }}>
+                {message.text}
+              </div>
+            )}
             
             <div className="admin-cb-modal__content" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
               
               {/* Form to Create/Edit */}
               <div className="admin-cb-modal__form-row" style={{ alignItems: 'flex-start', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-                <div className="admin-cb-modal__field" style={{ flex: '0 0 120px' }}>
+                <div className="admin-cb-modal__field">
                   <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
                   <input 
                     type="text" 
@@ -469,7 +463,7 @@ const AdminCashbacks = () => {
                     onChange={e => setMccForm({...mccForm, code: e.target.value})} 
                   />
                 </div>
-                <div className="admin-cb-modal__field" style={{ flex: '1' }}>
+                <div className="admin-cb-modal__field">
                   <label>Description</label>
                   <input 
                     type="text"
@@ -481,7 +475,7 @@ const AdminCashbacks = () => {
                     {mccForm.description.length}/100
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '22px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '22px', flex: '1 1 120px' }}>
                   <button 
                     className="save-btn" 
                     onClick={handleSaveMcc} 
@@ -497,8 +491,6 @@ const AdminCashbacks = () => {
                   )}
                 </div>
               </div>
-
-              {/* List of Existing MCCs */}
               <div className="admin-cb__table-wrap" style={{ borderRadius: '8px' }}>
                 <table style={{ minWidth: '100%' }}>
                   <thead>
@@ -554,6 +546,21 @@ const AdminCashbacks = () => {
               <h2>{selectedCashback ? 'Edit Cashback Category' : 'Create Cashback Category'}</h2>
               <button className="admin-cb-modal__close" onClick={() => setModalOpen(false)}>&times;</button>
             </div>
+
+            {message && (
+              <div style={{ 
+                margin: '16px 24px 0', 
+                padding: '12px 16px', 
+                borderRadius: '8px', 
+                background: message.type === 'error' ? 'rgba(255, 59, 48, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                color: message.type === 'error' ? '#ff3b30' : '#10b981',
+                fontSize: '14px',
+                fontWeight: '500',
+                flexShrink: 0
+              }}>
+                {message.text}
+              </div>
+            )}
             
             <div className="admin-cb-modal__content">
               <div className="admin-cb-modal__form-row">
@@ -642,9 +649,9 @@ const AdminCashbacks = () => {
                           
                           {showAllMccs && (
                             <div className="mcc-dropdown" style={{ 
-                              bottom: 'auto', 
-                              top: '100%', 
-                              marginTop: '8px',
+                              bottom: '100%', 
+                              top: 'auto', 
+                              marginBottom: '8px',
                               width: 'max-content',
                               maxWidth: '240px',
                               padding: '12px',

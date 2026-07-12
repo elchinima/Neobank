@@ -330,10 +330,15 @@
 
   &__form-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
 
     .admin-cb-modal__field {
-      flex: 1;
+      flex: 1 1 200px;
+    }
+    
+    > div:not(.admin-cb-modal__field) {
+      flex: 1 1 100px;
     }
   }
 
