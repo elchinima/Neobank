@@ -517,7 +517,7 @@ const AdminCashbacks = () => {
       {/* MCC Management Modal */}
       {mccModalOpen && (
         <div className="admin-cb-modal-overlay" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>
-          <div className="admin-cb-modal" style={{ maxWidth: '600px', width: '100%' }} onClick={e => e.stopPropagation()}>
+          <div className="admin-cb-modal" style={{ maxWidth: '600px', width: '100%', height: '90vh' }} onClick={e => e.stopPropagation()}>
             <div className="admin-cb-modal__header">
               <h2>Manage MCC Codes</h2>
               <button className="admin-cb-modal__close" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>&times;</button>
@@ -538,49 +538,52 @@ const AdminCashbacks = () => {
               </div>
             )}
             
-            <div className="admin-cb-modal__content" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            <div className="admin-cb-modal__content" style={{ flex: 1, overflowY: 'auto' }}>
               
               {/* Form to Create/Edit */}
-              <div className="admin-cb-modal__form-row" style={{ alignItems: 'flex-start', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                <div className="admin-cb-modal__field" style={{ flex: '1' }}>
-                  <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 1234" 
-                    value={mccForm.code} 
-                    onChange={e => setMccForm({...mccForm, code: e.target.value})} 
-                  />
-                </div>
-                <div className="admin-cb-modal__field" style={{ flex: '2' }}>
-                  <label>Description</label>
-                  <input 
-                    type="text"
-                    placeholder="Description..." 
-                    value={mccForm.description} 
-                    onChange={e => setMccForm({...mccForm, description: e.target.value})}
-                  />
-                  <div className="admin-cb-modal__char-count" style={{ color: mccForm.description.length > 100 ? '#ff3b30' : '#888', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
-                    {mccForm.description.length}/100
+              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+                
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', width: '100%' }}>
+                  <div className="admin-cb-modal__field" style={{ flex: '0 0 25%', minWidth: '0' }}>
+                    <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 1234" 
+                      value={mccForm.code} 
+                      onChange={e => setMccForm({...mccForm, code: e.target.value})} 
+                    />
                   </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '22px', flex: '0 0 auto' }}>
-                  <button 
-                    className="save-btn" 
-                    onClick={handleSaveMcc} 
-                    disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
-                    style={{ padding: '10px 16px', height: '42px', minWidth: '100px' }}
-                  >
-                    {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
-                  </button>
-                  {editingMccId && (
-                    <button className="cancel-btn" onClick={cancelEditMcc} style={{ padding: '8px 16px', fontSize: '12px' }}>
-                      Cancel
+                  <div className="admin-cb-modal__field" style={{ flex: '1 1 auto', minWidth: '0' }}>
+                    <label>Description</label>
+                    <input 
+                      type="text"
+                      placeholder="Description..." 
+                      value={mccForm.description} 
+                      onChange={e => setMccForm({...mccForm, description: e.target.value})}
+                    />
+                    <div className="admin-cb-modal__char-count" style={{ color: mccForm.description.length > 100 ? '#ff3b30' : '#888', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
+                      {mccForm.description.length}/100
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '22px', flex: '0 0 auto' }}>
+                    <button 
+                      className="save-btn" 
+                      onClick={handleSaveMcc} 
+                      disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
+                      style={{ padding: '10px 16px', height: '42px', minWidth: '100px' }}
+                    >
+                      {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
                     </button>
-                  )}
+                    {editingMccId && (
+                      <button className="cancel-btn" onClick={cancelEditMcc} style={{ padding: '8px 16px', fontSize: '12px' }}>
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* The Search Bar which takes the bottom row */}
-                <div style={{ width: '100%', display: 'flex', gap: '16px', marginTop: '8px' }}>
+                <div style={{ width: '100%', display: 'flex', gap: '16px', marginTop: '16px' }}>
                   <input 
                     type="text" 
                     placeholder="Search MCCs..." 
@@ -771,102 +774,104 @@ const AdminCashbacks = () => {
                     <option value="B">Variant B</option>
                   </select>
                 </div>
-                <div className="admin-cb-modal__field" style={{ position: 'relative' }} ref={mccDropdownRef}>
-                  <label>MCC Codes</label>
-                  
-                  <div className="mcc-multi-select" style={{ 
-                    minHeight: '42px', 
-                    padding: '8px', 
-                    borderRadius: '8px', 
-                    background: 'rgba(255, 255, 255, 0.05)', 
-                    border: '1px solid rgba(255, 255, 255, 0.1)', 
-                    marginTop: '4px' 
-                  }}>
-                    <div className="mcc-multi-select__tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', height: '100%' }}>
-                      {formData.mccCodes.slice(0, 2).map(code => (
-                        <span key={code} className="mcc-multi-tag">
-                          {code}
-                          <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
-                        </span>
-                      ))}
-                      
-                      {formData.mccCodes.length > 2 && (
-                        <span 
-                          className="mcc-multi-tag" 
-                          style={{ cursor: 'pointer', background: 'rgba(255, 226, 138, 0.25)' }} 
-                          onClick={() => setShowAllMccs(!showAllMccs)}
-                        >
-                          +{formData.mccCodes.length - 2}
-                        </span>
-                      )}
-                      
-                      <button 
-                        type="button" 
-                        className="mcc-multi-tag" 
-                        style={{ cursor: 'pointer', background: 'transparent', border: '1px dashed rgba(255, 226, 138, 0.5)', width: '32px', display: 'flex', justifyContent: 'center' }} 
-                        onClick={() => setMccDropdownOpen(true)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {showAllMccs && (
-                    <div className="mcc-dropdown" style={{ padding: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ width: '100%', fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
-                        <span>All Added MCCs</span>
-                        <button type="button" onClick={() => setShowAllMccs(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&times;</button>
-                      </div>
-                      {formData.mccCodes.map(code => (
-                        <span key={code} className="mcc-multi-tag">
-                          {code}
-                          <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {mccDropdownOpen && (
-                    <div className="mcc-dropdown">
-                      {filteredMccsDropdown.length > 0 ? (
-                        <>
-                          <div 
-                            className="mcc-dropdown-item"
-                            onClick={handleAddAllAvailableMccs}
-                            style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontWeight: 'bold', color: '#10b981' }}
-                          >
-                            + Select All Available MCCs
-                          </div>
-                          {filteredMccsDropdown.map(mcc => (
-                          <div 
-                            key={mcc.id || mcc.code} 
-                            className="mcc-dropdown-item"
-                            onClick={() => handleAddMccToCategory(mcc)}
-                          >
-                            <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
-                          </div>
+                <div style={{ display: 'flex', width: '100%', gap: '16px', alignItems: 'flex-end', marginTop: '4px' }}>
+                  <div className="admin-cb-modal__field" style={{ position: 'relative', flex: 1 }} ref={mccDropdownRef}>
+                    <label>MCC Codes</label>
+                    
+                    <div className="mcc-multi-select" style={{ 
+                      minHeight: '42px', 
+                      padding: '8px', 
+                      borderRadius: '8px', 
+                      background: 'rgba(255, 255, 255, 0.05)', 
+                      border: '1px solid rgba(255, 255, 255, 0.1)', 
+                      marginTop: '4px' 
+                    }}>
+                      <div className="mcc-multi-select__tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', height: '100%' }}>
+                        {formData.mccCodes.slice(0, 2).map(code => (
+                          <span key={code} className="mcc-multi-tag">
+                            {code}
+                            <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
+                          </span>
                         ))}
-                        </>
-                      ) : (
-                        <div className="mcc-dropdown-empty">
-                          No matching MCCs found. Please add a new MCC first.
-                        </div>
-                      )}
+                        
+                        {formData.mccCodes.length > 2 && (
+                          <span 
+                            className="mcc-multi-tag" 
+                            style={{ cursor: 'pointer', background: 'rgba(255, 226, 138, 0.25)' }} 
+                            onClick={() => setShowAllMccs(!showAllMccs)}
+                          >
+                            +{formData.mccCodes.length - 2}
+                          </span>
+                        )}
+                        
+                        <button 
+                          type="button" 
+                          className="mcc-multi-tag" 
+                          style={{ cursor: 'pointer', background: 'transparent', border: '1px dashed rgba(255, 226, 138, 0.5)', width: '32px', display: 'flex', justifyContent: 'center' }} 
+                          onClick={() => setMccDropdownOpen(true)}
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                  )}
+                    
+                    {showAllMccs && (
+                      <div className="mcc-dropdown" style={{ padding: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ width: '100%', fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>All Added MCCs</span>
+                          <button type="button" onClick={() => setShowAllMccs(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '16px', lineHeight: 1 }}>&times;</button>
+                        </div>
+                        {formData.mccCodes.map(code => (
+                          <span key={code} className="mcc-multi-tag">
+                            {code}
+                            <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {mccDropdownOpen && (
+                      <div className="mcc-dropdown">
+                        {filteredMccsDropdown.length > 0 ? (
+                          <>
+                            <div 
+                              className="mcc-dropdown-item"
+                              onClick={handleAddAllAvailableMccs}
+                              style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontWeight: 'bold', color: '#10b981' }}
+                            >
+                              + Select All Available MCCs
+                            </div>
+                            {filteredMccsDropdown.map(mcc => (
+                            <div 
+                              key={mcc.id || mcc.code} 
+                              className="mcc-dropdown-item"
+                              onClick={() => handleAddMccToCategory(mcc)}
+                            >
+                              <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
+                            </div>
+                          ))}
+                          </>
+                        ) : (
+                          <div className="mcc-dropdown-empty">
+                            No matching MCCs found. Please add a new MCC first.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', flex: '0 0 auto' }}>
+                    <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
+                    <button 
+                      className="save-btn" 
+                      onClick={handleSave} 
+                      disabled={saving}
+                    >
+                      {saving ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="admin-cb-modal__footer">
-              <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
-              <button 
-                className="save-btn" 
-                onClick={handleSave} 
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
             </div>
           </div>
         </div>
