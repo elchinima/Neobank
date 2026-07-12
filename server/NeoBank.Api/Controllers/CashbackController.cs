@@ -19,7 +19,7 @@ public class CashbackController : ControllerBase
 
     private string GetUserId()
     {
-        return User.Claims.FirstOrDefault(c => c.Type == "id")?.Value ?? string.Empty;
+        return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
     }
 
     [HttpGet]

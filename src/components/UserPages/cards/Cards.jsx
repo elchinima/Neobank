@@ -4,7 +4,8 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import './Cards.scss'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx';
+const stripePromise = loadStripe(stripePublicKey);
 
 const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) => {
   const stripe = useStripe();
