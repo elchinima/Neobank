@@ -30,6 +30,7 @@ const AdminCashbacks = () => {
   })
   
   const [mccForm, setMccForm] = useState({ code: '', description: '' })
+  const [editingMccId, setEditingMccId] = useState(null)
   
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
@@ -41,6 +42,7 @@ const AdminCashbacks = () => {
   
   const [mccSearchQuery, setMccSearchQuery] = useState('')
   const [mccDropdownOpen, setMccDropdownOpen] = useState(false)
+  const [showAllMccs, setShowAllMccs] = useState(false)
   const mccDropdownRef = useRef(null)
 
   useEffect(() => {
@@ -127,6 +129,7 @@ const AdminCashbacks = () => {
       })
     }
     setMccSearchQuery('')
+    setShowAllMccs(false)
     setModalOpen(true)
   }
 
@@ -137,19 +140,29 @@ const AdminCashbacks = () => {
 
   const handleSaveMcc = async () => {
     if (!mccForm.code.trim()) return showMessage('MCC Code is required', 'error')
+    if (!/^\d{3,4}$/.test(mccForm.code.trim())) return showMessage('MCC Code must be a 3 or 4 digit number', 'error')
     if (mccForm.description.length > 100) return showMessage('Description is too long', 'error')
     
     setSaving(true)
     try {
-      const res = await adminFetch(`${API_BASE_URL}/admin/mccs`, {
-        method: 'POST',
+      const isEditing = !!editingMccId
+      const url = isEditing 
+        ? `${API_BASE_URL}/admin/mccs/${editingMccId}` 
+        : `${API_BASE_URL}/admin/mccs`
+      
+      const res = await adminFetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mccForm)
       })
-      if (!res.ok) throw new Error('Failed to save MCC')
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Failed to save MCC')
+      }
       
-      showMessage('MCC created successfully!', 'success')
-      setMccModalOpen(false)
+      showMessage(isEditing ? 'MCC updated successfully!' : 'MCC created successfully!', 'success')
+      setEditingMccId(null)
+      setMccForm({ code: '', description: '' })
       loadMccs()
     } catch (err) {
       showMessage(err.message, 'error')
@@ -158,7 +171,38 @@ const AdminCashbacks = () => {
     }
   }
 
+  const handleDeleteMcc = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this MCC?")) return
+    setSaving(true)
+    try {
+      const res = await adminFetch(`${API_BASE_URL}/admin/mccs/${id}`, {
+        method: 'DELETE'
+      })
+      if (!res.ok) throw new Error('Failed to delete MCC')
+      showMessage('MCC deleted successfully!', 'success')
+      loadMccs()
+    } catch (err) {
+      showMessage(err.message, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const startEditMcc = (mcc) => {
+    setEditingMccId(mcc.id)
+    setMccForm({ code: mcc.code, description: mcc.description })
+  }
+
+  const cancelEditMcc = () => {
+    setEditingMccId(null)
+    setMccForm({ code: '', description: '' })
+  }
+
   const handleAddMccToCategory = (mcc) => {
+    if (formData.mccCodes.includes('All')) {
+      showMessage('Remove "All" before selecting specific MCCs.', 'error')
+      return
+    }
     if (!formData.mccCodes.includes(mcc.code)) {
       // Check for duplicates across other categories
       const duplicateMccs = []
@@ -171,30 +215,33 @@ const AdminCashbacks = () => {
         showMessage(`MCC ${mcc.code} is already used in another category.`, 'error')
         return
       }
-      setFormData(prev => ({ ...prev, mccCodes: [...prev.mccCodes, mcc.code] }))
+
+      const newMccCodes = [...formData.mccCodes, mcc.code]
+
+      // Check if all available MCCs are now selected
+      const usedMccs = new Set()
+      cashbacks.forEach(cb => {
+        if (selectedCashback && cb.id === selectedCashback.id) return
+        const existingMccs = cb.mccCodes || []
+        existingMccs.forEach(c => usedMccs.add(c))
+      })
+      const availableCount = allMccs.filter(m => !usedMccs.has(m.code)).length
+
+      if (newMccCodes.length === availableCount && availableCount > 0) {
+        setFormData(prev => ({ ...prev, mccCodes: ['All'] }))
+        showMessage('Selected All MCCs.', 'success')
+      } else {
+        setFormData(prev => ({ ...prev, mccCodes: newMccCodes }))
+      }
     }
     setMccSearchQuery('')
     setMccDropdownOpen(false)
   }
 
   const handleAddAllAvailableMccs = () => {
-    // Collect all used MCCs from other categories
-    const usedMccs = new Set()
-    cashbacks.forEach(cb => {
-      if (selectedCashback && cb.id === selectedCashback.id) return
-      const existingMccs = cb.mccCodes || []
-      existingMccs.forEach(c => usedMccs.add(c))
-    })
-
-    // Filter available MCCs that aren't already in formData.mccCodes
-    const availableMccs = allMccs.filter(m => !usedMccs.has(m.code))
-    const availableCodes = availableMccs.map(m => m.code)
-    
-    // Merge without duplicates
-    const newMccCodes = Array.from(new Set([...formData.mccCodes, ...availableCodes]))
-    setFormData(prev => ({ ...prev, mccCodes: newMccCodes }))
+    setFormData(prev => ({ ...prev, mccCodes: ['All'] }))
     setMccDropdownOpen(false)
-    showMessage(`Added ${availableCodes.length} available MCCs.`, 'success')
+    showMessage('Selected All MCCs.', 'success')
   }
 
   const handleRemoveMccFromCategory = (codeToRemove) => {
@@ -304,8 +351,8 @@ const AdminCashbacks = () => {
           >
             Search
           </button>
-          <button className="admin-cb__add-btn admin-cb__add-btn--secondary" onClick={handleOpenMccModal}>
-            Add MCC
+          <button className="admin-cb__add-btn" onClick={handleOpenMccModal}>
+            MCC
           </button>
           <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
             Add Category
@@ -370,7 +417,10 @@ const AdminCashbacks = () => {
                             </button>
                             
                             {activeMenuId === c.id && (
-                              <div className={`admin-cb__dropdown ${dropdownUp ? 'admin-cb__dropdown--up' : ''}`}>
+                              <div 
+                                className={`admin-cb__dropdown ${dropdownUp ? 'admin-cb__dropdown--up' : ''}`}
+                                onMouseDown={(e) => e.stopPropagation()}
+                              >
                                 <button onClick={() => { setActiveMenuId(null); handleOpenModal(c); }}>Edit</button>
                                 <button className="danger" onClick={() => { setActiveMenuId(null); confirmDelete(c); }}>Delete</button>
                               </div>
@@ -387,48 +437,100 @@ const AdminCashbacks = () => {
         </div>
       </section>
 
-      {/* MCC Create Modal */}
+      {/* MCC Management Modal */}
       {mccModalOpen && (
-        <div className="admin-cb-modal-overlay" onClick={() => setMccModalOpen(false)}>
-          <div className="admin-cb-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+        <div className="admin-cb-modal-overlay" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>
+          <div className="admin-cb-modal" style={{ maxWidth: '600px', width: '100%' }} onClick={e => e.stopPropagation()}>
             <div className="admin-cb-modal__header">
-              <h2>Create New MCC</h2>
-              <button className="admin-cb-modal__close" onClick={() => setMccModalOpen(false)}>&times;</button>
+              <h2>Manage MCC Codes</h2>
+              <button className="admin-cb-modal__close" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>&times;</button>
             </div>
             
-            <div className="admin-cb-modal__content">
-              <div className="admin-cb-modal__field">
-                <label>MCC Code</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. 1234" 
-                  value={mccForm.code} 
-                  onChange={e => setMccForm({...mccForm, code: e.target.value})} 
-                />
-              </div>
-              <div className="admin-cb-modal__field">
-                <label>Description</label>
-                <textarea 
-                  placeholder="MCC description..." 
-                  value={mccForm.description} 
-                  onChange={e => setMccForm({...mccForm, description: e.target.value})}
-                  rows="3"
-                ></textarea>
-                <div className="admin-cb-modal__char-count" style={{ color: mccForm.description.length > 100 ? '#ff3b30' : '#888', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
-                  {mccForm.description.length}/100
+            <div className="admin-cb-modal__content" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              
+              {/* Form to Create/Edit */}
+              <div className="admin-cb-modal__form-row" style={{ alignItems: 'flex-start', background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+                <div className="admin-cb-modal__field" style={{ flex: '0 0 120px' }}>
+                  <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 1234" 
+                    value={mccForm.code} 
+                    onChange={e => setMccForm({...mccForm, code: e.target.value})} 
+                  />
+                </div>
+                <div className="admin-cb-modal__field" style={{ flex: '1' }}>
+                  <label>Description</label>
+                  <input 
+                    type="text"
+                    placeholder="Description..." 
+                    value={mccForm.description} 
+                    onChange={e => setMccForm({...mccForm, description: e.target.value})}
+                  />
+                  <div className="admin-cb-modal__char-count" style={{ color: mccForm.description.length > 100 ? '#ff3b30' : '#888', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
+                    {mccForm.description.length}/100
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '22px' }}>
+                  <button 
+                    className="save-btn" 
+                    onClick={handleSaveMcc} 
+                    disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
+                    style={{ padding: '10px 16px', height: '42px' }}
+                  >
+                    {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
+                  </button>
+                  {editingMccId && (
+                    <button className="cancel-btn" onClick={cancelEditMcc} style={{ padding: '8px 16px', fontSize: '12px' }}>
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
-            </div>
-            
-            <div className="admin-cb-modal__footer">
-              <button className="cancel-btn" onClick={() => setMccModalOpen(false)}>Cancel</button>
-              <button 
-                className="save-btn" 
-                onClick={handleSaveMcc} 
-                disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
-              >
-                {saving ? 'Saving...' : 'Save'}
-              </button>
+
+              {/* List of Existing MCCs */}
+              <div className="admin-cb__table-wrap" style={{ borderRadius: '8px' }}>
+                <table style={{ minWidth: '100%' }}>
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Description</th>
+                      <th style={{ width: '120px', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allMccs.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" className="admin-cb__empty">No MCCs found</td>
+                      </tr>
+                    ) : (
+                      allMccs.map(mcc => (
+                        <tr key={mcc.id} style={{ background: editingMccId === mcc.id ? 'rgba(255,255,255,0.05)' : 'transparent' }}>
+                          <td><strong>{mcc.code}</strong></td>
+                          <td>{mcc.description || <span style={{ color: '#888' }}>No description</span>}</td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button 
+                              type="button" 
+                              onClick={() => startEditMcc(mcc)}
+                              style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', marginRight: '12px', fontSize: '13px' }}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              type="button" 
+                              onClick={() => handleDeleteMcc(mcc.id)}
+                              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '13px' }}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
             </div>
           </div>
         </div>
@@ -504,12 +606,30 @@ const AdminCashbacks = () => {
                   
                   <div className="mcc-multi-select">
                     <div className="mcc-multi-select__tags">
-                      {formData.mccCodes.map(code => (
+                      {(showAllMccs ? formData.mccCodes : formData.mccCodes.slice(0, 2)).map(code => (
                         <span key={code} className="mcc-multi-tag">
                           {code}
                           <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
                         </span>
                       ))}
+                      {!showAllMccs && formData.mccCodes.length > 2 && (
+                        <span 
+                          className="mcc-multi-tag" 
+                          style={{ cursor: 'pointer', background: 'rgba(255, 226, 138, 0.25)' }} 
+                          onClick={() => setShowAllMccs(true)}
+                        >
+                          +{formData.mccCodes.length - 2}
+                        </span>
+                      )}
+                      {showAllMccs && formData.mccCodes.length > 2 && (
+                        <span 
+                          className="mcc-multi-tag" 
+                          style={{ cursor: 'pointer', background: 'rgba(255, 255, 255, 0.1)', color: '#ccc' }} 
+                          onClick={() => setShowAllMccs(false)}
+                        >
+                          Show less
+                        </span>
+                      )}
                     </div>
                     <input 
                       type="text" 

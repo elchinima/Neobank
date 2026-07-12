@@ -833,6 +833,9 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> CreateMcc([FromBody] MccDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Code)) return BadRequest("Code is required");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Code, @"^\d{3,4}$"))
+            return BadRequest("MCC Code must be a 3 or 4 digit number");
+
         if (await _context.CashbackMccs.AnyAsync(m => m.Code == dto.Code))
             return BadRequest("MCC with this code already exists");
 
@@ -842,10 +845,43 @@ public class AdminController : ControllerBase
             Description = dto.Description ?? string.Empty
         };
         
+        
         _context.CashbackMccs.Add(mcc);
         await _context.SaveChangesAsync();
         
         return Ok(new { success = true, id = mcc.Id });
+    }
+
+    [HttpPut("mccs/{id}")]
+    public async Task<IActionResult> UpdateMcc(string id, [FromBody] MccDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Code)) return BadRequest("Code is required");
+        if (!System.Text.RegularExpressions.Regex.IsMatch(dto.Code, @"^\d{3,4}$"))
+            return BadRequest("MCC Code must be a 3 or 4 digit number");
+
+        var mcc = await _context.CashbackMccs.FirstOrDefaultAsync(m => m.Id == id);
+        if (mcc == null) return NotFound("MCC not found");
+
+        // If the code is changing, check for conflicts
+        if (mcc.Code != dto.Code && await _context.CashbackMccs.AnyAsync(m => m.Code == dto.Code))
+            return BadRequest("MCC with this code already exists");
+
+        mcc.Code = dto.Code;
+        mcc.Description = dto.Description ?? string.Empty;
+
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true, id = mcc.Id });
+    }
+
+    [HttpDelete("mccs/{id}")]
+    public async Task<IActionResult> DeleteMcc(string id)
+    {
+        var mcc = await _context.CashbackMccs.FindAsync(id);
+        if (mcc == null) return NotFound("MCC not found");
+
+        _context.CashbackMccs.Remove(mcc);
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true });
     }
 }
 
