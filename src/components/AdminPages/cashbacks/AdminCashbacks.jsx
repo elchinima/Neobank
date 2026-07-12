@@ -380,6 +380,15 @@ const AdminCashbacks = () => {
     }
   }
 
+  const filteredAllMccs = allMccs.filter(mcc => {
+    if (!appliedMccSearch) return true;
+    const lowerSearch = appliedMccSearch.toLowerCase();
+    return (
+      (mcc.code || '').toLowerCase().includes(lowerSearch) ||
+      (mcc.description || '').toLowerCase().includes(lowerSearch)
+    );
+  });
+
   const filteredCashbacks = cashbacks.filter(c => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
@@ -463,7 +472,7 @@ const AdminCashbacks = () => {
                       <tr key={c.id}>
                         <td><strong>{c.titleEn}</strong></td>
                         <td><strong>{c.rate}%</strong></td>
-                        <td><strong>{Number(c.limit || 1).toFixed(2)} ₼</strong></td>
+                        <td><strong>{(c.limit !== undefined ? Number(c.limit) : 1).toFixed(2)} ₼</strong></td>
                         <td>{c.variant || 'A'}</td>
                         <td>{Number(c.totalEarned || 0).toFixed(2)} ₼</td>
                         <td>
