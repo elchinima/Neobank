@@ -1305,6 +1305,7 @@ const Cards = () => {
               const langCap = lang.charAt(0).toUpperCase() + lang.slice(1);
               
               const rate = item?.rate !== undefined ? item.rate : (item?.Rate || 0);
+              const limit = item?.limit !== undefined ? item.limit : (item?.Limit || 1);
               const title = item[`title${langCap}`] || item[`Title${langCap}`] || item?.titleEn || item?.TitleEn || '';
               const text = item[`text${langCap}`] || item[`Text${langCap}`] || item?.textEn || item?.TextEn || '';
               const earned = item?.earned !== undefined ? item.earned : (item?.Earned || 0);
@@ -1317,7 +1318,7 @@ const Cards = () => {
                     <p>{text}</p>
                     {showLimits && (
                       <div className="cashback-limits">
-                        <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> 10 ₼</span>
+                        <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> {Number(limit).toFixed(2)} ₼</span>
                         <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} ₼</span>
                       </div>
                     )}

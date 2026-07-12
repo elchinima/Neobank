@@ -46,6 +46,7 @@ public class CashbackController : ControllerBase
                 TextRu = c.TextRu,
                 TextAz = c.TextAz,
                 Rate = c.Rate,
+                Limit = c.Limit,
                 Variant = c.Variant,
                 Earned = userCashback?.AmountEarned ?? 0m,
                 MccCodes = c.MccCodes
