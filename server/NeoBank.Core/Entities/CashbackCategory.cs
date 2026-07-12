@@ -13,6 +13,6 @@ public class CashbackCategory
     public string Variant { get; set; } = "A"; // e.g. "A" or "B"
 
     // Navigation properties
-    public ICollection<CashbackMcc> MccCodes { get; set; } = new List<CashbackMcc>();
+    public List<string> MccCodes { get; set; } = new List<string>();
     public ICollection<UserCashback> UserCashbacks { get; set; } = new List<UserCashback>();
 }

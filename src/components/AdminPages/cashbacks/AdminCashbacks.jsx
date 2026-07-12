@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminCashbacks.scss'
 
@@ -14,8 +14,10 @@ const adminFetch = (url, options = {}) => {
 
 const AdminCashbacks = () => {
   const [cashbacks, setCashbacks] = useState([])
+  const [allMccs, setAllMccs] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [mccModalOpen, setMccModalOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [selectedCashback, setSelectedCashback] = useState(null)
   
@@ -24,8 +26,10 @@ const AdminCashbacks = () => {
     textEn: '', textRu: '', textAz: '',
     rate: 0,
     variant: 'A',
-    mccCodes: ''
+    mccCodes: []
   })
+  
+  const [mccForm, setMccForm] = useState({ code: '', description: '' })
   
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
@@ -34,16 +38,26 @@ const AdminCashbacks = () => {
   const [dropdownUp, setDropdownUp] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
+  
+  const [mccSearchQuery, setMccSearchQuery] = useState('')
+  const [mccDropdownOpen, setMccDropdownOpen] = useState(false)
+  const mccDropdownRef = useRef(null)
 
   useEffect(() => {
     loadCashbacks()
+    loadMccs()
   }, [])
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setActiveMenuId(null)
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
+    const handleClickOutside = (e) => {
+      setActiveMenuId(null)
+      if (mccDropdownRef.current && !mccDropdownRef.current.contains(e.target)) {
+        setMccDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const toggleMenu = (e, id) => {
@@ -75,6 +89,18 @@ const AdminCashbacks = () => {
     }
   }
 
+  const loadMccs = async () => {
+    try {
+      const res = await adminFetch(`${API_BASE_URL}/admin/mccs`)
+      if (!res.ok) throw new Error('Failed to load MCCs')
+      const data = await res.json()
+      setAllMccs(data)
+    } catch (err) {
+      console.error(err)
+      setAllMccs([])
+    }
+  }
+
   const showMessage = (text, type) => {
     setMessage({ text, type })
     setTimeout(() => setMessage(null), 5000)
@@ -88,7 +114,7 @@ const AdminCashbacks = () => {
         textEn: cashback.textEn || '', textRu: cashback.textRu || '', textAz: cashback.textAz || '',
         rate: cashback.rate || 0,
         variant: cashback.variant || 'A',
-        mccCodes: (cashback.mccCodes || []).join(', ')
+        mccCodes: cashback.mccCodes || []
       })
     } else {
       setSelectedCashback(null)
@@ -97,47 +123,101 @@ const AdminCashbacks = () => {
         textEn: '', textRu: '', textAz: '',
         rate: 0,
         variant: 'A',
-        mccCodes: ''
+        mccCodes: []
       })
     }
+    setMccSearchQuery('')
     setModalOpen(true)
   }
 
-  const getMccErrors = () => {
-    if (formData.mccCodes && !/^(\s*\d{3,5}\s*(,\s*\d{3,5}\s*)*)?$/.test(formData.mccCodes)) {
-      return 'Invalid format. Use comma-separated 3-5 digit numbers.';
+  const handleOpenMccModal = () => {
+    setMccForm({ code: '', description: '' })
+    setMccModalOpen(true)
+  }
+
+  const handleSaveMcc = async () => {
+    if (!mccForm.code.trim()) return showMessage('MCC Code is required', 'error')
+    if (mccForm.description.length > 100) return showMessage('Description is too long', 'error')
+    
+    setSaving(true)
+    try {
+      const res = await adminFetch(`${API_BASE_URL}/admin/mccs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mccForm)
+      })
+      if (!res.ok) throw new Error('Failed to save MCC')
+      
+      showMessage('MCC created successfully!', 'success')
+      setMccModalOpen(false)
+      loadMccs()
+    } catch (err) {
+      showMessage(err.message, 'error')
+    } finally {
+      setSaving(false)
     }
-    const mccList = formData.mccCodes.split(',').map(m => m.trim()).filter(m => m);
-    if (new Set(mccList).size !== mccList.length) {
-      return 'Duplicate MCC codes in input.';
+  }
+
+  const handleAddMccToCategory = (mcc) => {
+    if (!formData.mccCodes.includes(mcc.code)) {
+      // Check for duplicates across other categories
+      const duplicateMccs = []
+      cashbacks.forEach(cb => {
+        if (selectedCashback && cb.id === selectedCashback.id) return
+        const existingMccs = cb.mccCodes || []
+        if (existingMccs.includes(mcc.code)) duplicateMccs.push(mcc.code)
+      })
+      if (duplicateMccs.length > 0) {
+        showMessage(`MCC ${mcc.code} is already used in another category.`, 'error')
+        return
+      }
+      setFormData(prev => ({ ...prev, mccCodes: [...prev.mccCodes, mcc.code] }))
     }
-    const duplicateMccs = [];
+    setMccSearchQuery('')
+    setMccDropdownOpen(false)
+  }
+
+  const handleAddAllAvailableMccs = () => {
+    // Collect all used MCCs from other categories
+    const usedMccs = new Set()
     cashbacks.forEach(cb => {
-      if (selectedCashback && cb.id === selectedCashback.id) return;
-      const existingMccs = cb.mccCodes || [];
-      mccList.forEach(mcc => {
-        if (existingMccs.includes(mcc)) duplicateMccs.push(mcc);
-      });
-    });
-    if (duplicateMccs.length > 0) {
-      return `MCC already in use: ${[...new Set(duplicateMccs)].join(', ')}`;
-    }
-    return null;
-  };
+      if (selectedCashback && cb.id === selectedCashback.id) return
+      const existingMccs = cb.mccCodes || []
+      existingMccs.forEach(c => usedMccs.add(c))
+    })
+
+    // Filter available MCCs that aren't already in formData.mccCodes
+    const availableMccs = allMccs.filter(m => !usedMccs.has(m.code))
+    const availableCodes = availableMccs.map(m => m.code)
+    
+    // Merge without duplicates
+    const newMccCodes = Array.from(new Set([...formData.mccCodes, ...availableCodes]))
+    setFormData(prev => ({ ...prev, mccCodes: newMccCodes }))
+    setMccDropdownOpen(false)
+    showMessage(`Added ${availableCodes.length} available MCCs.`, 'success')
+  }
+
+  const handleRemoveMccFromCategory = (codeToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      mccCodes: prev.mccCodes.filter(code => code !== codeToRemove)
+    }))
+  }
+
+  const filteredMccsDropdown = allMccs.filter(mcc => 
+    mcc.code?.toLowerCase().includes(mccSearchQuery.toLowerCase()) ||
+    mcc.description?.toLowerCase().includes(mccSearchQuery.toLowerCase())
+  )
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const errorMsg = getMccErrors();
-      if (errorMsg) throw new Error(errorMsg);
-
-      const mccList = [...new Set(formData.mccCodes.split(',').map(m => m.trim()).filter(m => m))]
       const payload = {
         titleEn: formData.titleEn, titleRu: formData.titleRu, titleAz: formData.titleAz,
         textEn: formData.textEn, textRu: formData.textRu, textAz: formData.textAz,
         rate: parseFloat(formData.rate) || 0,
         variant: formData.variant,
-        mccCodes: mccList
+        mccCodes: formData.mccCodes
       }
 
       const method = selectedCashback ? 'PUT' : 'POST'
@@ -224,6 +304,9 @@ const AdminCashbacks = () => {
           >
             Search
           </button>
+          <button className="admin-cb__add-btn admin-cb__add-btn--secondary" onClick={handleOpenMccModal}>
+            Add MCC
+          </button>
           <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
             Add Category
           </button>
@@ -304,6 +387,54 @@ const AdminCashbacks = () => {
         </div>
       </section>
 
+      {/* MCC Create Modal */}
+      {mccModalOpen && (
+        <div className="admin-cb-modal-overlay" onClick={() => setMccModalOpen(false)}>
+          <div className="admin-cb-modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="admin-cb-modal__header">
+              <h2>Create New MCC</h2>
+              <button className="admin-cb-modal__close" onClick={() => setMccModalOpen(false)}>&times;</button>
+            </div>
+            
+            <div className="admin-cb-modal__content">
+              <div className="admin-cb-modal__field">
+                <label>MCC Code</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. 1234" 
+                  value={mccForm.code} 
+                  onChange={e => setMccForm({...mccForm, code: e.target.value})} 
+                />
+              </div>
+              <div className="admin-cb-modal__field">
+                <label>Description</label>
+                <textarea 
+                  placeholder="MCC description..." 
+                  value={mccForm.description} 
+                  onChange={e => setMccForm({...mccForm, description: e.target.value})}
+                  rows="3"
+                ></textarea>
+                <div className="admin-cb-modal__char-count" style={{ color: mccForm.description.length > 100 ? '#ff3b30' : '#888', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
+                  {mccForm.description.length}/100
+                </div>
+              </div>
+            </div>
+            
+            <div className="admin-cb-modal__footer">
+              <button className="cancel-btn" onClick={() => setMccModalOpen(false)}>Cancel</button>
+              <button 
+                className="save-btn" 
+                onClick={handleSaveMcc} 
+                disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cashback Category Modal */}
       {modalOpen && (
         <div className="admin-cb-modal-overlay" onClick={() => setModalOpen(false)}>
           <div className="admin-cb-modal" onClick={e => e.stopPropagation()}>
@@ -368,23 +499,57 @@ const AdminCashbacks = () => {
                     <option value="B">Variant B</option>
                   </select>
                 </div>
-                <div className="admin-cb-modal__field">
+                <div className="admin-cb-modal__field" style={{ position: 'relative' }} ref={mccDropdownRef}>
                   <label>MCC Codes</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 001, 1234, 56789" 
-                    value={formData.mccCodes} 
-                    onChange={e => setFormData({...formData, mccCodes: e.target.value})}
-                    style={
-                      getMccErrors()
-                        ? { borderColor: '#ff3b30' }
-                        : {}
-                    }
-                  />
-                  {getMccErrors() && (
-                    <span style={{ color: '#ff3b30', fontSize: '11px', marginTop: '4px', display: 'block' }}>
-                      {getMccErrors()}
-                    </span>
+                  
+                  <div className="mcc-multi-select">
+                    <div className="mcc-multi-select__tags">
+                      {formData.mccCodes.map(code => (
+                        <span key={code} className="mcc-multi-tag">
+                          {code}
+                          <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
+                        </span>
+                      ))}
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="Search existing MCC..." 
+                      value={mccSearchQuery} 
+                      onChange={e => {
+                        setMccSearchQuery(e.target.value)
+                        setMccDropdownOpen(true)
+                      }}
+                      onFocus={() => setMccDropdownOpen(true)}
+                    />
+                  </div>
+                  
+                  {mccDropdownOpen && (
+                    <div className="mcc-dropdown">
+                      {filteredMccsDropdown.length > 0 ? (
+                        <>
+                          <div 
+                            className="mcc-dropdown-item"
+                            onClick={handleAddAllAvailableMccs}
+                            style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontWeight: 'bold', color: '#10b981' }}
+                          >
+                            + Select All Available MCCs
+                          </div>
+                          {filteredMccsDropdown.map(mcc => (
+                          <div 
+                            key={mcc.id || mcc.code} 
+                            className="mcc-dropdown-item"
+                            onClick={() => handleAddMccToCategory(mcc)}
+                          >
+                            <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
+                          </div>
+                        ))}
+                        </>
+                      ) : (
+                        <div className="mcc-dropdown-empty">
+                          No matching MCCs found. Please add a new MCC first.
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -395,7 +560,7 @@ const AdminCashbacks = () => {
               <button 
                 className="save-btn" 
                 onClick={handleSave} 
-                disabled={saving || !!getMccErrors()}
+                disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>

@@ -48,8 +48,12 @@ function Cashback() {
     return () => { isMounted = false }
   }, [])
 
-  const variantA = dbCategories.filter(c => c.variant === 'A' || !c.variant);
-  const variantB = dbCategories.filter(c => c.variant === 'B');
+  const variantA = dbCategories
+    .filter(c => c.variant === 'A' || !c.variant)
+    .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate));
+  const variantB = dbCategories
+    .filter(c => c.variant === 'B')
+    .sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate));
 
   const cashbackNotes = [
     'note0',

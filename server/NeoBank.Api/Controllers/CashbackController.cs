@@ -26,9 +26,8 @@ public class CashbackController : ControllerBase
     public async Task<IActionResult> GetCashbackData()
     {
         var userId = GetUserId();
-
         var categories = await _context.CashbackCategories
-            .Include(c => c.MccCodes)
+            .OrderByDescending(c => c.Rate)
             .ToListAsync();
 
         var userCashbacks = await _context.UserCashbacks
@@ -49,7 +48,7 @@ public class CashbackController : ControllerBase
                 Rate = c.Rate,
                 Variant = c.Variant,
                 Earned = userCashback?.AmountEarned ?? 0m,
-                MccCodes = c.MccCodes.Select(m => m.Code).ToList()
+                MccCodes = c.MccCodes
             };
         }).ToList();
 

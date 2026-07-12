@@ -124,18 +124,16 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             entity.ToTable("CashbackCategories");
             entity.HasKey(c => c.Id);
+            entity.Property(c => c.MccCodes).HasDefaultValueSql("'{}'::text[]");
         });
 
         builder.Entity<CashbackMcc>(entity =>
         {
             entity.ToTable("CashbackMccs");
             entity.HasKey(m => m.Id);
-            entity.HasIndex(m => m.CategoryId);
-            
-            entity.HasOne(m => m.Category)
-                  .WithMany(c => c.MccCodes)
-                  .HasForeignKey(m => m.CategoryId)
-                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(m => m.Code).IsUnique();
+            entity.Property(m => m.Code).IsRequired();
+            entity.Property(m => m.Description).HasMaxLength(100);
         });
 
         builder.Entity<UserCashback>(entity =>

@@ -762,7 +762,6 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetCashbacks()
     {
         var cashbacks = await _context.CashbackCategories
-            .Include(c => c.MccCodes)
             .Select(c => new
             {
                 c.Id,
@@ -771,8 +770,9 @@ public class AdminController : ControllerBase
                 c.Rate,
                 c.Variant,
                 TotalEarned = _context.UserCashbacks.Where(uc => uc.CategoryId == c.Id).Sum(uc => (decimal?)uc.AmountEarned) ?? 0m,
-                MccCodes = c.MccCodes.Select(m => m.Code).ToList()
+                MccCodes = c.MccCodes
             })
+            .OrderByDescending(c => c.Rate)
             .ToListAsync();
         return Ok(cashbacks);
     }
@@ -786,7 +786,7 @@ public class AdminController : ControllerBase
             TextEn = dto.TextEn ?? "", TextRu = dto.TextRu ?? "", TextAz = dto.TextAz ?? "",
             Rate = dto.Rate,
             Variant = string.IsNullOrEmpty(dto.Variant) ? "A" : dto.Variant,
-            MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m }).ToList() ?? new List<CashbackMcc>()
+            MccCodes = dto.MccCodes ?? new List<string>()
         };
         _context.CashbackCategories.Add(category);
         await _context.SaveChangesAsync();
@@ -796,16 +796,14 @@ public class AdminController : ControllerBase
     [HttpPut("cashbacks/{id}")]
     public async Task<IActionResult> UpdateCashback(string id, [FromBody] CashbackCategoryDto dto)
     {
-        var category = await _context.CashbackCategories.Include(c => c.MccCodes).FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _context.CashbackCategories.FirstOrDefaultAsync(c => c.Id == id);
         if (category == null) return NotFound("Cashback category not found");
 
         category.TitleEn = dto.TitleEn ?? ""; category.TitleRu = dto.TitleRu ?? ""; category.TitleAz = dto.TitleAz ?? "";
         category.TextEn = dto.TextEn ?? ""; category.TextRu = dto.TextRu ?? ""; category.TextAz = dto.TextAz ?? "";
         category.Rate = dto.Rate;
         category.Variant = string.IsNullOrEmpty(dto.Variant) ? "A" : dto.Variant;
-
-        _context.CashbackMccs.RemoveRange(category.MccCodes);
-        category.MccCodes = dto.MccCodes?.Select(m => new CashbackMcc { Code = m, CategoryId = id }).ToList() ?? new List<CashbackMcc>();
+        category.MccCodes = dto.MccCodes ?? new List<string>();
 
         await _context.SaveChangesAsync();
         return Ok(new { success = true, id = category.Id });
@@ -821,6 +819,40 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(new { success = true });
     }
+
+    [HttpGet("mccs")]
+    public async Task<IActionResult> GetMccs()
+    {
+        var mccs = await _context.CashbackMccs
+            .Select(m => new { m.Id, m.Code, m.Description })
+            .ToListAsync();
+        return Ok(mccs);
+    }
+
+    [HttpPost("mccs")]
+    public async Task<IActionResult> CreateMcc([FromBody] MccDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Code)) return BadRequest("Code is required");
+        if (await _context.CashbackMccs.AnyAsync(m => m.Code == dto.Code))
+            return BadRequest("MCC with this code already exists");
+
+        var mcc = new CashbackMcc
+        {
+            Code = dto.Code,
+            Description = dto.Description ?? string.Empty
+        };
+        
+        _context.CashbackMccs.Add(mcc);
+        await _context.SaveChangesAsync();
+        
+        return Ok(new { success = true, id = mcc.Id });
+    }
+}
+
+public class MccDto
+{
+    public string? Code { get; set; }
+    public string? Description { get; set; }
 }
 
 public class CashbackCategoryDto

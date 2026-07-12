@@ -82,6 +82,17 @@
     &:hover {
       opacity: 0.9;
     }
+
+    &--secondary {
+      background: transparent;
+      border: 1px solid rgba(255, 226, 138, 0.4);
+      color: $landing-gold-soft;
+      
+      &:hover {
+        background: rgba(255, 226, 138, 0.1);
+        opacity: 1;
+      }
+    }
   }
 
   &__message {
@@ -410,5 +421,95 @@
         }
       }
     }
+  }
+}
+
+.mcc-multi-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+.mcc-multi-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 226, 138, 0.15);
+  color: #f7e6a1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 226, 138, 0.3);
+
+  button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.mcc-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #251e30;
+  border: 1px solid rgba(255, 226, 138, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  &-item {
+    padding: 10px 14px;
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    strong {
+      color: #fff;
+    }
+
+    &:hover {
+      background: rgba(255,255,255,0.05);
+    }
+  }
+
+  &-empty {
+    padding: 14px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    text-align: center;
   }
 }
