@@ -137,6 +137,7 @@ public class AdminController : ControllerBase
             Note = user.Session?.Note,
             IsEmailVerified = user.Session?.IsEmailVerified ?? false,
             IsSubscribedToNewsletter = user.Session?.IsSubscribedToNewsletter ?? false,
+            CashbackVariant = user.Session?.CashbackVariant,
             Cards = cards,
             Deposits = deposits,
             Loans = loans
@@ -175,6 +176,31 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { success = true, note = session.Note });
+    }
+
+    [HttpPost("users/{userId}/unsubscribe")]
+    public async Task<IActionResult> UnsubscribeUser(string userId, [FromServices] IEmailService emailService)
+    {
+        var user = await _context.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null) return NotFound("User not found.");
+
+        if (user.Session == null || !user.Session.IsSubscribedToNewsletter)
+            return BadRequest("User is not subscribed to the newsletter.");
+
+        user.Session.IsSubscribedToNewsletter = false;
+        await _context.SaveChangesAsync();
+
+        await emailService.SendCustomEmailAsync(
+            user.Email,
+            user.FirstName,
+            "Newsletter Subscription Disabled",
+            "Subscription Update",
+            "Your newsletter subscription has been disabled by an administrator."
+        );
+
+        return Ok(new { success = true });
     }
 
     [HttpPost("users/{userId}/reset-2fa")]

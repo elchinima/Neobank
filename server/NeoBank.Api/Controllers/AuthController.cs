@@ -269,7 +269,7 @@ public class AuthController : ControllerBase
         }
 
         // Redirect to frontend login page with a success message flag
-        var frontendUrl = _configuration?["FrontendUrl"] ?? "http://localhost:5173";
+        var frontendUrl = _configuration?["FrontendUrl"] ?? "https://neob.online";
         return Redirect($"{frontendUrl.TrimEnd('/')}/login?2faDisabled=true");
     }
 }

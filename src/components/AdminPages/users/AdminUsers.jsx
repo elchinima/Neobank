@@ -52,6 +52,7 @@ const AdminUsers = () => {
   const [noteValue, setNoteValue] = useState('')
   const [savingNote, setSavingNote] = useState(false)
   const [resetting2Fa, setResetting2Fa] = useState(false)
+  const [disablingNewsletter, setDisablingNewsletter] = useState(false)
   const [confirmModal, setConfirmModal] = useState({ open: false, message: '', onConfirm: null })
 
   useEffect(() => {
@@ -344,6 +345,28 @@ const AdminUsers = () => {
       setAlertModal({ open: true, message: err.message, isError: true })
     } finally {
       setResetting2Fa(false)
+    }
+  }
+
+  const handleDisableNewsletter = async () => {
+    const { user } = infoModal
+    if (!user) return
+
+    setDisablingNewsletter(true)
+    try {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users/${user.id}/unsubscribe`, {
+        method: 'POST'
+      })
+      if (!response.ok) {
+        const err = await response.text()
+        throw new Error(err || 'Failed to disable newsletter')
+      }
+      setAlertModal({ open: true, message: 'Newsletter disabled successfully!', isError: false })
+      setInfoData(prev => ({ ...prev, isSubscribedToNewsletter: false }))
+    } catch (err) {
+      setAlertModal({ open: true, message: err.message, isError: true })
+    } finally {
+      setDisablingNewsletter(false)
     }
   }
 
@@ -719,22 +742,46 @@ const AdminUsers = () => {
                             <dt>Last Login IP</dt>
                             <dd>{infoData.lastIp || 'N/A'}</dd>
                           </div>
+                          <div>
+                            <dt>Cashback Variant</dt>
+                            <dd>{infoData.cashbackVariant || 'Not Selected'}</dd>
+                          </div>
+                          <div>
+                            <dt>Newsletter</dt>
+                            <dd style={{ color: infoData.isSubscribedToNewsletter ? '#2ecc71' : '#7f8c8d' }}>{infoData.isSubscribedToNewsletter ? 'Subscribed' : 'Unsubscribed'}</dd>
+                          </div>
                         </dl>
                         
-                        {infoData.twoFactorEnabled && (
-                          <div className="admin-users-modal__action-row">
-                            <button 
-                              className="admin-users-modal__btn-save" 
-                              style={{ background: '#e74c3c', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
-                              onClick={() => setConfirmModal({
-                                open: true,
-                                message: 'Are you sure you want to send a 2FA reset email to this user?',
-                                onConfirm: () => handleReset2Fa()
-                              })}
-                              disabled={resetting2Fa}
-                            >
-                              {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
-                            </button>
+                        {(infoData.twoFactorEnabled || infoData.isSubscribedToNewsletter) && (
+                          <div className="admin-users-modal__action-row" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {infoData.twoFactorEnabled && (
+                              <button 
+                                className="admin-users-modal__btn-save" 
+                                style={{ background: '#e74c3c', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
+                                onClick={() => setConfirmModal({
+                                  open: true,
+                                  message: 'Are you sure you want to send a 2FA reset email to this user?',
+                                  onConfirm: () => handleReset2Fa()
+                                })}
+                                disabled={resetting2Fa}
+                              >
+                                {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
+                              </button>
+                            )}
+                            {infoData.isSubscribedToNewsletter && (
+                              <button 
+                                className="admin-users-modal__btn-save" 
+                                style={{ background: '#e67e22', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
+                                onClick={() => setConfirmModal({
+                                  open: true,
+                                  message: 'Are you sure you want to disable newsletter subscription for this user? They will receive an email notification.',
+                                  onConfirm: () => handleDisableNewsletter()
+                                })}
+                                disabled={disablingNewsletter}
+                              >
+                                {disablingNewsletter ? 'Disabling...' : 'Disable Newsletter'}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

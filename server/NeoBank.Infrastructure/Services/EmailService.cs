@@ -121,7 +121,7 @@ public class EmailService : IEmailService
         var contentTitle = "Disable Two-Factor Authentication";
         
         var message = $@"We received a request to disable Two-Factor Authentication (2FA) for your NeoBank account.<br><br>
-If you requested this, please click the link below to disable 2FA. This link is valid for 15 minutes.<br><br>
+If you requested this, please click the link below to disable 2FA. This link is valid for 24 hours.<br><br>
 <div style=""text-align: center; margin: 30px 0;"">
   <a href=""{resetLink}"" style=""background-color: #F3C24A; color: #000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;"">Disable 2FA</a>
 </div><br>
