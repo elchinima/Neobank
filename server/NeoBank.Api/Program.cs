@@ -58,6 +58,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<ICardDebitService, CardDebitService>();
 builder.Services.AddScoped<IAvatarProcessingService, AvatarProcessingService>();
+builder.Services.AddScoped<ISupportAIService, SupportAIService>();
 
 builder.Services.AddHostedService<MonthlyResetService>();
 

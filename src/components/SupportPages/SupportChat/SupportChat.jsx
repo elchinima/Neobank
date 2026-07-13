@@ -4,6 +4,8 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { supportChatLang } from './lang.js'
 import './SupportChat.scss'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5242/api'
+
 function SupportChat() {
   const { t } = useLanguage()
   const navigate = useNavigate()
@@ -24,29 +26,57 @@ function SupportChat() {
   
   const [inputValue, setInputValue] = useState('')
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef(null)
 
+  // Process initial message
   useEffect(() => {
     if (initialMessage) {
-      const newUserMsg = {
-        id: Date.now(),
-        sender: 'user',
-        text: initialMessage,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-      setMessages(prev => [...prev, newUserMsg])
-      
-      // Simulate agent response
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          sender: 'agent',
-          text: t(supportChatLang, 'agentReply1'),
+      const processInitial = async () => {
+        const newUserMsg = {
+          id: Date.now(),
+          sender: 'user',
+          text: initialMessage,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }])
-      }, 1500)
+        }
+        setMessages(prev => [...prev, newUserMsg])
+        setIsTyping(true)
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/Support/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: initialMessage })
+          })
+
+          if (!res.ok) throw new Error('API error')
+          const data = await res.json()
+          
+          setMessages(prev => [...prev, {
+            id: Date.now() + 1,
+            sender: 'agent',
+            text: data.response,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }])
+        } catch (err) {
+          console.error(err)
+          fallbackReply(t(supportChatLang, 'agentReply1'))
+        } finally {
+          setIsTyping(false)
+        }
+      }
+      processInitial()
     }
   }, [initialMessage, t])
+
+  const fallbackReply = (text) => {
+    setMessages(prev => [...prev, {
+      id: Date.now() + 1,
+      sender: 'agent',
+      text: text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }])
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -54,31 +84,46 @@ function SupportChat() {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, isTyping])
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault()
-    if (!inputValue.trim()) return
+    if (!inputValue.trim() || isTyping) return
 
+    const userText = inputValue
     const newMsg = {
       id: Date.now(),
       sender: 'user',
-      text: inputValue,
+      text: userText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
     setMessages(prev => [...prev, newMsg])
     setInputValue('')
+    setIsTyping(true)
 
-    // Simulate agent typing
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/Support/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText })
+      })
+
+      if (!res.ok) throw new Error('API error')
+      const data = await res.json()
+      
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'agent',
-        text: t(supportChatLang, 'agentReply2'),
+        text: data.response,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }])
-    }, 2000)
+    } catch (err) {
+      console.error(err)
+      fallbackReply("Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.")
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   return (
@@ -109,6 +154,15 @@ function SupportChat() {
               </div>
             </div>
           ))}
+          {isTyping && (
+             <div className="message-wrapper message-left">
+               <div className="message-content typing-indicator-wrapper">
+                  <div className="typing-indicator">
+                    <span></span><span></span><span></span>
+                  </div>
+               </div>
+             </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -118,8 +172,10 @@ function SupportChat() {
             placeholder={t(supportChatLang, 'inputPlaceholder')}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            maxLength={1000}
+            disabled={isTyping}
           />
-          <button type="submit" className="send-btn" disabled={!inputValue.trim()} aria-label={t(supportChatLang, 'send')}>
+          <button type="submit" className="send-btn" disabled={!inputValue.trim() || isTyping} aria-label={t(supportChatLang, 'send')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
