@@ -10,11 +10,10 @@ export function useSupportPublic() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ')
-      if (fullName) {
-        setName(fullName)
+      if (user.firstName) {
+        setName(user.firstName)
       } else if (user.name) {
-        setName(user.name)
+        setName(user.name.split(' ')[0])
       }
     }
   }, [isAuthenticated, user])

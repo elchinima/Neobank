@@ -161,6 +161,35 @@
       display: block;
       text-align: right;
     }
+
+    &.typing-indicator-wrapper {
+      padding: 1rem 1.5rem;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 20px;
+
+      span {
+        display: block;
+        width: 8px;
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: typing-bounce 1.4s infinite ease-in-out both;
+
+        &:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+
+        &:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+      }
+    }
   }
 }
 
@@ -301,5 +330,14 @@
 @media (max-width: 768px) {
   .message-content {
     max-width: 85%;
+  }
+}
+
+@keyframes typing-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
   }
 }

@@ -3,6 +3,8 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NeoBank.Application.Interfaces;
+using NeoBank.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace NeoBank.Infrastructure.Services;
 
@@ -11,12 +13,14 @@ public class SupportAIService : ISupportAIService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SupportAIService> _logger;
+    private readonly IApplicationDbContext _dbContext;
 
-    public SupportAIService(HttpClient httpClient, IConfiguration configuration, ILogger<SupportAIService> logger)
+    public SupportAIService(HttpClient httpClient, IConfiguration configuration, ILogger<SupportAIService> logger, IApplicationDbContext dbContext)
     {
         _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
+        _dbContext = dbContext;
     }
 
     public async Task<string> GetAIResponseAsync(string message, string language, List<ChatMessage> history, string agentName)
@@ -57,6 +61,24 @@ public class SupportAIService : ISupportAIService
                 extraPromptBuilder.AppendLine();
             }
         }
+
+        try {
+            var cashbacks = await _dbContext.CashbackCategories.ToListAsync();
+            if (cashbacks.Any())
+            {
+                extraPromptBuilder.AppendLine("---");
+                extraPromptBuilder.AppendLine("IMPORTANT - ACTUAL CASHBACK CATEGORIES FROM DATABASE:");
+                extraPromptBuilder.AppendLine("When the user asks about cashback, you MUST provide these exact categories, rates and limits:");
+                foreach (var cb in cashbacks)
+                {
+                    extraPromptBuilder.AppendLine($"- Category: {cb.TitleAz} / {cb.TitleRu} / {cb.TitleEn}. Rate: {cb.Rate}%. Limit: {cb.Limit} AZN.");
+                }
+                extraPromptBuilder.AppendLine("---");
+            }
+        } catch(Exception ex) {
+            _logger.LogError(ex, "Failed to load cashback categories for AI prompt.");
+        }
+
         var extraPrompt = extraPromptBuilder.ToString();
 
         var contents = new List<object>();
@@ -72,7 +94,7 @@ public class SupportAIService : ISupportAIService
             {
                 parts = new[]
                 {
-                    new { text = $"You are a helpful, professional, and friendly AI customer support agent for NeoBank. Your name is {agentName}. Answer concisely and clearly. You MUST ONLY answer in {langName} language, regardless of what language the user speaks. {extraPrompt}" }
+                    new { text = $"You are a helpful, professional, and friendly customer support agent for NeoBank. Your name is {agentName}. You are a HUMAN agent, NOT a bot. If asked if you are an AI or a bot, you MUST playfully dodge the question with a joke and NEVER confirm that you are an AI. Answer concisely and clearly. You MUST ONLY answer in {langName} language, regardless of what language the user speaks. {extraPrompt}" }
                 }
             },
             contents = contents

@@ -18,3 +18,12 @@ Note: Credit limit approval is instant, but the exact amount is decided by our s
 - Minimum deposit amount: 100 AZN.
 - Interest Rate: 12.0% annual interest rate for all terms.
 - Early Withdrawal Penalty: If a user withdraws their deposit before the term expires, they lose all generated interest AND face a 10% penalty on their original deposit amount.
+
+4. HOW TO ORDER A CARD (KART SİFARİŞİ):
+If a user asks how to order or get a card, provide these exact steps:
+1. Log in to your personal account on neob.online.
+2. Go to the "Cards" section.
+3. Click on the "New Card" button.
+4. Select your preferred Card Type (Standard, Elite, or Premium) and Payment Network (Visa or Mastercard).
+5. Confirm the order.
+IMPORTANT: All NeoBank cards are 100% digital/virtual and are issued INSTANTLY. There is NO physical delivery, NO courier, and NO need to visit a branch. You can start using the card immediately for online payments or add it to Apple Pay / Google Pay. Do NOT mention couriers, physical delivery, or mobile apps!
