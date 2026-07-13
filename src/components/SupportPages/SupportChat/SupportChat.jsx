@@ -1,0 +1,129 @@
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useLanguage } from '../../../app/context/LanguageContext'
+import './SupportChat.scss'
+
+function SupportChat() {
+  const { t } = useLanguage()
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Get initial message from location state if passed from the form
+  const initialMessage = location.state?.message || ''
+  const userName = location.state?.name || 'User'
+
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: 'agent',
+      text: 'Salam! NeoBank dəstək xidmətinə xoş gəlmisiniz. Sizə necə kömək edə bilərəm?',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ])
+  
+  const [inputValue, setInputValue] = useState('')
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    if (initialMessage) {
+      const newUserMsg = {
+        id: Date.now(),
+        sender: 'user',
+        text: initialMessage,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+      setMessages(prev => [...prev, newUserMsg])
+      
+      // Simulate agent response
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          sender: 'agent',
+          text: 'Təşəkkür edirik, mesajınızı aldıq. Tezliklə mütəxəssisimiz sizə cavab verəcək.',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }])
+      }, 1500)
+    }
+  }, [initialMessage])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSendMessage = (e) => {
+    e.preventDefault()
+    if (!inputValue.trim()) return
+
+    const newMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text: inputValue,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+
+    setMessages(prev => [...prev, newMsg])
+    setInputValue('')
+
+    // Simulate agent typing
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'agent',
+        text: 'Məlumatınız qeydə alındı. Kömək edə biləcəyim başqa bir şey var?',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }])
+    }, 2000)
+  }
+
+  return (
+    <div className="support-chat-page">
+      <div className="support-chat-container">
+        <div className="support-chat-header">
+          <div className="agent-info">
+            <div className="agent-avatar">
+              <span>NB</span>
+              <div className="online-indicator"></div>
+            </div>
+            <div className="agent-details">
+              <h2>NeoBank Dəstək</h2>
+              <p>Onlayn</p>
+            </div>
+          </div>
+          <button className="close-chat-btn" onClick={() => navigate('/support')}>
+            Bağla
+          </button>
+        </div>
+
+        <div className="support-chat-messages">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`message-wrapper ${msg.sender === 'user' ? 'message-right' : 'message-left'}`}>
+              <div className="message-content">
+                <p>{msg.text}</p>
+                <span className="message-time">{msg.time}</span>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <form className="support-chat-input" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            placeholder="Mesajınızı yazın..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+          <button type="submit" className="send-btn" disabled={!inputValue.trim()}>
+            Göndər
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export default SupportChat
