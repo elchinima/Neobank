@@ -15,6 +15,11 @@ function SupportChat() {
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
   const chatLanguage = location.state?.chatLanguage || 'az'
 
+  const [agentName] = useState(() => {
+    const names = ["Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil"];
+    return names[Math.floor(Math.random() * names.length)];
+  });
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -43,10 +48,12 @@ function SupportChat() {
         setIsTyping(true)
 
         try {
+          const history = [{ role: 'model', text: t(supportChatLang, 'agentWelcome') }]
+          
           const res = await fetch(`${API_BASE_URL}/Support/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: initialMessage, language: chatLanguage })
+            body: JSON.stringify({ message: initialMessage, language: chatLanguage, history, agentName })
           })
 
           if (!res.ok) throw new Error('API error')
@@ -103,10 +110,15 @@ function SupportChat() {
     setIsTyping(true)
 
     try {
+      const history = messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'model',
+        text: m.text
+      }))
+
       const res = await fetch(`${API_BASE_URL}/Support/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText, language: chatLanguage })
+        body: JSON.stringify({ message: userText, language: chatLanguage, history, agentName })
       })
 
       if (!res.ok) throw new Error('API error')
@@ -136,7 +148,7 @@ function SupportChat() {
               <div className="online-indicator"></div>
             </div>
             <div className="agent-details">
-              <h2>{t(supportChatLang, 'supportTitle')}</h2>
+              <h2>{agentName}</h2>
               <p>{t(supportChatLang, 'online')}</p>
             </div>
           </div>

@@ -1,9 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../app/context/AuthContext'
 
 export function useSupportPublic() {
+  const { isAuthenticated, user } = useAuth()
+  
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ')
+      if (fullName) {
+        setName(fullName)
+      } else if (user.name) {
+        setName(user.name)
+      }
+    }
+  }, [isAuthenticated, user])
+
   const [category, setCategory] = useState('General Information')
   const [chatLanguage, setChatLanguage] = useState('az')
   const [message, setMessage] = useState('')

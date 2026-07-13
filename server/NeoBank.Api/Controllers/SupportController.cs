@@ -22,7 +22,7 @@ public class SupportController : ControllerBase
             return BadRequest("Message is required.");
         }
 
-        var response = await _supportAIService.GetAIResponseAsync(request.Message, request.Language);
+        var response = await _supportAIService.GetAIResponseAsync(request.Message, request.Language, request.History, request.AgentName);
         return Ok(new { response });
     }
 }
@@ -31,4 +31,6 @@ public class ChatRequest
 {
     public string Message { get; set; } = string.Empty;
     public string Language { get; set; } = "az";
+    public List<ChatMessage> History { get; set; } = new List<ChatMessage>();
+    public string AgentName { get; set; } = "NeoBank Assistant";
 }
