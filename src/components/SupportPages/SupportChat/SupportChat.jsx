@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../../app/context/LanguageContext'
+import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { supportChatLang } from './lang.js'
 import './SupportChat.scss'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5242/api'
 
 function SupportChat() {
   const { t } = useLanguage()
