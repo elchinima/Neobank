@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../../app/context/LanguageContext'
+import { supportChatLang } from './lang.js'
 import './SupportChat.scss'
 
 function SupportChat() {
@@ -10,18 +11,19 @@ function SupportChat() {
   
   // Get initial message from location state if passed from the form
   const initialMessage = location.state?.message || ''
-  const userName = location.state?.name || 'User'
+  const userName = location.state?.name || t(supportChatLang, 'defaultUser')
 
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'agent',
-      text: 'Salam! NeoBank dəstək xidmətinə xoş gəlmisiniz. Sizə necə kömək edə bilərəm?',
+      text: t(supportChatLang, 'agentWelcome'),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ])
   
   const [inputValue, setInputValue] = useState('')
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -39,12 +41,12 @@ function SupportChat() {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
           sender: 'agent',
-          text: 'Təşəkkür edirik, mesajınızı aldıq. Tezliklə mütəxəssisimiz sizə cavab verəcək.',
+          text: t(supportChatLang, 'agentReply1'),
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }])
       }, 1500)
     }
-  }, [initialMessage])
+  }, [initialMessage, t])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -73,7 +75,7 @@ function SupportChat() {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'agent',
-        text: 'Məlumatınız qeydə alındı. Kömək edə biləcəyim başqa bir şey var?',
+        text: t(supportChatLang, 'agentReply2'),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }])
     }, 2000)
@@ -89,12 +91,12 @@ function SupportChat() {
               <div className="online-indicator"></div>
             </div>
             <div className="agent-details">
-              <h2>NeoBank Dəstək</h2>
-              <p>Onlayn</p>
+              <h2>{t(supportChatLang, 'supportTitle')}</h2>
+              <p>{t(supportChatLang, 'online')}</p>
             </div>
           </div>
-          <button className="close-chat-btn" onClick={() => navigate('/support')}>
-            Bağla
+          <button className="close-chat-btn" onClick={() => setIsCloseModalOpen(true)}>
+            {t(supportChatLang, 'close')}
           </button>
         </div>
 
@@ -113,11 +115,11 @@ function SupportChat() {
         <form className="support-chat-input" onSubmit={handleSendMessage}>
           <input
             type="text"
-            placeholder="Mesajınızı yazın..."
+            placeholder={t(supportChatLang, 'inputPlaceholder')}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
-          <button type="submit" className="send-btn" disabled={!inputValue.trim()} aria-label="Göndər">
+          <button type="submit" className="send-btn" disabled={!inputValue.trim()} aria-label={t(supportChatLang, 'send')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -125,6 +127,23 @@ function SupportChat() {
           </button>
         </form>
       </div>
+
+      {isCloseModalOpen && (
+        <div className="support-chat-modal-overlay" onClick={() => setIsCloseModalOpen(false)}>
+          <div className="support-chat-modal" onClick={e => e.stopPropagation()}>
+            <h3>{t(supportChatLang, 'modalTitle')}</h3>
+            <p>{t(supportChatLang, 'modalDesc')}</p>
+            <div className="support-chat-modal-actions">
+              <button className="cancel-btn" onClick={() => setIsCloseModalOpen(false)}>
+                {t(supportChatLang, 'modalNo')}
+              </button>
+              <button className="confirm-btn" onClick={() => navigate('/support')}>
+                {t(supportChatLang, 'modalYes')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

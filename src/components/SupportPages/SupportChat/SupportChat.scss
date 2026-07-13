@@ -207,6 +207,80 @@
     }
   }
 }
+.support-chat-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.support-chat-modal {
+  background: #151521;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+  h3 {
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .support-chat-modal-actions {
+    display: flex;
+    gap: 1rem;
+    
+    button {
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+    
+    .confirm-btn {
+      background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+      color: #000;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      }
+    }
+  }
+}
 
 @media (max-width: 768px) {
   .message-content {
