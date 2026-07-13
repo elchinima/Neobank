@@ -12,7 +12,9 @@ export const supportChatLang = {
     modalNo: 'No',
     modalYes: 'Yes, close',
     defaultUser: 'User',
-    send: 'Send'
+    send: 'Send',
+    connecting: 'Connecting...',
+    pleaseWait: 'Please wait'
   },
   az: {
     agentWelcome: 'Salam! NeoBank dəstək xidmətinə xoş gəlmisiniz. Sizə necə kömək edə bilərəm?',
@@ -27,7 +29,9 @@ export const supportChatLang = {
     modalNo: 'Xeyr',
     modalYes: 'Bəli, bağla',
     defaultUser: 'İstifadəçi',
-    send: 'Göndər'
+    send: 'Göndər',
+    connecting: 'Qoşulur...',
+    pleaseWait: 'Zəhmət olmasa gözləyin'
   },
   ru: {
     agentWelcome: 'Здравствуйте! Добро пожаловать в службу поддержки NeoBank. Чем могу помочь?',
@@ -42,6 +46,8 @@ export const supportChatLang = {
     modalNo: 'Нет',
     modalYes: 'Да, закрыть',
     defaultUser: 'Пользователь',
-    send: 'Отправить'
+    send: 'Отправить',
+    connecting: 'Подключение...',
+    pleaseWait: 'Пожалуйста, подождите'
   }
 }

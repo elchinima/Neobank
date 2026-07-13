@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../../app/context/LanguageContext'
+import { useAuth } from '../../../app/context/AuthContext'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { supportChatLang } from './lang.js'
 import ReactMarkdown from 'react-markdown'
@@ -8,6 +9,7 @@ import './SupportChat.scss'
 
 function SupportChat() {
   const { t } = useLanguage()
+  const { token } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -34,7 +36,17 @@ function SupportChat() {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
+  const [isAgentConnected, setIsAgentConnected] = useState(false)
   const messagesEndRef = useRef(null)
+
+  // Delay agent connection appearance
+  useEffect(() => {
+    const connectionTimer = setTimeout(() => {
+      setIsAgentConnected(true)
+    }, 10000)
+
+    return () => clearTimeout(connectionTimer)
+  }, [])
 
   // Process initial message
   useEffect(() => {
@@ -53,10 +65,12 @@ function SupportChat() {
 
         try {
           const history = [{ role: 'model', text: t(supportChatLang, 'agentWelcome') }]
-          
+          const headers = { 'Content-Type': 'application/json' }
+          if (token) headers['Authorization'] = `Bearer ${token}`
+
           const res = await fetch(`${API_BASE_URL}/Support/chat`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ message: initialMessage, language: chatLanguage, history, agentName })
           })
 
@@ -123,9 +137,12 @@ function SupportChat() {
         text: m.text
       }))
 
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
       const res = await fetch(`${API_BASE_URL}/Support/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ message: userText, language: chatLanguage, history, agentName })
       })
 
@@ -158,8 +175,8 @@ function SupportChat() {
               <div className="online-indicator"></div>
             </div>
             <div className="agent-details">
-              <h2>{agentName}</h2>
-              <p>{t(supportChatLang, 'online')}</p>
+              <h2>{isAgentConnected ? agentName : t(supportChatLang, 'connecting')}</h2>
+              <p>{isAgentConnected ? t(supportChatLang, 'online') : t(supportChatLang, 'pleaseWait')}</p>
             </div>
           </div>
           <button className="close-chat-btn" onClick={() => setIsCloseModalOpen(true)}>

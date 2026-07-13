@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NeoBank.Application.Interfaces;
+using System.Security.Claims;
 
 namespace NeoBank.Api.Controllers;
 
@@ -22,7 +23,10 @@ public class SupportController : ControllerBase
             return BadRequest("Message is required.");
         }
 
-        var response = await _supportAIService.GetAIResponseAsync(request.Message, request.Language, request.History, request.AgentName);
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                      ?? User.FindFirst("sub")?.Value;
+
+        var response = await _supportAIService.GetAIResponseAsync(request.Message, request.Language, request.History, request.AgentName, userId);
         return Ok(new { response });
     }
 }

@@ -8,5 +8,5 @@ public class ChatMessage
 
 public interface ISupportAIService
 {
-    Task<string> GetAIResponseAsync(string message, string language, List<ChatMessage> history, string agentName);
+    Task<string> GetAIResponseAsync(string message, string language, List<ChatMessage> history, string agentName, string? userId = null);
 }
