@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { supportChatLang } from './lang.js'
+import ReactMarkdown from 'react-markdown'
 import './SupportChat.scss'
 
 function SupportChat() {
@@ -32,6 +33,7 @@ function SupportChat() {
   const [inputValue, setInputValue] = useState('')
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [isWaiting, setIsWaiting] = useState(false)
   const messagesEndRef = useRef(null)
 
   // Process initial message
@@ -45,7 +47,9 @@ function SupportChat() {
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
         setMessages(prev => [...prev, newUserMsg])
-        setIsTyping(true)
+        setIsWaiting(true)
+        setIsTyping(false)
+        const typingTimer = setTimeout(() => setIsTyping(true), 10000)
 
         try {
           const history = [{ role: 'model', text: t(supportChatLang, 'agentWelcome') }]
@@ -69,6 +73,8 @@ function SupportChat() {
           console.error(err)
           fallbackReply(t(supportChatLang, 'agentReply1'))
         } finally {
+          clearTimeout(typingTimer)
+          setIsWaiting(false)
           setIsTyping(false)
         }
       }
@@ -107,7 +113,9 @@ function SupportChat() {
 
     setMessages(prev => [...prev, newMsg])
     setInputValue('')
-    setIsTyping(true)
+    setIsWaiting(true)
+    setIsTyping(false)
+    const typingTimer = setTimeout(() => setIsTyping(true), 10000)
 
     try {
       const history = messages.map(m => ({
@@ -134,6 +142,8 @@ function SupportChat() {
       console.error(err)
       fallbackReply("Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.")
     } finally {
+      clearTimeout(typingTimer)
+      setIsWaiting(false)
       setIsTyping(false)
     }
   }
@@ -161,7 +171,7 @@ function SupportChat() {
           {messages.map((msg) => (
             <div key={msg.id} className={`message-wrapper ${msg.sender === 'user' ? 'message-right' : 'message-left'}`}>
               <div className="message-content">
-                <p>{msg.text}</p>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
                 <span className="message-time">{msg.time}</span>
               </div>
             </div>
@@ -185,9 +195,9 @@ function SupportChat() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             maxLength={1000}
-            disabled={isTyping}
+            disabled={isWaiting || isTyping}
           />
-          <button type="submit" className="send-btn" disabled={!inputValue.trim() || isTyping} aria-label={t(supportChatLang, 'send')}>
+          <button type="submit" className="send-btn" disabled={!inputValue.trim() || isWaiting || isTyping} aria-label={t(supportChatLang, 'send')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
