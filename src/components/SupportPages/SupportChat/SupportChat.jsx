@@ -13,6 +13,7 @@ function SupportChat() {
   // Get initial message from location state if passed from the form
   const initialMessage = location.state?.message || ''
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
+  const chatLanguage = location.state?.chatLanguage || 'az'
 
   const [messages, setMessages] = useState([
     {
@@ -45,7 +46,7 @@ function SupportChat() {
           const res = await fetch(`${API_BASE_URL}/Support/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: initialMessage })
+            body: JSON.stringify({ message: initialMessage, language: chatLanguage })
           })
 
           if (!res.ok) throw new Error('API error')
@@ -105,7 +106,7 @@ function SupportChat() {
       const res = await fetch(`${API_BASE_URL}/Support/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText })
+        body: JSON.stringify({ message: userText, language: chatLanguage })
       })
 
       if (!res.ok) throw new Error('API error')

@@ -22,7 +22,7 @@ public class SupportController : ControllerBase
             return BadRequest("Message is required.");
         }
 
-        var response = await _supportAIService.GetAIResponseAsync(request.Message);
+        var response = await _supportAIService.GetAIResponseAsync(request.Message, request.Language);
         return Ok(new { response });
     }
 }
@@ -30,4 +30,5 @@ public class SupportController : ControllerBase
 public class ChatRequest
 {
     public string Message { get; set; } = string.Empty;
+    public string Language { get; set; } = "az";
 }

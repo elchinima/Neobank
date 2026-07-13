@@ -5,6 +5,7 @@ export function useSupportPublic() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
   const [category, setCategory] = useState('General Information')
+  const [chatLanguage, setChatLanguage] = useState('az')
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
@@ -13,7 +14,7 @@ export function useSupportPublic() {
     if (!name.trim() || !message.trim()) return
 
     setIsModalOpen(false)
-    navigate('/support/chat', { state: { name, category, message } })
+    navigate('/support/chat', { state: { name, category, chatLanguage, message } })
     
     setName('')
     setMessage('')
@@ -26,6 +27,8 @@ export function useSupportPublic() {
     setName,
     category,
     setCategory,
+    chatLanguage,
+    setChatLanguage,
     message,
     setMessage,
     handleFormSubmit,

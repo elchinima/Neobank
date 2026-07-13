@@ -19,7 +19,7 @@ public class SupportAIService : ISupportAIService
         _logger = logger;
     }
 
-    public async Task<string> GetAIResponseAsync(string message)
+    public async Task<string> GetAIResponseAsync(string message, string language)
     {
         var apiKey = _configuration["GEMINI_API_KEY"];
         var modelName = _configuration["GEMINI_MODEL"] ?? "gemini-1.5-flash";
@@ -32,13 +32,19 @@ public class SupportAIService : ISupportAIService
 
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
 
+        var langName = language switch {
+            "ru" => "Russian",
+            "en" => "English",
+            _ => "Azerbaijani"
+        };
+
         var requestBody = new
         {
             systemInstruction = new
             {
                 parts = new[]
                 {
-                    new { text = "You are a helpful, professional, and friendly AI customer support agent for NeoBank. Answer concisely and clearly in the language the user speaks." }
+                    new { text = $"You are a helpful, professional, and friendly AI customer support agent for NeoBank. Answer concisely and clearly. You MUST ONLY answer in {langName} language, regardless of what language the user speaks." }
                 }
             },
             contents = new[]

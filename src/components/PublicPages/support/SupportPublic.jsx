@@ -33,6 +33,8 @@ function SupportPublic() {
     setName,
     category,
     setCategory,
+    chatLanguage,
+    setChatLanguage,
     message,
     setMessage,
     handleFormSubmit,
@@ -202,20 +204,35 @@ function SupportPublic() {
                 />
               </div>
 
-              <div className="support-modal__group">
-                <label data-lang-key="category">{t(supportLang, 'category')}</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                >
-                  <option value="" disabled data-lang-key="selectCategory">{t(supportLang, 'selectCategory')}</option>
-                  <option value="account" data-lang-key="catAccount">{t(supportLang, 'catAccount')}</option>
-                  <option value="cards" data-lang-key="catCards">{t(supportLang, 'catCards')}</option>
-                  <option value="transactions" data-lang-key="catTransactions">{t(supportLang, 'catTransactions')}</option>
-                  <option value="loans" data-lang-key="catLoans">{t(supportLang, 'catLoans')}</option>
-                  <option value="other" data-lang-key="catOther">{t(supportLang, 'catOther')}</option>
-                </select>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className="support-modal__group" style={{ flex: 1 }}>
+                  <label data-lang-key="category">{t(supportLang, 'category')}</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                  >
+                    <option value="" disabled data-lang-key="selectCategory">{t(supportLang, 'selectCategory')}</option>
+                    <option value="account" data-lang-key="catAccount">{t(supportLang, 'catAccount')}</option>
+                    <option value="cards" data-lang-key="catCards">{t(supportLang, 'catCards')}</option>
+                    <option value="transactions" data-lang-key="catTransactions">{t(supportLang, 'catTransactions')}</option>
+                    <option value="loans" data-lang-key="catLoans">{t(supportLang, 'catLoans')}</option>
+                    <option value="other" data-lang-key="catOther">{t(supportLang, 'catOther')}</option>
+                  </select>
+                </div>
+
+                <div className="support-modal__group" style={{ flex: 1 }}>
+                  <label>Ünsiyyət Dili</label>
+                  <select
+                    value={chatLanguage}
+                    onChange={(e) => setChatLanguage(e.target.value)}
+                    required
+                  >
+                    <option value="az">Azərbaycanca</option>
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
               </div>
 
               <div className="support-modal__group">
