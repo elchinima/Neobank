@@ -262,7 +262,7 @@ function SupportChat() {
         if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
         closeTimerRef.current = setTimeout(() => {
           setChatStatus('closed')
-        }, 5000)
+        }, 2000)
       }
     } catch (err) {
       console.error(err)
