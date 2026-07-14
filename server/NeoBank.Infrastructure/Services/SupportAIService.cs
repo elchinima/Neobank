@@ -165,34 +165,57 @@ public class SupportAIService : ISupportAIService
                 var matches = regex.Matches(text);
                 bool anyBlockAttempted = matches.Count > 0;
                 bool dbUpdated = false;
-                List<string> errors = new List<string>();
+                List<string> systemMessages = new List<string>();
                 
                 foreach (Match match in matches)
                 {
                     if (match.Groups.Count > 1)
                     {
-                        var cardId = match.Groups[1].Value.Trim();
+                        var cardIdOrLast4 = match.Groups[1].Value.Trim();
                         try 
                         {
-                            var cardToBlock = await _dbContext.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.UserId == userId);
+                            // Try to find the card either by exact ID or by last 4 digits
+                            var userCards = await _dbContext.Cards.Where(c => c.UserId == userId).ToListAsync();
+                            var cardToBlock = userCards.FirstOrDefault(c => 
+                                c.Id == cardIdOrLast4 || 
+                                (c.CardNumber != null && c.CardNumber.Replace(" ", "").EndsWith(cardIdOrLast4))
+                            );
+
+                            var langKey = language ?? "az";
+
                             if (cardToBlock == null)
                             {
-                                errors.Add("card_not_found");
+                                string msg = langKey switch {
+                                    "ru" => $"Карта ({cardIdOrLast4}) не найдена.",
+                                    "en" => $"Card ({cardIdOrLast4}) not found.",
+                                    _ => $"Kart ({cardIdOrLast4}) tapılmadı."
+                                };
+                                systemMessages.Add("⚠️ " + msg);
                             }
                             else if (cardToBlock.Status == "Blocked")
                             {
-                                errors.Add("already_blocked");
+                                string msg = langKey switch {
+                                    "ru" => $"Карта {cardIdOrLast4} уже заблокирована.",
+                                    "en" => $"Card {cardIdOrLast4} is already blocked.",
+                                    _ => $"{cardIdOrLast4} nömrəli kart artıq bloklanıb."
+                                };
+                                systemMessages.Add("ℹ️ " + msg);
                             }
                             else
                             {
                                 cardToBlock.Status = "Blocked";
                                 dbUpdated = true;
+                                string msg = langKey switch {
+                                    "ru" => $"Карта {cardIdOrLast4} успешно заблокирована.",
+                                    "en" => $"Card {cardIdOrLast4} blocked successfully.",
+                                    _ => $"{cardIdOrLast4} nömrəli kart uğurla bloklandı."
+                                };
+                                systemMessages.Add("✅ " + msg);
                             }
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Error blocking card {CardId}", cardId);
-                            errors.Add("server_error");
+                            _logger.LogError(ex, "Error blocking card {CardId}", cardIdOrLast4);
                         }
                     }
                 }
@@ -203,7 +226,6 @@ public class SupportAIService : ISupportAIService
                         await _dbContext.SaveChangesAsync();
                     } catch (Exception ex) {
                         _logger.LogError(ex, "Error saving block card changes.");
-                        errors.Add("db_error");
                         dbUpdated = false;
                     }
                 }
@@ -211,18 +233,10 @@ public class SupportAIService : ISupportAIService
                 // Remove the [BLOCK_CARD:...] tags from the text the user sees
                 text = regex.Replace(text, "").Trim();
 
-                // If the AI used the tag but there were errors, override the message
-                if (anyBlockAttempted && errors.Any())
+                // Append the specific system messages to the AI's text so the user knows exactly what happened
+                if (systemMessages.Any())
                 {
-                    var langKey = language ?? "az";
-                    string errorMsg = langKey switch
-                    {
-                        "ru" => "К сожалению, мне не удалось заблокировать карту. Пожалуйста, заблокируйте её вручную в приложении NeoBank (раздел \"Карты\").",
-                        "en" => "Unfortunately, I was unable to block the card. Please block it manually in the NeoBank app (Cards section).",
-                        _    => "Təəssüf ki, kartı bloklaya bilmədim. Zəhmət olmasa onu NeoBank tətbiqindən əl ilə bloklayın (\"Kartlar\" bölməsi)."
-                    };
-                    // Replace/append the failure message so the user isn't misled
-                    text = errorMsg;
+                    text += "\n\n---\n" + string.Join("\n", systemMessages);
                 }
             }
 
