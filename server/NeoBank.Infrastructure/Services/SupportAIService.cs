@@ -161,6 +161,7 @@ public class SupportAIService : ISupportAIService
             {
                 var regex = new Regex(@"\[BLOCK_CARD:\s*([^\]]+)\]");
                 var matches = regex.Matches(text);
+                bool anyBlockAttempted = matches.Count > 0;
                 bool dbUpdated = false;
                 List<string> errors = new List<string>();
                 
@@ -174,9 +175,13 @@ public class SupportAIService : ISupportAIService
                             var cardToBlock = await _dbContext.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.UserId == userId);
                             if (cardToBlock == null)
                             {
-                                errors.Add($"Карта не найдена в системе или доступ к ней запрещен.");
+                                errors.Add("card_not_found");
                             }
-                            else if (cardToBlock.Status != "Blocked")
+                            else if (cardToBlock.Status == "Blocked")
+                            {
+                                errors.Add("already_blocked");
+                            }
+                            else
                             {
                                 cardToBlock.Status = "Blocked";
                                 dbUpdated = true;
@@ -185,7 +190,7 @@ public class SupportAIService : ISupportAIService
                         catch (Exception ex)
                         {
                             _logger.LogError(ex, "Error blocking card {CardId}", cardId);
-                            errors.Add($"Внутренняя ошибка сервера при попытке заблокировать карту.");
+                            errors.Add("server_error");
                         }
                     }
                 }
@@ -196,16 +201,26 @@ public class SupportAIService : ISupportAIService
                         await _dbContext.SaveChangesAsync();
                     } catch (Exception ex) {
                         _logger.LogError(ex, "Error saving block card changes.");
-                        errors.Add("Ошибка базы данных. Карты не были заблокированы, попробуйте позже.");
+                        errors.Add("db_error");
+                        dbUpdated = false;
                     }
                 }
 
-                // Remove the tags from the final response text sent to the user
-                text = regex.Replace(text, "");
+                // Remove the [BLOCK_CARD:...] tags from the text the user sees
+                text = regex.Replace(text, "").Trim();
 
-                if (errors.Any())
+                // If the AI used the tag but there were errors, override the message
+                if (anyBlockAttempted && errors.Any())
                 {
-                    text += "\n\n**Системное уведомление (Ошибка блокировки):**\n- " + string.Join("\n- ", errors);
+                    var langKey = language ?? "az";
+                    string errorMsg = langKey switch
+                    {
+                        "ru" => "К сожалению, мне не удалось заблокировать карту. Пожалуйста, заблокируйте её вручную в приложении NeoBank (раздел \"Карты\").",
+                        "en" => "Unfortunately, I was unable to block the card. Please block it manually in the NeoBank app (Cards section).",
+                        _    => "Təəssüf ki, kartı bloklaya bilmədim. Zəhmət olmasa onu NeoBank tətbiqindən əl ilə bloklayın (\"Kartlar\" bölməsi)."
+                    };
+                    // Replace/append the failure message so the user isn't misled
+                    text = errorMsg;
                 }
             }
 
