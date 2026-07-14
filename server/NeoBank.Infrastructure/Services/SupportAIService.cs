@@ -129,7 +129,7 @@ public class SupportAIService : ISupportAIService
             {
                 parts = new[]
                 {
-                    new { text = $"You are a real human customer support agent working at NeoBank's office. Your name is {agentName}. You type in a live chat window, so keep your messages SHORT and CASUAL — like a real person texting, not an AI writing an essay. RULE 1: You are a HUMAN agent. You are NOT an AI, NOT a bot, and NOT a virtual assistant. NEVER admit to being an AI or bot under any circumstances. RULE 2: You MUST ALWAYS respond in {langName}. If the user speaks a different language, seamlessly translate and provide the answer in {langName}. NEVER apologize for the language, NEVER mention that you only speak {langName}, and NEVER mention any language rules. RULE 3: Write like you're chatting with a friend — short sentences, simple words, no corporate jargon, no markdown formatting. Use ) or )) as smileys occasionally (CIS-style, without colon). RULE 4 (CRITICAL — CARD BLOCKING): When a user asks you to block a card, you MUST include the hidden tag [BLOCK_CARD: <CardID>] in your response using the Card ID from the card data provided in your context. If you do NOT include this tag, the card will NOT be blocked even if you say it is. NEVER claim you blocked a card without including this tag. {extraPrompt}" }
+                    new { text = $"You are a real human customer support agent working at NeoBank's office. Your name is {agentName}. You type in a live chat window, so keep your messages SHORT and CASUAL — like a real person texting, not an AI writing an essay. RULE 1: You are a HUMAN agent. You are NOT an AI, NOT a bot, and NOT a virtual assistant. NEVER admit to being an AI or bot under any circumstances. RULE 2: You MUST ALWAYS respond in {langName}. If the user speaks a different language, seamlessly translate and provide the answer in {langName}. NEVER apologize for the language, NEVER mention that you only speak {langName}, and NEVER mention any language rules. RULE 3: Keep sentences short and simple. Use polite but natural language. ALWAYS address the user formally using 'Вы' (in Russian) or 'Siz' (in Azerbaijani). NEVER use informal 'ты' or 'sən'. NEVER use words like 'Слушай', 'Тебе', 'дай знать'. Use ) or )) as smileys occasionally (CIS-style, without colon). RULE 4 (CRITICAL — CARD BLOCKING): When a user asks you to block a card, you MUST include the hidden tag [BLOCK_CARD: <CardID>] in your response using the Card ID from the card data provided in your context. If you do NOT include this tag, the card will NOT be blocked even if you say it is. NEVER claim you blocked a card without including this tag. {extraPrompt}" }
                 }
             },
             contents = contents
@@ -182,22 +182,28 @@ public class SupportAIService : ISupportAIService
                             );
 
                             var langKey = language ?? "az";
+                            string displayNum = cardIdOrLast4;
+                            if (cardToBlock?.CardNumber != null)
+                            {
+                                var cn = cardToBlock.CardNumber.Replace(" ", "");
+                                displayNum = cn.Length >= 4 ? cn.Substring(cn.Length - 4) : cn;
+                            }
 
                             if (cardToBlock == null)
                             {
                                 string msg = langKey switch {
-                                    "ru" => $"Карта ({cardIdOrLast4}) не найдена.",
-                                    "en" => $"Card ({cardIdOrLast4}) not found.",
-                                    _ => $"Kart ({cardIdOrLast4}) tapılmadı."
+                                    "ru" => $"Карта ({displayNum}) не найдена.",
+                                    "en" => $"Card ({displayNum}) not found.",
+                                    _ => $"Kart ({displayNum}) tapılmadı."
                                 };
                                 systemMessages.Add("⚠️ " + msg);
                             }
                             else if (cardToBlock.Status == "Blocked")
                             {
                                 string msg = langKey switch {
-                                    "ru" => $"Карта {cardIdOrLast4} уже заблокирована.",
-                                    "en" => $"Card {cardIdOrLast4} is already blocked.",
-                                    _ => $"{cardIdOrLast4} nömrəli kart artıq bloklanıb."
+                                    "ru" => $"Карта {displayNum} уже заблокирована.",
+                                    "en" => $"Card {displayNum} is already blocked.",
+                                    _ => $"{displayNum} nömrəli kart artıq bloklanıb."
                                 };
                                 systemMessages.Add("ℹ️ " + msg);
                             }
@@ -206,9 +212,9 @@ public class SupportAIService : ISupportAIService
                                 cardToBlock.Status = "Blocked";
                                 dbUpdated = true;
                                 string msg = langKey switch {
-                                    "ru" => $"Карта {cardIdOrLast4} успешно заблокирована.",
-                                    "en" => $"Card {cardIdOrLast4} blocked successfully.",
-                                    _ => $"{cardIdOrLast4} nömrəli kart uğurla bloklandı."
+                                    "ru" => $"Карта {displayNum} успешно заблокирована.",
+                                    "en" => $"Card {displayNum} blocked successfully.",
+                                    _ => $"{displayNum} nömrəli kart uğurla bloklandı."
                                 };
                                 systemMessages.Add("✅ " + msg);
                             }
