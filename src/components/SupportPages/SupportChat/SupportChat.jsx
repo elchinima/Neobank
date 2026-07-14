@@ -44,6 +44,9 @@ function SupportChat() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
   const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false)
+  const [selectedImageBase64, setSelectedImageBase64] = useState(null)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const fileInputRef = useRef(null)
 
   const messagesEndRef = useRef(null)
   const inactivityTimerRef = useRef(null)
@@ -122,12 +125,26 @@ function SupportChat() {
           if (!res.ok) throw new Error('API error')
           const data = await res.json()
           
+          let responseText = data.response
+          let shouldClose = false
+          if (responseText.includes('[CLOSE_CHAT]')) {
+            shouldClose = true
+            responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
+          }
+
           setMessages(prev => [...prev, {
             id: Date.now() + 1,
             sender: 'agent',
-            text: data.response,
+            text: responseText,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }])
+
+          if (shouldClose) {
+            if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+            closeTimerRef.current = setTimeout(() => {
+              setChatStatus('closed')
+            }, 5000)
+          }
         } catch (err) {
           console.error(err)
           fallbackReply(t(supportChatLang, 'agentReply1'))
@@ -158,20 +175,53 @@ function SupportChat() {
     scrollToBottom()
   }, [messages, isTyping])
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds 10MB limit')
+      return
+    }
+
+    setIsUploadingImage(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/Support/upload-image`, {
+        method: 'POST',
+        body: formData
+      })
+      if (!res.ok) throw new Error('Upload failed')
+      const data = await res.json()
+      setSelectedImageBase64(data.imageBase64)
+    } catch (err) {
+      console.error(err)
+      alert('Image upload failed')
+    } finally {
+      setIsUploadingImage(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
   const handleSendMessage = async (e) => {
     e.preventDefault()
-    if (!inputValue.trim() || isTyping) return
+    if ((!inputValue.trim() && !selectedImageBase64) || isTyping || isUploadingImage) return
 
     const userText = inputValue
+    const imgBase64 = selectedImageBase64
     const newMsg = {
       id: Date.now(),
       sender: 'user',
       text: userText,
+      imageBase64: imgBase64,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
     setMessages(prev => [...prev, newMsg])
     setInputValue('')
+    setSelectedImageBase64(null)
     setIsWaiting(true)
     setIsTyping(false)
     const typingTimer = setTimeout(() => setIsTyping(true), 10000)
@@ -188,18 +238,32 @@ function SupportChat() {
       const res = await fetch(`${API_BASE_URL}/Support/chat`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ message: userText, language: chatLanguage, history, agentName })
+        body: JSON.stringify({ message: userText, language: chatLanguage, history, agentName, imageBase64: imgBase64 })
       })
 
       if (!res.ok) throw new Error('API error')
       const data = await res.json()
       
+      let responseText = data.response
+      let shouldClose = false
+      if (responseText.includes('[CLOSE_CHAT]')) {
+        shouldClose = true
+        responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
+      }
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'agent',
-        text: data.response,
+        text: responseText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }])
+
+      if (shouldClose) {
+        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = setTimeout(() => {
+          setChatStatus('closed')
+        }, 5000)
+      }
     } catch (err) {
       console.error(err)
       fallbackReply("Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.")
@@ -239,7 +303,10 @@ function SupportChat() {
           {messages.map((msg) => (
             <div key={msg.id} className={`message-wrapper ${msg.sender === 'user' ? 'message-right' : 'message-left'}`}>
               <div className="message-content">
-                <ReactMarkdown>{msg.text}</ReactMarkdown>
+                {msg.imageBase64 && (
+                  <img src={`data:image/webp;base64,${msg.imageBase64}`} alt="Uploaded" className="chat-msg-image" />
+                )}
+                {msg.text && <ReactMarkdown>{msg.text}</ReactMarkdown>}
                 <span className="message-time">{msg.time}</span>
               </div>
             </div>
@@ -257,22 +324,42 @@ function SupportChat() {
         </div>
 
         {chatStatus !== 'closed' ? (
-          <form className="support-chat-input" onSubmit={handleSendMessage}>
-            <input
-              type="text"
-              placeholder={t(supportChatLang, 'inputPlaceholder')}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              maxLength={1000}
-              disabled={isWaiting || isTyping}
-            />
-            <button type="submit" className="send-btn" disabled={!inputValue.trim() || isWaiting || isTyping} aria-label={t(supportChatLang, 'send')}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
-          </form>
+          <div className="support-chat-input-wrapper">
+            {selectedImageBase64 && (
+              <div className="image-preview-container">
+                <img src={`data:image/webp;base64,${selectedImageBase64}`} alt="Preview" />
+                <button type="button" onClick={() => setSelectedImageBase64(null)}>×</button>
+              </div>
+            )}
+            <form className="support-chat-input" onSubmit={handleSendMessage}>
+              <button type="button" className="attach-btn" onClick={() => fileInputRef.current?.click()} disabled={isWaiting || isTyping || isUploadingImage}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{display: 'none'}} 
+                accept=".jpg,.jpeg,.png" 
+                onChange={handleImageUpload} 
+              />
+              <input
+                type="text"
+                placeholder={isUploadingImage ? 'Uploading...' : t(supportChatLang, 'inputPlaceholder')}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                maxLength={1000}
+                disabled={isWaiting || isTyping || isUploadingImage}
+              />
+              <button type="submit" className="send-btn" disabled={(!inputValue.trim() && !selectedImageBase64) || isWaiting || isTyping || isUploadingImage} aria-label={t(supportChatLang, 'send')}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </form>
+          </div>
         ) : (
           <div className="support-chat-rating-container">
             {isFeedbackSubmitted ? (
