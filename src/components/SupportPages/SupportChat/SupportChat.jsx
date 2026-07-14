@@ -38,7 +38,16 @@ function SupportChat() {
   const [isTyping, setIsTyping] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [isAgentConnected, setIsAgentConnected] = useState(false)
+  
+  const [chatStatus, setChatStatus] = useState('active') // 'active', 'warning', 'closed'
+  const [rating, setRating] = useState(0)
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false)
+
   const messagesEndRef = useRef(null)
+  const inactivityTimerRef = useRef(null)
+  const closeTimerRef = useRef(null)
 
   // Delay agent connection appearance
   useEffect(() => {
@@ -48,6 +57,41 @@ function SupportChat() {
 
     return () => clearTimeout(connectionTimer)
   }, [])
+
+  // Inactivity timeout logic
+  useEffect(() => {
+    if (chatStatus === 'closed') return;
+    
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.isWarning) {
+       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+       closeTimerRef.current = setTimeout(() => {
+          setChatStatus('closed')
+       }, 60000)
+       return;
+    }
+
+    if (chatStatus === 'warning') setChatStatus('active');
+    
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    
+    inactivityTimerRef.current = setTimeout(() => {
+      setChatStatus('warning')
+      setMessages(prev => [...prev, {
+        id: Date.now() + Math.random(),
+        sender: 'agent',
+        isWarning: true,
+        text: t(supportChatLang, 'inactivityWarning'),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }])
+    }, 300000) // 5 minutes
+
+    return () => {
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    }
+  }, [messages, chatStatus, t])
 
   // Process initial message
   useEffect(() => {
@@ -172,13 +216,16 @@ function SupportChat() {
         <div className="support-chat-header">
           <div className="agent-info">
             <div className="agent-avatar">
-              <span>NB</span>
+              {isAgentConnected ? (
+                <img src={supportChatIcon} alt="Agent Profile" className="support-badge-icon" />
+              ) : (
+                <span>NB</span>
+              )}
               <div className="online-indicator"></div>
             </div>
             <div className="agent-details">
               <h2 className="agent-name-row">
                 {isAgentConnected ? agentName : t(supportChatLang, 'connecting')}
-                {isAgentConnected && <img src={supportChatIcon} alt="Support Agent" className="support-badge-icon" />}
               </h2>
               <p>{isAgentConnected ? t(supportChatLang, 'online') : t(supportChatLang, 'pleaseWait')}</p>
             </div>
@@ -209,22 +256,52 @@ function SupportChat() {
           <div ref={messagesEndRef} />
         </div>
 
-        <form className="support-chat-input" onSubmit={handleSendMessage}>
-          <input
-            type="text"
-            placeholder={t(supportChatLang, 'inputPlaceholder')}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            maxLength={1000}
-            disabled={isWaiting || isTyping}
-          />
-          <button type="submit" className="send-btn" disabled={!inputValue.trim() || isWaiting || isTyping} aria-label={t(supportChatLang, 'send')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
-          </button>
-        </form>
+        {chatStatus !== 'closed' ? (
+          <form className="support-chat-input" onSubmit={handleSendMessage}>
+            <input
+              type="text"
+              placeholder={t(supportChatLang, 'inputPlaceholder')}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              maxLength={1000}
+              disabled={isWaiting || isTyping}
+            />
+            <button type="submit" className="send-btn" disabled={!inputValue.trim() || isWaiting || isTyping} aria-label={t(supportChatLang, 'send')}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+        ) : (
+          <div className="support-chat-rating-container">
+            {isFeedbackSubmitted ? (
+              <p className="feedback-thanks">{t(supportChatLang, 'feedbackThanks')}</p>
+            ) : (
+              <>
+                <p className="rate-title">{t(supportChatLang, 'rateService')}</p>
+                <div className="stars-container">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className={`star-btn ${rating >= star ? 'active' : ''}`}
+                      onClick={() => {
+                        setRating(star)
+                        if (star < 3) {
+                          setIsFeedbackModalOpen(true)
+                        } else {
+                          setIsFeedbackSubmitted(true)
+                        }
+                      }}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {isCloseModalOpen && (
@@ -238,6 +315,29 @@ function SupportChat() {
               </button>
               <button className="confirm-btn" onClick={() => navigate('/support')}>
                 {t(supportChatLang, 'modalYes')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isFeedbackModalOpen && (
+        <div className="support-chat-modal-overlay" onClick={() => setIsFeedbackModalOpen(false)}>
+          <div className="support-chat-modal feedback-modal" onClick={e => e.stopPropagation()}>
+            <h3>{t(supportChatLang, 'feedbackModalTitle')}</h3>
+            <textarea
+              className="feedback-textarea"
+              placeholder={t(supportChatLang, 'feedbackPlaceholder')}
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={4}
+            />
+            <div className="support-chat-modal-actions">
+              <button className="confirm-btn" onClick={() => {
+                setIsFeedbackModalOpen(false)
+                setIsFeedbackSubmitted(true)
+              }}>
+                {t(supportChatLang, 'submitFeedback')}
               </button>
             </div>
           </div>

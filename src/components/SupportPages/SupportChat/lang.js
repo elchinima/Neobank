@@ -14,7 +14,13 @@ export const supportChatLang = {
     defaultUser: 'User',
     send: 'Send',
     connecting: 'Connecting...',
-    pleaseWait: 'Please wait'
+    pleaseWait: 'Please wait',
+    inactivityWarning: 'Can I help you with anything else? If there is no reply within 1 minute, the chat will be closed.',
+    rateService: 'Please rate our service',
+    feedbackModalTitle: 'Please tell us why you gave a low rating',
+    feedbackPlaceholder: 'Describe your issue...',
+    submitFeedback: 'Submit',
+    feedbackThanks: 'Thank you for your feedback!'
   },
   az: {
     agentWelcome: 'Salam! NeoBank dəstək xidmətinə xoş gəlmisiniz. Sizə necə kömək edə bilərəm?',
@@ -31,7 +37,13 @@ export const supportChatLang = {
     defaultUser: 'İstifadəçi',
     send: 'Göndər',
     connecting: 'Qoşulur...',
-    pleaseWait: 'Zəhmət olmasa gözləyin'
+    pleaseWait: 'Zəhmət olmasa gözləyin',
+    inactivityWarning: 'Sizə başqa necə kömək edə bilərəm? Əgər 1 dəqiqə ərzində cavab verilməsə, söhbət bağlanacaq.',
+    rateService: 'Zəhmət olmasa xidmətimizi qiymətləndirin',
+    feedbackModalTitle: 'Zəhmət olmasa aşağı qiymətləndirmənin səbəbini qeyd edin',
+    feedbackPlaceholder: 'Probleminizi təsvir edin...',
+    submitFeedback: 'Göndər',
+    feedbackThanks: 'Rəyiniz üçün təşəkkürlər!'
   },
   ru: {
     agentWelcome: 'Здравствуйте! Добро пожаловать в службу поддержки NeoBank. Чем могу помочь?',
@@ -48,6 +60,12 @@ export const supportChatLang = {
     defaultUser: 'Пользователь',
     send: 'Отправить',
     connecting: 'Подключение...',
-    pleaseWait: 'Пожалуйста, подождите'
+    pleaseWait: 'Пожалуйста, подождите',
+    inactivityWarning: 'Могу ли я вам ещё чем-то помочь? Если ответ не поступит в течении 1-ой минуты чат будет закрыт.',
+    rateService: 'Пожалуйста, оцените наш сервис',
+    feedbackModalTitle: 'Пожалуйста, укажите причину низкой оценки',
+    feedbackPlaceholder: 'Опишите вашу проблему...',
+    submitFeedback: 'Отправить',
+    feedbackThanks: 'Спасибо за ваш отзыв!'
   }
 }
