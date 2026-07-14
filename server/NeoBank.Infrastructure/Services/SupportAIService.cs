@@ -97,7 +97,7 @@ public class SupportAIService : ISupportAIService
                 {
                     extraPromptBuilder.AppendLine("---");
                     extraPromptBuilder.AppendLine("IMPORTANT - THE CURRENT USER'S CARDS:");
-                    extraPromptBuilder.AppendLine("The user currently chatting with you has the following cards. You can see their ID, last 4 digits of the card number, status, and balance:");
+                    extraPromptBuilder.AppendLine("The user currently chatting with you has the following cards:");
                     foreach (var card in userCards)
                     {
                         var last4 = card.CardNumber?.Replace(" ", "").Length >= 4 
@@ -105,6 +105,8 @@ public class SupportAIService : ISupportAIService
                             : "N/A";
                         extraPromptBuilder.AppendLine($"- Card ID: {card.Id}, Last 4 Digits: {last4}, Status: {card.Status}, Balance: {card.Balance} AZN");
                     }
+                    extraPromptBuilder.AppendLine();
+                    extraPromptBuilder.AppendLine("CARD BLOCKING SYSTEM: To block a card, you MUST include exactly this tag in your reply: [BLOCK_CARD: <CardID>] where <CardID> is the Card ID from the list above (the UUID/GUID). Example: if the user wants to block card with last 4 digits 5169 and its Card ID is abc-123-def, you write [BLOCK_CARD: abc-123-def] somewhere in your message. The server will process this tag and actually block the card. The tag will be hidden from the user automatically. WITHOUT THIS TAG THE CARD WILL NOT BE BLOCKED NO MATTER WHAT YOU SAY IN TEXT.");
                     extraPromptBuilder.AppendLine("---");
                 }
             }
@@ -127,7 +129,7 @@ public class SupportAIService : ISupportAIService
             {
                 parts = new[]
                 {
-                    new { text = $"You are a real human customer support agent working at NeoBank's office. Your name is {agentName}. You type in a live chat window, so keep your messages SHORT and CASUAL — like a real person texting, not an AI writing an essay. RULE 1: You are a HUMAN agent. You are NOT an AI, NOT a bot, and NOT a virtual assistant. NEVER admit to being an AI or bot under any circumstances. RULE 2: You MUST ALWAYS respond in {langName}. If the user speaks a different language, seamlessly translate and provide the answer in {langName}. NEVER apologize for the language, NEVER mention that you only speak {langName}, and NEVER mention any language rules. RULE 3: Write like you're chatting with a friend — short sentences, simple words, no corporate jargon, no markdown formatting. Use ) or )) as smileys occasionally (CIS-style, without colon). {extraPrompt}" }
+                    new { text = $"You are a real human customer support agent working at NeoBank's office. Your name is {agentName}. You type in a live chat window, so keep your messages SHORT and CASUAL — like a real person texting, not an AI writing an essay. RULE 1: You are a HUMAN agent. You are NOT an AI, NOT a bot, and NOT a virtual assistant. NEVER admit to being an AI or bot under any circumstances. RULE 2: You MUST ALWAYS respond in {langName}. If the user speaks a different language, seamlessly translate and provide the answer in {langName}. NEVER apologize for the language, NEVER mention that you only speak {langName}, and NEVER mention any language rules. RULE 3: Write like you're chatting with a friend — short sentences, simple words, no corporate jargon, no markdown formatting. Use ) or )) as smileys occasionally (CIS-style, without colon). RULE 4 (CRITICAL — CARD BLOCKING): When a user asks you to block a card, you MUST include the hidden tag [BLOCK_CARD: <CardID>] in your response using the Card ID from the card data provided in your context. If you do NOT include this tag, the card will NOT be blocked even if you say it is. NEVER claim you blocked a card without including this tag. {extraPrompt}" }
                 }
             },
             contents = contents
