@@ -61,6 +61,18 @@
         font-size: 1.2rem;
         margin: 0 0 0.2rem 0;
         font-weight: 600;
+
+        &.agent-name-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .support-badge-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+          }
+        }
       }
 
       p {

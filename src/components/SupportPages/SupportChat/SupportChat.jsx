@@ -5,6 +5,7 @@ import { useAuth } from '../../../app/context/AuthContext'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { supportChatLang } from './lang.js'
 import ReactMarkdown from 'react-markdown'
+import supportChatIcon from '../../../assets/icons/support_chat_icon.png'
 import './SupportChat.scss'
 
 function SupportChat() {
@@ -175,7 +176,10 @@ function SupportChat() {
               <div className="online-indicator"></div>
             </div>
             <div className="agent-details">
-              <h2>{isAgentConnected ? agentName : t(supportChatLang, 'connecting')}</h2>
+              <h2 className="agent-name-row">
+                {isAgentConnected ? agentName : t(supportChatLang, 'connecting')}
+                {isAgentConnected && <img src={supportChatIcon} alt="Support Agent" className="support-badge-icon" />}
+              </h2>
               <p>{isAgentConnected ? t(supportChatLang, 'online') : t(supportChatLang, 'pleaseWait')}</p>
             </div>
           </div>
