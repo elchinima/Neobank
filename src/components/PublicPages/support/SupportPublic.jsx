@@ -216,32 +216,16 @@ function SupportPublic() {
             <p className="support-modal__subtitle" data-lang-key="createTicketDesc">{t(supportLang, 'createTicketDesc')}</p>
 
             <form onSubmit={handleFormSubmit} className="support-modal__form">
-              <div className="support-modal__group">
-                <label data-lang-key="yourName">{t(supportLang, 'yourName')}</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isAuthenticated}
-                />
-              </div>
-
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div className="support-modal__group" style={{ flex: 1 }}>
-                  <label data-lang-key="category">{t(supportLang, 'category')}</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                  <label data-lang-key="yourName">{t(supportLang, 'yourName')}</label>
+                  <input
+                    type="text"
                     required
-                  >
-                    <option value="" disabled data-lang-key="selectCategory">{t(supportLang, 'selectCategory')}</option>
-                    <option value="account" data-lang-key="catAccount">{t(supportLang, 'catAccount')}</option>
-                    <option value="cards" data-lang-key="catCards">{t(supportLang, 'catCards')}</option>
-                    <option value="transactions" data-lang-key="catTransactions">{t(supportLang, 'catTransactions')}</option>
-                    <option value="loans" data-lang-key="catLoans">{t(supportLang, 'catLoans')}</option>
-                    <option value="other" data-lang-key="catOther">{t(supportLang, 'catOther')}</option>
-                  </select>
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    disabled={isAuthenticated}
+                  />
                 </div>
 
                 <div className="support-modal__group" style={{ flex: 1 }}>

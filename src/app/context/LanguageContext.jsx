@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 const LanguageContext = createContext()
 
@@ -15,7 +15,7 @@ export function LanguageProvider({ children }) {
     setLangState(newLang)
   }
 
-  const t = (dict, key) => {
+  const t = useCallback((dict, key) => {
     if (!dict) return key
     if (dict[lang] && dict[lang][key] !== undefined) {
       return dict[lang][key]
@@ -24,7 +24,7 @@ export function LanguageProvider({ children }) {
       return dict.en[key]
     }
     return key
-  }
+  }, [lang])
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

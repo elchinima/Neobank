@@ -21,7 +21,16 @@ function SupportChat() {
   const [chatLanguage, setChatLanguage] = useState(location.state?.chatLanguage || 'az')
 
   const [agentName, setAgentName] = useState(() => {
-    const names = ["Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil"];
+    const names = [
+      "Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil", 
+      "Elvin", "Orxan", "Vüqar", "Anar", "Samir", "Ramin", 
+      "Fərid", "İlkin", "Emin", "Nurlan", "Ruslan", "Zaur", 
+      "Ceyhun", "Cavid", "Elşən", "Rüstəm", "Murad", "Taleh", 
+      "Elgün", "Vüsal", "Elnur", "Tərlan", "Azər", "Günel", 
+      "Sevinc", "Nərmin", "Aytən", "Vüsalə", "Fidan", "Aynur", 
+      "Səbinə", "Nigar", "Gülnar", "Lalə", "Xəyalə", "Şəbnəm", 
+      "Zəhra", "Zeynəb", "Aytac", "Nuranə", "Gülşən", "Türkan"
+    ];
     return names[Math.floor(Math.random() * names.length)];
   });
 
@@ -92,25 +101,13 @@ function SupportChat() {
     })
 
     newConnection.on('ReceiveMessage', (msg) => {
-      let responseText = msg.text
-      let shouldClose = false
-      if (responseText && responseText.includes('[CLOSE_CHAT]')) {
-        shouldClose = true
-        responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
-        msg.text = responseText
-      }
-
       setMessages(prev => [...prev, msg])
       setIsWaiting(false)
       setIsTyping(false)
 
-      if (shouldClose) {
-        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-        closeTimerRef.current = setTimeout(() => {
+      if (msg.shouldClose) {
+        setTimeout(() => {
           setChatStatus('closed')
-          if (connectionRef.current && connectionRef.current.state === 'Connected') {
-            connectionRef.current.invoke('CloseChat')
-          }
         }, 2000)
       }
     })
@@ -135,7 +132,7 @@ function SupportChat() {
            window.history.replaceState({}, document.title)
            setIsWaiting(true)
            setIsTyping(false)
-           setTimeout(() => setIsTyping(true), 2000)
+           setTimeout(() => setIsTyping(true), 10000)
         } else {
            newConnection.invoke('JoinChat', null, chatLanguage, agentName)
         }
@@ -153,33 +150,31 @@ function SupportChat() {
   useEffect(() => {
     if (chatStatus === 'closed') return;
     
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.isWarning) {
-       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
        closeTimerRef.current = setTimeout(() => {
           setChatStatus('closed')
           if (connectionRef.current && connectionRef.current.state === 'Connected') {
             connectionRef.current.invoke('CloseChat')
           }
        }, 60000)
-       return;
+    } else {
+       if (chatStatus === 'warning') setChatStatus('active');
+       
+       inactivityTimerRef.current = setTimeout(() => {
+         setChatStatus('warning')
+         setMessages(prev => [...prev, {
+           id: Date.now() + Math.random(),
+           sender: 'agent',
+           isWarning: true,
+           text: t(supportChatLang, 'inactivityWarning'),
+           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+         }])
+       }, 300000) // 5 minutes
     }
-
-    if (chatStatus === 'warning') setChatStatus('active');
-    
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-    
-    inactivityTimerRef.current = setTimeout(() => {
-      setChatStatus('warning')
-      setMessages(prev => [...prev, {
-        id: Date.now() + Math.random(),
-        sender: 'agent',
-        isWarning: true,
-        text: t(supportChatLang, 'inactivityWarning'),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }])
-    }, 300000) // 5 minutes
 
     return () => {
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
@@ -253,7 +248,7 @@ function SupportChat() {
     setSelectedImageBase64(null)
     setIsWaiting(true)
     setIsTyping(false)
-    const typingTimer = setTimeout(() => setIsTyping(true), 2000)
+    const typingTimer = setTimeout(() => setIsTyping(true), 10000)
 
     try {
       if (connectionRef.current && connectionRef.current.state === 'Connected') {
@@ -373,7 +368,7 @@ function SupportChat() {
                       className={`star-btn ${rating >= star ? 'active' : ''}`}
                       onClick={() => {
                         setRating(star)
-                        if (star < 3) {
+                        if (star <= 3) {
                           setIsFeedbackModalOpen(true)
                         } else {
                           setIsFeedbackSubmitted(true)

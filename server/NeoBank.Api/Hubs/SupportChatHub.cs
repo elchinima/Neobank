@@ -142,12 +142,27 @@ public class SupportChatHub : Hub
     {
         try
         {
+            var startTime = DateTime.UtcNow;
+
             var history = activeChat.Chat
                 .Where(c => c.Sender == "user" || c.Sender == "model" || c.Sender == "AI")
                 .Select(c => new ChatMessage { Role = c.Sender == "user" ? "user" : "model", Text = c.Text ?? "" })
                 .ToList();
 
             var responseText = await _supportAIService.GetAIResponseAsync(userMessage, language, history, agentName, activeChat.UserId, imageUrl);
+
+            bool shouldClose = false;
+            if (responseText.Contains("[CLOSE_CHAT]"))
+            {
+                shouldClose = true;
+                responseText = responseText.Replace("[CLOSE_CHAT]", "").Trim();
+            }
+
+            var elapsed = DateTime.UtcNow - startTime;
+            if (elapsed.TotalSeconds < 20)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(20) - elapsed);
+            }
 
             var aiMessage = new SupportChatMessage
             {
@@ -157,6 +172,12 @@ public class SupportChatHub : Hub
             };
 
             activeChat.Chat.Add(aiMessage);
+            
+            if (shouldClose)
+            {
+                activeChat.Status = "Closed";
+            }
+            
             await _dbContext.SaveChangesAsync();
 
             await Clients.Caller.SendAsync("ReceiveMessage", new
@@ -164,7 +185,8 @@ public class SupportChatHub : Hub
                 id = Guid.NewGuid().ToString(),
                 sender = "agent",
                 text = responseText,
-                time = aiMessage.Time
+                time = aiMessage.Time,
+                shouldClose = shouldClose
             });
         }
         catch (Exception ex)

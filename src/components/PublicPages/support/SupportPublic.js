@@ -26,9 +26,12 @@ export function useSupportPublic() {
       fetch(`${API_BASE_URL}/Support/chat/active`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.hasActiveChat) setHasActiveChat(true)
+      .then(res => {
+        if (res.ok) {
+          setHasActiveChat(true)
+        } else {
+          setHasActiveChat(false)
+        }
       })
       .catch(console.error)
     }
