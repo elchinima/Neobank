@@ -258,10 +258,11 @@
   }
 
   .chat-msg-image {
-    max-width: 50%;
+    max-width: 280px;
+    width: 100%;
     height: auto;
-    border-radius: 8px;
-    margin-bottom: 8px;
+    border-radius: 12px;
+    margin-bottom: 12px;
     display: block;
   }
 }

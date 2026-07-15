@@ -11,6 +11,8 @@ public class SupportChat
     
     public string Status { get; set; } = "Active"; // "Active" or "Closed"
     
+    public string AgentName { get; set; } = "Agent";
+
     public DateTime Created { get; set; } = DateTime.UtcNow.AddHours(4);
 
     public ICollection<SupportChatReview> Review { get; set; } = new List<SupportChatReview>();

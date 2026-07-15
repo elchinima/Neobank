@@ -42,6 +42,7 @@ public class SupportChatHub : Hub
             activeChat = new SupportChat
             {
                 UserId = userId,
+                AgentName = agentName ?? "Agent",
                 Created = DateTime.UtcNow.AddHours(4)
             };
 
@@ -64,10 +65,21 @@ public class SupportChatHub : Hub
                 time = m.Time
             }).ToList());
 
-            await ProcessAIResponse(activeChat, initialMessage, language, agentName ?? "Agent", null);
+            await Clients.Caller.SendAsync("ChatJoined", activeChat.AgentName);
+            await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
+            {
+                id = Guid.NewGuid().ToString(),
+                sender = m.Sender == "user" ? "user" : "agent",
+                text = m.Text,
+                imageBase64 = m.ImagePath,
+                time = m.Time
+            }).ToList());
+            
+            await ProcessAIResponse(activeChat, initialMessage, language, activeChat.AgentName, null);
         }
         else
         {
+            await Clients.Caller.SendAsync("ChatJoined", activeChat.AgentName);
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),

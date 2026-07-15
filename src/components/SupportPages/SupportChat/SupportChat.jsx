@@ -20,7 +20,7 @@ function SupportChat() {
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
   const chatLanguage = location.state?.chatLanguage || 'az'
 
-  const [agentName] = useState(() => {
+  const [agentName, setAgentName] = useState(() => {
     const names = ["Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil"];
     return names[Math.floor(Math.random() * names.length)];
   });
@@ -74,6 +74,12 @@ function SupportChat() {
       }
     })
 
+    newConnection.on('ChatJoined', (serverAgentName) => {
+      if (serverAgentName) {
+        setAgentName(serverAgentName)
+      }
+    })
+
     newConnection.on('ReceiveMessage', (msg) => {
       let responseText = msg.text
       let shouldClose = false
@@ -111,6 +117,8 @@ function SupportChat() {
         setIsAgentConnected(true)
         if (initialMessage) {
            newConnection.invoke('JoinChat', initialMessage, chatLanguage, agentName)
+           // clear state so a refresh doesn't trigger initial message again
+           window.history.replaceState({}, document.title)
            setIsWaiting(true)
            setIsTyping(false)
            setTimeout(() => setIsTyping(true), 2000)

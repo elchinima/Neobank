@@ -104,7 +104,7 @@ function SupportPublic() {
                   className="support-page__button support-page__button--primary"
                   data-lang-key="enterChat"
                 >
-                  Enter Chat
+                  {t(supportLang, 'enterChat')}
                 </button>
               ) : (
                 <button
@@ -192,7 +192,7 @@ function SupportPublic() {
                   className="support-page__button support-page__button--primary"
                   data-lang-key="enterChat"
                 >
-                  Enter Chat
+                  {t(supportLang, 'enterChat')}
                 </button>
               ) : (
                 <button
