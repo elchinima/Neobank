@@ -24,7 +24,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<EmailVerificationCode> EmailVerificationCodes { get; set; } = null!;
     public DbSet<PublicPageSetting> PublicPageSettings { get; set; } = null!;
     public DbSet<FooterSetting> FooterSettings { get; set; } = null!;
-
+    public DbSet<SupportChat> SupportChats { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -183,6 +183,28 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 new FooterSetting { Id = 6, Category = "Social", Key = "LinkedIn", Value = "LinkedIn", Url = "https://www.linkedin.com/" },
                 new FooterSetting { Id = 7, Category = "Social", Key = "Instagram", Value = "Instagram", Url = "https://www.instagram.com/" }
             );
+        });
+
+        builder.Entity<SupportChat>(entity =>
+        {
+            entity.ToTable("SupportChats");
+            entity.HasKey(c => c.Id);
+            entity.HasIndex(c => c.UserId);
+
+            entity.HasOne(c => c.User)
+                  .WithMany()
+                  .HasForeignKey(c => c.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.OwnsMany(c => c.Review, r => 
+            { 
+                r.ToJson(); 
+            });
+
+            entity.OwnsMany(c => c.Chat, c => 
+            { 
+                c.ToJson(); 
+            });
         });
     }
 }

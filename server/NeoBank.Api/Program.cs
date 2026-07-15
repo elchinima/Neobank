@@ -61,6 +61,7 @@ builder.Services.AddScoped<IAvatarProcessingService, AvatarProcessingService>();
 builder.Services.AddScoped<ISupportAIService, SupportAIService>();
 
 builder.Services.AddHostedService<MonthlyResetService>();
+builder.Services.AddHostedService<SupportChatCleanupService>();
 
 
 var secretKey = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
