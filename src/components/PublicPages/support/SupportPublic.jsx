@@ -38,6 +38,8 @@ function SupportPublic() {
     message,
     setMessage,
     handleFormSubmit,
+    hasActiveChat,
+    handleOpenChat,
   } = useSupportPublic()
 
   useEffect(() => {
@@ -96,13 +98,23 @@ function SupportPublic() {
             <h1 id="support-title" data-lang-key="heroTitle">{t(supportLang, 'heroTitle')}</h1>
 
             <div className="support-page__hero-actions">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="support-page__button support-page__button--primary"
-                data-lang-key="openTicket"
-              >
-                {t(supportLang, 'openTicket')}
-              </button>
+              {hasActiveChat ? (
+                <button
+                  onClick={handleOpenChat}
+                  className="support-page__button support-page__button--primary"
+                  data-lang-key="enterChat"
+                >
+                  Enter Chat
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="support-page__button support-page__button--primary"
+                  data-lang-key="openTicket"
+                >
+                  {t(supportLang, 'openTicket')}
+                </button>
+              )}
             </div>
 
             {hasBanner && (
@@ -174,13 +186,23 @@ function SupportPublic() {
             <div className="support-page__cta-inner">
               <p className="support-page__eyebrow" data-lang-key="ctaEyebrow">{t(supportLang, 'ctaEyebrow')}</p>
               <h2 data-lang-key="ctaTitle">{t(supportLang, 'ctaTitle')}</h2>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="support-page__button support-page__button--primary"
-                data-lang-key="submitTicket"
-              >
-                {t(supportLang, 'submitTicket')}
-              </button>
+              {hasActiveChat ? (
+                <button
+                  onClick={handleOpenChat}
+                  className="support-page__button support-page__button--primary"
+                  data-lang-key="enterChat"
+                >
+                  Enter Chat
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="support-page__button support-page__button--primary"
+                  data-lang-key="submitTicket"
+                >
+                  {t(supportLang, 'submitTicket')}
+                </button>
+              )}
             </div>
           </section>
         </section>

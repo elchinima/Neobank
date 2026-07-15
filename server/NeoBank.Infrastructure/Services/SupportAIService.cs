@@ -124,7 +124,25 @@ public class SupportAIService : ISupportAIService
         var userParts = new List<object> { new { text = message } };
         if (!string.IsNullOrEmpty(imageBase64))
         {
-            userParts.Add(new { inlineData = new { mimeType = "image/webp", data = imageBase64 } });
+            string actualBase64 = imageBase64;
+            if (imageBase64.StartsWith("http://") || imageBase64.StartsWith("https://"))
+            {
+                try 
+                {
+                    var imageBytes = await _httpClient.GetByteArrayAsync(imageBase64);
+                    actualBase64 = Convert.ToBase64String(imageBytes);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to download image from URL for AI processing.");
+                }
+            }
+            
+            // Only add if it's likely a valid base64 (not a failed url download string)
+            if (!actualBase64.StartsWith("http"))
+            {
+                userParts.Add(new { inlineData = new { mimeType = "image/webp", data = actualBase64 } });
+            }
         }
         contents.Add(new { role = "user", parts = userParts.ToArray() });
 

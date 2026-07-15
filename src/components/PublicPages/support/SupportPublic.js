@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../app/context/AuthContext'
 
+import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
+
 export function useSupportPublic() {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, user, token } = useAuth()
+  const [hasActiveChat, setHasActiveChat] = useState(false)
   
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
@@ -17,6 +20,19 @@ export function useSupportPublic() {
       }
     }
   }, [isAuthenticated, user])
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetch(`${API_BASE_URL}/Support/chat/active`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.hasActiveChat) setHasActiveChat(true)
+      })
+      .catch(console.error)
+    }
+  }, [isAuthenticated, token])
 
   const [category, setCategory] = useState('General Information')
   const [chatLanguage, setChatLanguage] = useState('az')
@@ -34,6 +50,10 @@ export function useSupportPublic() {
     setMessage('')
   }
 
+  const handleOpenChat = () => {
+    navigate('/support/chat')
+  }
+
   return {
     isModalOpen,
     setIsModalOpen,
@@ -46,5 +66,7 @@ export function useSupportPublic() {
     message,
     setMessage,
     handleFormSubmit,
+    hasActiveChat,
+    handleOpenChat,
   }
 }

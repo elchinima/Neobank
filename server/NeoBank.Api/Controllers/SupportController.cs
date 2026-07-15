@@ -107,7 +107,7 @@ public class SupportController : ControllerBase
             Sender = "User",
             Text = request.Message,
             ImagePath = request.ImageBase64,
-            Time = DateTime.UtcNow.ToString("HH:mm")
+            Time = DateTime.UtcNow.AddHours(4).ToString("HH:mm")
         };
         supportChat.Chat.Add(userMsg);
         
@@ -120,7 +120,7 @@ public class SupportController : ControllerBase
             Sender = "AI",
             Text = response,
             ImagePath = null,
-            Time = DateTime.UtcNow.ToString("HH:mm")
+            Time = DateTime.UtcNow.AddHours(4).ToString("HH:mm")
         };
         supportChat.Chat.Add(aiMsg);
 

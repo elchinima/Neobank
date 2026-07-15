@@ -12,6 +12,7 @@ using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
 using NeoBank.Infrastructure.Data;
 using NeoBank.Infrastructure.Services;
+using NeoBank.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,7 @@ builder.Services.AddScoped<ISupportAIService, SupportAIService>();
 
 builder.Services.AddHostedService<MonthlyResetService>();
 builder.Services.AddHostedService<SupportChatCleanupService>();
+builder.Services.AddSignalR();
 
 
 var secretKey = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
@@ -100,6 +102,16 @@ builder.Services.AddAuthentication(options =>
                     context.Fail("User account is disabled.");
                 }
             }
+        },
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/supportHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
         }
     };
 });
@@ -115,6 +127,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -233,6 +247,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<SupportChatHub>("/api/supportHub");
 app.MapFallbackToFile("index.html");
 
 app.Run();

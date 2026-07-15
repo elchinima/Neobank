@@ -55,7 +55,7 @@ public class SupportChatCleanupService : BackgroundService
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // 1 day
-        var thresholdDate = DateTime.UtcNow.AddDays(-1);
+        var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-1);
 
         var oldChats = await dbContext.SupportChats
             .Where(c => c.Created < thresholdDate)

@@ -7,6 +7,7 @@ import { supportChatLang } from './lang.js'
 import ReactMarkdown from 'react-markdown'
 import supportChatIcon from '../../../assets/icons/support_chat_icon.png'
 import './SupportChat.scss'
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
 function SupportChat() {
   const { t } = useLanguage()
@@ -24,14 +25,7 @@ function SupportChat() {
     return names[Math.floor(Math.random() * names.length)];
   });
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'agent',
-      text: t(supportChatLang, 'agentWelcome'),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ])
+  const [messages, setMessages] = useState([])
   
   const [inputValue, setInputValue] = useState('')
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false)
@@ -51,15 +45,87 @@ function SupportChat() {
   const messagesEndRef = useRef(null)
   const inactivityTimerRef = useRef(null)
   const closeTimerRef = useRef(null)
+  const connectionRef = useRef(null)
 
-  // Delay agent connection appearance
+  // Initialize SignalR Connection
   useEffect(() => {
-    const connectionTimer = setTimeout(() => {
-      setIsAgentConnected(true)
-    }, 10000)
+    if (!token) return
 
-    return () => clearTimeout(connectionTimer)
-  }, [])
+    const hubUrl = `${API_BASE_URL.replace('/api', '')}/api/supportHub`
+    const newConnection = new HubConnectionBuilder()
+      .withUrl(`${hubUrl}?access_token=${token}`)
+      .configureLogging(LogLevel.Information)
+      .withAutomaticReconnect()
+      .build()
+
+    newConnection.on('ReceiveHistory', (historyMessages) => {
+      if (historyMessages && historyMessages.length > 0) {
+        setMessages(historyMessages)
+      } else {
+        // First time
+        setMessages([
+          {
+            id: 1,
+            sender: 'agent',
+            text: t(supportChatLang, 'agentWelcome'),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ])
+      }
+    })
+
+    newConnection.on('ReceiveMessage', (msg) => {
+      let responseText = msg.text
+      let shouldClose = false
+      if (responseText && responseText.includes('[CLOSE_CHAT]')) {
+        shouldClose = true
+        responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
+        msg.text = responseText
+      }
+
+      setMessages(prev => [...prev, msg])
+      setIsWaiting(false)
+      setIsTyping(false)
+
+      if (shouldClose) {
+        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+        closeTimerRef.current = setTimeout(() => {
+          setChatStatus('closed')
+        }, 2000)
+      }
+    })
+
+    newConnection.on('MessageConfirmed', (msg) => {
+       // Optional: handle confirmation of sent message
+    })
+
+    newConnection.on('ChatError', (errorMsg) => {
+      console.error(errorMsg)
+      fallbackReply(errorMsg)
+      setIsWaiting(false)
+      setIsTyping(false)
+    })
+
+    newConnection.start()
+      .then(() => {
+        setIsAgentConnected(true)
+        if (initialMessage) {
+           newConnection.invoke('JoinChat', initialMessage, chatLanguage, agentName)
+           setIsWaiting(true)
+           setIsTyping(false)
+           setTimeout(() => setIsTyping(true), 2000)
+        } else {
+           newConnection.invoke('JoinChat', null, chatLanguage, agentName)
+        }
+      })
+      .catch(console.error)
+
+    connectionRef.current = newConnection
+
+    return () => {
+      newConnection.stop()
+    }
+  }, [token]) // Run once when token is ready
 
   // Inactivity timeout logic
   useEffect(() => {
@@ -95,68 +161,6 @@ function SupportChat() {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
     }
   }, [messages, chatStatus, t])
-
-  // Process initial message
-  useEffect(() => {
-    if (initialMessage) {
-      const processInitial = async () => {
-        const newUserMsg = {
-          id: Date.now(),
-          sender: 'user',
-          text: initialMessage,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-        setMessages(prev => [...prev, newUserMsg])
-        setIsWaiting(true)
-        setIsTyping(false)
-        const typingTimer = setTimeout(() => setIsTyping(true), 10000)
-
-        try {
-          const history = [{ role: 'model', text: t(supportChatLang, 'agentWelcome') }]
-          const headers = { 'Content-Type': 'application/json' }
-          if (token) headers['Authorization'] = `Bearer ${token}`
-
-          const res = await fetch(`${API_BASE_URL}/Support/chat`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ message: initialMessage, language: chatLanguage, history, agentName })
-          })
-
-          if (!res.ok) throw new Error('API error')
-          const data = await res.json()
-          
-          let responseText = data.response
-          let shouldClose = false
-          if (responseText.includes('[CLOSE_CHAT]')) {
-            shouldClose = true
-            responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
-          }
-
-          setMessages(prev => [...prev, {
-            id: Date.now() + 1,
-            sender: 'agent',
-            text: responseText,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }])
-
-          if (shouldClose) {
-            if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-            closeTimerRef.current = setTimeout(() => {
-              setChatStatus('closed')
-            }, 5000)
-          }
-        } catch (err) {
-          console.error(err)
-          fallbackReply(t(supportChatLang, 'agentReply1'))
-        } finally {
-          clearTimeout(typingTimer)
-          setIsWaiting(false)
-          setIsTyping(false)
-        }
-      }
-      processInitial()
-    }
-  }, [initialMessage, t])
 
   const fallbackReply = (text) => {
     setMessages(prev => [...prev, {
@@ -224,53 +228,23 @@ function SupportChat() {
     setSelectedImageBase64(null)
     setIsWaiting(true)
     setIsTyping(false)
-    const typingTimer = setTimeout(() => setIsTyping(true), 10000)
+    const typingTimer = setTimeout(() => setIsTyping(true), 2000)
 
     try {
-      const history = messages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'model',
-        text: m.text
-      }))
-
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
-
-      const res = await fetch(`${API_BASE_URL}/Support/chat`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ message: userText, language: chatLanguage, history, agentName, imageBase64: imgBase64 })
-      })
-
-      if (!res.ok) throw new Error('API error')
-      const data = await res.json()
-      
-      let responseText = data.response
-      let shouldClose = false
-      if (responseText.includes('[CLOSE_CHAT]')) {
-        shouldClose = true
-        responseText = responseText.replace(/\[CLOSE_CHAT\]/g, '').trim()
-      }
-
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        sender: 'agent',
-        text: responseText,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }])
-
-      if (shouldClose) {
-        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-        closeTimerRef.current = setTimeout(() => {
-          setChatStatus('closed')
-        }, 2000)
+      if (connectionRef.current && connectionRef.current.state === 'Connected') {
+        await connectionRef.current.invoke('SendMessage', userText, imgBase64, chatLanguage, agentName)
+      } else {
+        fallbackReply("Connection is not active. Please refresh.")
+        setIsWaiting(false)
+        setIsTyping(false)
+        clearTimeout(typingTimer)
       }
     } catch (err) {
       console.error(err)
       fallbackReply("Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.")
-    } finally {
-      clearTimeout(typingTimer)
       setIsWaiting(false)
       setIsTyping(false)
+      clearTimeout(typingTimer)
     }
   }
 
@@ -304,7 +278,7 @@ function SupportChat() {
             <div key={msg.id} className={`message-wrapper ${msg.sender === 'user' ? 'message-right' : 'message-left'}`}>
               <div className="message-content">
                 {msg.imageBase64 && (
-                  <img src={`data:image/webp;base64,${msg.imageBase64}`} alt="Uploaded" className="chat-msg-image" />
+                  <img src={msg.imageBase64.startsWith('http') ? msg.imageBase64 : `data:image/webp;base64,${msg.imageBase64}`} alt="Uploaded" className="chat-msg-image" />
                 )}
                 {msg.text && <ReactMarkdown>{msg.text}</ReactMarkdown>}
                 <span className="message-time">{msg.time}</span>
@@ -327,7 +301,7 @@ function SupportChat() {
           <div className="support-chat-input-wrapper">
             {selectedImageBase64 && (
               <div className="image-preview-container">
-                <img src={`data:image/webp;base64,${selectedImageBase64}`} alt="Preview" />
+                <img src={selectedImageBase64.startsWith('http') ? selectedImageBase64 : `data:image/webp;base64,${selectedImageBase64}`} alt="Preview" />
                 <button type="button" onClick={() => setSelectedImageBase64(null)}>×</button>
               </div>
             )}
