@@ -9,6 +9,8 @@ public class SupportChat
     public string UserId { get; set; } = string.Empty;
     public ApplicationUser User { get; set; } = null!;
     
+    public string Status { get; set; } = "Active"; // "Active" or "Closed"
+    
     public DateTime Created { get; set; } = DateTime.UtcNow;
 
     public ICollection<SupportChatReview> Review { get; set; } = new List<SupportChatReview>();

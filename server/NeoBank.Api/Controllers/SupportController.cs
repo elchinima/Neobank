@@ -32,6 +32,32 @@ public class SupportController : ControllerBase
         _httpClient = httpClient;
     }
 
+    [HttpGet("chat/active")]
+    public async Task<IActionResult> GetActiveChat()
+    {
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        var activeChat = await _dbContext.SupportChats
+            .Where(c => c.UserId == userId && c.Status == "Active")
+            .Select(c => new {
+                c.Id,
+                c.Created,
+                c.Chat
+            })
+            .FirstOrDefaultAsync();
+
+        if (activeChat == null)
+        {
+            return NotFound(new { message = "No active chat found." });
+        }
+
+        return Ok(activeChat);
+    }
+
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] ChatRequest request)
     {
@@ -48,18 +74,33 @@ public class SupportController : ControllerBase
         string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                       ?? User.FindFirst("sub")?.Value;
 
-        string chatId = request.ChatId ?? Guid.NewGuid().ToString();
+        SupportChat? supportChat = null;
 
-        var supportChat = await _dbContext.SupportChats.FirstOrDefaultAsync(c => c.Id == chatId);
+        if (!string.IsNullOrWhiteSpace(request.ChatId))
+        {
+            supportChat = await _dbContext.SupportChats.FirstOrDefaultAsync(c => c.Id == request.ChatId);
+        }
+        else if (!string.IsNullOrEmpty(userId))
+        {
+            supportChat = await _dbContext.SupportChats.FirstOrDefaultAsync(c => c.UserId == userId && c.Status == "Active");
+        }
+
         if (supportChat == null)
         {
             supportChat = new SupportChat
             {
-                Id = chatId,
-                UserId = userId ?? string.Empty
+                Id = request.ChatId ?? Guid.NewGuid().ToString(),
+                UserId = userId ?? string.Empty,
+                Status = "Active"
             };
             _dbContext.SupportChats.Add(supportChat);
         }
+        else if (supportChat.Status == "Closed")
+        {
+            return BadRequest("This chat is already closed. Please start a new dialog.");
+        }
+
+        string chatId = supportChat.Id;
 
         var userMsg = new SupportChatMessage
         {
@@ -91,31 +132,17 @@ public class SupportController : ControllerBase
     [HttpPost("upload-image")]
     public async Task<IActionResult> UploadImage(IFormFile file, [FromForm] string? chatId)
     {
-        if (file == null || file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        if (file.Length > 10 * 1024 * 1024)
-        {
-            return BadRequest("File size exceeds 10MB limit.");
-        }
+        if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
+        if (file.Length > 10 * 1024 * 1024) return BadRequest("File size exceeds 10MB limit.");
 
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
-        {
-            return BadRequest("Only .jpg, .jpeg, and .png formats are allowed.");
-        }
+        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") return BadRequest("Only .jpg, .jpeg, and .png formats are allowed.");
 
         try
         {
             using var image = await Image.LoadAsync(file.OpenReadStream());
-            
-            // Reduce width and height by 50%
             image.Mutate(x => x.Resize(image.Width / 2, image.Height / 2));
-            
             using var ms = new MemoryStream();
-            // Save as Webp with 50% quality
             await image.SaveAsWebpAsync(ms, new WebpEncoder { Quality = 50 });
             ms.Position = 0;
 
@@ -127,10 +154,7 @@ public class SupportController : ControllerBase
             var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
             var bucketName = _configuration["SupportChatBucketName"] ?? _configuration["SUPPORT_CHAT_BUCKET_NAME"] ?? "neobank-files";
             
-            if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
-            {
-                return StatusCode(500, "Supabase configuration is missing.");
-            }
+            if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey)) return StatusCode(500, "Supabase configuration is missing.");
 
             var uploadUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/{objectPath}";
             var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl);
@@ -147,9 +171,6 @@ public class SupportController : ControllerBase
             }
 
             var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/{objectPath}";
-
-            // The frontend might expect imageBase64 property due to previous implementation, 
-            // so we return the public URL in that property to avoid breaking the frontend if it's already coded that way.
             return Ok(new { imageBase64 = publicUrl, chatId = finalChatId });
         }
         catch (Exception ex)
@@ -158,23 +179,33 @@ public class SupportController : ControllerBase
         }
     }
 
+    [HttpPost("chat/{chatId}/close")]
+    public async Task<IActionResult> CloseChat(string chatId)
+    {
+        var supportChat = await _dbContext.SupportChats.FirstOrDefaultAsync(c => c.Id == chatId);
+        if (supportChat == null) return NotFound("Chat not found.");
+        
+        supportChat.Status = "Closed";
+        await _dbContext.SaveChangesAsync();
+        return Ok(new { message = "Chat closed successfully." });
+    }
+
     [HttpPost("chat/{chatId}/review")]
     public async Task<IActionResult> SubmitReview(string chatId, [FromBody] ReviewRequest request)
     {
         var supportChat = await _dbContext.SupportChats.FirstOrDefaultAsync(c => c.Id == chatId);
-        if (supportChat == null)
-        {
-            return NotFound("Chat not found.");
-        }
+        if (supportChat == null) return NotFound("Chat not found.");
 
         supportChat.Review.Add(new SupportChatReview
         {
             Rating = request.Rating,
             Comment = request.Comment
         });
+        
+        supportChat.Status = "Closed";
 
         await _dbContext.SaveChangesAsync();
-        return Ok(new { message = "Review saved successfully." });
+        return Ok(new { message = "Review saved and chat closed successfully." });
     }
 }
 
