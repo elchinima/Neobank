@@ -35,7 +35,28 @@ public class SupportChatHub : Hub
         {
             if (string.IsNullOrEmpty(initialMessage))
             {
-                await Clients.Caller.SendAsync("ReceiveHistory", new List<object>());
+                var closedChat = await _dbContext.SupportChats
+                    .Include(c => c.Chat)
+                    .Include(c => c.Review)
+                    .OrderByDescending(c => c.Created)
+                    .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == "Closed");
+
+                if (closedChat != null)
+                {
+                    await Clients.Caller.SendAsync("ChatJoined", new { agentName = closedChat.AgentName, language = closedChat.Language, status = "Closed", hasReview = closedChat.Review.Any() });
+                    await Clients.Caller.SendAsync("ReceiveHistory", closedChat.Chat.Select(m => new
+                    {
+                        id = Guid.NewGuid().ToString(),
+                        sender = m.Sender == "user" ? "user" : "agent",
+                        text = m.Text,
+                        imageBase64 = m.ImagePath,
+                        time = m.Time
+                    }).ToList());
+                }
+                else
+                {
+                    await Clients.Caller.SendAsync("ReceiveHistory", new List<object>());
+                }
                 return;
             }
 
@@ -43,6 +64,7 @@ public class SupportChatHub : Hub
             {
                 UserId = userId,
                 AgentName = agentName ?? "Agent",
+                Language = language ?? "az",
                 Created = DateTime.UtcNow.AddHours(4)
             };
 
@@ -56,16 +78,7 @@ public class SupportChatHub : Hub
             _dbContext.SupportChats.Add(activeChat);
             await _dbContext.SaveChangesAsync();
 
-            await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
-            {
-                id = Guid.NewGuid().ToString(),
-                sender = m.Sender == "user" ? "user" : "agent",
-                text = m.Text,
-                imageBase64 = m.ImagePath,
-                time = m.Time
-            }).ToList());
-
-            await Clients.Caller.SendAsync("ChatJoined", activeChat.AgentName);
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
@@ -75,11 +88,11 @@ public class SupportChatHub : Hub
                 time = m.Time
             }).ToList());
             
-            await ProcessAIResponse(activeChat, initialMessage, language, activeChat.AgentName, null);
+            await ProcessAIResponse(activeChat, initialMessage, activeChat.Language, activeChat.AgentName, null);
         }
         else
         {
-            await Clients.Caller.SendAsync("ChatJoined", activeChat.AgentName);
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, status = "Active", hasReview = false });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
@@ -91,43 +104,38 @@ public class SupportChatHub : Hub
         }
     }
 
-    public async Task SendMessage(string message, string? imageUrl, string language, string agentName)
+    public async Task SendMessage(string message, string? imageBase64 = null, string language = "az", string agentName = "Agent")
     {
         var userId = Context.UserIdentifier;
         if (string.IsNullOrEmpty(userId)) return;
 
         var activeChat = await _dbContext.SupportChats
-            .Include(c => c.Chat)
-            .OrderByDescending(c => c.Created)
             .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == "Active");
 
         if (activeChat == null)
         {
-            await Clients.Caller.SendAsync("ChatError", "No active chat found.");
+            await Clients.Caller.SendAsync("ChatError", "Active chat not found.");
             return;
         }
 
-        var chatMessage = new SupportChatMessage
+        activeChat.Chat.Add(new SupportChatMessage
         {
             Sender = "user",
             Text = message,
-            ImagePath = imageUrl,
+            ImagePath = imageBase64,
             Time = DateTime.UtcNow.AddHours(4).ToString("HH:mm")
-        };
+        });
 
-        activeChat.Chat.Add(chatMessage);
         await _dbContext.SaveChangesAsync();
-
         await Clients.Caller.SendAsync("MessageConfirmed", new
         {
             id = Guid.NewGuid().ToString(),
             sender = "user",
             text = message,
-            imageBase64 = imageUrl,
-            time = chatMessage.Time
+            imageBase64 = imageBase64
         });
 
-        await ProcessAIResponse(activeChat, message, language, agentName, imageUrl);
+        await ProcessAIResponse(activeChat, message, activeChat.Language, activeChat.AgentName, imageBase64);
     }
 
     private async Task ProcessAIResponse(SupportChat activeChat, string userMessage, string language, string agentName, string? imageUrl)
@@ -169,6 +177,42 @@ public class SupportChatHub : Hub
                 text = "Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.",
                 time = DateTime.UtcNow.AddHours(4).ToString("HH:mm")
             });
+        }
+    }
+
+    public async Task CloseChat()
+    {
+        var userId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(userId)) return;
+
+        var activeChat = await _dbContext.SupportChats
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == "Active");
+
+        if (activeChat != null)
+        {
+            activeChat.Status = "Closed";
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task SubmitReview(int rating, string? comment)
+    {
+        var userId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(userId)) return;
+
+        // The chat might be closed by the time they submit a review, so we get the most recent chat for this user.
+        var latestChat = await _dbContext.SupportChats
+            .OrderByDescending(c => c.Created)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (latestChat != null)
+        {
+            latestChat.Review.Add(new SupportChatReview
+            {
+                Rating = rating,
+                Comment = comment
+            });
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

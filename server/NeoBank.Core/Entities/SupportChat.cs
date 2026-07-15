@@ -13,6 +13,8 @@ public class SupportChat
     
     public string AgentName { get; set; } = "Agent";
 
+    public string Language { get; set; } = "az";
+
     public DateTime Created { get; set; } = DateTime.UtcNow.AddHours(4);
 
     public ICollection<SupportChatReview> Review { get; set; } = new List<SupportChatReview>();

@@ -18,7 +18,7 @@ function SupportChat() {
   // Get initial message from location state if passed from the form
   const initialMessage = location.state?.message || ''
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
-  const chatLanguage = location.state?.chatLanguage || 'az'
+  const [chatLanguage, setChatLanguage] = useState(location.state?.chatLanguage || 'az')
 
   const [agentName, setAgentName] = useState(() => {
     const names = ["Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil"];
@@ -74,9 +74,20 @@ function SupportChat() {
       }
     })
 
-    newConnection.on('ChatJoined', (serverAgentName) => {
-      if (serverAgentName) {
-        setAgentName(serverAgentName)
+    newConnection.on('ChatJoined', (data) => {
+      if (data && data.agentName) {
+        setAgentName(data.agentName)
+      }
+      if (data && data.language) {
+        setChatLanguage(data.language)
+      }
+      if (data && data.status) {
+        setChatStatus(data.status.toLowerCase())
+        if (data.hasReview) {
+          setIsFeedbackSubmitted(true)
+        }
+      } else {
+        setChatStatus('active')
       }
     })
 
@@ -97,6 +108,9 @@ function SupportChat() {
         if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
         closeTimerRef.current = setTimeout(() => {
           setChatStatus('closed')
+          if (connectionRef.current && connectionRef.current.state === 'Connected') {
+            connectionRef.current.invoke('CloseChat')
+          }
         }, 2000)
       }
     })
@@ -144,6 +158,9 @@ function SupportChat() {
        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
        closeTimerRef.current = setTimeout(() => {
           setChatStatus('closed')
+          if (connectionRef.current && connectionRef.current.state === 'Connected') {
+            connectionRef.current.invoke('CloseChat')
+          }
        }, 60000)
        return;
     }
@@ -360,6 +377,9 @@ function SupportChat() {
                           setIsFeedbackModalOpen(true)
                         } else {
                           setIsFeedbackSubmitted(true)
+                          if (connectionRef.current && connectionRef.current.state === 'Connected') {
+                            connectionRef.current.invoke('SubmitReview', star, null)
+                          }
                         }
                       }}
                     >
@@ -382,7 +402,12 @@ function SupportChat() {
               <button className="cancel-btn" onClick={() => setIsCloseModalOpen(false)}>
                 {t(supportChatLang, 'modalNo')}
               </button>
-              <button className="confirm-btn" onClick={() => navigate('/support')}>
+              <button className="confirm-btn" onClick={() => {
+                if (connectionRef.current && connectionRef.current.state === 'Connected') {
+                  connectionRef.current.invoke('CloseChat')
+                }
+                navigate('/support')
+              }}>
                 {t(supportChatLang, 'modalYes')}
               </button>
             </div>
@@ -405,6 +430,9 @@ function SupportChat() {
               <button className="confirm-btn" onClick={() => {
                 setIsFeedbackModalOpen(false)
                 setIsFeedbackSubmitted(true)
+                if (connectionRef.current && connectionRef.current.state === 'Connected') {
+                  connectionRef.current.invoke('SubmitReview', rating, feedbackText)
+                }
               }}>
                 {t(supportChatLang, 'submitFeedback')}
               </button>
