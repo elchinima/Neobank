@@ -1816,25 +1816,12 @@ const Cards = () => {
                   </div>
                 </button>
 
-                <button className="settings-action-btn" onClick={() => alert('Limits clicked')}>
-                  <img src={limitsIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'limitsTitle')}</span>
-                    <span className="btn-subtitle">{t(userCardsLang, 'limitsDesc')}</span>
-                  </div>
-                </button>
+
                 <button className="settings-action-btn" onClick={() => setShowPinModal(true)}>
                   <img src={pinIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
                     <span className="btn-title">{t(userCardsLang, 'changePinTitle')}</span>
                     <span className="btn-subtitle">{t(userCardsLang, 'pinDesc')}</span>
-                  </div>
-                </button>
-                <button className="settings-action-btn" onClick={() => alert('Security Settings clicked')}>
-                  <img src={securityIcon} className="btn-svg-icon" alt="" />
-                  <div className="btn-text">
-                    <span className="btn-title">{t(userCardsLang, 'securitySettings')}</span>
-                    <span className="btn-subtitle">{t(userCardsLang, 'securityDesc')}</span>
                   </div>
                 </button>
 

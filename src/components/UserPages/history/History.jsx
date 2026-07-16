@@ -366,11 +366,6 @@ const History = () => {
                           <span className={`history-item__status-badge status-${txn.status}`}>
                             {translateStatus(txn.status)}
                           </span>
-                          {txn.balanceAfter != null && (
-                            <span className="history-item__balance-after">
-                              {Number(txn.balanceAfter).toFixed(2)} {txn.currency}
-                            </span>
-                          )}
                         </div>
 
                         <div className="history-item__chevron">
@@ -405,6 +400,12 @@ const History = () => {
                               <span className="detail-label">{t(historyLang, 'accountTarget')}</span>
                               <span className="detail-value">{txn.details.account}</span>
                             </div>
+                            {txn.balanceAfter != null && (
+                              <div className="detail-item">
+                                <span className="detail-label">{t(historyLang, 'balanceAfter') || 'Balance'}</span>
+                                <span className="detail-value">{Number(txn.balanceAfter).toFixed(2)} AZN</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

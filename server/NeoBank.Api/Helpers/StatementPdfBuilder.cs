@@ -128,11 +128,10 @@ public static class StatementPdfBuilder
     private static void ComposeTable(IContainer container, List<Transaction> transactions, string lang, decimal startBalance)
     {
         var colDate = lang == "az" ? "Tarix" : (lang == "ru" ? "Дата" : "Date");
-        var colDest = lang == "az" ? "Təyinat" : (lang == "ru" ? "Назначение" : "Destination");
+        var colDest = lang == "az" ? "Təyinat" : (lang == "ru" ? "Назначение" : "Description");
         var colAmt = lang == "az" ? "Məbləğ" : (lang == "ru" ? "Сумма" : "Amount");
-        var colComm = lang == "az" ? "Komissiya" : (lang == "ru" ? "Комиссия" : "Commission");
-        var colVat = lang == "az" ? "ƏDV" : (lang == "ru" ? "НДС" : "VAT");
-        var colBal = lang == "az" ? "Balans" : (lang == "ru" ? "Баланс" : "Balance");
+        var colBalBefore = lang == "az" ? "Əvvəlki qalıq" : (lang == "ru" ? "Баланс было" : "Balance before");
+        var colBalAfter = lang == "az" ? "Sonrakı qalıq" : (lang == "ru" ? "Баланс стало" : "Balance after");
 
         container.Table(table =>
         {
@@ -141,9 +140,8 @@ public static class StatementPdfBuilder
                 columns.ConstantColumn(70);
                 columns.RelativeColumn();
                 columns.ConstantColumn(60);
-                columns.ConstantColumn(60);
-                columns.ConstantColumn(50);
-                columns.ConstantColumn(60);
+                columns.ConstantColumn(70);
+                columns.ConstantColumn(70);
             });
 
             table.Header(header =>
@@ -151,9 +149,8 @@ public static class StatementPdfBuilder
                 header.Cell().Element(CellStyle).AlignCenter().Text(colDate).Bold();
                 header.Cell().Element(CellStyle).AlignCenter().Text(colDest).Bold();
                 header.Cell().Element(CellStyle).AlignCenter().Text(colAmt).Bold();
-                header.Cell().Element(CellStyle).AlignCenter().Text(colComm).Bold();
-                header.Cell().Element(CellStyle).AlignCenter().Text(colVat).Bold();
-                header.Cell().Element(CellStyle).AlignCenter().Text(colBal).Bold();
+                header.Cell().Element(CellStyle).AlignCenter().Text(colBalBefore).Bold();
+                header.Cell().Element(CellStyle).AlignCenter().Text(colBalAfter).Bold();
 
                 static IContainer CellStyle(IContainer container)
                 {
@@ -163,23 +160,37 @@ public static class StatementPdfBuilder
 
             var chronTransactions = transactions.OrderBy(t => t.CreatedAt).ToList();
             var runningBalance = startBalance;
+            var rowsData = new List<(DateTime Date, string Desc, string AmtText, decimal BalBefore, decimal BalAfter)>();
 
             foreach (var t in chronTransactions)
             {
                 var isIncome = t.Type == "Income";
                 var amtPrefix = isIncome ? "+" : "-";
                 
+                var balanceBefore = runningBalance;
+                
                 if (isIncome) runningBalance += t.Amount;
                 else runningBalance -= t.Amount;
                 
-                var displayBalance = t.BalanceAfter.HasValue ? t.BalanceAfter.Value : runningBalance;
+                if (t.BalanceAfter.HasValue) 
+                {
+                     balanceBefore = isIncome ? t.BalanceAfter.Value - t.Amount : t.BalanceAfter.Value + t.Amount;
+                     runningBalance = t.BalanceAfter.Value;
+                }
+                
+                var displayBalanceAfter = runningBalance;
+                rowsData.Add((t.CreatedAt, t.Description, $"{amtPrefix}{t.Amount:F2}", balanceBefore, displayBalanceAfter));
+            }
 
-                table.Cell().Element(CellStyle).AlignCenter().Text($"{t.CreatedAt:dd-MM-yyyy\nHH:mm:ss}");
-                table.Cell().Element(CellStyle).AlignCenter().Text(t.Description);
-                table.Cell().Element(CellStyle).AlignCenter().Text($"{amtPrefix}{t.Amount:F2}");
-                table.Cell().Element(CellStyle).AlignCenter().Text("-");
-                table.Cell().Element(CellStyle).AlignCenter().Text("-");
-                table.Cell().Element(CellStyle).AlignCenter().Text($"{displayBalance:F2}");
+            rowsData.Reverse();
+
+            foreach (var row in rowsData)
+            {
+                table.Cell().Element(CellStyle).AlignCenter().Text($"{row.Date:dd-MM-yyyy\nHH:mm:ss}");
+                table.Cell().Element(CellStyle).AlignCenter().Text(row.Desc);
+                table.Cell().Element(CellStyle).AlignCenter().Text(row.AmtText);
+                table.Cell().Element(CellStyle).AlignCenter().Text($"{row.BalBefore:F2}");
+                table.Cell().Element(CellStyle).AlignCenter().Text($"{row.BalAfter:F2}");
                 
                 static IContainer CellStyle(IContainer container)
                 {

@@ -240,6 +240,27 @@
     &--full {
       width: 100%;
     }
+
+    &--google {
+      background: #ffffff;
+      flex-shrink: 0;
+      width: 46px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: #f1f5f9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+
+  &__submit-row {
+    display: flex;
+    gap: 12px;
   }
 
   &__main {
