@@ -90,7 +90,8 @@ public class PaymentsController : ControllerBase
                     Category = "Transfer",
                     Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {debitResult.Card!.Iban}" : $"Transfer from {debitResult.Card!.CardNumber}",
                     RecipientAccount = request.ProviderName == "IBAN Transfer" ? debitResult.Card!.Iban : debitResult.Card!.CardNumber,
-                    Status = "Completed"
+                    Status = "Completed",
+                    BalanceAfter = destCard.Balance
                 };
                 _context.Transactions.Add(creditTransaction);
             }

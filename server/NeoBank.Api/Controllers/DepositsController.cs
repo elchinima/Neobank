@@ -131,7 +131,8 @@ public class DepositsController : ControllerBase
             Type = "Credit",
             Category = "DepositWithdrawal",
             Description = termExpired ? $"Deposit withdrawal ({deposit.Amount} AZN + Interest)" : $"Early deposit withdrawal ({deposit.Amount} AZN with penalty)",
-            Status = "Completed"
+            Status = "Completed",
+            BalanceAfter = targetCard.Balance
         };
 
         _context.Transactions.Add(transaction);

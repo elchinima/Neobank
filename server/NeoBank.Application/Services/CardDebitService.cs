@@ -51,7 +51,8 @@ public class CardDebitService : ICardDebitService
             Category = request.Category,
             Description = request.Description,
             RecipientAccount = request.RecipientAccount ?? string.Empty,
-            Status = "Completed"
+            Status = "Completed",
+            BalanceAfter = card.Balance
         };
 
         _context.Transactions.Add(transaction);

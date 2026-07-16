@@ -171,13 +171,15 @@ public static class StatementPdfBuilder
                 
                 if (isIncome) runningBalance += t.Amount;
                 else runningBalance -= t.Amount;
+                
+                var displayBalance = t.BalanceAfter.HasValue ? t.BalanceAfter.Value : runningBalance;
 
                 table.Cell().Element(CellStyle).AlignCenter().Text($"{t.CreatedAt:dd-MM-yyyy\nHH:mm:ss}");
                 table.Cell().Element(CellStyle).AlignCenter().Text(t.Description);
                 table.Cell().Element(CellStyle).AlignCenter().Text($"{amtPrefix}{t.Amount:F2}");
                 table.Cell().Element(CellStyle).AlignCenter().Text("-");
                 table.Cell().Element(CellStyle).AlignCenter().Text("-");
-                table.Cell().Element(CellStyle).AlignCenter().Text($"{runningBalance:F2}");
+                table.Cell().Element(CellStyle).AlignCenter().Text($"{displayBalance:F2}");
                 
                 static IContainer CellStyle(IContainer container)
                 {

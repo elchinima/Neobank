@@ -17,6 +17,7 @@ export const historyLang = {
     loading: 'Loading history...',
     noData: 'No operations found in database.',
     transactionId: 'Transaction ID',
+    balanceAfter: 'Balance After',
     accountTarget: 'Account / Target',
     fromCard: 'From card',
 
@@ -98,6 +99,7 @@ export const historyLang = {
     loading: 'Tarixçə yüklənir...',
     noData: 'Məlumat bazasında əməliyyat tapılmadı.',
     transactionId: 'Əməliyyat ID',
+    balanceAfter: 'Əməliyyatdan sonrakı qalıq',
     accountTarget: 'Hesab / Hədəf',
     fromCard: 'Kartdan',
 
@@ -171,6 +173,7 @@ export const historyLang = {
     loading: 'Загрузка истории...',
     noData: 'Операции в базе данных не найдены.',
     transactionId: 'ID Транзакции',
+    balanceAfter: 'Остаток',
     accountTarget: 'Счёт / Цель',
     fromCard: 'С карты',
 

@@ -205,6 +205,7 @@ const History = () => {
         status: item.status.toLowerCase(),
         icon: iconMap[item.category] || otherIcon,
         cardInfo: cardInfo,
+        balanceAfter: item.balanceAfter,
         details: {
           account: item.recipientAccount || '—',
           description: item.description || '—'
@@ -365,6 +366,11 @@ const History = () => {
                           <span className={`history-item__status-badge status-${txn.status}`}>
                             {translateStatus(txn.status)}
                           </span>
+                          {txn.balanceAfter != null && (
+                            <span className="history-item__balance-after">
+                              {Number(txn.balanceAfter).toFixed(2)} {txn.currency}
+                            </span>
+                          )}
                         </div>
 
                         <div className="history-item__chevron">

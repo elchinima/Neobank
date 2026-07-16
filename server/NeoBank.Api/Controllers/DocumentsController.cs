@@ -60,7 +60,8 @@ public class DocumentsController : ControllerBase
             Category = "Banking Services",
             Description = "Fee for Certificate/Reference",
             CreatedAt = DateTime.UtcNow,
-            CardId = paymentCard.Id
+            CardId = paymentCard.Id,
+            BalanceAfter = paymentCard.Balance
         };
 
         _context.Transactions.Add(feeTxn);

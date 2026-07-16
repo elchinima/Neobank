@@ -97,7 +97,8 @@ public class LoansController : ControllerBase
             Type = "Credit",
             Category = "LoanPayout",
             Description = $"Loan disbursement ({request.Amount} AZN for {request.TermMonths} months)",
-            Status = "Completed"
+            Status = "Completed",
+            BalanceAfter = targetCard.Balance
         };
 
         _context.Loans.Add(loan);

@@ -12,4 +12,5 @@ public class Transaction
     public string RecipientAccount { get; set; } = string.Empty;
     public string Status { get; set; } = "Completed";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public decimal? BalanceAfter { get; set; }
 }
