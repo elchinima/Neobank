@@ -14,6 +14,7 @@ import Deposits from '../../components/PublicPages/deposits/Deposits'
 import Cashback from '../../components/PublicPages/cashback/Cashback'
 import SupportPublic from '../../components/PublicPages/support/SupportPublic'
 import SupportChat from '../../components/SupportPages/SupportChat/SupportChat'
+import Atm from '../../components/ServicePages/atm/Atm'
 
 import UserLayout from '../../components/UserPages/UserLayout'
 import Dashboard from '../../components/UserPages/dashboard/Dashboard'
@@ -49,6 +50,7 @@ function AppRouter() {
             <Route path="/cashback" element={<Cashback />} />
             <Route path="/support" element={<SupportPublic />} />
             <Route path="/support/chat" element={<SupportChat />} />
+            <Route path="/service/atm" element={<Atm />} />
             <Route path="/error" element={<ErrorPage />} />
 
             <Route element={<AdminProtectedRoute />}>
