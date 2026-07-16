@@ -456,8 +456,7 @@ public class AdminController : ControllerBase
             };
 
             var pagePath = $"https://neob.online/{request.PageKey}";
-
-            var promptText = $"You are an AI assistant for Neobank. Language: {langName}. We have a banner image (provided) and the page path is {pagePath}. Based on the context of this page, write an engaging description for the page to be placed in 'Text below image'. The text MUST be in the selected language ({langName}) and MAXIMUM 1000 characters. Return ONLY the text, without any formatting or markdown.";
+            var promptText = $"You are an AI assistant for Neobank. Language: {langName}. We have a banner image (provided) and the page path is {pagePath}. Based on the context of this page, write an engaging description for the page to be placed in 'Text below image'. The text MUST be in the selected language ({langName}) and BETWEEN 200 and 300 characters. Return ONLY the text, without any formatting or markdown.";
 
             var userParts = new List<object> { new { text = promptText } };
 
