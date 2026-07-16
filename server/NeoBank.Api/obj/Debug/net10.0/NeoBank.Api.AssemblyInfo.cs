@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NeoBank.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db37b8ba7f2b7d62eaff8ffb2a7c3382849bcb78")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c963502499463006c88d1b4b86280a8d2528c80e")]
 [assembly: System.Reflection.AssemblyProductAttribute("NeoBank.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NeoBank.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using NeoBank.Application.Interfaces;
 using System.Security.Claims;
 using SixLabors.ImageSharp;
@@ -13,6 +14,7 @@ namespace NeoBank.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SupportController : ControllerBase
 {
     private readonly ISupportAIService _supportAIService;
@@ -42,11 +44,11 @@ public class SupportController : ControllerBase
         }
 
         var activeChat = await _dbContext.SupportChats
-            .Where(c => c.UserId == userId && c.Status == "Active")
+            .Where(c => c.UserId == userId && (c.Status == "Active" || c.Status == "active"))
             .Select(c => new {
                 c.Id,
                 c.Created,
-                c.Chat
+                c.Status
             })
             .FirstOrDefaultAsync();
 
