@@ -104,10 +104,25 @@ const History = () => {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
 
   const locale = useMemo(() => {
-    if (lang === 'az') return 'az-Latn-AZ'
+    if (lang === 'az') return 'az-AZ'
     if (lang === 'ru') return 'ru-RU'
     return 'en-US'
   }, [lang])
+
+  const monthNames = {
+    az: ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'],
+    ru: ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  }
+
+  const formatDateLong = (dateObj) => {
+    const day = dateObj.getDate()
+    const month = monthNames[lang] ? monthNames[lang][dateObj.getMonth()] : monthNames.en[dateObj.getMonth()]
+    const year = dateObj.getFullYear()
+    
+    if (lang === 'en') return `${month} ${day}, ${year}`
+    return `${day} ${month} ${year}`
+  }
   const [expandedTxn, setExpandedTxn] = useState(null)
   const [historyList, setHistoryList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -234,7 +249,7 @@ const History = () => {
     const groups = {}
     filteredHistory.forEach(txn => {
       const dateObj = new Date(txn.date)
-      const dateKey = dateObj.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+      const dateKey = formatDateLong(dateObj)
       if (!groups[dateKey]) groups[dateKey] = []
       groups[dateKey].push(txn)
     })
@@ -272,11 +287,7 @@ const History = () => {
            date.getFullYear() === today.getFullYear()
   }
 
-  const formattedSelectedDate = selectedDate.toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
+  const formattedSelectedDate = formatDateLong(selectedDate)
 
   return (
     <div className="history-page">

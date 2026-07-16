@@ -168,7 +168,9 @@ public static class ReferencePdfBuilder
                 static IContainer CellStyle(IContainer container) => container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).Border(1).BorderColor(Colors.Black);
             });
 
-            foreach (var l in loans)
+            var sortedLoans = loans.OrderBy(l => l.Status == "Active" ? 0 : 1).ThenByDescending(l => l.Amount).ToList();
+
+            foreach (var l in sortedLoans)
             {
                 table.Cell().Element(CellStyle).AlignCenter().Text(l.Id.Substring(0, 8));
                 table.Cell().Element(CellStyle).AlignCenter().Text($"{l.Amount:F2}");

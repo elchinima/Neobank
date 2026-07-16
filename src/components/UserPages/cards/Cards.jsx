@@ -408,6 +408,7 @@ const Cards = () => {
   const translateErrorMsg = (msg) => {
     if (!msg) return msg;
     if (msg.includes('Insufficient funds')) return t(userCardsLang, 'insufficientFundsShort');
+    if (msg.includes('The card is blocked')) return t(userCardsLang, 'cardBlockedError');
     return msg;
   };
 
