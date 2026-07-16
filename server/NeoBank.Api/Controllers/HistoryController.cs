@@ -51,6 +51,7 @@ public class HistoryController : ControllerBase
                 t.RecipientAccount,
                 t.Status,
                 t.CreatedAt,
+                t.BalanceAfter,
                 CardType = card?.CardType,
                 CardLastFour = card != null && card.CardNumber.Length >= 4
                     ? card.CardNumber[^4..] : (string?)null
