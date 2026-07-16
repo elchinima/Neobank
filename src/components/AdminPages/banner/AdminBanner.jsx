@@ -14,6 +14,8 @@ const adminFetch = (url, options = {}) => {
 };
 
 
+
+
 const pageLabels = {
   cards: 'Cards',
   loans: 'Loans',
@@ -47,6 +49,44 @@ const AdminBanner = () => {
     Object.keys(pageLabels).forEach((k) => (init[k] = 'en'))
     return init
   })
+  
+  const [aiModal, setAiModal] = useState({ isOpen: false, pageKey: '', lang: '' })
+  const [aiLoadingKey, setAiLoadingKey] = useState('')
+
+  const openAiModal = (pageKey, lang) => {
+    setAiModal({ isOpen: true, pageKey, lang })
+  }
+
+  const handleAIGenerate = async () => {
+    const { pageKey, lang } = aiModal;
+    setAiModal({ isOpen: false, pageKey: '', lang: '' });
+    
+    const pageData = pages.find(p => p.pageKey === pageKey);
+    const imageUrl = pageData?.translations[lang]?.bannerImageUrl || '';
+
+    setAiLoadingKey(pageKey);
+    setStatus('Generating text with AI...');
+
+    try {
+      const response = await adminFetch(`${API_BASE_URL}/admin/page-settings/generate-ai-text`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageKey, languageCode: lang, bannerImageUrl: imageUrl }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate text');
+      }
+
+      const data = await response.json();
+      updatePageField(pageKey, lang, 'mediaText', data.generatedText);
+      setStatus(`AI generation completed for ${pageLabels[pageKey]}`);
+    } catch (err) {
+      setStatus(`AI error: ${err.message}`);
+    } finally {
+      setAiLoadingKey('');
+    }
+  }
 
   useEffect(() => {
     let ignore = false
@@ -216,6 +256,7 @@ const AdminBanner = () => {
                     className="admin-banner__lang-select"
                     value={currentLang}
                     onChange={(e) => handleLangChange(page.pageKey, e.target.value)}
+                    disabled={aiLoadingKey === page.pageKey}
                   >
                     {langs.map(l => (
                       <option key={l} value={l}>{langLabels[l]} ({l.toUpperCase()})</option>
@@ -230,6 +271,7 @@ const AdminBanner = () => {
                     value={t.bannerImageUrl || ''}
                     placeholder="Paste image URL or leave empty to hide"
                     onChange={(event) => updatePageField(page.pageKey, currentLang, 'bannerImageUrl', event.target.value)}
+                    disabled={aiLoadingKey === page.pageKey}
                   />
                 </label>
                 <label>
@@ -244,6 +286,7 @@ const AdminBanner = () => {
                     maxLength={1000}
                     value={t.mediaText || ''}
                     onChange={(event) => updatePageField(page.pageKey, currentLang, 'mediaText', event.target.value)}
+                    disabled={aiLoadingKey === page.pageKey}
                   />
                 </label>
                 <div className="admin-banner__actions">
@@ -251,7 +294,7 @@ const AdminBanner = () => {
                     className="admin-banner__button admin-banner__button--primary"
                     type="button"
                     onClick={() => savePage(page)}
-                    disabled={savingKey === `page-${page.pageKey}`}
+                    disabled={savingKey === `page-${page.pageKey}` || aiLoadingKey === page.pageKey}
                   >
                     {savingKey === `page-${page.pageKey}` ? 'Saving' : 'Save page'}
                   </button>
@@ -259,6 +302,8 @@ const AdminBanner = () => {
                     <button 
                       type="button" 
                       className="admin-banner__button admin-banner__button--purple-square"
+                      onClick={() => openAiModal(page.pageKey, currentLang)}
+                      disabled={aiLoadingKey === page.pageKey}
                     >
                       <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14" style={{ transform: 'scale(10)' }}>
                         <style>
@@ -326,10 +371,31 @@ const AdminBanner = () => {
           })}
         </div>
       </section>
+
+      {aiModal.isOpen && (
+        <div className="admin-banner__modal-overlay">
+          <div className="admin-banner__modal">
+            <h3>Generate with AI</h3>
+            <p>Are you sure you want to write "Text below image" for <strong>{pageLabels[aiModal.pageKey]}</strong> with AI?</p>
+            <div className="admin-banner__modal-actions">
+              <button 
+                className="admin-banner__button"
+                onClick={() => setAiModal({ isOpen: false, pageKey: '', lang: '' })}
+              >
+                Cancel
+              </button>
+              <button 
+                className="admin-banner__button admin-banner__button--primary"
+                onClick={handleAIGenerate}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default AdminBanner
-
-

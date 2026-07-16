@@ -376,3 +376,57 @@
     }
   }
 }
+
+.admin-banner__modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 8, 14, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-banner__modal {
+  background: linear-gradient(145deg, rgba(34, 28, 45, 0.95), rgba(23, 18, 31, 0.98));
+  border: 1px solid rgba(219, 154, 255, 0.2);
+  border-radius: 12px;
+  padding: 32px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(160, 32, 240, 0.15);
+  display: grid;
+  gap: 20px;
+
+  h3 {
+    font-size: 20px;
+    margin: 0;
+    color: #fff;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 15px;
+    line-height: 1.5;
+
+    strong {
+      color: #ffe28a;
+    }
+  }
+}
+
+.admin-banner__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+
+  button {
+    min-width: 100px;
+  }
+}

@@ -431,6 +431,92 @@ public class AdminController : ControllerBase
             )
         });
     }
+
+    [HttpPost("page-settings/generate-ai-text")]
+    public async Task<IActionResult> GenerateAIText([FromBody] AIGenerateRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.PageKey) || string.IsNullOrWhiteSpace(request.LanguageCode))
+            return BadRequest("PageKey and LanguageCode are required.");
+
+        var apiKey = _configuration["GEMINI_API_KEY"];
+        var modelName = Environment.GetEnvironmentVariable("GEMINI_AGENT") ?? _configuration["GEMINI_AGENT"] ?? "gemini-1.5-flash";
+
+        if (string.IsNullOrEmpty(apiKey))
+            return StatusCode(500, "Gemini API key is not configured.");
+
+        try
+        {
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var langName = request.LanguageCode.ToLower() switch {
+                "ru" => "Russian",
+                "en" => "English",
+                _ => "Azerbaijani"
+            };
+
+            var pagePath = $"https://neob.online/{request.PageKey}";
+
+            var promptText = $"You are an AI assistant for Neobank. Language: {langName}. We have a banner image (provided) and the page path is {pagePath}. Based on the context of this page, write an engaging description for the page to be placed in 'Text below image'. The text MUST be in the selected language ({langName}) and MAXIMUM 1000 characters. Return ONLY the text, without any formatting or markdown.";
+
+            var userParts = new List<object> { new { text = promptText } };
+
+            if (!string.IsNullOrWhiteSpace(request.BannerImageUrl) && 
+                (request.BannerImageUrl.StartsWith("http://") || request.BannerImageUrl.StartsWith("https://")))
+            {
+                try 
+                {
+                    var imageBytes = await httpClient.GetByteArrayAsync(request.BannerImageUrl);
+                    var actualBase64 = Convert.ToBase64String(imageBytes);
+                    userParts.Add(new { inlineData = new { mimeType = "image/webp", data = actualBase64 } });
+                }
+                catch (Exception ex)
+                {
+                    // Image download failed, continue without image
+                }
+            }
+
+            var requestBody = new
+            {
+                contents = new[]
+                {
+                    new { role = "user", parts = userParts.ToArray() }
+                }
+            };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(url, content);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                return StatusCode(500, $"Gemini API error: {errorContent}");
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = System.Text.Json.JsonDocument.Parse(responseJson);
+            
+            var generatedText = doc.RootElement
+                .GetProperty("candidates")[0]
+                .GetProperty("content")
+                .GetProperty("parts")[0]
+                .GetProperty("text")
+                .GetString();
+
+            if (generatedText?.Length > 1000)
+            {
+                generatedText = generatedText.Substring(0, 1000);
+            }
+
+            return Ok(new { generatedText });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
     [HttpGet("database/images")]
     public async Task<IActionResult> GetDatabaseImages()
     {
@@ -961,4 +1047,11 @@ public class PageSettingTranslationRequest
 {
     public string? BannerImageUrl { get; set; }
     public string? MediaText { get; set; }
+}
+
+public class AIGenerateRequest
+{
+    public string PageKey { get; set; } = string.Empty;
+    public string LanguageCode { get; set; } = string.Empty;
+    public string? BannerImageUrl { get; set; }
 }
