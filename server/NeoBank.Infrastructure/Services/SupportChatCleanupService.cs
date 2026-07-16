@@ -61,44 +61,34 @@ public class SupportChatCleanupService : BackgroundService
             .Where(c => c.Created < thresholdDate)
             .ToListAsync(stoppingToken);
 
-        if (oldChats.Count == 0)
+        if (oldChats.Count > 0)
         {
-            return;
+            dbContext.SupportChats.RemoveRange(oldChats);
+            await dbContext.SaveChangesAsync(stoppingToken);
+            _logger.LogInformation("Successfully cleaned up {Count} old support chats from database.", oldChats.Count);
         }
-
-        _logger.LogInformation("Found {Count} old support chats to clean up.", oldChats.Count);
 
         var supabaseUrl = _configuration["Supabase:Url"] ?? _configuration["SUPABASE_URL"];
         var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
         var bucketName = _configuration["SupportChatBucketName"] ?? _configuration["SUPPORT_CHAT_BUCKET_NAME"] ?? "neobank-files";
 
-        foreach (var chat in oldChats)
+        if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
         {
-            // Delete folder from Supabase Storage
-            if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
-            {
-                await DeleteSupabaseFolderAsync(supabaseUrl, supabaseKey, bucketName, $"files/{chat.Id}", stoppingToken);
-            }
-
-            dbContext.SupportChats.Remove(chat);
+            await SweepSupabaseStorageAsync(supabaseUrl, supabaseKey, bucketName, stoppingToken);
         }
-
-        await dbContext.SaveChangesAsync(stoppingToken);
-        
-        _logger.LogInformation("Successfully cleaned up {Count} old support chats.", oldChats.Count);
     }
 
-    private async Task DeleteSupabaseFolderAsync(string supabaseUrl, string supabaseKey, string bucketName, string folderPrefix, CancellationToken stoppingToken)
+    private async Task SweepSupabaseStorageAsync(string supabaseUrl, string supabaseKey, string bucketName, CancellationToken stoppingToken)
     {
         try
         {
-            // 1. List files in the folder prefix
+            // 1. List all folders in "files"
             var listUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/list/{bucketName}";
             
             var requestBody = new 
             {
-                prefix = folderPrefix,
-                limit = 100,
+                prefix = "files",
+                limit = 1000,
                 offset = 0,
                 sortBy = new { column = "name", order = "asc" }
             };
@@ -111,49 +101,107 @@ public class SupportChatCleanupService : BackgroundService
             var response = await _httpClient.SendAsync(request, stoppingToken);
             if (!response.IsSuccessStatusCode)
             {
-                var err = await response.Content.ReadAsStringAsync(stoppingToken);
-                _logger.LogWarning("Failed to list files in folder {FolderPrefix}. Status: {Status}, Error: {Error}", folderPrefix, response.StatusCode, err);
+                _logger.LogWarning("Failed to list root folders in Supabase. Status: {Status}", response.StatusCode);
                 return;
             }
 
-            var filesJson = await response.Content.ReadAsStringAsync(stoppingToken);
-            var files = JsonDocument.Parse(filesJson).RootElement;
+            var foldersJson = await response.Content.ReadAsStringAsync(stoppingToken);
+            var folders = JsonDocument.Parse(foldersJson).RootElement;
             
+            var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-1);
             var filesToDelete = new List<string>();
-            foreach (var file in files.EnumerateArray())
+
+            foreach (var item in folders.EnumerateArray())
             {
-                if (file.TryGetProperty("name", out var nameProp))
+                if (item.TryGetProperty("name", out var nameProp))
                 {
-                    var fileName = nameProp.GetString();
-                    if (!string.IsNullOrEmpty(fileName) && fileName != ".emptyFolderPlaceholder") // Ignore placeholders if any
+                    var itemName = nameProp.GetString();
+                    if (string.IsNullOrEmpty(itemName) || itemName == ".emptyFolderPlaceholder") continue;
+                    
+                    // Check if it's a direct file
+                    if (item.TryGetProperty("created_at", out var rootCreatedAtProp) && 
+                        rootCreatedAtProp.ValueKind != JsonValueKind.Null && 
+                        DateTime.TryParse(rootCreatedAtProp.GetString(), out var rootCreatedAt))
                     {
-                        filesToDelete.Add($"{folderPrefix}/{fileName}");
+                        if (rootCreatedAt < thresholdDate)
+                        {
+                            filesToDelete.Add($"files/{itemName}");
+                        }
+                    }
+                    else
+                    {
+                        // It's a folder, list its contents
+                        var folderPrefix = $"files/{itemName}";
+                        var fileReqBody = new 
+                        {
+                            prefix = folderPrefix,
+                            limit = 100,
+                            offset = 0,
+                            sortBy = new { column = "name", order = "asc" }
+                        };
+                        
+                        var fileReq = new HttpRequestMessage(HttpMethod.Post, listUrl);
+                        fileReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", supabaseKey);
+                        fileReq.Headers.Add("apiKey", supabaseKey);
+                        fileReq.Content = new StringContent(JsonSerializer.Serialize(fileReqBody), Encoding.UTF8, "application/json");
+
+                        var fileRes = await _httpClient.SendAsync(fileReq, stoppingToken);
+                        if (fileRes.IsSuccessStatusCode)
+                        {
+                            var filesDataJson = await fileRes.Content.ReadAsStringAsync(stoppingToken);
+                            var filesData = JsonDocument.Parse(filesDataJson).RootElement;
+
+                            foreach (var file in filesData.EnumerateArray())
+                            {
+                                if (file.TryGetProperty("name", out var fNameProp) && file.TryGetProperty("created_at", out var createdAtProp))
+                                {
+                                    var fName = fNameProp.GetString();
+                                    if (DateTime.TryParse(createdAtProp.GetString(), out var createdAt))
+                                    {
+                                        if (createdAt < thresholdDate)
+                                        {
+                                            filesToDelete.Add($"{folderPrefix}/{fName}");
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+            // 3. Delete old files
             if (filesToDelete.Count > 0)
             {
-                // 2. Delete the files
-                var deleteUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}";
-                var deleteReqBody = new { prefixes = filesToDelete };
-
-                var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, deleteUrl);
-                deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", supabaseKey);
-                deleteRequest.Headers.Add("apiKey", supabaseKey);
-                deleteRequest.Content = new StringContent(JsonSerializer.Serialize(deleteReqBody), Encoding.UTF8, "application/json");
-
-                var deleteResponse = await _httpClient.SendAsync(deleteRequest, stoppingToken);
-                if (!deleteResponse.IsSuccessStatusCode)
+                // Delete in chunks of 50
+                for (int i = 0; i < filesToDelete.Count; i += 50)
                 {
-                    var err = await deleteResponse.Content.ReadAsStringAsync(stoppingToken);
-                    _logger.LogWarning("Failed to delete files in folder {FolderPrefix}. Status: {Status}, Error: {Error}", folderPrefix, deleteResponse.StatusCode, err);
+                    var chunk = filesToDelete.Skip(i).Take(50).ToList();
+                    var deleteUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}";
+                    var deleteReqBody = new { prefixes = chunk };
+
+                    var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, deleteUrl);
+                    deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", supabaseKey);
+                    deleteRequest.Headers.Add("apiKey", supabaseKey);
+                    deleteRequest.Content = new StringContent(JsonSerializer.Serialize(deleteReqBody), Encoding.UTF8, "application/json");
+
+                    var deleteResponse = await _httpClient.SendAsync(deleteRequest, stoppingToken);
+                    if (!deleteResponse.IsSuccessStatusCode)
+                    {
+                        _logger.LogWarning("Failed to delete a chunk of files. Status: {Status}", deleteResponse.StatusCode);
+                    }
                 }
+                
+                _logger.LogInformation("Deleted {Count} old files from Supabase storage.", filesToDelete.Count);
+            }
+            else
+            {
+                _logger.LogInformation("No old files found in Supabase storage to delete.");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting Supabase folder {FolderPrefix} in bucket {BucketName}", folderPrefix, bucketName);
+            _logger.LogError(ex, "Error sweeping Supabase storage");
         }
     }
 }

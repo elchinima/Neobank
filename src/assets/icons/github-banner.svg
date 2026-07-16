@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="100%" height="200">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1125" />
+      <stop offset="50%" stop-color="#2D2634" />
+      <stop offset="100%" stop-color="#120D1A" />
+    </linearGradient>
+
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F3C24A" />
+      <stop offset="50%" stop-color="#FFE28A" />
+      <stop offset="100%" stop-color="#F3C24A" />
+    </linearGradient>
+
+    <linearGradient id="purple-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A020F0" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#DB9AFF" stop-opacity="0" />
+    </linearGradient>
+
+    <style>
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+      }
+      @keyframes pulse {
+        0% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.05); }
+        100% { opacity: 0.6; transform: scale(1); }
+      }
+      @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+      }
+      .title {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 48px;
+        font-weight: 900;
+        fill: url(#gold-gradient);
+        letter-spacing: 2px;
+      }
+      .subtitle {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        fill: #FFFFFF;
+        opacity: 0.8;
+        letter-spacing: 1px;
+      }
+      .floating-element {
+        animation: float 6s ease-in-out infinite;
+      }
+      .glowing-circle {
+        animation: pulse 4s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)" rx="16" />
+
+  <!-- Abstract decorative elements -->
+  <circle cx="100" cy="50" r="150" fill="url(#purple-glow)" class="glowing-circle" style="animation-delay: 0s;" />
+  <circle cx="700" cy="150" r="200" fill="url(#purple-glow)" class="glowing-circle" style="animation-delay: 2s;" />
+
+  <!-- Logo Mark -->
+  <g transform="translate(140, 100)" class="floating-element">
+    <rect x="-30" y="-30" width="60" height="60" rx="16" fill="url(#gold-gradient)" opacity="0.1" />
+    <path d="M-15 -15 L15 15 M-15 15 L15 -15" stroke="url(#gold-gradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="0" cy="0" r="10" fill="#1A1125" />
+    <circle cx="0" cy="0" r="6" fill="url(#gold-gradient)" />
+  </g>
+
+  <!-- Text Content -->
+  <text x="210" y="95" class="title">NEOBANK</text>
+  <text x="215" y="130" class="subtitle">Next-Gen Digital Banking Platform</text>
+
+  <!-- Decorative lines -->
+  <path d="M 600 80 L 700 80" stroke="url(#gold-gradient)" stroke-width="2" stroke-linecap="round" class="floating-element" style="animation-delay: 1s;" />
+  <path d="M 620 100 L 680 100" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round" class="floating-element" style="animation-delay: 1.5s;" />
+  <path d="M 640 120 L 720 120" stroke="url(#gold-gradient)" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" class="floating-element" style="animation-delay: 2s;" />
+  
+  <path d="M 100 150 L 150 150" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round" />
+  <circle cx="80" cy="150" r="4" fill="url(#gold-gradient)" />
+</svg>
