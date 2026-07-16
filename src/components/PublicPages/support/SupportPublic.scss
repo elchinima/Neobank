@@ -863,6 +863,20 @@ html.support-no-scroll {
       line-height: 1.5;
     }
 
+    &__row {
+      display: flex;
+      gap: 16px;
+
+      @media (max-width: 500px) {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .support-modal__group {
+        flex: 1;
+      }
+    }
+
     &__group {
       display: flex;
       flex-direction: column;

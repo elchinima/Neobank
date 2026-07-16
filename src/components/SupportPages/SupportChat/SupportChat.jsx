@@ -6,12 +6,13 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { supportChatLang } from './lang.js'
 import ReactMarkdown from 'react-markdown'
 import supportChatIcon from '../../../assets/icons/support_chat_icon.png'
+import loaderIcon from '../../../assets/icons/loader.svg'
 import './SupportChat.scss'
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
 function SupportChat() {
   const { t } = useLanguage()
-  const { token } = useAuth()
+  const { token, fetchWithAuth } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
@@ -29,10 +30,11 @@ function SupportChat() {
   const [isTyping, setIsTyping] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [isAgentConnected, setIsAgentConnected] = useState(false)
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [errorModal, setErrorModal] = useState(null)
   
   const [chatStatus, setChatStatus] = useState('active') // 'active', 'warning', 'closed'
   const [rating, setRating] = useState(0)
-  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const [feedbackText, setFeedbackText] = useState('')
   const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false)
   const [selectedImageBase64, setSelectedImageBase64] = useState(null)
@@ -203,7 +205,7 @@ function SupportChat() {
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size exceeds 10MB limit')
+      setErrorModal('File size exceeds 10MB limit')
       return
     }
 
@@ -212,7 +214,7 @@ function SupportChat() {
     formData.append('file', file)
 
     try {
-      const res = await fetch(`${API_BASE_URL}/Support/upload-image`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/Support/upload-image`, {
         method: 'POST',
         body: formData
       })
@@ -221,7 +223,7 @@ function SupportChat() {
       setSelectedImageBase64(data.imageBase64)
     } catch (err) {
       console.error(err)
-      alert('Image upload failed')
+      setErrorModal('Image upload failed')
     } finally {
       setIsUploadingImage(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -347,10 +349,14 @@ function SupportChat() {
                 disabled={isWaiting || isTyping || isUploadingImage}
               />
               <button type="submit" className="send-btn" disabled={(!inputValue.trim() && !selectedImageBase64) || isWaiting || isTyping || isUploadingImage} aria-label={t(supportChatLang, 'send')}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
+                {isUploadingImage ? (
+                  <img src={loaderIcon} alt="Uploading..." style={{ width: '24px', height: '24px' }} />
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                )}
               </button>
             </form>
           </div>
@@ -430,6 +436,20 @@ function SupportChat() {
                 }
               }}>
                 {t(supportChatLang, 'submitFeedback')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {errorModal && (
+        <div className="support-chat-modal-overlay" onClick={() => setErrorModal(null)}>
+          <div className="support-chat-modal" onClick={e => e.stopPropagation()}>
+            <h3>{t(supportChatLang, 'error') || 'Error'}</h3>
+            <p>{errorModal}</p>
+            <div className="support-chat-modal-actions">
+              <button className="confirm-btn" onClick={() => setErrorModal(null)}>
+                OK
               </button>
             </div>
           </div>

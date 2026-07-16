@@ -216,8 +216,8 @@ function SupportPublic() {
             <p className="support-modal__subtitle" data-lang-key="createTicketDesc">{t(supportLang, 'createTicketDesc')}</p>
 
             <form onSubmit={handleFormSubmit} className="support-modal__form">
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div className="support-modal__group" style={{ flex: 1 }}>
+              <div className="support-modal__row">
+                <div className="support-modal__group">
                   <label data-lang-key="yourName">{t(supportLang, 'yourName')}</label>
                   <input
                     type="text"
@@ -228,7 +228,7 @@ function SupportPublic() {
                   />
                 </div>
 
-                <div className="support-modal__group" style={{ flex: 1 }}>
+                <div className="support-modal__group">
                   <label>Ünsiyyət Dili</label>
                   <select
                     value={chatLanguage}
