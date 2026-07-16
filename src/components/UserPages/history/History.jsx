@@ -97,17 +97,17 @@ const statusLangKeyMap = {
 }
 
 const History = () => {
-  const { language, t } = useLanguage()
+  const { lang, t } = useLanguage()
   const { token, fetchWithAuth } = useAuth()
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [selectedDate, setSelectedDate] = useState(() => new Date())
 
   const locale = useMemo(() => {
-    if (language === 'az') return 'az-Latn-AZ'
-    if (language === 'ru') return 'ru-RU'
+    if (lang === 'az') return 'az-Latn-AZ'
+    if (lang === 'ru') return 'ru-RU'
     return 'en-US'
-  }, [language])
+  }, [lang])
   const [expandedTxn, setExpandedTxn] = useState(null)
   const [historyList, setHistoryList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -212,7 +212,7 @@ const History = () => {
         }
       }
     })
-  }, [historyList, language])
+  }, [historyList, lang])
 
   const filteredHistory = useMemo(() => {
     return formattedHistory.filter(txn => {
@@ -382,7 +382,7 @@ const History = () => {
                               <span className="detail-label">{t(historyLang, 'transactionId')}</span>
                               <span className="detail-value detail-value--id">{txn.id}</span>
                             </div>
-                            <div className="detail-item">
+                            <div className="detail-item status-item">
                               <span className="detail-label">{t(historyLang, 'status')}</span>
                               <span className={`detail-value status-${txn.status}`}>{translateStatus(txn.status)}</span>
                             </div>
@@ -390,12 +390,6 @@ const History = () => {
                               <span className="detail-label">{t(historyLang, 'category')}</span>
                               <span className="detail-value">{txn.translatedCategory}</span>
                             </div>
-                            {txn.cardInfo && (
-                              <div className="detail-item">
-                                <span className="detail-label">{t(historyLang, 'fromCard')}</span>
-                                <span className="detail-value">{txn.cardInfo}</span>
-                              </div>
-                            )}
                             <div className="detail-item">
                               <span className="detail-label">{t(historyLang, 'accountTarget')}</span>
                               <span className="detail-value">{txn.details.account}</span>

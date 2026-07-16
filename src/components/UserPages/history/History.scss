@@ -395,9 +395,17 @@
 
 // ─── Details Grid ──────────────────────────────────
 .details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
+
+  .detail-item {
+    flex: 1 1 180px;
+
+    &.status-item {
+      flex: 0.5 1 90px;
+    }
+  }
 
   .detail-item {
     display: flex;
