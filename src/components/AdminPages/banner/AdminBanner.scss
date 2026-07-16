@@ -430,3 +430,35 @@
     min-width: 100px;
   }
 }
+
+.admin-banner__textarea-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.admin-banner__loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(23, 18, 31, 0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.admin-banner__loader {
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

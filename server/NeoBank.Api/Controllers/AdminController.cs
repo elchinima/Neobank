@@ -439,7 +439,7 @@ public class AdminController : ControllerBase
             return BadRequest("PageKey and LanguageCode are required.");
 
         var apiKey = _configuration["GEMINI_API_KEY"];
-        var modelName = Environment.GetEnvironmentVariable("GEMINI_AGENT") ?? _configuration["GEMINI_AGENT"] ?? "gemini-1.5-flash";
+        var modelName = Environment.GetEnvironmentVariable("GEMINI_AGENT") ?? _configuration["GEMINI_AGENT"] ?? "antigravity";
 
         if (string.IsNullOrEmpty(apiKey))
             return StatusCode(500, "Gemini API key is not configured.");
@@ -468,7 +468,12 @@ public class AdminController : ControllerBase
                 {
                     var imageBytes = await httpClient.GetByteArrayAsync(request.BannerImageUrl);
                     var actualBase64 = Convert.ToBase64String(imageBytes);
-                    userParts.Add(new { inlineData = new { mimeType = "image/webp", data = actualBase64 } });
+
+                    var mimeType = "image/jpeg";
+                    if (request.BannerImageUrl.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) mimeType = "image/png";
+                    else if (request.BannerImageUrl.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)) mimeType = "image/webp";
+
+                    userParts.Add(new { inlineData = new { mimeType = mimeType, data = actualBase64 } });
                 }
                 catch (Exception ex)
                 {

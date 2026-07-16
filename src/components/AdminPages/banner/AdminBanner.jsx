@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
+import loaderIcon from '../../../assets/icons/loader.svg'
 import './AdminBanner.scss'
 
 const adminFetch = (url, options = {}) => {
@@ -66,6 +67,7 @@ const AdminBanner = () => {
 
     setAiLoadingKey(pageKey);
     setStatus('Generating text with AI...');
+    updatePageField(pageKey, lang, 'mediaText', '');
 
     try {
       const response = await adminFetch(`${API_BASE_URL}/admin/page-settings/generate-ai-text`, {
@@ -75,7 +77,12 @@ const AdminBanner = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate text');
+        let errText = 'Failed to generate text';
+        try {
+          const errData = await response.text();
+          if (errData) errText = errData;
+        } catch(e) {}
+        throw new Error(errText);
       }
 
       const data = await response.json();
@@ -281,13 +288,20 @@ const AdminBanner = () => {
                       {(t.mediaText || '').length}/1000
                     </span>
                   </div>
-                  <textarea
-                    rows="4"
-                    maxLength={1000}
-                    value={t.mediaText || ''}
-                    onChange={(event) => updatePageField(page.pageKey, currentLang, 'mediaText', event.target.value)}
-                    disabled={aiLoadingKey === page.pageKey}
-                  />
+                  <div className="admin-banner__textarea-wrap">
+                    <textarea
+                      rows="4"
+                      maxLength={1000}
+                      value={t.mediaText || ''}
+                      onChange={(event) => updatePageField(page.pageKey, currentLang, 'mediaText', event.target.value)}
+                      disabled={aiLoadingKey === page.pageKey}
+                    />
+                    {aiLoadingKey === page.pageKey && (
+                      <div className="admin-banner__loader-overlay">
+                        <img src={loaderIcon} alt="Loading..." className="admin-banner__loader" />
+                      </div>
+                    )}
+                  </div>
                 </label>
                 <div className="admin-banner__actions">
                   <button
