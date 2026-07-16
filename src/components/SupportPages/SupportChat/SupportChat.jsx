@@ -20,19 +20,7 @@ function SupportChat() {
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
   const [chatLanguage, setChatLanguage] = useState(location.state?.chatLanguage || 'az')
 
-  const [agentName, setAgentName] = useState(() => {
-    const names = [
-      "Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil", 
-      "Elvin", "Orxan", "Vüqar", "Anar", "Samir", "Ramin", 
-      "Fərid", "İlkin", "Emin", "Nurlan", "Ruslan", "Zaur", 
-      "Ceyhun", "Cavid", "Elşən", "Rüstəm", "Murad", "Taleh", 
-      "Elgün", "Vüsal", "Elnur", "Tərlan", "Azər", "Günel", 
-      "Sevinc", "Nərmin", "Aytən", "Vüsalə", "Fidan", "Aynur", 
-      "Səbinə", "Nigar", "Gülnar", "Lalə", "Xəyalə", "Şəbnəm", 
-      "Zəhra", "Zeynəb", "Aytac", "Nuranə", "Gülşən", "Türkan"
-    ];
-    return names[Math.floor(Math.random() * names.length)];
-  });
+  const [agentName, setAgentName] = useState('');
 
   const [messages, setMessages] = useState([])
   
@@ -55,6 +43,7 @@ function SupportChat() {
   const inactivityTimerRef = useRef(null)
   const closeTimerRef = useRef(null)
   const connectionRef = useRef(null)
+  const typingTimerRef = useRef(null)
 
   // Initialize SignalR Connection
   useEffect(() => {
@@ -70,6 +59,13 @@ function SupportChat() {
     newConnection.on('ReceiveHistory', (historyMessages) => {
       if (historyMessages && historyMessages.length > 0) {
         setMessages(historyMessages)
+        const lastMsg = historyMessages[historyMessages.length - 1]
+        if (lastMsg && lastMsg.sender === 'user') {
+          setIsWaiting(true)
+          setIsTyping(false)
+          if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+          typingTimerRef.current = setTimeout(() => setIsTyping(true), 10000)
+        }
       } else {
         // First time
         setMessages([
@@ -104,6 +100,7 @@ function SupportChat() {
       setMessages(prev => [...prev, msg])
       setIsWaiting(false)
       setIsTyping(false)
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
 
       if (msg.shouldClose) {
         setTimeout(() => {
@@ -121,20 +118,22 @@ function SupportChat() {
       fallbackReply(errorMsg)
       setIsWaiting(false)
       setIsTyping(false)
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
     })
 
     newConnection.start()
       .then(() => {
         setIsAgentConnected(true)
-        if (initialMessage) {
-           newConnection.invoke('JoinChat', initialMessage, chatLanguage, agentName)
+         if (initialMessage) {
+           newConnection.invoke('JoinChat', initialMessage, chatLanguage, null)
            // clear state so a refresh doesn't trigger initial message again
            window.history.replaceState({}, document.title)
            setIsWaiting(true)
            setIsTyping(false)
-           setTimeout(() => setIsTyping(true), 10000)
+           if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+           typingTimerRef.current = setTimeout(() => setIsTyping(true), 10000)
         } else {
-           newConnection.invoke('JoinChat', null, chatLanguage, agentName)
+           newConnection.invoke('JoinChat', null, chatLanguage, null)
         }
       })
       .catch(console.error)
@@ -248,7 +247,8 @@ function SupportChat() {
     setSelectedImageBase64(null)
     setIsWaiting(true)
     setIsTyping(false)
-    const typingTimer = setTimeout(() => setIsTyping(true), 10000)
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+    typingTimerRef.current = setTimeout(() => setIsTyping(true), 10000)
 
     try {
       if (connectionRef.current && connectionRef.current.state === 'Connected') {
@@ -257,14 +257,14 @@ function SupportChat() {
         fallbackReply("Connection is not active. Please refresh.")
         setIsWaiting(false)
         setIsTyping(false)
-        clearTimeout(typingTimer)
+        if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
       }
     } catch (err) {
       console.error(err)
       fallbackReply("Извините, сейчас мы испытываем высокую нагрузку. Оставьте сообщение, и мы свяжемся с вами.")
       setIsWaiting(false)
       setIsTyping(false)
-      clearTimeout(typingTimer)
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
     }
   }
 

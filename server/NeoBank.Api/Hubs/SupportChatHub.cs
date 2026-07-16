@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,24 @@ public class SupportChatHub : Hub
     private readonly IApplicationDbContext _dbContext;
     private readonly ISupportAIService _supportAIService;
     private readonly ILogger<SupportChatHub> _logger;
+    private static readonly ConcurrentDictionary<string, string> _lastSenders = new();
+    
+    private static readonly string[] AgentNames = new[]
+    {
+        "Tural", "Leyla", "Rəşad", "Aygün", "Aysel", "Kamil", 
+        "Elvin", "Orxan", "Vüqar", "Anar", "Samir", "Ramin", 
+        "Fərid", "İlkin", "Emin", "Nurlan", "Ruslan", "Zaur", 
+        "Ceyhun", "Cavid", "Elşən", "Rüstəm", "Murad", "Taleh", 
+        "Elgün", "Vüsal", "Elnur", "Tərlan", "Azər", "Günel", 
+        "Sevinc", "Nərmin", "Aytən", "Vüsalə", "Fidan", "Aynur", 
+        "Səbinə", "Nigar", "Gülnar", "Lalə", "Xəyalə", "Şəbnəm", 
+        "Zəhra", "Zeynəb", "Aytac", "Nuranə", "Gülşən", "Türkan"
+    };
+
+    private string GetRandomAgentName()
+    {
+        return AgentNames[new Random().Next(AgentNames.Length)];
+    }
 
     public SupportChatHub(IApplicationDbContext dbContext, ISupportAIService supportAIService, ILogger<SupportChatHub> logger)
     {
@@ -63,7 +82,7 @@ public class SupportChatHub : Hub
             activeChat = new SupportChat
             {
                 UserId = userId,
-                AgentName = agentName ?? "Agent",
+                AgentName = string.IsNullOrEmpty(agentName) ? GetRandomAgentName() : agentName,
                 Language = language ?? "az",
                 Created = DateTime.UtcNow.AddHours(4)
             };
@@ -78,7 +97,9 @@ public class SupportChatHub : Hub
             _dbContext.SupportChats.Add(activeChat);
             await _dbContext.SaveChangesAsync();
 
-            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language });
+            _lastSenders[userId] = "user";
+
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, lastSender = _lastSenders.GetValueOrDefault(userId, "agent") });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
@@ -92,7 +113,7 @@ public class SupportChatHub : Hub
         }
         else
         {
-            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, status = "Active", hasReview = false });
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, status = "Active", hasReview = false, lastSender = _lastSenders.GetValueOrDefault(userId, "agent") });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
@@ -127,6 +148,8 @@ public class SupportChatHub : Hub
         });
 
         await _dbContext.SaveChangesAsync();
+        _lastSenders[userId] = "user";
+        
         await Clients.Caller.SendAsync("MessageConfirmed", new
         {
             id = Guid.NewGuid().ToString(),
@@ -179,8 +202,9 @@ public class SupportChatHub : Hub
             }
             
             await _dbContext.SaveChangesAsync();
+            _lastSenders.TryRemove(activeChat.UserId, out _);
 
-            await Clients.Caller.SendAsync("ReceiveMessage", new
+            await Clients.User(activeChat.UserId).SendAsync("ReceiveMessage", new
             {
                 id = Guid.NewGuid().ToString(),
                 sender = "agent",
@@ -192,7 +216,8 @@ public class SupportChatHub : Hub
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing AI response");
-            await Clients.Caller.SendAsync("ReceiveMessage", new
+            _lastSenders.TryRemove(activeChat.UserId, out _);
+            await Clients.User(activeChat.UserId).SendAsync("ReceiveMessage", new
             {
                 id = Guid.NewGuid().ToString(),
                 sender = "agent",
@@ -214,6 +239,7 @@ public class SupportChatHub : Hub
         {
             activeChat.Status = "Closed";
             await _dbContext.SaveChangesAsync();
+            _lastSenders.TryRemove(userId, out _);
         }
     }
 
