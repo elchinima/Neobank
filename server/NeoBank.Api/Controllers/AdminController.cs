@@ -439,7 +439,7 @@ public class AdminController : ControllerBase
             return BadRequest("PageKey and LanguageCode are required.");
 
         var apiKey = _configuration["GEMINI_API_KEY"];
-        var modelName = Environment.GetEnvironmentVariable("GEMINI_AGENT") ?? _configuration["GEMINI_AGENT"] ?? "antigravity";
+        var modelName = _configuration["GEMINI_MODEL"];
 
         if (string.IsNullOrEmpty(apiKey))
             return StatusCode(500, "Gemini API key is not configured.");
