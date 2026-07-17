@@ -242,7 +242,7 @@
     }
 
     &--google {
-      background: #ffffff;
+      background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 46%, #b47012);
       flex-shrink: 0;
       width: 46px;
       padding: 0;
@@ -250,8 +250,12 @@
       align-items: center;
       justify-content: center;
 
+      svg path {
+        fill: #211405 !important;
+      }
+
       &:hover {
-        background: #f1f5f9;
+        filter: brightness(1.04);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
       }

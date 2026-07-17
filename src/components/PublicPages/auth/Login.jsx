@@ -111,7 +111,7 @@ function Login() {
           <section className="auth-page__form-section" aria-labelledby="login-heading">
             <div className="auth-page__card">
               <div className="auth-page__card-header">
-                <p className="auth-page__eyebrow">NeoBank · Sign In</p>
+                <p className="auth-page__eyebrow">NeoBank · {t(authLang, 'signIn')}</p>
                 <h1 id="login-heading" className="auth-page__card-title" data-lang-key="signIn">
                   {t(authLang, 'signIn')}
                 </h1>

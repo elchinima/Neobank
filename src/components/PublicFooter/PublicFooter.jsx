@@ -167,6 +167,15 @@ function PublicFooter() {
   const [message, setMessage] = useState({ text: '', isError: false })
   const inputRefs = useRef([])
 
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => {
+        setMessage({ text: '', isError: false })
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [message.text])
+
   const API_BASE_URL = import.meta.env.VITE_API_URL ||
     (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 

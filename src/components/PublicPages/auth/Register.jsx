@@ -116,8 +116,8 @@ function Register() {
           <section className="auth-page__form-section" aria-labelledby="register-heading">
             <div className="auth-page__card">
               <div className="auth-page__card-header">
-                <p className="auth-page__eyebrow">NeoBank · Create account</p>
-                <h1 id="register-heading" className="auth-page__card-title" data-lang-key="openAccount">
+                <p className="auth-page__eyebrow">NeoBank · {t(authLang, 'registerSubmit')}</p>
+                <h1 id="register-heading" className="auth-page__card-title" data-lang-key="registerTitle">
                   {t(authLang, 'openAccount')}
                 </h1>
                 <p className="auth-page__card-sub" data-lang-key="registerDesc">{t(authLang, 'registerDesc')}</p>
