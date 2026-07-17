@@ -423,6 +423,12 @@ const Cards = () => {
     return clean.match(/.{1,4}/g)?.join(' ') || clean;
   }
 
+  const getBalanceColor = (balance, isOption = false) => {
+    if (balance < 0) return '#ff4d4f';
+    if (balance < 5) return '#faad14';
+    return isOption ? '#111' : '#fff';
+  };
+
   const fetchCards = async () => {
     try {
       setLoading(true)
@@ -1091,7 +1097,7 @@ const Cards = () => {
                       <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                         {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
                       </span>
-                      <span className="amount">
+                      <span className="amount" style={{ color: showingCreditLimitMap[card.id] ? '#fff' : getBalanceColor(card.balance) }}>
                         {Number(showingCreditLimitMap[card.id] ? card.creditLimit : card.balance).toFixed(2)} AZN
                       </span>
                     </div>
@@ -1531,7 +1537,7 @@ const Cards = () => {
                       required
                     >
                       <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
                     </select>
                   </div>
                   <button
@@ -1578,7 +1584,7 @@ const Cards = () => {
                       required
                     >
                       <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
                     </select>
                   </div>
                   <button
@@ -1664,7 +1670,7 @@ const Cards = () => {
                   <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel')}</label>
                   <select value={newDepositForm.sourceCardId} onChange={e => setNewDepositForm({ ...newDepositForm, sourceCardId: e.target.value })} required>
                     <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}</option>)}
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}</option>)}
                   </select>
                 </div>
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newDepositStatus === 'loading'} style={{ marginTop: '16px' }}>
@@ -1735,7 +1741,7 @@ const Cards = () => {
                           onChange={e => setNewCardForm({ ...newCardForm, sourceCardId: e.target.value })}
                         >
                           {cards.map(c => (
-                            <option key={c.id} value={c.id}>
+                            <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
                               {c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}
                             </option>
                           ))}
@@ -1980,7 +1986,7 @@ const Cards = () => {
                     >
                       <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
                       {cards.map(c => (
-                        <option key={`src-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
+                        <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
                       ))}
                     </select>
                   </div>
@@ -2128,7 +2134,7 @@ const Cards = () => {
                     >
                       <option value="">{t(userCardsLang, 'selectCard')}</option>
                       {cards.filter(c => c.status === 'Active').map(c => (
-                        <option key={c.id} value={c.id}>
+                        <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
                           {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
                         </option>
                       ))}
@@ -2354,7 +2360,7 @@ const Cards = () => {
                     >
                       <option value="" disabled style={{ color: '#111' }}>{t(userCardsLang, 'selectCard')}</option>
                       {cards.filter(c => c.status === 'Active').map(c => (
-                        <option key={c.id} value={c.id} style={{ color: '#111' }}>
+                        <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
                           {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
                         </option>
                       ))}
