@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@use '../../../assets/styles/variables' as *;
 
 .admin-loans {
   padding: 32px;
@@ -22,20 +22,20 @@
     h1 {
       font-size: 2rem;
       font-weight: 800;
-      color: $landing-text;
+      color: $text-light;
       margin: 0 0 8px 0;
     }
 
     p {
-      color: $landing-text-muted;
+      color: $landing-smoke;
       margin: 0;
     }
   }
 
   &__table-wrapper {
-    background: rgba($landing-dark, 0.4);
+    background: rgba($landing-ink, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: $border-radius-lg;
+    border-radius: $border-radius;
     overflow-x: auto;
   }
 
@@ -53,13 +53,13 @@
       font-size: 0.85rem;
       font-weight: 600;
       text-transform: uppercase;
-      color: $landing-text-muted;
+      color: $landing-smoke;
       letter-spacing: 0.05em;
     }
 
     td {
       font-size: 0.95rem;
-      color: $landing-text;
+      color: $text-light;
 
       .user-info {
         display: flex;
@@ -71,7 +71,7 @@
 
         .email {
           font-size: 0.8rem;
-          color: $landing-text-muted;
+          color: $landing-smoke;
         }
       }
 
@@ -117,7 +117,7 @@
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: $transition;
+      transition: $landing-animation-fast;
 
       &.approve-btn {
         background: rgba(#10b981, 0.15);
@@ -158,9 +158,9 @@
   }
 
   &__modal {
-    background: $landing-darker;
+    background: $landing-navy;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: $border-radius-lg;
+    border-radius: $border-radius;
     padding: 24px;
     width: 100%;
     max-width: 400px;
@@ -168,7 +168,7 @@
 
     h3 {
       margin: 0 0 16px 0;
-      color: $landing-text;
+      color: $text-light;
     }
 
     textarea {
@@ -178,7 +178,7 @@
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: $border-radius-sm;
-      color: $landing-text;
+      color: $text-light;
       font-family: inherit;
       resize: vertical;
       margin-bottom: 16px;
@@ -200,14 +200,14 @@
         font-weight: 600;
         cursor: pointer;
         border: none;
-        transition: $transition;
+        transition: $landing-animation-fast;
 
         &.cancel-btn {
           background: transparent;
-          color: $landing-text-muted;
+          color: $landing-smoke;
 
           &:hover {
-            color: $landing-text;
+            color: $text-light;
           }
         }
 

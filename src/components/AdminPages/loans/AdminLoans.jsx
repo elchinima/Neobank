@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { API_BASE_URL } from '../../../config/api'
+import Cookies from 'js-cookie'
+import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminLoans.scss'
 
 const adminFetch = async (url, options = {}) => {
-  const token = localStorage.getItem('token')
+  const token = Cookies.get('neobank_token')
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
