@@ -75,8 +75,6 @@ public class LoansController : ControllerBase
         decimal monthlyPayment = Math.Round(totalAmount / request.TermMonths, 2);
 
 
-        targetCard.Balance += request.Amount;
-
         var loan = new Loan
         {
             UserId = userId,
@@ -86,30 +84,24 @@ public class LoansController : ControllerBase
             InterestRate = rate,
             MonthlyPayment = monthlyPayment,
             RemainingBalance = Math.Round(monthlyPayment * request.TermMonths, 2),
-            Status = "Active"
+            Status = "Pending"
         };
-
-        var transaction = new Transaction
+        
+        loan.StatusHistory.Add(new LoanStatusHistory
         {
-            UserId = userId,
-            CardId = targetCard.Id,
-            Amount = request.Amount,
-            Type = "Credit",
-            Category = "LoanPayout",
-            Description = $"Loan disbursement ({request.Amount} AZN for {request.TermMonths} months)",
-            Status = "Completed",
-            BalanceAfter = targetCard.Balance
-        };
+            Status = "Pending",
+            ChangedBy = "User",
+            Time = DateTime.UtcNow.ToString("o")
+        });
 
         _context.Loans.Add(loan);
-        _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
         return Ok(new
         {
             loan,
             newBalance = targetCard.Balance,
-            message = "Loan successfully processed and funds disbursed to the card."
+            message = "Your loan application has been submitted and is pending administrator approval."
         });
     }
 

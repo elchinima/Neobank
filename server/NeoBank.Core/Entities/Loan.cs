@@ -14,4 +14,14 @@ public class Loan
     public DateTime NextPaymentDate { get; set; } = DateTime.UtcNow.AddMonths(1);
     public decimal PaidAmount { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<LoanStatusHistory> StatusHistory { get; set; } = new List<LoanStatusHistory>();
+}
+
+public class LoanStatusHistory
+{
+    public string Status { get; set; } = string.Empty;
+    public string ChangedBy { get; set; } = string.Empty;
+    public string Time { get; set; } = string.Empty;
+    public string? Reason { get; set; }
 }

@@ -111,6 +111,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.ToTable("Loans");
             entity.HasKey(l => l.Id);
             entity.HasIndex(l => l.UserId);
+            
+            entity.OwnsMany(l => l.StatusHistory, h => 
+            { 
+                h.ToJson(); 
+            });
         });
 
         builder.Entity<Deposit>(entity =>

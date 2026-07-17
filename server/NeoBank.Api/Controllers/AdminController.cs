@@ -15,15 +15,18 @@ public class AdminController : ControllerBase
     private readonly IApplicationDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IEmailService _emailService;
 
     public AdminController(
         IApplicationDbContext context,
         IConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IEmailService emailService)
     {
         _context = context;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
+        _emailService = emailService;
     }
 
     [HttpGet("dashboard")]
@@ -1002,6 +1005,127 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(new { success = true });
     }
+
+    // --- LOAN MANAGEMENT ENDPOINTS ---
+
+    [HttpGet("loans")]
+    public async Task<IActionResult> GetLoans()
+    {
+        var loans = await _context.Loans
+            .OrderByDescending(l => l.CreatedAt)
+            .Select(l => new
+            {
+                l.Id,
+                l.UserId,
+                UserFullName = _context.Users.Where(u => u.Id == l.UserId).Select(u => u.FirstName + " " + u.LastName).FirstOrDefault(),
+                UserEmail = _context.Users.Where(u => u.Id == l.UserId).Select(u => u.Email).FirstOrDefault(),
+                l.Amount,
+                l.TermMonths,
+                l.InterestRate,
+                l.Status,
+                l.CreatedAt,
+                l.StatusHistory
+            })
+            .ToListAsync();
+
+        return Ok(loans);
+    }
+
+    [HttpPost("loans/{id}/approve")]
+    public async Task<IActionResult> ApproveLoan(string id)
+    {
+        var loan = await _context.Loans.FindAsync(id);
+        if (loan == null) return NotFound(new { message = "Loan not found." });
+
+        if (loan.Status != "Pending")
+            return BadRequest(new { message = "Only pending loans can be approved." });
+
+        var targetCard = await _context.Cards.FindAsync(loan.TargetCardId);
+        if (targetCard == null)
+            return NotFound(new { message = "Destination card not found." });
+
+        var user = await _context.Users.FindAsync(loan.UserId);
+        if (user == null)
+            return NotFound(new { message = "User not found." });
+
+        loan.Status = "Active";
+        targetCard.Balance += loan.Amount;
+
+        var transaction = new Transaction
+        {
+            UserId = loan.UserId,
+            CardId = targetCard.Id,
+            Amount = loan.Amount,
+            Type = "Credit",
+            Category = "LoanPayout",
+            Description = $"Loan disbursement ({loan.Amount} AZN for {loan.TermMonths} months)",
+            Status = "Completed",
+            BalanceAfter = targetCard.Balance
+        };
+
+        loan.StatusHistory.Add(new LoanStatusHistory
+        {
+            Status = "Active",
+            ChangedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Admin",
+            Time = DateTime.UtcNow.ToString("o")
+        });
+
+        _context.Transactions.Add(transaction);
+        await _context.SaveChangesAsync();
+
+        await _emailService.SendCustomEmailAsync(
+            user.Email,
+            user.FirstName,
+            "Loan Approved",
+            "Loan Application Approved",
+            $"Your loan application for {loan.Amount} AZN has been approved. The funds have been deposited to your card."
+        );
+
+        return Ok(new { message = "Loan approved successfully." });
+    }
+
+    [HttpPost("loans/{id}/reject")]
+    public async Task<IActionResult> RejectLoan(string id, [FromBody] RejectLoanRequest request)
+    {
+        var loan = await _context.Loans.FindAsync(id);
+        if (loan == null) return NotFound(new { message = "Loan not found." });
+
+        if (loan.Status != "Pending")
+            return BadRequest(new { message = "Only pending loans can be rejected." });
+
+        var user = await _context.Users.FindAsync(loan.UserId);
+        if (user == null)
+            return NotFound(new { message = "User not found." });
+
+        loan.Status = "Rejected";
+
+        loan.StatusHistory.Add(new LoanStatusHistory
+        {
+            Status = "Rejected",
+            ChangedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Admin",
+            Time = DateTime.UtcNow.ToString("o"),
+            Reason = request.Reason
+        });
+
+        await _context.SaveChangesAsync();
+
+        var reasonText = !string.IsNullOrWhiteSpace(request.Reason) ? $"<br><br><b>Reason:</b> {request.Reason}" : "";
+
+        await _emailService.SendCustomEmailAsync(
+            user.Email,
+            user.FirstName,
+            "Loan Rejected",
+            "Loan Application Rejected",
+            $"Unfortunately, your loan application for {loan.Amount} AZN has been rejected.{reasonText}"
+        );
+
+        return Ok(new { message = "Loan rejected successfully." });
+    }
+}
+
+public class RejectLoanRequest
+{
+    public string Reason { get; set; } = string.Empty;
 }
 
 public class MccDto

@@ -29,6 +29,7 @@ import AdminBanner from '../../components/AdminPages/banner/AdminBanner'
 import AdminDatabase from '../../components/AdminPages/database/AdminDatabase'
 import AdminFooter from '../../components/AdminPages/footer/AdminFooter'
 import AdminCashbacks from '../../components/AdminPages/cashbacks/AdminCashbacks'
+import AdminLoans from '../../components/AdminPages/loans/AdminLoans'
 
 import ErrorPage from '../../components/ErrorPage/ErrorPage'
 
@@ -60,6 +61,7 @@ function AppRouter() {
                 <Route path="database" element={<AdminDatabase />} />
                 <Route path="footer" element={<AdminFooter />} />
                 <Route path="cashbacks" element={<AdminCashbacks />} />
+                <Route path="loans" element={<AdminLoans />} />
               </Route>
             </Route>
 
