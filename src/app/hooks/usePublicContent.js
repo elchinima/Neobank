@@ -9,6 +9,8 @@ const defaultContent = {
   pages: [],
   footerLinks: [],
   footerContacts: [],
+  footerSocials: [],
+  footerDocuments: [],
 }
 
 export function usePublicContent() {
@@ -30,6 +32,8 @@ export function usePublicContent() {
           pages: Array.isArray(data.pages) ? data.pages : [],
           footerLinks: Array.isArray(data.footerLinks) ? data.footerLinks : [],
           footerContacts: Array.isArray(data.footerContacts) ? data.footerContacts : [],
+          footerSocials: Array.isArray(data.footerSocials) ? data.footerSocials : [],
+          footerDocuments: Array.isArray(data.footerDocuments) ? data.footerDocuments : [],
         }
 
         publicContentCache = nextContent
