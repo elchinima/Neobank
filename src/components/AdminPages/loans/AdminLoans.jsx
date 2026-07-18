@@ -17,6 +17,7 @@ const adminFetch = async (url, options = {}) => {
 
 const AdminLoans = () => {
   const [loans, setLoans] = useState([])
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   
@@ -65,8 +66,21 @@ const AdminLoans = () => {
     }
   }
 
+  const fetchUsers = async () => {
+    try {
+      const response = await adminFetch(`${API_BASE_URL}/admin/users`)
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchLoans()
+    fetchUsers()
   }, [])
 
   const openApproveModal = (id) => {
@@ -346,43 +360,47 @@ const AdminLoans = () => {
           </div>
         </div>
       )}
-      {reasonModal.show && (
-        <div className="admin-loans__modal-overlay">
-          <div className="admin-loans__modal">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>Rejection Details</h3>
-              <button 
-                onClick={() => setReasonModal({ ...reasonModal, show: false })}
-                style={{ background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', padding: '4px' }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Rejected By</div>
-              <div style={{ color: '#fff', fontSize: '1.05rem' }}>{reasonModal.changedBy || 'System'}</div>
-            </div>
-            
-            {reasonModal.time && (
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Date</div>
-                <div style={{ color: '#fff', fontSize: '1.05rem' }}>{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+      {reasonModal.show && (() => {
+        const changedByUser = users.find(u => u.id === reasonModal.changedBy)
+        const changedByName = changedByUser ? `${changedByUser.firstName || ''} ${changedByUser.lastName || ''}`.trim() : (reasonModal.changedBy || 'System')
+        
+        return (
+          <div className="admin-loans__modal-overlay">
+            <div className="admin-loans-modal">
+              <div className="admin-loans-modal__header">
+                <h2>Rejection Details</h2>
+                <button 
+                  className="admin-loans-modal__close"
+                  onClick={() => setReasonModal({ ...reasonModal, show: false })}
+                >
+                  &times;
+                </button>
               </div>
-            )}
-            
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Reason</div>
-              <div style={{ color: '#fff', whiteSpace: 'pre-wrap', lineHeight: '1.5', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                {reasonModal.reason}
+              
+              <div className="admin-loans-modal__content">
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Rejected By</div>
+                  <div style={{ color: '#fff', fontSize: '1rem' }}>{changedByName}</div>
+                </div>
+                
+                {reasonModal.time && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Date</div>
+                    <div style={{ color: '#fff', fontSize: '1rem' }}>{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                  </div>
+                )}
+                
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Reason</div>
+                  <div style={{ color: '#fff', whiteSpace: 'pre-wrap', lineHeight: '1.5', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    {reasonModal.reason}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

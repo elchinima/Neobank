@@ -524,8 +524,8 @@ public class AdminController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-    [HttpGet("database/images")]
-    public async Task<IActionResult> GetDatabaseImages()
+    [HttpGet("database/files")]
+    public async Task<IActionResult> GetDatabaseFiles()
     {
         var supabaseUrl = _configuration["Supabase:Url"] ?? _configuration["SUPABASE_URL"];
         var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
@@ -539,62 +539,64 @@ public class AdminController : ControllerBase
             var httpClient = _httpClientFactory.CreateClient();
             var listUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/list/{bucketName}";
             
-            var request = new HttpRequestMessage(HttpMethod.Post, listUrl);
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseKey);
-            request.Headers.Add("apiKey", supabaseKey);
-            
-            var payload = new
-            {
-                prefix = "images",
-                limit = 1000,
-                offset = 0,
-                sortBy = new { column = "created_at", order = "desc" }
-            };
-            request.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
-
-            var response = await httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, $"Failed to list images: {error}");
-            }
-
-            var content = await response.Content.ReadAsStringAsync();
-            var files = System.Text.Json.JsonDocument.Parse(content).RootElement;
-            
             var resultList = new List<object>();
-            foreach (var file in files.EnumerateArray())
+            var prefixes = new[] { "images", "documents" };
+
+            foreach (var prefix in prefixes)
             {
-                var name = file.GetProperty("name").GetString();
-                if (string.IsNullOrEmpty(name) || name == ".emptyFolderPlaceholder") continue;
-
-                // Format: [id]___[custom_name].ext
-                var parts = name.Split("___");
-                var customName = name;
-                var id = Guid.NewGuid().ToString();
+                var request = new HttpRequestMessage(HttpMethod.Post, listUrl);
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseKey);
+                request.Headers.Add("apiKey", supabaseKey);
                 
-                if (parts.Length > 1) 
+                var payload = new
                 {
-                    id = parts[0];
-                    var nameWithExt = parts[1];
-                    var lastDot = nameWithExt.LastIndexOf('.');
-                    customName = lastDot > 0 ? nameWithExt.Substring(0, lastDot) : nameWithExt;
+                    prefix = prefix,
+                    limit = 1000,
+                    offset = 0,
+                    sortBy = new { column = "created_at", order = "desc" }
+                };
+                request.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+
+                var response = await httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var files = System.Text.Json.JsonDocument.Parse(content).RootElement;
+                    
+                    foreach (var file in files.EnumerateArray())
+                    {
+                        var name = file.GetProperty("name").GetString();
+                        if (string.IsNullOrEmpty(name) || name == ".emptyFolderPlaceholder") continue;
+
+                        var parts = name.Split("___");
+                        var customName = name;
+                        var id = Guid.NewGuid().ToString();
+                        
+                        if (parts.Length > 1) 
+                        {
+                            id = parts[0];
+                            var nameWithExt = parts[1];
+                            var lastDot = nameWithExt.LastIndexOf('.');
+                            customName = lastDot > 0 ? nameWithExt.Substring(0, lastDot) : nameWithExt;
+                        }
+
+                        var createdAt = file.GetProperty("created_at").GetString();
+                        var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/{prefix}/{name}";
+
+                        resultList.Add(new
+                        {
+                            Id = id,
+                            Name = customName,
+                            UploadDate = createdAt,
+                            Url = publicUrl,
+                            FileName = name,
+                            Folder = prefix
+                        });
+                    }
                 }
-
-                var createdAt = file.GetProperty("created_at").GetString();
-                var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/images/{name}";
-
-                resultList.Add(new
-                {
-                    Id = id,
-                    Name = customName,
-                    UploadDate = createdAt,
-                    Url = publicUrl,
-                    FileName = name
-                });
             }
 
-            return Ok(resultList);
+            return Ok(resultList.OrderByDescending(x => ((dynamic)x).UploadDate).ToList());
         }
         catch (Exception ex)
         {
@@ -602,8 +604,8 @@ public class AdminController : ControllerBase
         }
     }
 
-    [HttpPost("database/images")]
-    public async Task<IActionResult> UploadDatabaseImage([FromForm] IFormFile file, [FromForm] string name)
+    [HttpPost("database/files")]
+    public async Task<IActionResult> UploadDatabaseFile([FromForm] IFormFile file, [FromForm] string name)
     {
         if (file == null || file.Length == 0) return BadRequest("File is empty.");
         if (string.IsNullOrWhiteSpace(name)) return BadRequest("Name is required.");
@@ -611,8 +613,13 @@ public class AdminController : ControllerBase
         if (file.Length > 5 * 1024 * 1024) return BadRequest("File size exceeds 5 MB limit.");
 
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        var allowedExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
-        if (!allowedExtensions.Contains(ext)) return BadRequest("Only PNG, JPG, JPEG, and WEBP images are allowed.");
+        var imageExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+        var docExtensions = new[] { ".txt", ".pdf", ".docx", ".xls", ".xlsx", ".md" };
+        
+        if (!imageExtensions.Contains(ext) && !docExtensions.Contains(ext)) 
+            return BadRequest("Only PNG, JPG, JPEG, WEBP, TXT, PDF, DOCX, XLS, XLSX, and MD files are allowed.");
+
+        var folder = imageExtensions.Contains(ext) ? "images" : "documents";
 
         var supabaseUrl = _configuration["Supabase:Url"] ?? _configuration["SUPABASE_URL"];
         var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
@@ -629,7 +636,7 @@ public class AdminController : ControllerBase
             var listReq = new HttpRequestMessage(HttpMethod.Post, listUrl);
             listReq.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseKey);
             listReq.Headers.Add("apiKey", supabaseKey);
-            listReq.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(new { prefix = "images", limit = 1000 }), System.Text.Encoding.UTF8, "application/json");
+            listReq.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(new { prefix = folder, limit = 1000 }), System.Text.Encoding.UTF8, "application/json");
             
             var listRes = await httpClient.SendAsync(listReq);
             if (listRes.IsSuccessStatusCode)
@@ -641,7 +648,7 @@ public class AdminController : ControllerBase
                     var fName = f.GetProperty("name").GetString();
                     if (fName != null && fName.Contains($"___{name}."))
                     {
-                        return BadRequest("Image with this name already exists.");
+                        return BadRequest("File with this name already exists.");
                     }
                 }
             }
@@ -650,7 +657,7 @@ public class AdminController : ControllerBase
 
             var fileId = Guid.NewGuid().ToString();
             var fileName = $"{fileId}___{sanitizedName}{ext}";
-            var objectPath = $"images/{fileName}";
+            var objectPath = $"{folder}/{fileName}";
             var uploadUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/{objectPath}";
 
             var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl);
@@ -668,6 +675,12 @@ public class AdminController : ControllerBase
                 ".webp" => "image/webp",
                 ".jpg" => "image/jpeg",
                 ".jpeg" => "image/jpeg",
+                ".txt" => "text/plain",
+                ".pdf" => "application/pdf",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".md" => "text/markdown",
                 _ => "application/octet-stream"
             };
             request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
@@ -676,7 +689,7 @@ public class AdminController : ControllerBase
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, $"Failed to upload image: {error}");
+                return StatusCode((int)response.StatusCode, $"Failed to upload file: {error}");
             }
 
             var publicUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/public/{bucketName}/{objectPath}";
@@ -687,7 +700,8 @@ public class AdminController : ControllerBase
                 Name = name,
                 UploadDate = DateTime.UtcNow.ToString("o"),
                 Url = publicUrl,
-                FileName = fileName
+                FileName = fileName,
+                Folder = folder
             });
         }
         catch (Exception ex)
@@ -696,8 +710,8 @@ public class AdminController : ControllerBase
         }
     }
 
-    [HttpDelete("database/images")]
-    public async Task<IActionResult> DeleteDatabaseImage([FromQuery] string fileName)
+    [HttpDelete("database/files")]
+    public async Task<IActionResult> DeleteDatabaseFile([FromQuery] string fileName)
     {
         var supabaseUrl = _configuration["Supabase:Url"] ?? _configuration["SUPABASE_URL"];
         var supabaseKey = _configuration["Supabase:Key"] ?? _configuration["SUPABASE_KEY"] ?? _configuration["SUPABASE_SERVICE_ROLE_KEY"];
@@ -706,11 +720,15 @@ public class AdminController : ControllerBase
         if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
             return StatusCode(500, "Supabase configuration is missing");
 
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        var imageExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+        var folder = imageExtensions.Contains(ext) ? "images" : "documents";
+
         var httpClient = _httpClientFactory.CreateClient();
 
         try
         {
-            var deleteUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/images/{fileName}";
+            var deleteUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/{bucketName}/{folder}/{fileName}";
             var request = new HttpRequestMessage(HttpMethod.Delete, deleteUrl);
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseKey);
             request.Headers.Add("apiKey", supabaseKey);
@@ -719,7 +737,7 @@ public class AdminController : ControllerBase
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, $"Failed to delete image: {error}");
+                return StatusCode((int)response.StatusCode, $"Failed to delete file: {error}");
             }
 
             return Ok(new { success = true });
@@ -730,8 +748,8 @@ public class AdminController : ControllerBase
         }
     }
 
-    [HttpPut("database/images")]
-    public async Task<IActionResult> RenameDatabaseImage([FromQuery] string fileName, [FromBody] RenameImageRequest req)
+    [HttpPut("database/files")]
+    public async Task<IActionResult> RenameDatabaseFile([FromQuery] string fileName, [FromBody] RenameImageRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.NewName)) return BadRequest("New name is required.");
         var sanitizedNewName = req.NewName.Replace(" ", "_").Replace("___", "_");
@@ -744,6 +762,10 @@ public class AdminController : ControllerBase
         if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
             return StatusCode(500, "Supabase configuration is missing");
 
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        var imageExtensions = new[] { ".png", ".jpg", ".jpeg", ".webp" };
+        var folder = imageExtensions.Contains(ext) ? "images" : "documents";
+
         var httpClient = _httpClientFactory.CreateClient();
 
         try
@@ -752,7 +774,7 @@ public class AdminController : ControllerBase
             var listReq = new HttpRequestMessage(HttpMethod.Post, listUrl);
             listReq.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseKey);
             listReq.Headers.Add("apiKey", supabaseKey);
-            listReq.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(new { prefix = "images", limit = 1000 }), System.Text.Encoding.UTF8, "application/json");
+            listReq.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(new { prefix = folder, limit = 1000 }), System.Text.Encoding.UTF8, "application/json");
             
             var listRes = await httpClient.SendAsync(listReq);
             if (listRes.IsSuccessStatusCode)
@@ -764,7 +786,7 @@ public class AdminController : ControllerBase
                     var fName = f.GetProperty("name").GetString();
                     if (fName != null && fName != fileName && fName.Contains($"___{req.NewName}."))
                     {
-                        return BadRequest("Image with this name already exists.");
+                        return BadRequest("File with this name already exists.");
                     }
                 }
             }
@@ -772,7 +794,6 @@ public class AdminController : ControllerBase
             var parts = fileName.Split("___");
             if (parts.Length < 2) return BadRequest("Invalid file name format.");
             var id = parts[0];
-            var ext = Path.GetExtension(fileName);
             var newFileName = $"{id}___{sanitizedNewName}{ext}";
 
             var moveUrl = $"{supabaseUrl.TrimEnd('/')}/storage/v1/object/move";
@@ -781,15 +802,15 @@ public class AdminController : ControllerBase
             moveReq.Headers.Add("apiKey", supabaseKey);
             moveReq.Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(new {
                 bucketId = bucketName,
-                sourceKey = $"images/{fileName}",
-                destinationKey = $"images/{newFileName}"
+                sourceKey = $"{folder}/{fileName}",
+                destinationKey = $"{folder}/{newFileName}"
             }), System.Text.Encoding.UTF8, "application/json");
 
             var response = await httpClient.SendAsync(moveReq);
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, $"Failed to rename image: {error}");
+                return StatusCode((int)response.StatusCode, $"Failed to rename file: {error}");
             }
 
             return Ok(new { success = true, newFileName });

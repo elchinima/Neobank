@@ -260,9 +260,63 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 20px;
+  }
+}
+
+.admin-loans-modal {
+  background: #1e1926;
+  border: 1px solid rgba(255, 226, 138, 0.2);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  animation: modalIn 0.2s ease-out;
+
+  &__header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+    }
   }
 
-  &__modal {
+  &__close {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    &:hover { color: #fff; }
+  }
+
+  &__content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-loans__modal {
     background: $landing-navy;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: $border-radius;
