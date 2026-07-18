@@ -1012,6 +1012,7 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetLoans()
     {
         var loans = await _context.Loans
+            .AsNoTracking()
             .OrderByDescending(l => l.CreatedAt)
             .Select(l => new
             {
