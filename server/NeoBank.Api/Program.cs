@@ -219,6 +219,16 @@ using (var scope = app.Services.CreateScope())
             );
             dbContext.SaveChanges();
         }
+        if (!dbContext.FooterSettings.Any(f => f.Category == "Document"))
+        {
+            dbContext.FooterSettings.AddRange(
+                new FooterSetting { Category = "Document", Key = "userAgreement", Value = "User Agreement", Url = "" },
+                new FooterSetting { Category = "Document", Key = "rules", Value = "Rules", Url = "" },
+                new FooterSetting { Category = "Document", Key = "privacyPolicy", Value = "Privacy Policy", Url = "" },
+                new FooterSetting { Category = "Document", Key = "personalDataProcessing", Value = "Personal Data Processing", Url = "" }
+            );
+            dbContext.SaveChanges();
+        }
 
 
     }

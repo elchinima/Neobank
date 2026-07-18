@@ -162,7 +162,12 @@ function PublicFooter() {
   } = usePublicFooter()
 
   const { lang, t } = useLanguage()
-  const { footerLinks, footerContacts, footerSocials = [] } = usePublicContent()
+  const { footerLinks, footerContacts, footerSocials = [], footerDocuments = [] } = usePublicContent()
+
+  const getDocUrl = (key) => {
+    const doc = footerDocuments.find(d => d.docKey?.toLowerCase() === key.toLowerCase())
+    return doc?.url || '#'
+  }
 
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false)
   const [email, setEmail] = useState('')
@@ -581,19 +586,19 @@ function PublicFooter() {
               <h2 id="documents-modal-title" data-lang-key="documentsTitle" style={{ marginBottom: '1.5rem', textAlign: 'center', maxWidth: '100%' }}>{t(footerLang, 'documentsTitle')}</h2>
               
               <div className="public-footer__documents-grid">
-                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                <a href={getDocUrl('userAgreement')} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
                   <img src={userAgreementIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
                   <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'userAgreement')}</span>
                 </a>
-                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                <a href={getDocUrl('rules')} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
                   <img src={rulesIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
                   <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'rules')}</span>
                 </a>
-                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                <a href={getDocUrl('privacyPolicy')} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
                   <img src={privacyPolicyIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
                   <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'privacyPolicy')}</span>
                 </a>
-                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                <a href={getDocUrl('personalDataProcessing')} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
                   <img src={personalDataIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
                   <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'personalDataProcessing')}</span>
                 </a>

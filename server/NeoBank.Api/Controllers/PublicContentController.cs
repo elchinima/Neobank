@@ -42,7 +42,11 @@ public class PublicContentController : ControllerBase
             .Where(f => f.Category == "Social")
             .Select(f => new { section = "social", label = f.Key, url = f.Url, isExternal = true });
 
-        return Ok(new { pages, footerContacts, footerSocials });
+        var footerDocuments = footerSettings
+            .Where(f => f.Category == "Document")
+            .Select(f => new { docKey = f.Key, url = f.Url });
+
+        return Ok(new { pages, footerContacts, footerSocials, footerDocuments });
     }
 
     [HttpGet("cashbacks")]

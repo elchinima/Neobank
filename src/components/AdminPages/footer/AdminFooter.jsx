@@ -27,8 +27,16 @@ const AdminFooter = () => {
     Instagram: { url: '' }
   })
 
+  const [documents, setDocuments] = useState({
+    userAgreement: { url: '' },
+    rules: { url: '' },
+    privacyPolicy: { url: '' },
+    personalDataProcessing: { url: '' }
+  })
+
   const [initialContacts, setInitialContacts] = useState(null)
   const [initialSocials, setInitialSocials] = useState(null)
+  const [initialDocuments, setInitialDocuments] = useState(null)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -46,22 +54,28 @@ const AdminFooter = () => {
       
       const newContacts = { ...contacts }
       const newSocials = { ...socials }
+      const newDocuments = { ...documents }
 
       data.forEach(item => {
         const contactKey = Object.keys(newContacts).find(k => k.toLowerCase() === item.key.toLowerCase())
         const socialKey = Object.keys(newSocials).find(k => k.toLowerCase() === item.key.toLowerCase())
+        const docKey = Object.keys(newDocuments).find(k => k.toLowerCase() === item.key.toLowerCase())
 
         if (item.category === 'Contact' && contactKey) {
           newContacts[contactKey] = { value: item.value || '', url: item.url || '' }
         } else if (item.category === 'Social' && socialKey) {
           newSocials[socialKey] = { url: item.url || '' }
+        } else if (item.category === 'Document' && docKey) {
+          newDocuments[docKey] = { url: item.url || '' }
         }
       })
 
       setContacts(newContacts)
       setSocials(newSocials)
+      setDocuments(newDocuments)
       setInitialContacts(JSON.stringify(newContacts))
       setInitialSocials(JSON.stringify(newSocials))
+      setInitialDocuments(JSON.stringify(newDocuments))
     } catch (err) {
       showMessage(err.message, 'error')
     } finally {
@@ -83,9 +97,18 @@ const AdminFooter = () => {
     }))
   }
 
+  const handleDocumentChange = (key, val) => {
+    setDocuments(prev => ({
+      ...prev,
+      [key]: { url: val }
+    }))
+  }
+
   const hasChanges = () => {
-    if (!initialContacts || !initialSocials) return false
-    return JSON.stringify(contacts) !== initialContacts || JSON.stringify(socials) !== initialSocials
+    if (!initialContacts || !initialSocials || !initialDocuments) return false
+    return JSON.stringify(contacts) !== initialContacts || 
+           JSON.stringify(socials) !== initialSocials ||
+           JSON.stringify(documents) !== initialDocuments
   }
 
   const handleSave = async () => {
@@ -126,6 +149,21 @@ const AdminFooter = () => {
       }
     })
 
+    // Add only changed documents
+    const parsedInitialDocuments = JSON.parse(initialDocuments)
+    Object.keys(documents).forEach(key => {
+      const current = documents[key]
+      const initial = parsedInitialDocuments[key]
+      if (current.url !== initial.url) {
+        payload.push({
+          category: 'Document',
+          key,
+          value: key,
+          url: current.url
+        })
+      }
+    })
+
     if (payload.length === 0) {
       setSaving(false)
       return
@@ -144,6 +182,7 @@ const AdminFooter = () => {
       
       setInitialContacts(JSON.stringify(contacts))
       setInitialSocials(JSON.stringify(socials))
+      setInitialDocuments(JSON.stringify(documents))
       showMessage('Footer settings successfully updated!', 'success')
     } catch (err) {
       showMessage(err.message, 'error')
@@ -288,6 +327,58 @@ const AdminFooter = () => {
               placeholder="https://instagram.com/..." 
               value={socials.Instagram.url} 
               onChange={e => handleSocialChange('Instagram', e.target.value)} 
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-footer__card">
+        <h2>Document Links</h2>
+        
+        <div className="admin-footer__field-group">
+          <label>User Agreement</label>
+          <div className="input-row">
+            <input 
+              type="text" 
+              placeholder="https://..." 
+              value={documents.userAgreement.url} 
+              onChange={e => handleDocumentChange('userAgreement', e.target.value)} 
+            />
+          </div>
+        </div>
+
+        <div className="admin-footer__field-group">
+          <label>Rules</label>
+          <div className="input-row">
+            <input 
+              type="text" 
+              placeholder="https://..." 
+              value={documents.rules.url} 
+              onChange={e => handleDocumentChange('rules', e.target.value)} 
+            />
+          </div>
+        </div>
+
+        <div className="admin-footer__field-group">
+          <label>Privacy Policy</label>
+          <div className="input-row">
+            <input 
+              type="text" 
+              placeholder="https://..." 
+              value={documents.privacyPolicy.url} 
+              onChange={e => handleDocumentChange('privacyPolicy', e.target.value)} 
+            />
+          </div>
+        </div>
+
+        <div className="admin-footer__field-group">
+          <label>Personal Data Processing</label>
+          <div className="input-row">
+            <input 
+              type="text" 
+              placeholder="https://..." 
+              value={documents.personalDataProcessing.url} 
+              onChange={e => handleDocumentChange('personalDataProcessing', e.target.value)} 
             />
           </div>
         </div>
