@@ -172,65 +172,31 @@ public class AuthService : IAuthService
             .Include(u => u.Session)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
 
-        if (user != null)
+        if (user == null)
         {
-            if (!user.IsActive)
-            {
-                throw new UnauthorizedAccessException("Account is disabled.");
-            }
-
-            var session = user.Session;
-            if (session != null && session.TwoFactorEnabled)
-            {
-                var tempToken = GenerateTempToken();
-                var code = GenerateCode();
-                await SaveVerificationCode(user.Id, code, "TwoFactor", tempToken);
-                await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "TwoFactor");
-
-                return new AuthResponseDto
-                {
-                    RequiresTwoFactor = true,
-                    TempToken = tempToken,
-                    User = MapToUserDto(user)
-                };
-            }
-
-            return await CompleteLoginAsync(user, ipAddress);
+            throw new UnauthorizedAccessException("Account not found.");
         }
 
-        // Create new user
-        user = new ApplicationUser
+        if (!user.IsActive)
         {
-            Email = email.Trim(),
-            FirstName = givenName.Trim(),
-            LastName = familyName.Trim(),
-            Role = UserRole.User,
-            IsActive = true,
-            AvatarUrl = picture
-        };
+            throw new UnauthorizedAccessException("Account is disabled.");
+        }
 
-        // Generate a random password since they use Google
-        var randomPassword = GenerateTempToken();
-        user.PasswordHash = _passwordHasher.HashPassword(user, randomPassword);
-
-        _dbContext.Users.Add(user);
-
-        var newSession = new UserSession
+        var session = user.Session;
+        if (session != null && session.TwoFactorEnabled)
         {
-            UserId = user.Id,
-            RegistrationIp = ipAddress,
-            LastIp = ipAddress,
-            LastLoginAt = DateTime.UtcNow,
-            CreatedAt = DateTime.UtcNow,
-            IsEmailVerified = true, // Trusted from Google
-            TwoFactorEnabled = false,
-            IsSubscribedToNewsletter = false
-        };
+            var tempToken = GenerateTempToken();
+            var code = GenerateCode();
+            await SaveVerificationCode(user.Id, code, "TwoFactor", tempToken);
+            await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "TwoFactor");
 
-        _dbContext.UserSessions.Add(newSession);
-        await _dbContext.SaveChangesAsync();
-
-        user.Session = newSession;
+            return new AuthResponseDto
+            {
+                RequiresTwoFactor = true,
+                TempToken = tempToken,
+                User = MapToUserDto(user)
+            };
+        }
 
         return await CompleteLoginAsync(user, ipAddress);
     }

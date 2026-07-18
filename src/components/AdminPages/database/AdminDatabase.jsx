@@ -273,6 +273,7 @@ const AdminDatabase = () => {
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
+                  <th>Type</th>
                   <th>Upload Date</th>
                   <th aria-label="Actions"></th>
                 </tr>
@@ -285,10 +286,15 @@ const AdminDatabase = () => {
                       `${dateObj.toLocaleDateString('ru-RU')} ${dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}` 
                       : 'Unknown Date'
                     
+                    const fileType = item.url && item.url.split('?')[0].includes('.') 
+                      ? item.url.split('?')[0].split('.').pop().toUpperCase() 
+                      : '-';
+                    
                     return (
                       <tr key={item.id} style={{ animationDelay: `${idx * 0.05}s` }}>
                         <td>{item.id}</td>
                         <td><strong>{item.name}</strong></td>
+                        <td>{fileType}</td>
                         <td>{formattedDate}</td>
                         <td className="admin-db__actions-cell">
                           <div className="admin-db__menu-container">
@@ -512,5 +518,3 @@ const AdminDatabase = () => {
 }
 
 export default AdminDatabase
-
-
