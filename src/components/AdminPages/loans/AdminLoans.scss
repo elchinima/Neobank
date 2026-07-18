@@ -177,6 +177,26 @@
     }
   }
 
+  &__info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 226, 138, 0.16);
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.05);
+    color: $landing-gold-soft;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(255, 226, 138, 0.1);
+      color: $landing-gold;
+    }
+  }
+
   &__dropdown {
     position: absolute;
     right: 0;
