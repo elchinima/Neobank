@@ -9,6 +9,10 @@ import appPreviewImage from '../../assets/images/image_1.png'
 import controlBubbleIcon from '../../assets/icons/Public/control_bubble.svg'
 import newsBubbleIcon from '../../assets/icons/Public/news_bubble.svg'
 import notificationBubbleIcon from '../../assets/icons/Public/notification_bubble.svg'
+import userAgreementIcon from '../../assets/icons/Public/user_agreement.svg'
+import rulesIcon from '../../assets/icons/Public/rules.svg'
+import privacyPolicyIcon from '../../assets/icons/Public/privacy_policy.svg'
+import personalDataIcon from '../../assets/icons/Public/personal_data_processing.svg'
 import './PublicFooter.scss'
 import './PublicFooter_Responsive.scss'
 
@@ -157,9 +161,10 @@ function PublicFooter() {
     scrollToTop,
   } = usePublicFooter()
 
-  const { t } = useLanguage()
+  const { lang, t } = useLanguage()
   const { footerLinks, footerContacts, footerSocials = [] } = usePublicContent()
-  
+
+  const [isDocumentsOpen, setIsDocumentsOpen] = useState(false)
   const [email, setEmail] = useState('')
   const [modalType, setModalType] = useState(null) // 'verify', 'unsubscribe', null
   const [code, setCode] = useState(['', '', '', ''])
@@ -405,22 +410,40 @@ function PublicFooter() {
 
       <div className="public-footer__bottom">
         <div className="public-footer__copyright-col">
-          <div className="public-footer__lang-selector">
-            <svg className="public-footer__lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            <select
-              className="public-footer__lang-select"
-              value={selectedLang}
-              onChange={(e) => setSelectedLang(e.target.value)}
-              aria-label="Select language"
+          <div className="public-footer__selectors">
+            <div className="public-footer__lang-selector">
+              <svg className="public-footer__lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <select
+                className="public-footer__lang-select"
+                value={selectedLang}
+                onChange={(e) => setSelectedLang(e.target.value)}
+                aria-label="Select language"
+              >
+                <option value="en">English</option>
+                <option value="az">Azərbaycanca</option>
+                <option value="ru">Русский</option>
+              </select>
+            </div>
+            <button 
+              className="public-footer__lang-selector" 
+              onClick={() => setIsDocumentsOpen(true)}
+              style={{ cursor: 'pointer' }}
             >
-              <option value="en">English</option>
-              <option value="az">Azərbaycanca</option>
-              <option value="ru">Русский</option>
-            </select>
+              <svg className="public-footer__lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <span style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '13px', fontWeight: '600' }}>
+                {t(footerLang, 'documentsLink', 'Documents')}
+              </span>
+            </button>
           </div>
 
           <p>
@@ -535,6 +558,49 @@ function PublicFooter() {
           </section>
         </div>
 
+      )}
+
+      {isDocumentsOpen && (
+        <div className="public-footer__modal-backdrop" role="presentation" onMouseDown={() => setIsDocumentsOpen(false)}>
+          <section
+            className="public-footer__modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="documents-modal-title"
+            onMouseDown={(event) => event.stopPropagation()}
+            style={{ maxWidth: '700px', width: '90%', display: 'block' }}
+          >
+            <button className="public-footer__modal-close" type="button" aria-label="Close documents" onClick={() => setIsDocumentsOpen(false)}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 6 12 12" />
+                <path d="M18 6 6 18" />
+              </svg>
+            </button>
+
+            <div className="public-footer__modal-content" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+              <h2 id="documents-modal-title" data-lang-key="documentsTitle" style={{ marginBottom: '1.5rem', textAlign: 'center', maxWidth: '100%' }}>{t(footerLang, 'documentsTitle')}</h2>
+              
+              <div className="public-footer__documents-grid">
+                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                  <img src={userAgreementIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
+                  <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'userAgreement')}</span>
+                </a>
+                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                  <img src={rulesIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
+                  <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'rules')}</span>
+                </a>
+                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                  <img src={privacyPolicyIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
+                  <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'privacyPolicy')}</span>
+                </a>
+                <a href="#" style={{ display: 'flex', alignItems: 'center', background: '#25202c', padding: '1.25rem 1rem', borderRadius: '12px', textDecoration: 'none', color: 'inherit', transition: 'background 0.2s', border: '1px solid rgba(255, 255, 255, 0.05)', minHeight: '80px' }} onMouseEnter={(e) => e.currentTarget.style.background = '#2f2937'} onMouseLeave={(e) => e.currentTarget.style.background = '#25202c'}>
+                  <img src={personalDataIcon} alt="" style={{ width: '48px', minWidth: '48px', height: '48px', marginRight: '16px' }} />
+                  <span style={{ fontSize: '15px', fontWeight: '600', lineHeight: '1.4' }}>{t(footerLang, 'personalDataProcessing')}</span>
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
       )}
 
       {modalType === 'verify' && (

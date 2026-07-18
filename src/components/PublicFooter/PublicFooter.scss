@@ -217,6 +217,13 @@
     gap: 10px;
   }
 
+  &__selectors {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
   &__lang-selector {
     display: inline-flex;
     align-items: center;
@@ -711,5 +718,12 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  &__documents-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 0;
   }
 }
