@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
 import NavUserProfile from '../NavUserProfile/NavUserProfile'
 import './AdminNavbar.scss'
+import './AdminNavbar_Responsive.scss'
 
 const AdminNavbar = () => {
   const location = useLocation()

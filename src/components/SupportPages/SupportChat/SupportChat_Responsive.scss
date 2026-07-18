@@ -1,0 +1,33 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (min-width: 768px) {
+  .support-chat-page {
+    padding: 24px;
+  }
+
+  .support-chat-container {
+    border: 1px solid rgba($landing-gold-soft, 0.1);
+    border-radius: $border-radius;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    height: calc(100vh - 48px);
+  }
+
+  .support-chat-header {
+    padding: 20px 24px;
+  }
+
+  .support-chat-messages {
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .support-chat-messages .message-content {
+    max-width: 75%;
+    padding: 16px 20px;
+  }
+
+  .support-chat-input {
+    padding: 20px 24px;
+    gap: 16px;
+  }
+}

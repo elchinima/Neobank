@@ -1,0 +1,18 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 900px) {
+  .admin-banner {
+    &__row-card,
+    &__row-card--contact {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-banner {
+    &__card {
+      flex: 0 0 85%;
+    }
+  }
+}

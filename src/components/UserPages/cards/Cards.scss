@@ -841,17 +841,6 @@
   z-index: 1000;
   animation: fadeIn 0.2s ease;
   padding: 24px;
-
-  @media (max-width: 768px) {
-    top: $landing-tablet-nav-height;
-    padding: 0;
-    z-index: 90;
-    align-items: stretch;
-  }
-
-  @media (max-width: 680px) {
-    top: $landing-mobile-nav-height;
-  }
 }
 
 .card-modal {
@@ -869,16 +858,6 @@
   box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
   animation: slideUp 0.3s ease;
   overflow-y: auto;
-
-  @media (max-width: 768px) {
-    border-radius: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-    border: none;
-    border-top: 1px solid rgba(255, 226, 138, 0.22);
-  }
 
   &__header {
     display: flex;
@@ -1032,10 +1011,6 @@
   padding-right: 8px;
   margin-top: 16px;
 
-  @media (max-width: 768px) {
-    max-height: calc(100vh - 160px);
-  }
-
 
   &::-webkit-scrollbar {
     width: 10px;
@@ -1114,7 +1089,6 @@
   }
 }
 
-/* Missing modal styles for forms */
 .modal-form {
   display: flex;
   flex-direction: column;

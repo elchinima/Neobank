@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import UserNavbar from './UserNavbar'
 import PublicFooter from '../PublicFooter/PublicFooter'
 import './UserLayout.scss'
+import './UserLayout_Responsive.scss'
 
 const UserLayout = () => {
   return (

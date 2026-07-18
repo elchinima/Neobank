@@ -1,3 +1,47 @@
-.settings {
+@use '../../../assets/styles/variables' as *;
 
+@media (max-width: 640px) {
+  .settings-page {
+    .profile-wrapper {
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .settings-list .setting-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
+
+      &--toggle {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .settings-list .setting-row .action-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .security-option {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .action-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-page {
+    .input-with-button {
+      flex-direction: column;
+    }
+  }
 }

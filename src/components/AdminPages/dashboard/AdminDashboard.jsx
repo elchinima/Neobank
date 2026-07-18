@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDashboard.scss'
+import './AdminDashboard_Responsive.scss'
 
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');

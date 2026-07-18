@@ -11,10 +11,6 @@
   align-items: center;
   justify-content: center;
   font-family: $font-family;
-  
-  @media (min-width: 768px) {
-    padding: 24px;
-  }
 }
 
 .support-chat-container {
@@ -27,12 +23,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  @media (min-width: 768px) {
-    border: 1px solid rgba($landing-gold-soft, 0.1);
-    border-radius: $border-radius;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-    height: calc(100vh - 48px);
-  }
 }
 
 .support-chat-header {
@@ -42,10 +32,6 @@
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.02);
-
-  @media (min-width: 768px) {
-    padding: 20px 24px;
-  }
 
   .agent-info {
     display: flex;
@@ -135,11 +121,6 @@
   flex-direction: column;
   gap: 16px;
 
-  @media (min-width: 768px) {
-    padding: 24px;
-    gap: 20px;
-  }
-
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -184,11 +165,6 @@
     border-radius: 16px;
     position: relative;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-    @media (min-width: 768px) {
-      max-width: 75%;
-      padding: 16px 20px;
-    }
 
     p {
       color: #fff;
@@ -317,11 +293,6 @@
   display: flex;
   gap: 12px;
   align-items: center;
-
-  @media (min-width: 768px) {
-    padding: 20px 24px;
-    gap: 16px;
-  }
 
   .attach-btn {
     background: transparent;

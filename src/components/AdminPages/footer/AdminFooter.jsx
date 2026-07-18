@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 import { useState, useEffect } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminFooter.scss'
+import './AdminFooter_Responsive.scss'
 
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');

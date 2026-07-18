@@ -1,0 +1,13 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 900px) {
+  .admin-dashboard__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-dashboard__stats {
+    grid-template-columns: 1fr;
+  }
+}

@@ -36,7 +36,7 @@
     }
 
     &__documents-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr !important;
     }
   }
 }
@@ -64,8 +64,9 @@
       grid-template-columns: 1fr;
       row-gap: 32px;
       margin-top: 58px;
-      padding-right: 0;
+      padding-right: 0 !important;
       padding-bottom: 50px;
+      justify-items: center;
     }
 
     &__copyright-col {
@@ -79,19 +80,20 @@
     &__selectors,
     &__stores,
     &__socials {
-      justify-content: center;
+      width: 100%;
+      justify-content: center !important;
     }
 
     &__socials {
       a {
-        transform: none;
+        transform: translateX(0) !important;
 
         &:hover {
-          transform: translateY(-3px);
+          transform: translateY(-3px) !important;
         }
 
         &:active {
-          transform: translateY(-3px) scale(0.9);
+          transform: translateY(-3px) scale(0.9) !important;
         }
       }
     }

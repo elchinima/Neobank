@@ -5,6 +5,7 @@ import { useAuth } from '../../app/context/AuthContext'
 import { useLanguage } from '../../app/context/LanguageContext'
 import { navbarLang } from './navbar.lang.js'
 import './UserNavbar.scss'
+import './UserNavbar_Responsive.scss'
 
 const UserNavbar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)

@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import './AdminBanner.scss'
+import './AdminBanner_Responsive.scss'
 
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');

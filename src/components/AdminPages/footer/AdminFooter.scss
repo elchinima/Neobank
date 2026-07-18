@@ -99,11 +99,6 @@
       display: flex;
       gap: 16px;
 
-      @media (max-width: 600px) {
-        flex-direction: column;
-        gap: 10px;
-      }
-
       input {
         flex: 1;
         min-height: 46px;

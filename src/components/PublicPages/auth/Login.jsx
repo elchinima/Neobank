@@ -8,6 +8,7 @@ import { authLang } from './lang.js'
 import EmailVerifyModal from './EmailVerifyModal.jsx'
 import { useGoogleLogin } from '@react-oauth/google'
 import './Login.scss'
+import './Login_Responsive.scss'
 
 function Login() {
   const { t } = useLanguage()

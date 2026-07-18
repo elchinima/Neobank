@@ -111,10 +111,6 @@
     &:hover {
       z-index: 10;
     }
-    
-    @media (max-width: 768px) {
-      flex: 0 0 85%;
-    }
   }
 
   &__card-heading {
@@ -363,16 +359,6 @@
       width: 18px;
       min-height: 18px;
       accent-color: $landing-gold;
-    }
-  }
-}
-
-@media (max-width: 900px) {
-  .admin-banner {
-
-    &__row-card,
-    &__row-card--contact {
-      grid-template-columns: 1fr;
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import AdminNavbar from './AdminNavbar'
 import './AdminLayout.scss'
+import './AdminLayout_Responsive.scss'
 
 const AdminLayout = () => {
   return (

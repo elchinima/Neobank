@@ -1,0 +1,19 @@
+@use '../../assets/styles/variables' as *;
+
+@media (max-width: 1040px) {
+  .user-layout {
+    &__main {
+      padding-top: calc(#{$landing-tablet-nav-height} + 50px);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-layout {
+    &__main {
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 40px;
+    }
+  }
+}

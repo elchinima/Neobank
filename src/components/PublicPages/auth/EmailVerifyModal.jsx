@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { verifyModalLang } from './verifyModalLang.js'
 import './EmailVerifyModal.scss'
+import './EmailVerifyModal_Responsive.scss'
+
 
 const RESEND_COOLDOWN = 900 // seconds (15 minutes)
 

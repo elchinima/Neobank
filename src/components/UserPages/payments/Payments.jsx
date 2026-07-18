@@ -3,6 +3,7 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { paymentsLang } from './lang.js'
 import './Payments.scss'
+import './Payments_Responsive.scss'
 
 import utilitiesIcon from '../../../assets/icons/User/utilities_bubble.svg'
 import transportIcon from '../../../assets/icons/User/transport_bubble.svg'

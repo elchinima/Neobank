@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import './Cards.scss'
+import './Cards_Responsive.scss'
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 const stripePromise = loadStripe(stripePublicKey);

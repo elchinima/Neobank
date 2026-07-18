@@ -3,6 +3,7 @@ import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { historyLang } from './lang.js'
 import './History.scss'
+import './History_Responsive.scss'
 
 import shoppingBubbleIcon from '../../../assets/icons/User/shopping_bubble.svg'
 import foodBubbleIcon from '../../../assets/icons/User/food_bubble.svg'

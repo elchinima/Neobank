@@ -1,0 +1,34 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 900px) {
+  .auth-page {
+    &__nav-links {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    &__split {
+      grid-template-columns: 1fr;
+    }
+
+    &__panel-left {
+      display: none;
+    }
+
+    &__form-section {
+      padding: clamp(32px, 6vw, 60px) clamp(20px, 5vw, 40px);
+      min-height: calc(100vh - #{$landing-nav-height});
+    }
+
+    &__card {
+      max-width: 100%;
+    }
+
+    &__row {
+      grid-template-columns: 1fr;
+    }
+  }
+}

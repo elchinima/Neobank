@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import supportChatIcon from '../../../assets/icons/support_chat_icon.png'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import './SupportChat.scss'
+import './SupportChat_Responsive.scss'
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
 function SupportChat() {
@@ -16,7 +17,6 @@ function SupportChat() {
   const navigate = useNavigate()
   const location = useLocation()
   
-  // Get initial message from location state if passed from the form
   const initialMessage = location.state?.message || ''
   const userName = location.state?.name || t(supportChatLang, 'defaultUser')
   const [chatLanguage, setChatLanguage] = useState(location.state?.chatLanguage || 'az')

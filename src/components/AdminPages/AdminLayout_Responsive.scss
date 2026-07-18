@@ -1,0 +1,13 @@
+@use '../../assets/styles/variables' as *;
+
+@media (max-width: 1040px) {
+  .admin-layout__main {
+    padding-top: calc(#{$landing-tablet-nav-height} + 42px);
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-layout__main {
+    padding: calc(#{$landing-mobile-nav-height} + 28px) 16px 42px;
+  }
+}

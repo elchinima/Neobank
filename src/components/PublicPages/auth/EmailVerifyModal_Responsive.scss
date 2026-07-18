@@ -1,0 +1,31 @@
+@media (max-width: 480px) {
+  .evm-card {
+    padding: 36px 20px 28px;
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: none;
+    border-top: 1px solid rgba(255, 226, 138, 0.22);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .evm-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .evm-digit {
+    width: 38px;
+    height: 50px;
+    font-size: 20px;
+    border-radius: 10px;
+  }
+
+  .evm-digits {
+    gap: 6px;
+  }
+}
