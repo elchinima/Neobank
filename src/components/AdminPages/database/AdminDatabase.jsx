@@ -259,18 +259,15 @@ const AdminDatabase = () => {
           >
             Search
           </button>
-          <button className="admin-database__btn-add" onClick={openModal}>
+          <button className="admin-db__add-btn" onClick={openModal}>
             Add File
           </button>
         </div>
       </header>
 
       <section className="admin-db__table-card" aria-label="Images table">
-        <div className="admin-database__table-container">
-          <div className="admin-database__table-header-info">
-            <span>{resultLabel.toUpperCase()}</span>
-          </div>
-          <div className="admin-db__table-wrap">
+        <div className="admin-db__table-meta">{resultLabel}</div>
+        <div className="admin-db__table-wrap">
             <table>
               <thead>
                 <tr>
@@ -321,7 +318,7 @@ const AdminDatabase = () => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="4" className="admin-database__empty">
+                    <td colSpan="4" className="admin-db__empty">
                       No files found
                     </td>
                   </tr>
@@ -329,7 +326,6 @@ const AdminDatabase = () => {
               </tbody>
             </table>
           </div>
-        </div>
       </section>
 
       {isModalOpen && (
@@ -448,27 +444,27 @@ const AdminDatabase = () => {
       )}
 
       {deleteModal.open && (
-        <div className="admin-database-modal-overlay" onClick={() => setDeleteModal({ open: false, img: null })}>
-          <div className="admin-database-modal admin-database-modal--small" onClick={e => e.stopPropagation()}>
-            <div className="admin-database-modal__header">
+        <div className="admin-db-modal-overlay" onClick={() => setDeleteModal({ open: false, img: null })}>
+          <div className="admin-db-modal admin-db-modal--small" onClick={e => e.stopPropagation()}>
+            <div className="admin-db-modal__header">
               <h2>Confirm Deletion</h2>
-              <button className="admin-database-modal__close" onClick={() => setDeleteModal({ open: false, img: null })}>&times;</button>
+              <button className="admin-db-modal__close" onClick={() => setDeleteModal({ open: false, img: null })}>&times;</button>
             </div>
-            <div className="admin-database-modal__content">
+            <div className="admin-db-modal__content">
               <p style={{ color: '#fff', fontSize: '15px' }}>
                 Are you sure you want to delete <strong>{deleteModal.img?.name}</strong>?
                 This action cannot be undone.
               </p>
             </div>
-            <div className="admin-database-modal__footer" style={{ justifyContent: 'flex-end', gap: '12px', display: 'flex' }}>
+            <div className="admin-db-modal__footer" style={{ justifyContent: 'flex-end', gap: '12px', display: 'flex' }}>
               <button 
-                className="admin-database-modal__btn-cancel" 
+                className="admin-db-modal__btn-cancel" 
                 onClick={() => setDeleteModal({ open: false, img: null })}
               >
                 Cancel
               </button>
               <button 
-                className="admin-database-modal__btn-submit" 
+                className="admin-db-modal__btn-save" 
                 style={{ background: '#e74c3c' }}
                 onClick={handleDelete}
               >
@@ -481,13 +477,13 @@ const AdminDatabase = () => {
 
       {/* View Preview Modal */}
       {previewModal.open && previewModal.img && (
-        <div className="admin-database-modal-overlay" onClick={() => setPreviewModal({ open: false, img: null })}>
-          <div className="admin-database-modal admin-database-modal--preview" onClick={e => e.stopPropagation()}>
-            <div className="admin-database-modal__header">
+        <div className="admin-db-modal-overlay" onClick={() => setPreviewModal({ open: false, img: null })}>
+          <div className="admin-db-modal admin-db-modal--preview" onClick={e => e.stopPropagation()}>
+            <div className="admin-db-modal__header">
               <h2>Preview File</h2>
-              <button className="admin-database-modal__close" onClick={() => setPreviewModal({ open: false, img: null })}>&times;</button>
+              <button className="admin-db-modal__close" onClick={() => setPreviewModal({ open: false, img: null })}>&times;</button>
             </div>
-            <div className="admin-database-modal__content" style={{ padding: 0, overflow: 'hidden', display: 'flex', justifyContent: 'center', background: '#0a0d14' }}>
+            <div className="admin-db-modal__content" style={{ padding: 0, overflow: 'hidden', display: 'flex', justifyContent: 'center', background: '#0a0d14' }}>
               {previewModal.img.folder === 'documents' ? (
                 <div style={{ padding: '40px', textAlign: 'center' }}>
                   <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'rgba(255,255,255,0.6)'}}>
