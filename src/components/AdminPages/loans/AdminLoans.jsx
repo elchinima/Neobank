@@ -28,6 +28,10 @@ const AdminLoans = () => {
 
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [dropdownUp, setDropdownUp] = useState(false)
+  const [reasonModal, setReasonModal] = useState({ show: false, reason: '', changedBy: '', time: '' })
+  
+  const [showApproveModal, setShowApproveModal] = useState(false)
+  const [approveLoanId, setApproveLoanId] = useState(null)
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -65,12 +69,17 @@ const AdminLoans = () => {
     fetchLoans()
   }, [])
 
-  const handleApprove = async (id) => {
-    if (!window.confirm('Are you sure you want to approve this loan?')) return
+  const openApproveModal = (id) => {
+    setApproveLoanId(id)
+    setShowApproveModal(true)
+  }
+
+  const handleApproveConfirm = async () => {
+    if (!approveLoanId) return
 
     try {
       setActionLoading(true)
-      const res = await adminFetch(`${API_BASE_URL}/admin/loans/${id}/approve`, {
+      const res = await adminFetch(`${API_BASE_URL}/admin/loans/${approveLoanId}/approve`, {
         method: 'POST'
       })
       if (!res.ok) {
@@ -78,6 +87,7 @@ const AdminLoans = () => {
         throw new Error(data.message || 'Approval failed')
       }
       setNotification({ show: true, message: 'Loan approved successfully!', type: 'success' })
+      setShowApproveModal(false)
       fetchLoans()
     } catch (err) {
       setNotification({ show: true, message: err.message, type: 'error' })
@@ -178,7 +188,7 @@ const AdminLoans = () => {
                               className="success"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleApprove(loan.id);
+                                openApproveModal(loan.id);
                                 setActiveMenuId(null);
                               }}
                               disabled={actionLoading}
@@ -204,8 +214,17 @@ const AdminLoans = () => {
                         <div className="admin-loans__menu-container">
                           <button 
                             className="admin-loans__info-btn"
-                            onClick={(e) => toggleMenu(e, `info-${loan.id}`)}
-                            title="View Reason"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const history = loan.statusHistory[loan.statusHistory.length - 1];
+                              setReasonModal({
+                                show: true,
+                                reason: history.reason,
+                                changedBy: history.changedBy,
+                                time: history.time
+                              });
+                            }}
+                            title="View Details"
                           >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"></circle>
@@ -213,15 +232,6 @@ const AdminLoans = () => {
                               <line x1="12" y1="8" x2="12.01" y2="8"></line>
                             </svg>
                           </button>
-                          
-                          {activeMenuId === `info-${loan.id}` && (
-                            <div className={`admin-loans__dropdown ${dropdownUp ? 'admin-loans__dropdown--up' : ''}`} style={{ padding: '12px', minWidth: '200px', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-                              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#aaa', textTransform: 'uppercase' }}>Reason</h4>
-                              <p style={{ margin: 0, fontSize: '0.9rem', color: '#fff', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-                                {loan.statusHistory[loan.statusHistory.length - 1].reason}
-                              </p>
-                            </div>
-                          )}
                         </div>
                       )
                     )}
@@ -277,6 +287,34 @@ const AdminLoans = () => {
         </div>
       )}
 
+      {showApproveModal && (
+        <div className="admin-loans__modal-overlay">
+          <div className="admin-loans__modal">
+            <h3>Approve Loan</h3>
+            <p style={{ marginBottom: '24px', color: '#aaa', fontSize: '0.9rem' }}>
+              Are you sure you want to approve this loan? This action cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button 
+                className="cancel-btn" 
+                onClick={() => setShowApproveModal(false)}
+                disabled={actionLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-btn" 
+                onClick={handleApproveConfirm}
+                disabled={actionLoading}
+                style={{ background: '#10b981', color: '#fff' }}
+              >
+                {actionLoading ? 'Processing...' : 'Confirm Approve'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {notification.show && (
         <div className="admin-loans__modal-overlay">
           <div className="admin-loans__modal" style={{ textAlign: 'center' }}>
@@ -305,6 +343,43 @@ const AdminLoans = () => {
             >
               OK
             </button>
+          </div>
+        </div>
+      )}
+      {reasonModal.show && (
+        <div className="admin-loans__modal-overlay">
+          <div className="admin-loans__modal">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0 }}>Rejection Details</h3>
+              <button 
+                onClick={() => setReasonModal({ ...reasonModal, show: false })}
+                style={{ background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', padding: '4px' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Rejected By</div>
+              <div style={{ color: '#fff', fontSize: '1.05rem' }}>{reasonModal.changedBy || 'System'}</div>
+            </div>
+            
+            {reasonModal.time && (
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Date</div>
+                <div style={{ color: '#fff', fontSize: '1.05rem' }}>{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+            )}
+            
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Reason</div>
+              <div style={{ color: '#fff', whiteSpace: 'pre-wrap', lineHeight: '1.5', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                {reasonModal.reason}
+              </div>
+            </div>
           </div>
         </div>
       )}
