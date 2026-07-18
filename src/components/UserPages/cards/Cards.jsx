@@ -1210,7 +1210,7 @@ const Cards = () => {
 
                 <div className="card-details">
                   <div className="card-info-header">
-                    <h2>{t(userCardsLang, 'activeLoans')}</h2>
+                    <h2>{loan.status === 'Pending' ? t(userCardsLang, 'pendingLoans') : t(userCardsLang, 'activeLoans')}</h2>
                     <span className={`status ${loan.status.toLowerCase()}`}>{loan.status}</span>
                   </div>
                   <div className="card-balance">
@@ -1218,19 +1218,21 @@ const Cards = () => {
                     <span className="amount">{Number(loan.remainingBalance).toFixed(2)} AZN</span>
                   </div>
 
-                  <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
-                    <button
-                      className="action-btn"
-                      style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)', whiteSpace: 'nowrap' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openPayLoanModal(loan.id);
-                      }}
-                      disabled={payingLoanId === loan.id}
-                    >
-                      {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
-                    </button>
-                  </div>
+                  {loan.status === 'Active' && (
+                    <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+                      <button
+                        className="action-btn"
+                        style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)', whiteSpace: 'nowrap' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPayLoanModal(loan.id);
+                        }}
+                        disabled={payingLoanId === loan.id}
+                      >
+                        {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
