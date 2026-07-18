@@ -20,11 +20,32 @@ const AdminLoans = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   
-  // Rejection Modal State
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectLoanId, setRejectLoanId] = useState(null)
   const [rejectReason, setRejectReason] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' })
+
+  const [activeMenuId, setActiveMenuId] = useState(null)
+  const [dropdownUp, setDropdownUp] = useState(false)
+
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null)
+    window.addEventListener('click', handleClickOutside)
+    return () => window.removeEventListener('click', handleClickOutside)
+  }, [])
+
+  const toggleMenu = (e, id) => {
+    e.stopPropagation()
+    if (activeMenuId === id) {
+      setActiveMenuId(null)
+    } else {
+      setActiveMenuId(id)
+      const buttonRect = e.currentTarget.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - buttonRect.bottom
+      setDropdownUp(spaceBelow < 150)
+    }
+  }
 
   const fetchLoans = async () => {
     try {
@@ -56,10 +77,10 @@ const AdminLoans = () => {
         const data = await res.json()
         throw new Error(data.message || 'Approval failed')
       }
-      alert('Loan approved successfully!')
+      setNotification({ show: true, message: 'Loan approved successfully!', type: 'success' })
       fetchLoans()
     } catch (err) {
-      alert(err.message)
+      setNotification({ show: true, message: err.message, type: 'error' })
     } finally {
       setActionLoading(false)
     }
@@ -84,11 +105,11 @@ const AdminLoans = () => {
         const data = await res.json()
         throw new Error(data.message || 'Rejection failed')
       }
-      alert('Loan rejected successfully!')
+      setNotification({ show: true, message: 'Loan rejected successfully!', type: 'success' })
       setShowRejectModal(false)
       fetchLoans()
     } catch (err) {
-      alert(err.message)
+      setNotification({ show: true, message: err.message, type: 'error' })
     } finally {
       setActionLoading(false)
     }
@@ -138,29 +159,52 @@ const AdminLoans = () => {
                       {loan.status}
                     </span>
                   </td>
-                  <td>
-                    {loan.status === 'Pending' && (
-                      <div className="admin-loans__actions">
+                  <td className="admin-loans__actions-cell">
+                    {loan.status === 'Pending' ? (
+                      <div className="admin-loans__menu-container">
                         <button 
-                          className="approve-btn" 
-                          onClick={() => handleApprove(loan.id)}
-                          disabled={actionLoading}
+                          className="admin-loans__dots"
+                          onClick={(e) => toggleMenu(e, loan.id)}
+                          aria-label="Loan actions"
                         >
-                          Approve
+                          <span />
+                          <span />
+                          <span />
                         </button>
-                        <button 
-                          className="reject-btn"
-                          onClick={() => openRejectModal(loan.id)}
-                          disabled={actionLoading}
-                        >
-                          Reject
-                        </button>
+                        
+                        {activeMenuId === loan.id && (
+                          <div className={`admin-loans__dropdown ${dropdownUp ? 'admin-loans__dropdown--up' : ''}`}>
+                            <button 
+                              className="success"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleApprove(loan.id);
+                                setActiveMenuId(null);
+                              }}
+                              disabled={actionLoading}
+                            >
+                              Approve
+                            </button>
+                            <button 
+                              className="danger"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openRejectModal(loan.id);
+                                setActiveMenuId(null);
+                              }}
+                              disabled={actionLoading}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {loan.statusHistory && loan.statusHistory.length > 1 && loan.status !== 'Pending' && (
-                       <div style={{fontSize: '0.8rem', color: '#888', marginTop: '4px'}}>
-                         {loan.statusHistory[loan.statusHistory.length - 1].reason && `Reason: ${loan.statusHistory[loan.statusHistory.length - 1].reason}`}
-                       </div>
+                    ) : (
+                      loan.statusHistory && loan.statusHistory.length > 1 && loan.status !== 'Pending' && (
+                        <div style={{fontSize: '0.8rem', color: '#888', marginTop: '4px'}}>
+                          {loan.statusHistory[loan.statusHistory.length - 1].reason && `Reason: ${loan.statusHistory[loan.statusHistory.length - 1].reason}`}
+                        </div>
+                      )
                     )}
                   </td>
                 </tr>
@@ -188,7 +232,12 @@ const AdminLoans = () => {
               placeholder="Enter rejection reason..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
+              maxLength={100}
+              style={{ marginBottom: '4px' }}
             />
+            <div style={{ textAlign: 'right', fontSize: '0.8rem', color: rejectReason.length >= 100 ? '#ef4444' : '#aaa', marginBottom: '16px' }}>
+              {rejectReason.length}/100 characters
+            </div>
             <div className="modal-actions">
               <button 
                 className="cancel-btn" 
@@ -205,6 +254,38 @@ const AdminLoans = () => {
                 {actionLoading ? 'Processing...' : 'Confirm Reject'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {notification.show && (
+        <div className="admin-loans__modal-overlay">
+          <div className="admin-loans__modal" style={{ textAlign: 'center' }}>
+            <div style={{ marginBottom: '16px' }}>
+              {notification.type === 'success' ? (
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              ) : (
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              )}
+            </div>
+            <h3 style={{ marginBottom: '8px', color: '#fff' }}>{notification.type === 'success' ? 'Success' : 'Error'}</h3>
+            <p style={{ marginBottom: '24px', color: '#aaa', fontSize: '0.9rem' }}>
+              {notification.message}
+            </p>
+            <button 
+              className="confirm-btn" 
+              onClick={() => setNotification({ ...notification, show: false })}
+              style={{ width: '100%', padding: '12px', background: 'rgba(160, 32, 240, 0.2)', border: '1px solid rgba(160, 32, 240, 0.3)', color: '#b185fa', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+            >
+              OK
+            </button>
           </div>
         </div>
       )}

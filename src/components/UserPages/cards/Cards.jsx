@@ -1149,12 +1149,12 @@ const Cards = () => {
           )}
 
           {/* Loans */}
-          {loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid').length === 0 ? (
+          {loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid' && l.status !== 'Rejected').length === 0 ? (
             <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
               <p data-lang-key="noLoans">{t(userCardsLang, 'noLoans')}</p>
             </div>
           ) : (
-            loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid').map(loan => (
+            loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid' && l.status !== 'Rejected').map(loan => (
               <div key={loan.id} className="card-item">
                 <div className="card-image-wrapper" style={{
                   background: 'linear-gradient(135deg, rgba(160, 32, 240, 0.15), rgba(96, 16, 144, 0.1))',
