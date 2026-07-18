@@ -208,3 +208,8 @@ D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debu
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\runtimes\win-x64\native\qpdf.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\runtimes\win-x86\native\QuestPdfSkia.dll
 D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\runtimes\win-x86\native\qpdf.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Google.Apis.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Google.Apis.Auth.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\Google.Apis.Core.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\System.Management.dll
+D:\Code Academy\Final Project\Neobank\neobank-client\server\NeoBank.Api\bin\Debug\net10.0\runtimes\win\lib\net7.0\System.Management.dll

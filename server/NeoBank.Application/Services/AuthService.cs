@@ -5,7 +5,8 @@ using NeoBank.Application.DTOs.Auth;
 using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
 using NeoBank.Core.Interfaces;
-
+using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 namespace NeoBank.Application.Services;
 
 public class AuthService : IAuthService
@@ -14,17 +15,20 @@ public class AuthService : IAuthService
     private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         IApplicationDbContext dbContext,
         IPasswordHasher<ApplicationUser> passwordHasher,
         IJwtService jwtService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IConfiguration configuration)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _emailService = emailService;
+        _configuration = configuration;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto, string ipAddress)
@@ -128,6 +132,96 @@ public class AuthService : IAuthService
                 User = MapToUserDto(user)
             };
         }
+
+        return await CompleteLoginAsync(user, ipAddress);
+    }
+
+    public async Task<AuthResponseDto> GoogleLoginAsync(string googleToken, string ipAddress)
+    {
+        var clientId = _configuration["Google:ClientId"] ?? _configuration["Google__ClientId"];
+        if (string.IsNullOrEmpty(clientId))
+        {
+            throw new InvalidOperationException("Google Client ID is not configured.");
+        }
+
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { clientId }
+            };
+            payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
+        }
+        catch (Exception ex)
+        {
+            throw new UnauthorizedAccessException($"Invalid Google token: {ex.Message}");
+        }
+
+        var normalizedEmail = payload.Email.Trim().ToLowerInvariant();
+        var user = await _dbContext.Users
+            .Include(u => u.Session)
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
+
+        if (user != null)
+        {
+            if (!user.IsActive)
+            {
+                throw new UnauthorizedAccessException("Account is disabled.");
+            }
+
+            var session = user.Session;
+            if (session != null && session.TwoFactorEnabled)
+            {
+                var tempToken = GenerateTempToken();
+                var code = GenerateCode();
+                await SaveVerificationCode(user.Id, code, "TwoFactor", tempToken);
+                await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "TwoFactor");
+
+                return new AuthResponseDto
+                {
+                    RequiresTwoFactor = true,
+                    TempToken = tempToken,
+                    User = MapToUserDto(user)
+                };
+            }
+
+            return await CompleteLoginAsync(user, ipAddress);
+        }
+
+        // Create new user
+        user = new ApplicationUser
+        {
+            Email = payload.Email.Trim(),
+            FirstName = payload.GivenName?.Trim() ?? "Google User",
+            LastName = payload.FamilyName?.Trim() ?? string.Empty,
+            Role = UserRole.User,
+            IsActive = true,
+            AvatarUrl = payload.Picture
+        };
+
+        // Generate a random password since they use Google
+        var randomPassword = GenerateTempToken();
+        user.PasswordHash = _passwordHasher.HashPassword(user, randomPassword);
+
+        _dbContext.Users.Add(user);
+
+        var newSession = new UserSession
+        {
+            UserId = user.Id,
+            RegistrationIp = ipAddress,
+            LastIp = ipAddress,
+            LastLoginAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            IsEmailVerified = true, // Trusted from Google
+            TwoFactorEnabled = false,
+            IsSubscribedToNewsletter = false
+        };
+
+        _dbContext.UserSessions.Add(newSession);
+        await _dbContext.SaveChangesAsync();
+
+        user.Session = newSession;
 
         return await CompleteLoginAsync(user, ipAddress);
     }

@@ -87,6 +87,31 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("google-login")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+    {
+        try
+        {
+            var ip = GetClientIpAddress();
+            var response = await _authService.GoogleLoginAsync(dto.Token, ip);
+
+            if (!response.RequiresTwoFactor)
+            {
+                SetRefreshTokenCookie(response.RefreshToken, response.RefreshTokenExpiration);
+            }
+
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during Google login.", details = ex.Message });
+        }
+    }
+
     [HttpPost("send-verification")]
     public async Task<IActionResult> SendVerification([FromBody] ResendVerificationDto dto)
     {
