@@ -183,6 +183,35 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  const loginWithGoogle = async (googleToken) => {
+    const response = await fetch(`${API_BASE_URL}/auth/google-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ token: googleToken }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Google Login failed')
+    }
+
+    if (data.requiresTwoFactor) {
+      return data
+    }
+
+    Cookies.set('neobank_token', data.token, { expires: 7 })
+    if (data.refreshToken) {
+      Cookies.set('neobank_refresh_token', data.refreshToken, { expires: 7 })
+    }
+    setToken(data.token)
+    setUser(data.user)
+    return data
+  }
+
   // ─── Register ─────────────────────────────────────────────────────────────
   // After register, email verification is always required
   const register = async ({ email, password, firstName, lastName }) => {
@@ -261,6 +290,7 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!token && !!user,
     loading,
     login,
+    loginWithGoogle,
     register,
     logout,
     updateUser,

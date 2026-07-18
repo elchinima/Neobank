@@ -138,27 +138,36 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> GoogleLoginAsync(string googleToken, string ipAddress)
     {
-        var clientId = _configuration["Google:ClientId"] ?? _configuration["Google__ClientId"];
-        if (string.IsNullOrEmpty(clientId))
-        {
-            throw new InvalidOperationException("Google Client ID is not configured.");
-        }
+        string email;
+        string givenName;
+        string familyName;
+        string? picture;
 
-        GoogleJsonWebSignature.Payload payload;
         try
         {
-            var settings = new GoogleJsonWebSignature.ValidationSettings
+            using var httpClient = new System.Net.Http.HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", googleToken);
+            var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
+
+            if (!response.IsSuccessStatusCode)
             {
-                Audience = new[] { clientId }
-            };
-            payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
+                throw new UnauthorizedAccessException("Invalid Google token.");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var payload = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json);
+            
+            email = payload.GetProperty("email").GetString()!;
+            givenName = payload.TryGetProperty("given_name", out var g) ? g.GetString()! : "Google User";
+            familyName = payload.TryGetProperty("family_name", out var f) ? f.GetString()! : string.Empty;
+            picture = payload.TryGetProperty("picture", out var p) ? p.GetString() : null;
         }
         catch (Exception ex)
         {
             throw new UnauthorizedAccessException($"Invalid Google token: {ex.Message}");
         }
 
-        var normalizedEmail = payload.Email.Trim().ToLowerInvariant();
+        var normalizedEmail = email.Trim().ToLowerInvariant();
         var user = await _dbContext.Users
             .Include(u => u.Session)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
@@ -192,12 +201,12 @@ public class AuthService : IAuthService
         // Create new user
         user = new ApplicationUser
         {
-            Email = payload.Email.Trim(),
-            FirstName = payload.GivenName?.Trim() ?? "Google User",
-            LastName = payload.FamilyName?.Trim() ?? string.Empty,
+            Email = email.Trim(),
+            FirstName = givenName.Trim(),
+            LastName = familyName.Trim(),
             Role = UserRole.User,
             IsActive = true,
-            AvatarUrl = payload.Picture
+            AvatarUrl = picture
         };
 
         // Generate a random password since they use Google

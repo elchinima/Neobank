@@ -6,6 +6,7 @@ import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { authLang } from './lang.js'
 import EmailVerifyModal from './EmailVerifyModal.jsx'
+import { useGoogleLogin } from '@react-oauth/google'
 import './Login.scss'
 
 function Login() {
@@ -26,7 +27,13 @@ function Login() {
     setVerifyModal,
     handleVerifySuccess,
     handleResendCode,
+    handleGoogleLoginSuccess,
   } = useLogin()
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: () => console.error('Google Login Failed')
+  })
 
   const features = [
     {
@@ -183,6 +190,7 @@ function Login() {
                     type="button"
                     className="auth-page__button auth-page__button--google"
                     aria-label="Sign in with Google"
+                    onClick={() => googleLogin()}
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#000000"/>

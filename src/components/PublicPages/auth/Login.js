@@ -14,7 +14,7 @@ export function useLogin() {
   const [verifyModal, setVerifyModal] = useState(null)
   // verifyModal shape: { purpose: 'email'|'2fa', userId, tempToken, email }
 
-  const { login, completeAuth, resendVerification } = useAuth()
+  const { login, loginWithGoogle, completeAuth, resendVerification } = useAuth()
   const navigate = useNavigate()
 
   const validate = () => {
@@ -64,6 +64,27 @@ export function useLogin() {
     }
   }
 
+  const handleGoogleLoginSuccess = async (tokenResponse) => {
+    setServerError('')
+    setIsSubmitting(true)
+    try {
+      const data = await loginWithGoogle(tokenResponse.access_token)
+      if (data.requiresTwoFactor) {
+        setVerifyModal({
+          purpose: '2fa',
+          tempToken: data.tempToken,
+          email: data.user?.email || 'Google User',
+        })
+        return
+      }
+      navigate('/user/dashboard')
+    } catch (err) {
+      setServerError(err.message || 'Google Login failed.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleVerifySuccess = (data) => {
     completeAuth(data)
     setVerifyModal(null)
@@ -92,6 +113,7 @@ export function useLogin() {
     serverError,
     validate,
     handleSubmit,
+    handleGoogleLoginSuccess,
     verifyModal,
     setVerifyModal,
     handleVerifySuccess,
