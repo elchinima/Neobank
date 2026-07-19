@@ -27,6 +27,17 @@
     text-transform: uppercase;
   }
 
+  &__actions {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  &__action-btns {
+    display: flex;
+    gap: 12px;
+  }
+
   &__search {
     display: grid;
     gap: 7px;
@@ -146,6 +157,7 @@
     color: $landing-gold-soft;
     font-size: 12px;
     font-weight: 900;
+    white-space: nowrap;
   }
 
   &__status {
@@ -158,6 +170,7 @@
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
+    white-space: nowrap;
 
     &--active {
       border-color: rgba(46, 204, 113, 0.2);

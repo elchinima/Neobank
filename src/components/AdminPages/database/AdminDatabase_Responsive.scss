@@ -18,11 +18,17 @@
       gap: 12px;
     }
 
-    &__search {
-      width: 100%;
+    &__action-btns {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+
+      button {
+        flex: 1;
+      }
     }
 
-    &__add-btn {
+    &__search {
       width: 100%;
     }
 

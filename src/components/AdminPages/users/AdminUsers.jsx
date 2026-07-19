@@ -396,7 +396,7 @@ const AdminUsers = () => {
           <span className="admin-users__eyebrow">Admin Panel</span>
           <h1>Users</h1>
         </div>
-        <div className="admin-users__actions" style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
+        <div className="admin-users__actions">
           <div className="admin-users__search">
             <label htmlFor="admin-user-search">Search</label>
             <input
@@ -410,7 +410,7 @@ const AdminUsers = () => {
               }}
             />
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div className="admin-users__action-btns">
             <button 
               type="button" 
               className="admin-users__search-btn" 

@@ -8,6 +8,11 @@
 
   &__header {
     margin-bottom: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
 
     .admin-loans__eyebrow {
       display: inline-block;
@@ -29,6 +34,85 @@
     p {
       color: $landing-smoke;
       margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  &__search, &__filter {
+    display: grid;
+    gap: 7px;
+
+    label {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      min-height: 46px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 226, 138, 0.16);
+      border-radius: $border-radius-sm;
+      background: rgba(23, 18, 31, 0.62);
+      color: #ffffff;
+      font: inherit;
+      outline: none;
+
+      &:focus {
+        border-color: rgba(255, 226, 138, 0.42);
+        box-shadow: 0 0 0 3px rgba(255, 226, 138, 0.08);
+      }
+    }
+    
+    select {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 32px;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 226, 138, 0.62)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 16px;
+
+      option {
+        background: #17121f;
+        color: #fff;
+      }
+    }
+  }
+
+  &__search {
+    width: min(300px, 100%);
+  }
+  
+  &__filter {
+    width: min(150px, 100%);
+  }
+
+  &__search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: $border-radius-sm;
+    background: linear-gradient(135deg, $landing-gold-soft, $landing-gold 48%, #b47012);
+    color: #211405;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 850;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      opacity: 0.9;
     }
   }
 

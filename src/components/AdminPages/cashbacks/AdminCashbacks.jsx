@@ -419,19 +419,21 @@ const AdminCashbacks = () => {
               }}
             />
           </div>
-          <button 
-            type="button" 
-            className="admin-cb__add-btn" 
-            onClick={() => setSearch(searchInput)}
-          >
-            Search
-          </button>
-          <button className="admin-cb__add-btn" onClick={handleOpenMccModal}>
-            MCC
-          </button>
-          <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
-            Add Category
-          </button>
+          <div className="admin-cb__action-btns">
+            <button 
+              type="button" 
+              className="admin-cb__add-btn" 
+              onClick={() => setSearch(searchInput)}
+            >
+              Search
+            </button>
+            <button className="admin-cb__add-btn" onClick={handleOpenMccModal}>
+              MCC
+            </button>
+            <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
+              Add Category
+            </button>
+          </div>
         </div>
       </header>
 

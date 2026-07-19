@@ -20,6 +20,9 @@ const AdminLoans = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
   
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectLoanId, setRejectLoanId] = useState(null)
@@ -139,13 +142,72 @@ const AdminLoans = () => {
     }
   }
 
+  const filteredLoans = loans.filter(loan => {
+    let match = true;
+    
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      const name = (loan.userFullName || '').toLowerCase();
+      const email = (loan.userEmail || '').toLowerCase();
+      if (!name.includes(lowerSearch) && !email.includes(lowerSearch)) {
+        match = false;
+      }
+    }
+
+    if (statusFilter !== 'All') {
+      if (loan.status !== statusFilter) {
+        match = false;
+      }
+    }
+
+    return match;
+  });
+
   return (
     <div className="admin-loans">
-      <div className="admin-loans__header">
-        <span className="admin-loans__eyebrow">Loans</span>
-        <h1>Loan Applications</h1>
-        <p>Manage and review pending user loan applications.</p>
-      </div>
+      <header className="admin-loans__header">
+        <div>
+          <span className="admin-loans__eyebrow">Loans</span>
+          <h1>Loan Applications</h1>
+          <p>Manage and review pending user loan applications.</p>
+        </div>
+        <div className="admin-loans__actions">
+          <div className="admin-loans__search">
+            <label htmlFor="admin-loans-search">Search</label>
+            <input
+              id="admin-loans-search"
+              type="search"
+              placeholder="Search by name, email..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setSearch(searchInput)
+              }}
+            />
+          </div>
+          <div className="admin-loans__filter">
+            <label htmlFor="admin-loans-filter">Status</label>
+            <select
+              id="admin-loans-filter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Active">Active</option>
+              <option value="Paid">Paid</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <button 
+            type="button" 
+            className="admin-loans__search-btn" 
+            onClick={() => setSearch(searchInput)}
+          >
+            Search
+          </button>
+        </div>
+      </header>
 
       {error && <p style={{ color: '#ef4444' }}>{error}</p>}
       
@@ -166,7 +228,7 @@ const AdminLoans = () => {
               </tr>
             </thead>
             <tbody>
-              {loans.map(loan => (
+              {filteredLoans.map(loan => (
                 <tr key={loan.id}>
                   <td>{new Date(loan.createdAt).toLocaleDateString()}</td>
                   <td>

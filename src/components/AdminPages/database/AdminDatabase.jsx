@@ -252,16 +252,18 @@ const AdminDatabase = () => {
               }}
             />
           </div>
-          <button 
-            type="button" 
-            className="admin-db__add-btn" 
-            onClick={() => setSearch(searchInput)}
-          >
-            Search
-          </button>
-          <button className="admin-db__add-btn" onClick={openModal}>
-            Add File
-          </button>
+          <div className="admin-db__action-btns">
+            <button 
+              type="button" 
+              className="admin-db__add-btn" 
+              onClick={() => setSearch(searchInput)}
+            >
+              Search
+            </button>
+            <button className="admin-db__add-btn" onClick={openModal}>
+              Add File
+            </button>
+          </div>
         </div>
       </header>
 

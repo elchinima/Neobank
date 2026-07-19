@@ -33,6 +33,11 @@
     align-items: flex-end;
   }
 
+  &__action-btns {
+    display: flex;
+    gap: 12px;
+  }
+
   &__search {
     display: grid;
     gap: 7px;
