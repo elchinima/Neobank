@@ -22,6 +22,7 @@ function SupportChat() {
   const [chatLanguage, setChatLanguage] = useState(location.state?.chatLanguage || 'az')
 
   const [agentName, setAgentName] = useState('');
+  const [chatId, setChatId] = useState(null);
 
   const [messages, setMessages] = useState([])
   
@@ -82,6 +83,9 @@ function SupportChat() {
     })
 
     newConnection.on('ChatJoined', (data) => {
+      if (data && data.chatId) {
+        setChatId(data.chatId)
+      }
       if (data && data.agentName) {
         setAgentName(data.agentName)
       }
@@ -212,6 +216,9 @@ function SupportChat() {
     setIsUploadingImage(true)
     const formData = new FormData()
     formData.append('file', file)
+    if (chatId) {
+      formData.append('chatId', chatId)
+    }
 
     try {
       const res = await fetchWithAuth(`${API_BASE_URL}/Support/upload-image`, {

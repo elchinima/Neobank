@@ -62,7 +62,7 @@ public class SupportChatHub : Hub
 
                 if (closedChat != null)
                 {
-                    await Clients.Caller.SendAsync("ChatJoined", new { agentName = closedChat.AgentName, language = closedChat.Language, status = "Closed", hasReview = closedChat.Review.Any() });
+                    await Clients.Caller.SendAsync("ChatJoined", new { agentName = closedChat.AgentName, language = closedChat.Language, status = "Closed", hasReview = closedChat.Review.Any(), chatId = closedChat.Id });
                     await Clients.Caller.SendAsync("ReceiveHistory", closedChat.Chat.Select(m => new
                     {
                         id = Guid.NewGuid().ToString(),
@@ -99,7 +99,7 @@ public class SupportChatHub : Hub
 
             _lastSenders[userId] = "user";
 
-            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, lastSender = _lastSenders.GetValueOrDefault(userId, "agent") });
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, lastSender = _lastSenders.GetValueOrDefault(userId, "agent"), chatId = activeChat.Id });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
@@ -113,7 +113,7 @@ public class SupportChatHub : Hub
         }
         else
         {
-            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, status = "Active", hasReview = false, lastSender = _lastSenders.GetValueOrDefault(userId, "agent") });
+            await Clients.Caller.SendAsync("ChatJoined", new { agentName = activeChat.AgentName, language = activeChat.Language, status = "Active", hasReview = false, lastSender = _lastSenders.GetValueOrDefault(userId, "agent"), chatId = activeChat.Id });
             await Clients.Caller.SendAsync("ReceiveHistory", activeChat.Chat.Select(m => new
             {
                 id = Guid.NewGuid().ToString(),
