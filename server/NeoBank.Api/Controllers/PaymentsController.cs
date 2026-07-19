@@ -42,74 +42,81 @@ public class PaymentsController : ControllerBase
     [HttpPost("process")]
     public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentRequest request)
     {
-        var userId = GetUserId();
-
-        var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
+        try
         {
-            CardId = request.CardId,
-            UserId = userId,
-            Amount = request.Amount,
-            Category = request.CategoryName,
-            Description = $"Payment for {request.ProviderName} ({request.RecipientAccount})",
-            RecipientAccount = request.RecipientAccount
-        });
+            var userId = GetUserId();
 
-        if (!debitResult.Success)
-        {
-            return debitResult.HttpStatusCode == 404
-                ? NotFound(new { message = debitResult.ErrorMessage })
-                : BadRequest(new { message = debitResult.ErrorMessage });
-        }
-
-        if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer" || request.ProviderName == "IBAN Transfer"))
-        {
-            Card? destCard = null;
-            if (request.ProviderName == "IBAN Transfer")
+            var debitResult = await _cardDebitService.DebitCardAsync(new CardDebitRequest
             {
-                request.RecipientAccount = request.RecipientAccount.Replace(" ", "").ToUpper();
-                if (!System.Text.RegularExpressions.Regex.IsMatch(request.RecipientAccount, @"^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$"))
+                CardId = request.CardId,
+                UserId = userId,
+                Amount = request.Amount,
+                Category = request.CategoryName,
+                Description = $"Payment for {request.ProviderName} ({request.RecipientAccount})",
+                RecipientAccount = request.RecipientAccount
+            });
+
+            if (!debitResult.Success)
+            {
+                return debitResult.HttpStatusCode == 404
+                    ? NotFound(new { message = debitResult.ErrorMessage })
+                    : BadRequest(new { message = debitResult.ErrorMessage });
+            }
+
+            if (request.CategoryName == "Transfer" && (request.ProviderName == "Internal Transfer" || request.ProviderName == "NeoBank Transfer" || request.ProviderName == "IBAN Transfer"))
+            {
+                Card? destCard = null;
+                if (request.ProviderName == "IBAN Transfer")
                 {
-                    return BadRequest(new { message = "Invalid IBAN format." });
+                    request.RecipientAccount = request.RecipientAccount.Replace(" ", "").ToUpper();
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(request.RecipientAccount, @"^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$"))
+                    {
+                        return BadRequest(new { message = "Invalid IBAN format." });
+                    }
+                    destCard = await _context.Cards.FirstOrDefaultAsync(c => c.Iban == request.RecipientAccount);
                 }
-                destCard = await _context.Cards.FirstOrDefaultAsync(c => c.Iban == request.RecipientAccount);
-            }
-            else
-            {
-                destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
-            }
-
-            if (destCard != null)
-            {
-                destCard.Balance += request.Amount;
-                var creditTransaction = new Transaction
+                else
                 {
-                    UserId = destCard.UserId,
-                    CardId = destCard.Id,
-                    Amount = request.Amount,
-                    Type = "Credit",
-                    Category = "Transfer",
-                    Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {debitResult.Card!.Iban}" : $"Transfer from {debitResult.Card!.CardNumber}",
-                    RecipientAccount = request.ProviderName == "IBAN Transfer" ? debitResult.Card!.Iban : debitResult.Card!.CardNumber,
-                    Status = "Completed",
-                    BalanceAfter = destCard.Balance
-                };
-                _context.Transactions.Add(creditTransaction);
+                    destCard = await _context.Cards.FirstOrDefaultAsync(c => c.CardNumber == request.RecipientAccount);
+                }
+
+                if (destCard != null)
+                {
+                    destCard.Balance += request.Amount;
+                    var creditTransaction = new Transaction
+                    {
+                        UserId = destCard.UserId,
+                        CardId = destCard.Id,
+                        Amount = request.Amount,
+                        Type = "Credit",
+                        Category = "Transfer",
+                        Description = request.ProviderName == "IBAN Transfer" ? $"Transfer via IBAN from {debitResult.Card!.Iban}" : $"Transfer from {debitResult.Card!.CardNumber}",
+                        RecipientAccount = request.ProviderName == "IBAN Transfer" ? debitResult.Card!.Iban : debitResult.Card!.CardNumber,
+                        Status = "Completed",
+                        BalanceAfter = destCard.Balance
+                    };
+                    _context.Transactions.Add(creditTransaction);
+                }
+                else if (request.ProviderName != "IBAN Transfer")
+                {
+                    return BadRequest(new { message = "Recipient card not found." });
+                }
             }
-            else if (request.ProviderName != "IBAN Transfer")
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
             {
-                return BadRequest(new { message = "Recipient card not found." });
-            }
+                success = true,
+                transactionId = debitResult.Transaction!.Id,
+                newBalance = debitResult.NewBalance,
+                message = "Payment successfully completed."
+            });
         }
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new
+        catch (Exception ex)
         {
-            success = true,
-            transactionId = debitResult.Transaction!.Id,
-            newBalance = debitResult.NewBalance,
-            message = "Payment successfully completed."
-        });
+            return StatusCode(500, new { message = "Payment processing error.", details = ex.Message });
+        }
     }
 
     public class StripeIntentRequest
