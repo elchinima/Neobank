@@ -303,8 +303,9 @@ const Dashboard = () => {
                       transform="rotate(-90 100 100)"
                       strokeLinecap={seg.value > 0 ? "round" : "butt"}
                       style={{
-                        transition: 'stroke-width 0.3s ease',
-                        cursor: 'pointer'
+                        transition: 'stroke-width 0.3s ease, filter 0.3s ease',
+                        cursor: 'pointer',
+                        filter: `drop-shadow(0 0 ${isHovered ? 12 : 4}px ${seg.color})`
                       }}
                       onMouseEnter={() => setHoveredCategory(index)}
                       onMouseLeave={() => setHoveredCategory(null)}

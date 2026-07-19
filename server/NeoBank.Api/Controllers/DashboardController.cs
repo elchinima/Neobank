@@ -45,8 +45,12 @@ public class DashboardController : ControllerBase
         decimal totalExpenses = transactions.Where(t => t.Type == "Debit").Sum(t => t.Amount);
 
 
-        decimal cashbackEarned = Math.Round(totalExpenses * 0.01m, 2);
-        decimal vatRefundEarned = Math.Round(totalExpenses * 0.005m, 2);
+        decimal totalBonusesFromDb = await _context.UserCashbacks
+            .Where(u => u.UserId == userId)
+            .SumAsync(u => u.AmountEarned);
+
+        decimal cashbackEarned = Math.Round(totalBonusesFromDb, 2);
+        decimal vatRefundEarned = 0m;
 
         var categories = transactions
             .Where(t => t.Type == "Debit")
