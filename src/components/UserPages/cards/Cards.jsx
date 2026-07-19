@@ -39,13 +39,13 @@ const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) =>
 
   return (
     <form onSubmit={handleSubmit} className="modal-form">
-      {error && <div className="error-message" style={{ color: '#ff4d4d' }}>{error}</div>}
+      {error && <div className="error-message cards-page__modal-error-msg">{error}</div>}
       <PaymentElement />
-      <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-        <button type="submit" disabled={!stripe || processing} className="cards-page__button cards-page__button--primary" style={{ flex: 1 }}>
+      <div className="cards-page__stripe-actions">
+        <button type="submit" disabled={!stripe || processing} className="cards-page__button cards-page__button--primary cards-page__stripe-btn">
           {processing ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payNow')}
         </button>
-        <button type="button" onClick={onCancel} className="cards-page__button" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}>
+        <button type="button" onClick={onCancel} className="cards-page__button cards-page__stripe-btn cards-page__stripe-btn--cancel">
           ✕
         </button>
       </div>
@@ -1072,7 +1072,7 @@ const Cards = () => {
         <div className="cards-grid">
           {/* Cards */}
           {cards.length === 0 ? (
-            <div className="card-item card-item--no-pin no-cards-banner" style={{ justifyContent: 'center' }}>
+            <div className="card-item card-item--no-pin no-cards-banner card-item--center">
               <p data-lang-key="noCards">{t(userCardsLang, 'noCards')}</p>
               <button className="add-product-btn" onClick={() => setShowProductSelectionModal(true)}>
                 <span data-lang-key="orderFirstCard">{t(userCardsLang, 'orderFirstCard')}</span>
@@ -1093,8 +1093,8 @@ const Cards = () => {
                     <h2>{card.cardType} Card</h2>
                     <span className={`status ${card.status.toLowerCase()}`}>{card.status}</span>
                   </div>
-                  <div className="card-balance" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                  <div className="card-balance card-balance-wrapper">
+                    <div className="card-balance-info">
                       <span className="label" data-lang-key={showingCreditLimitMap[card.id] ? 'creditLineLabel' : 'availableBalance'}>
                         {showingCreditLimitMap[card.id] ? t(userCardsLang, 'creditLineLabel') : t(userCardsLang, 'availableBalance')}
                       </span>
@@ -1104,9 +1104,8 @@ const Cards = () => {
                     </div>
                     {card.creditLimit > 0 && (
                       <button
-                        className="toggle-balance-btn"
+                        className="toggle-balance-btn toggle-balance-btn--styled"
                         onClick={(e) => toggleCreditLimitView(card.id, e)}
-                        style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s ease', flexShrink: 0 }}
                         title={showingCreditLimitMap[card.id] ? t(userCardsLang, 'availableBalance') : t(userCardsLang, 'creditLineLabel')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1157,54 +1156,41 @@ const Cards = () => {
           ) : (
             loans.filter(l => l.status !== 'Closed' && l.status !== 'Paid' && l.status !== 'Rejected').map(loan => (
               <div key={loan.id} className="card-item">
-                <div className="card-image-wrapper" style={{
-                  background: 'linear-gradient(135deg, rgba(160, 32, 240, 0.15), rgba(96, 16, 144, 0.1))',
-                  border: '1px solid rgba(160, 32, 240, 0.3)',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  aspectRatio: '1.58',
-                  borderRadius: '16px',
-                  boxShadow: 'inset 0 0 20px rgba(160, 32, 240, 0.05)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
+                <div className="card-image-wrapper virtual-card-wrapper virtual-card-wrapper--loan">
                   {/* Decorative background elements */}
-                  <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.1)', filter: 'blur(20px)' }}></div>
-                  <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.05)', filter: 'blur(15px)' }}></div>
+                  <div className="virtual-card__deco-tr virtual-card__deco-tr--loan"></div>
+                  <div className="virtual-card__deco-bl virtual-card__deco-bl--loan"></div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(160, 32, 240, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="virtual-card__header">
+                    <div className="virtual-card__title">
+                      <div className="virtual-card__icon virtual-card__icon--loan">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b185fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="2" y="6" width="20" height="12" rx="2" />
                           <circle cx="12" cy="12" r="2" />
                           <path d="M6 12h.01M18 12h.01" />
                         </svg>
                       </div>
-                      <span style={{ color: '#b185fa', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoCredit')}</span>
+                      <span className="virtual-card__name virtual-card__name--loan">{t(userCardsLang, 'neoCredit')}</span>
                     </div>
                   </div>
 
                   {/* Loan Data Grid INSIDE the virtual card */}
-                  <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(loan.amount).toFixed(2)} ₼</span>
+                  <div className="virtual-card__grid">
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
+                      <span className="virtual-card__value">{Number(loan.amount).toFixed(2)} ₼</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
+                      <span className="virtual-card__value">{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{loan.interestRate}% / {loan.termMonths} ay</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                      <span className="virtual-card__value">{loan.interestRate}% / {loan.termMonths} ay</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{formatLoanDate(loan.nextPaymentDate)}</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="nextPaymentDate">{t(userCardsLang, 'nextPaymentDate')}</span>
+                      <span className="virtual-card__value">{formatLoanDate(loan.nextPaymentDate)}</span>
                     </div>
                   </div>
                 </div>
@@ -1220,10 +1206,9 @@ const Cards = () => {
                   </div>
 
                   {loan.status === 'Active' && (
-                    <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+                    <div className="card-actions card-actions--center">
                       <button
-                        className="action-btn"
-                        style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(160, 32, 240, 0.1)', color: '#b185fa', border: '1px solid rgba(160, 32, 240, 0.3)', whiteSpace: 'nowrap' }}
+                        className="action-btn action-btn--loan-pay"
                         onClick={(e) => {
                           e.stopPropagation();
                           openPayLoanModal(loan.id);
@@ -1247,54 +1232,41 @@ const Cards = () => {
           ) : (
             deposits.filter(d => d.status !== 'Closed').map(deposit => (
               <div key={deposit.id} className="card-item">
-                <div className="card-image-wrapper" style={{
-                  background: 'linear-gradient(135deg, rgba(0, 214, 86, 0.15), rgba(0, 160, 60, 0.1))',
-                  border: '1px solid rgba(0, 214, 86, 0.3)',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  aspectRatio: '1.58',
-                  borderRadius: '16px',
-                  boxShadow: 'inset 0 0 20px rgba(0, 214, 86, 0.05)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
+                <div className="card-image-wrapper virtual-card-wrapper virtual-card-wrapper--deposit">
                   {/* Decorative background elements */}
-                  <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(0, 214, 86, 0.1)', filter: 'blur(20px)' }}></div>
-                  <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(160, 32, 240, 0.05)', filter: 'blur(15px)' }}></div>
+                  <div className="virtual-card__deco-tr virtual-card__deco-tr--deposit"></div>
+                  <div className="virtual-card__deco-bl virtual-card__deco-bl--deposit"></div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(0, 214, 86, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="virtual-card__header">
+                    <div className="virtual-card__title">
+                      <div className="virtual-card__icon virtual-card__icon--deposit">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d656" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="2" y="6" width="20" height="12" rx="2" />
                           <circle cx="12" cy="12" r="2" />
                           <path d="M6 12h.01M18 12h.01" />
                         </svg>
                       </div>
-                      <span style={{ color: '#00d656', fontSize: '14px', fontWeight: '600' }}>{t(userCardsLang, 'neoDeposit')}</span>
+                      <span className="virtual-card__name virtual-card__name--deposit">{t(userCardsLang, 'neoDeposit')}</span>
                     </div>
                   </div>
 
                   {/* Deposit Data Grid INSIDE the virtual card */}
-                  <div style={{ zIndex: 1, width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(deposit.amount).toFixed(2)} ₼</span>
+                  <div className="virtual-card__grid">
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
+                      <span className="virtual-card__value">{Number(deposit.amount).toFixed(2)} ₼</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{Number(deposit.totalIncome).toFixed(2)} ₼</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
+                      <span className="virtual-card__value">{Number(deposit.totalIncome).toFixed(2)} ₼</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{deposit.interestRate}%</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
+                      <span className="virtual-card__value">{deposit.interestRate}%</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }} data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
-                      <span style={{ fontSize: '14px', color: '#fff', fontWeight: 600 }}>{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
+                    <div className="virtual-card__item">
+                      <span className="virtual-card__label" data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</span>
+                      <span className="virtual-card__value">{deposit.termMonths} {t(userCardsLang, 'termMonths').toLowerCase()}</span>
                     </div>
                   </div>
                 </div>
@@ -1308,7 +1280,7 @@ const Cards = () => {
                     <span className="label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
                     <span className="amount">{Number(deposit.totalIncome + deposit.amount).toFixed(2)} AZN</span>
                   </div>
-                  <div className="card-actions" style={{ display: 'flex', justifyContent: 'center' }}>
+                  <div className="card-actions card-actions--center">
                     {(() => {
                       const depositCreatedAt = new Date(deposit.createdAt);
                       // Add termMonths to get the expiry date
@@ -1318,8 +1290,7 @@ const Cards = () => {
 
                       return (
                         <button
-                          className="action-btn"
-                          style={{ padding: '14px 24px', borderRadius: '12px', fontWeight: 600, background: 'rgba(0, 214, 86, 0.1)', color: '#00d656', border: '1px solid rgba(0, 214, 86, 0.3)', whiteSpace: 'nowrap' }}
+                          className="action-btn action-btn--deposit-withdraw"
                           onClick={(e) => {
                             e.stopPropagation();
                             openWithdrawDepositModal(deposit.id, isExpired);
@@ -1428,7 +1399,7 @@ const Cards = () => {
                 <h2 data-lang-key="cashbackCategories">{t(userCardsLang, 'cashbackCategories')}</h2>
                 <button className="info-toggle-btn" onClick={() => setShowLimits(!showLimits)}>i</button>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="cashback-header-stats">
                 <div className="total-cashback">
                   <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
                   <strong>{Number(cashbackData?.totalEarned || 0).toFixed(2)} ₼</strong>
@@ -1526,12 +1497,12 @@ const Cards = () => {
             <div className="card-modal__content">
               {payLoanStatus === 'success' ? (
                 <div className="success-state" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d656', marginBottom: '16px' }}>✓</div>
+                  <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
               ) : (
                 <form onSubmit={handlePayLoan} className="modal-form">
-                  {payLoanError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{payLoanError}</div>}
+                  {payLoanError && <div className="error-message cards-page__modal-error-mb">{payLoanError}</div>}
                   <div className="form-group">
                     <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
                     <select
@@ -1567,13 +1538,13 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {withdrawDepositStatus === 'success' ? (
-                <div className="success-state" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d656', marginBottom: '16px' }}>✓</div>
+                <div className="success-state modal-success-state">
+                  <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
                 </div>
               ) : (
                 <form onSubmit={handleWithdrawDeposit} className="modal-form">
-                  {withdrawDepositError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{withdrawDepositError}</div>}
+                  {withdrawDepositError && <div className="error-message cards-page__modal-error-mb">{withdrawDepositError}</div>}
                   {!withdrawingDepositExpired && (
                     <div className="warning-message" style={{ color: '#faad14', marginBottom: '16px', background: 'rgba(250, 173, 20, 0.1)', padding: '12px', borderRadius: '8px', fontSize: '13px' }}>
                       {t(userCardsLang, 'withdrawDepositPenaltyWarning')}
@@ -1614,10 +1585,10 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleApplyLoan} className="modal-form">
-                {newLoanError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newLoanError}</div>}
+                {newLoanError && <div className="form-error cards-page__modal-error-mb">{newLoanError}</div>}
                 <div className="form-group">
                   <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
-                  <input className="modal-input" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }} type="number" value={newLoanForm.amount} onChange={e => setNewLoanForm({ ...newLoanForm, amount: e.target.value })} placeholder="500 - 100000" min="500" max="100000" required />
+                  <input className="modal-input modal-input--styled" type="number" value={newLoanForm.amount} onChange={e => setNewLoanForm({ ...newLoanForm, amount: e.target.value })} placeholder="500 - 100000" min="500" max="100000" required />
                 </div>
                 <div className="form-group">
                   <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
@@ -1654,10 +1625,10 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleOpenDeposit} className="modal-form">
-                {newDepositError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newDepositError}</div>}
+                {newDepositError && <div className="form-error cards-page__modal-error-mb">{newDepositError}</div>}
                 <div className="form-group">
                   <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
-                  <input className="modal-input" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }} type="number" value={newDepositForm.amount} onChange={e => setNewDepositForm({ ...newDepositForm, amount: e.target.value })} placeholder="Min 100 AZN" min="100" required />
+                  <input className="modal-input modal-input--styled" type="number" value={newDepositForm.amount} onChange={e => setNewDepositForm({ ...newDepositForm, amount: e.target.value })} placeholder="Min 100 AZN" min="100" required />
                 </div>
                 <div className="form-group">
                   <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
@@ -1694,7 +1665,7 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleAcquireCard} className="modal-form">
-                {newCardError && <div className="form-error" style={{ color: '#ff4d4f', marginBottom: '12px' }}>{newCardError}</div>}
+                {newCardError && <div className="form-error cards-page__modal-error-mb">{newCardError}</div>}
 
                 <div className="form-group">
                   <label data-lang-key="cardType">{t(userCardsLang, 'cardType')}</label>
@@ -1916,13 +1887,13 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {ibanTransferStatus === 'success' ? (
-                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
                 <form onSubmit={handleIbanTransferSubmit} className="modal-form">
-                  {ibanTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{ibanTransferError}</div>}
+                  {ibanTransferError && <div className="error-message cards-page__modal-error-msg">{ibanTransferError}</div>}
                   <div className="form-group">
                     <label>{t(userCardsLang, 'destIban')}</label>
                     <input
@@ -1973,13 +1944,13 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {internalTransferStatus === 'success' ? (
-                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
                 <form onSubmit={handleInternalTransferSubmit} className="modal-form">
-                  {internalTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{internalTransferError}</div>}
+                  {internalTransferError && <div className="error-message cards-page__modal-error-msg">{internalTransferError}</div>}
                   <div className="form-group">
                     <label>{t(userCardsLang, 'sourceCard')}</label>
                     <select
@@ -2039,7 +2010,7 @@ const Cards = () => {
               <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
               <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+            <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
             </div>
           </div>
@@ -2053,7 +2024,7 @@ const Cards = () => {
               <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+            <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
               <button
                 className="cards-page__button cards-page__button--primary"
@@ -2074,7 +2045,7 @@ const Cards = () => {
               <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
+            <div className="card-modal__content modal-success-state">
               <p>{creditLimitError}</p>
               <button
                 className="cards-page__button cards-page__button--primary"
@@ -2095,8 +2066,8 @@ const Cards = () => {
               <h2 style={{ color: '#4caf50' }}>{t(userCardsLang, 'success') || 'Success'}</h2>
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ textAlign: 'center', padding: '20px' }}>
-              <div className="success-icon" style={{ fontSize: '48px', color: '#4caf50', marginBottom: '16px' }}>✓</div>
+            <div className="card-modal__content modal-success-state">
+              <div className="success-icon success-icon--green">✓</div>
               <p>{t(userCardsLang, 'pinSuccess')}</p>
               <button
                 className="cards-page__button cards-page__button--primary"
@@ -2119,13 +2090,13 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {neoBankTransferStatus === 'success' ? (
-                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#4caf50', marginBottom: '10px' }}>✓</div>
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'transferSuccess')}</h3>
                 </div>
               ) : (
                 <form onSubmit={handleNeoBankTransferSubmit} className="modal-form">
-                  {neoBankTransferError && <div className="error-message" style={{ color: '#ff4d4d' }}>{neoBankTransferError}</div>}
+                  {neoBankTransferError && <div className="error-message cards-page__modal-error-msg">{neoBankTransferError}</div>}
 
                   <div className="form-group">
                     <label>{t(userCardsLang, 'sourceCard')}</label>
@@ -2233,7 +2204,7 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleChangePinSubmit} className="modal-form">
-                {pinError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '12px' }}>{pinError}</div>}
+                {pinError && <div className="error-message cards-page__modal-error-mb">{pinError}</div>}
                 {selectedSettingsCard?.hasPin && (
                   <div className="form-group">
                     <label>{t(userCardsLang, 'oldPin')}</label>
@@ -2320,13 +2291,13 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {arayislarStatus === 'success' ? (
-                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
                 </div>
               ) : (
                 <form onSubmit={handleArayislarSubmit} className="modal-form">
-                  {arayislarError && <div className="error-message" style={{ color: '#ff4d4d', marginBottom: '16px' }}>{arayislarError}</div>}
+                  {arayislarError && <div className="error-message cards-page__modal-error-mb">{arayislarError}</div>}
                   
                   <div className="form-group">
                     <label>{t(userCardsLang, 'certificateType')}</label>
@@ -2400,8 +2371,8 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {referencesStatus === 'success' ? (
-                <div className="success-message" style={{ textAlign: 'center', padding: '20px' }}>
-                  <div className="success-icon" style={{ fontSize: '48px', color: '#00d2ff', marginBottom: '16px' }}>✓</div>
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'statementSentSuccess')}</p>
                 </div>
               ) : (

@@ -285,6 +285,11 @@
     flex-direction: column;
     gap: 20px;
 
+    .payment-error-msg {
+      color: #ff4d4f;
+      margin-bottom: 10px;
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;

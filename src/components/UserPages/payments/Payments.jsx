@@ -227,7 +227,7 @@ const Payments = () => {
                 <div className="payment-simulation">
                   {paymentStatus === 'idle' && (
                     <form className="payment-form" onSubmit={handlePay}>
-                      {errorMessage && <p style={{ color: '#ff4d4f', marginBottom: '10px' }}>{errorMessage}</p>}
+                      {errorMessage && <p className="payment-error-msg">{errorMessage}</p>}
                       <div className="form-group">
                         <label>{t(paymentsLang, 'payFromCard')}</label>
                         <select

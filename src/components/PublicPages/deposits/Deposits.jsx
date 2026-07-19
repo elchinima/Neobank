@@ -286,7 +286,7 @@ function Deposits() {
               <div className="deposits-page__modal-content">
                 <h3 data-lang-key="selectCardTitle">{t(depositsLang, 'selectCardTitle')}</h3>
                 <p data-lang-key="selectCardDesc">{t(depositsLang, 'selectCardDesc')}</p>
-                {modalState.error && <p style={{ color: 'red', marginTop: '8px' }}>{modalState.error}</p>}
+                {modalState.error && <p className="deposits-page__modal-error">{modalState.error}</p>}
                 <div className="deposits-page__cards">
                   {userCards.map(card => (
                     <div
@@ -305,10 +305,9 @@ function Deposits() {
                   ))}
                 </div>
                 <button
-                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full"
+                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full deposits-page__button--mt32"
                   onClick={handleConfirmDeposit}
                   disabled={!modalState.selectedCardId}
-                  style={{marginTop: '32px'}}
                   data-lang-key="confirmDeposit"
                 >
                   {t(depositsLang, 'confirmDeposit')}
@@ -330,12 +329,11 @@ function Deposits() {
                 <h3 data-lang-key="successTitle">{t(depositsLang, 'successTitle')}</h3>
                 <p data-lang-key="successDesc">{t(depositsLang, 'successDesc')}</p>
                 <button
-                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full"
+                  className="deposits-page__button deposits-page__button--primary deposits-page__button--full deposits-page__button--mt32"
                   onClick={() => {
                     handleCloseModal()
                     navigate('/user/dashboard')
                   }}
-                  style={{marginTop: '32px'}}
                   data-lang-key="done"
                 >
                   {t(depositsLang, 'done')}

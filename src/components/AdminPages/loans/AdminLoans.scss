@@ -43,6 +43,12 @@
     align-items: flex-end;
   }
 
+  &__action-btns {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
   &__search, &__filter {
     display: grid;
     gap: 7px;

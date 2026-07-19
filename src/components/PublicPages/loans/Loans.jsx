@@ -300,7 +300,7 @@ function Loans() {
               <div className="loans-page__modal-content">
                 <h3 data-lang-key="selectCardTitle">{t(loansLang, 'selectCardTitle')}</h3>
                 <p data-lang-key="selectCardDesc">{t(loansLang, 'selectCardDesc')}</p>
-                {modalState.error && <p style={{ color: 'red', marginTop: '8px' }}>{modalState.error}</p>}
+                {modalState.error && <p className="loans-page__modal-error">{modalState.error}</p>}
                 <div className="loans-page__cards">
                   {userCards.map(card => (
                     <div
@@ -319,10 +319,9 @@ function Loans() {
                   ))}
                 </div>
                 <button
-                  className="loans-page__button loans-page__button--primary loans-page__button--full"
+                  className="loans-page__button loans-page__button--primary loans-page__button--full loans-page__button--mt32"
                   onClick={handleConfirmLoan}
                   disabled={!modalState.selectedCardId}
-                  style={{marginTop: '32px'}}
                   data-lang-key="confirmPayout"
                 >
                   {t(loansLang, 'confirmPayout')}
@@ -344,12 +343,11 @@ function Loans() {
                 <h3 data-lang-key="successTitle">{t(loansLang, 'successTitle')}</h3>
                 <p data-lang-key="successDesc">{t(loansLang, 'successDesc')}</p>
                 <button
-                  className="loans-page__button loans-page__button--primary loans-page__button--full"
+                  className="loans-page__button loans-page__button--primary loans-page__button--full loans-page__button--mt32"
                   onClick={() => {
                     handleCloseModal()
                     navigate('/user/dashboard')
                   }}
-                  style={{marginTop: '32px'}}
                   data-lang-key="goToDashboard"
                 >
                   {t(loansLang, 'goToDashboard')}

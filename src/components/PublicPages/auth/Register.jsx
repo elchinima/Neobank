@@ -124,15 +124,7 @@ function Register() {
               </div>
 
               {serverError && (
-                <div style={{
-                  padding: '12px 16px',
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '8px',
-                  color: '#f87171',
-                  fontSize: '14px',
-                  marginBottom: '20px'
-                }}>
+                <div className="auth-page__server-error">
                   {getTranslatedError(serverError)}
                 </div>
               )}

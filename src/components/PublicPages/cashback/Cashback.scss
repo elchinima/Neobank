@@ -599,6 +599,11 @@
     }
   }
 
+  &__loading-msg {
+    padding: 1rem;
+    color: #ffffff;
+  }
+
   &__or {
     display: grid;
     align-self: center;

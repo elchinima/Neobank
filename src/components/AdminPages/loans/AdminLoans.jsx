@@ -185,27 +185,29 @@ const AdminLoans = () => {
               }}
             />
           </div>
-          <div className="admin-loans__filter">
-            <label htmlFor="admin-loans-filter">Status</label>
-            <select
-              id="admin-loans-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+          <div className="admin-loans__action-btns">
+            <div className="admin-loans__filter">
+              <label htmlFor="admin-loans-filter">Status</label>
+              <select
+                id="admin-loans-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Active">Active</option>
+                <option value="Paid">Paid</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+            <button 
+              type="button" 
+              className="admin-loans__search-btn" 
+              onClick={() => setSearch(searchInput)}
             >
-              <option value="All">All</option>
-              <option value="Pending">Pending</option>
-              <option value="Active">Active</option>
-              <option value="Paid">Paid</option>
-              <option value="Rejected">Rejected</option>
-            </select>
+              Search
+            </button>
           </div>
-          <button 
-            type="button" 
-            className="admin-loans__search-btn" 
-            onClick={() => setSearch(searchInput)}
-          >
-            Search
-          </button>
         </div>
       </header>
 

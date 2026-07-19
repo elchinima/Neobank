@@ -598,6 +598,10 @@
     margin-top: 24px;
   }
 
+  &__button--mt32 {
+    margin-top: 32px;
+  }
+
   &__group {
     margin-bottom: 20px;
 
@@ -795,6 +799,11 @@
     &:hover {
       color: #fff;
     }
+  }
+
+  &__modal-error {
+    color: red;
+    margin-top: 8px;
   }
 
   &__modal-content {

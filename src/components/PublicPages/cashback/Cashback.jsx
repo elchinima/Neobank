@@ -139,7 +139,7 @@ function Cashback() {
 
               <div className="cashback-page__offers">
                 {loadingCashbacks ? (
-                  <div style={{ padding: '1rem', color: '#fff' }}>Loading cashbacks...</div>
+                  <div className="cashback-page__loading-msg">Loading cashbacks...</div>
                 ) : variantA.length > 0 ? (
                   variantA.map((item) => {
                     const title = lang === 'az' ? item.titleAz : lang === 'ru' ? item.titleRu : item.titleEn;
@@ -155,7 +155,7 @@ function Cashback() {
                     );
                   })
                 ) : (
-                  <div style={{ padding: '1rem', color: '#fff' }}>No cashbacks available.</div>
+                  <div className="cashback-page__loading-msg">No cashbacks available.</div>
                 )}
               </div>
             </article>
@@ -171,7 +171,7 @@ function Cashback() {
               </div>
               <div className="cashback-page__offers">
                 {loadingCashbacks ? (
-                  <div style={{ padding: '1rem', color: '#fff' }}>Loading cashbacks...</div>
+                  <div className="cashback-page__loading-msg">Loading cashbacks...</div>
                 ) : variantB.length > 0 ? (
                   variantB.map((item) => {
                     const title = lang === 'az' ? item.titleAz : lang === 'ru' ? item.titleRu : item.titleEn;
@@ -187,7 +187,7 @@ function Cashback() {
                     );
                   })
                 ) : (
-                  <div style={{ padding: '1rem', color: '#fff' }}>No cashbacks available for Option B.</div>
+                  <div className="cashback-page__loading-msg">No cashbacks available for Option B.</div>
                 )}
               </div>
             </article>

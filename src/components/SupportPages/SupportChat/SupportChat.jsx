@@ -343,7 +343,7 @@ function SupportChat() {
               <input 
                 type="file" 
                 ref={fileInputRef} 
-                style={{display: 'none'}} 
+                className="support-file-input--hidden"
                 accept=".jpg,.jpeg,.png" 
                 onChange={handleImageUpload} 
               />
@@ -357,7 +357,7 @@ function SupportChat() {
               />
               <button type="submit" className="send-btn" disabled={(!inputValue.trim() && !selectedImageBase64) || isWaiting || isTyping || isUploadingImage} aria-label={t(supportChatLang, 'send')}>
                 {isUploadingImage ? (
-                  <img src={loaderIcon} alt="Uploading..." style={{ width: '24px', height: '24px' }} />
+                  <img src={loaderIcon} alt="Uploading..." className="send-btn__loader" />
                 ) : (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>

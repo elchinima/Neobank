@@ -188,9 +188,9 @@ const Settings = () => {
 
           <div className="profile-wrapper">
             <div className="avatar-box">
-              <div className="avatar-circle" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="avatar-circle">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={avatarUrl} alt="Avatar" className="avatar-circle__img" />
                 ) : (
                   user?.firstName?.charAt(0) || 'E'
                 )}
@@ -200,7 +200,7 @@ const Settings = () => {
                 ref={fileInputRef}
                 onChange={handleAvatarSelect}
                 accept="image/png, image/jpeg, image/jpg"
-                style={{ display: 'none' }}
+                className="settings-file-input--hidden"
               />
               <button
                 className="change-avatar-btn"
@@ -210,7 +210,7 @@ const Settings = () => {
               >
                 {uploadingAvatar ? t(settingsLang, 'processingAvatar') : t(settingsLang, 'changeAvatar')}
               </button>
-              {uploadError && <p style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>{uploadError}</p>}
+              {uploadError && <p className="upload-error-msg">{uploadError}</p>}
             </div>
 
             <div className="profile-info-fields">
@@ -324,8 +324,8 @@ const Settings = () => {
               <button className="close-btn" onClick={closePasswordModal}>✕</button>
             </div>
             <div className="settings-modal__content">
-              {passwordError && <p style={{ color: '#ff4d4f', marginBottom: '15px', fontSize: '14px' }}>{passwordError}</p>}
-              {passwordSuccess && <p style={{ color: '#52c41a', marginBottom: '15px', fontSize: '14px' }}>{passwordSuccess}</p>}
+              {passwordError && <p className="modal-error-msg">{passwordError}</p>}
+              {passwordSuccess && <p className="modal-success-msg">{passwordSuccess}</p>}
             <div className="field-group">
               <label data-lang-key="currentPassword">{t(settingsLang, 'currentPassword')}</label>
               <input

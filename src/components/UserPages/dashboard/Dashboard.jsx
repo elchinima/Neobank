@@ -177,7 +177,7 @@ const Dashboard = () => {
             <div className="dashboard-view__bonuses-breakdown">
               <div className="dashboard-view__bonus-row">
                 <div className="dashboard-view__bonus-info">
-                  <span className="dashboard-view__bonus-icon"><img src={shoppingBubbleIcon} alt="Cashback" style={{width: '100%', height: '100%'}} /></span>
+                  <span className="dashboard-view__bonus-icon"><img src={shoppingBubbleIcon} alt="Cashback" className="bonus-icon__img" /></span>
                   <div className="dashboard-view__bonus-text">
                     <strong data-lang-key="cashback">{t(dashboardLang, 'cashback')}</strong>
                   </div>
@@ -189,7 +189,7 @@ const Dashboard = () => {
 
               <div className="dashboard-view__bonus-row">
                 <div className="dashboard-view__bonus-info">
-                  <span className="dashboard-view__bonus-icon"><img src={vatBubbleIcon} alt="VAT Refund" style={{width: '100%', height: '100%'}} /></span>
+                  <span className="dashboard-view__bonus-icon"><img src={vatBubbleIcon} alt="VAT Refund" className="bonus-icon__img" /></span>
                   <div className="dashboard-view__bonus-text">
                     <strong data-lang-key="vat">{t(dashboardLang, 'vat')}</strong>
                   </div>
@@ -248,18 +248,13 @@ const Dashboard = () => {
                 return (
                   <rect
                     key={`bar-${index}`}
-                    className="trend-bar"
+                    className={`trend-bar ${isHovered ? 'trend-bar--hovered' : ''}`}
                     x={x}
                     y={y}
                     width={barWidth}
                     height={barHeight}
                     rx="4"
                     fill="url(#barGradient)"
-                    style={{
-                      opacity: isHovered ? 1 : 0.7,
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer'
-                    }}
                     onMouseEnter={() => setHoveredBar(index)}
                     onMouseLeave={() => setHoveredBar(null)}
                   />
@@ -292,6 +287,7 @@ const Dashboard = () => {
                   return (
                     <circle
                       key={`${activeFilter}-cat-${index}`}
+                      className={`doughnut-segment ${isHovered ? 'doughnut-segment--hovered' : ''}`}
                       cx="100"
                       cy="100"
                       r={r}
@@ -302,11 +298,7 @@ const Dashboard = () => {
                       strokeDashoffset={seg.strokeDashoffset}
                       transform="rotate(-90 100 100)"
                       strokeLinecap={seg.value > 0 ? "round" : "butt"}
-                      style={{
-                        transition: 'stroke-width 0.3s ease, filter 0.3s ease',
-                        cursor: 'pointer',
-                        filter: `drop-shadow(0 0 ${isHovered ? 12 : 4}px ${seg.color})`
-                      }}
+                      style={{ '--seg-color': seg.color }}
                       onMouseEnter={() => setHoveredCategory(index)}
                       onMouseLeave={() => setHoveredCategory(null)}
                     />
@@ -335,7 +327,7 @@ const Dashboard = () => {
                     onMouseLeave={() => setHoveredCategory(null)}
                   >
                     <span className="legend-item__icon-wrap">
-                      <span className="legend-item__icon"><img src={seg.icon} alt={seg.name} style={{width: '100%', height: '100%'}} /></span>
+                      <span className="legend-item__icon"><img src={seg.icon} alt={seg.name} className="legend-item__icon-img" /></span>
                     </span>
 
                     <div className="legend-item__details">
