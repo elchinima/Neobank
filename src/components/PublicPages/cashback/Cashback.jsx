@@ -110,6 +110,26 @@ function Cashback() {
                 {t(cashbackLang, 'getCard')}
               </Link>
             </div>
+
+            {hasBanner && (
+              <div className="cashback-page__hero-stats" aria-label="Cashback overview">
+                {[
+                  { labelKey: 'stat0Label', value: '100%', subKey: 'stat0Sub' },
+                  { labelKey: 'stat1Label', value: 'min. 8', subKey: 'stat1Sub' },
+                  { labelKey: 'stat2Label', value: '1%', subKey: 'stat2Sub' },
+                  { labelKey: 'stat3Label', value: '0 AZN', subKey: 'stat3Sub', mobileOnly: true },
+                ].map((stat) => (
+                  <div
+                    className={`cashback-page__hero-stat${stat.mobileOnly ? ' cashback-page__hero-stat--mobile-only' : ''}`}
+                    key={stat.labelKey}
+                  >
+                    <span data-lang-key={stat.labelKey}>{t(cashbackLang, stat.labelKey)}</span>
+                    <strong>{stat.value}</strong>
+                    <small data-lang-key={stat.subKey}>{t(cashbackLang, stat.subKey)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {hasBanner && (

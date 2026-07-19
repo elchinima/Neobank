@@ -182,22 +182,6 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Account is disabled.");
         }
 
-        var session = user.Session;
-        if (session != null && session.TwoFactorEnabled)
-        {
-            var tempToken = GenerateTempToken();
-            var code = GenerateCode();
-            await SaveVerificationCode(user.Id, code, "TwoFactor", tempToken);
-            await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "TwoFactor");
-
-            return new AuthResponseDto
-            {
-                RequiresTwoFactor = true,
-                TempToken = tempToken,
-                User = MapToUserDto(user)
-            };
-        }
-
         return await CompleteLoginAsync(user, ipAddress);
     }
 
