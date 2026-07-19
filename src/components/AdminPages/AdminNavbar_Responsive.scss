@@ -38,12 +38,13 @@
     }
 
     &__nav-links {
-      gap: 18px;
+      gap: 12px;
+      margin-top: 6px;
     }
 
     &__link {
       flex: 0 0 auto;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     &__badge {

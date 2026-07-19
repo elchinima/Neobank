@@ -2,7 +2,7 @@ import Cookies from 'js-cookie'
 import { useEffect, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminCashbacks.scss'
-
+import './AdminCashbacks_Responsive.scss'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {

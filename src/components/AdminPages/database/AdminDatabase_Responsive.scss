@@ -1,0 +1,56 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 768px) {
+  .admin-db {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    &__actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    &__search {
+      width: 100%;
+    }
+
+    &__add-btn {
+      width: 100%;
+    }
+
+    &__table-wrap {
+      &::-webkit-scrollbar {
+        height: 6px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 226, 138, 0.3);
+        border-radius: 4px;
+      }
+    }
+
+    &__modal {
+      width: 95%;
+      margin: 0 auto;
+
+      &-content {
+        padding: 16px;
+      }
+      
+      &-footer {
+        flex-direction: column;
+        
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

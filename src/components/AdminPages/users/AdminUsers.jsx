@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { useAuth } from '../../../app/context/AuthContext'
 import './AdminUsers.scss'
-
+import './AdminUsers_Responsive.scss'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {

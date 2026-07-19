@@ -1,0 +1,40 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 768px) {
+  .admin-loans {
+    padding: 16px;
+
+    &__header {
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    &__table-wrapper {
+      &::-webkit-scrollbar {
+        height: 6px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 226, 138, 0.3);
+        border-radius: 4px;
+      }
+    }
+
+    &__modal {
+      width: 95%;
+      margin: 0 auto;
+
+      &-content {
+        padding: 16px;
+      }
+      
+      &-actions {
+        flex-direction: column;
+        
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

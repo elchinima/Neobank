@@ -11,8 +11,26 @@
 
 @media (max-width: 768px) {
   .admin-banner {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
     &__card {
-      flex: 0 0 85%;
+      flex: 0 0 100%;
+    }
+
+    &__preview-img {
+      max-height: 160px;
+    }
+
+    &__save-btn {
+      width: 100%;
     }
   }
 }

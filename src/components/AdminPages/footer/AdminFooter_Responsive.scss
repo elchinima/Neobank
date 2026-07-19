@@ -2,11 +2,29 @@
 
 @media (max-width: 600px) {
   .admin-footer {
+    &__header {
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    &__form {
+      gap: 16px;
+    }
+
     &__field-group {
       .input-row {
         flex-direction: column;
         gap: 10px;
+        
+        input {
+          width: 100%;
+        }
       }
+    }
+
+    &__save-btn {
+      width: 100%;
     }
   }
 }

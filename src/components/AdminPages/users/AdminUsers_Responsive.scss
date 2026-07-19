@@ -1,0 +1,55 @@
+@use '../../../assets/styles/variables' as *;
+
+@media (max-width: 768px) {
+  .admin-users {
+    &__header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    &__search {
+      width: 100%;
+    }
+
+    &__search-btn {
+      width: 100%;
+    }
+
+    &__table-wrap {
+      // Add custom scrollbar styling for better mobile UX
+      &::-webkit-scrollbar {
+        height: 6px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 226, 138, 0.3);
+        border-radius: 4px;
+      }
+    }
+
+    &--info {
+      width: 95%;
+      margin: 0 auto;
+
+      .admin-users-modal__content {
+        padding: 16px;
+      }
+    }
+
+    &__drawer-content {
+      padding: 16px;
+    }
+
+    &__drawer-footer {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
