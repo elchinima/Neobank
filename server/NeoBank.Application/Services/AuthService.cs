@@ -420,7 +420,7 @@ public class AuthService : IAuthService
         using var rng = RandomNumberGenerator.Create();
         var bytes = new byte[4];
         rng.GetBytes(bytes);
-        var value = Math.Abs(BitConverter.ToInt32(bytes, 0)) % 10_000_000;
+        var value = BitConverter.ToUInt32(bytes, 0) % 10_000_000;
         return value.ToString("D7");
     }
 
