@@ -1235,7 +1235,7 @@
   justify-content: center;
 }
 
-.card-balance-wrapper {
+.user-cards-page .card-item .card-details .card-balance-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1437,6 +1437,280 @@
 .modal-success-state {
   text-align: center;
   padding: 20px;
+}
+
+// ========= ADDITIONAL CLASSES FROM INLINE STYLES REFACTORING =========
+
+.success-icon {
+  font-size: 48px;
+
+  &--green {
+    color: #00d656;
+    margin-bottom: 16px;
+  }
+
+  &--blue {
+    color: #00d2ff;
+    margin-bottom: 16px;
+  }
+}
+
+.circular-icon-btn {
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.virtual-card-wrapper {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  aspect-ratio: 1.58;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+
+  &--loan {
+    background: linear-gradient(135deg, rgba(160, 32, 240, 0.15), rgba(96, 16, 144, 0.1));
+    border: 1px solid rgba(160, 32, 240, 0.3);
+    box-shadow: inset 0 0 20px rgba(160, 32, 240, 0.05);
+  }
+
+  &--deposit {
+    background: linear-gradient(135deg, rgba(0, 214, 86, 0.15), rgba(0, 160, 60, 0.1));
+    border: 1px solid rgba(0, 214, 86, 0.3);
+    box-shadow: inset 0 0 20px rgba(0, 214, 86, 0.05);
+  }
+}
+
+.virtual-card__deco-tr {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  filter: blur(20px);
+
+  &--loan {
+    background: rgba(160, 32, 240, 0.1);
+  }
+
+  &--deposit {
+    background: rgba(0, 214, 86, 0.1);
+  }
+}
+
+.virtual-card__deco-bl {
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  filter: blur(15px);
+
+  &--loan {
+    background: rgba(0, 214, 86, 0.05);
+  }
+
+  &--deposit {
+    background: rgba(160, 32, 240, 0.05);
+  }
+}
+
+.virtual-card__header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  z-index: 1;
+}
+
+.virtual-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.virtual-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--loan {
+    background: rgba(160, 32, 240, 0.2);
+  }
+
+  &--deposit {
+    background: rgba(0, 214, 86, 0.2);
+  }
+}
+
+.virtual-card__name {
+  font-size: 14px;
+  font-weight: 600;
+
+  &--loan {
+    color: #b185fa;
+  }
+
+  &--deposit {
+    color: #00d656;
+  }
+}
+
+.virtual-card__grid {
+  z-index: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.virtual-card__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.virtual-card__label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.virtual-card__value {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.card-actions--center {
+  display: flex;
+  justify-content: center;
+}
+
+.action-btn--loan-pay {
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: rgba(160, 32, 240, 0.1);
+  color: #b185fa;
+  border: 1px solid rgba(160, 32, 240, 0.3);
+  white-space: nowrap;
+}
+
+.action-btn--deposit-withdraw {
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: rgba(0, 214, 86, 0.1);
+  color: #00d656;
+  border: 1px solid rgba(0, 214, 86, 0.3);
+  white-space: nowrap;
+}
+
+.modal-input--styled {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  outline: none;
+}
+
+.settings-section--mt {
+  margin-top: 16px;
+}
+
+.modal-btn--mt {
+  margin-top: 16px;
+}
+.modal-btn--mt-lg {
+  margin-top: 20px;
+}
+
+.modal-select option {
+  color: #111;
+}
+
+.card-modal__content--account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-item {
+  background: rgba(255,255,255,0.05);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.detail-label {
+  color: #aaa;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-value {
+  font-size: 16px;
+  font-family: monospace;
+  color: #fff;
+  word-break: break-all;
+  padding-right: 10px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid #4a00e0;
+  color: #00d2ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.modal-header--danger {
+  color: #ff4d4d;
+}
+
+.modal-header--success {
+  color: #4caf50;
+}
+
+.warning-message--styled {
+  color: #faad14;
+  margin-bottom: 16px;
+  background: rgba(250, 173, 20, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 .success-icon {

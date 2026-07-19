@@ -523,3 +523,248 @@
     text-align: center;
   }
 }
+
+// ========= ADDITIONAL CLASSES FROM INLINE STYLES REFACTORING =========
+
+.admin-cb-modal__alert {
+  margin: 16px 24px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+
+  &--error {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+  }
+
+  &--success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+}
+
+.admin-cb-modal--large {
+  max-width: 600px;
+  width: 100%;
+  height: 90vh;
+}
+
+.admin-cb-modal__content--scrollable {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.admin-cb-modal__form-box {
+  background: rgba(255,255,255,0.03);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-cb-modal__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.admin-cb-modal__field--quarter {
+  flex: 0 0 25%;
+  min-width: 0;
+}
+
+.admin-cb-modal__field--flex {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.admin-cb-modal__char-count {
+  font-size: 11px;
+  text-align: right;
+  margin-top: 4px;
+
+  &--error {
+    color: #ff3b30;
+  }
+  &--default {
+    color: #888;
+  }
+}
+
+.admin-cb-modal__actions-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+  flex: 0 0 auto;
+}
+
+.admin-cb-modal__btn--fixed {
+  padding: 10px 16px;
+  height: 42px;
+  min-width: 90px;
+  width: 90px;
+}
+
+.admin-cb-modal__btn--small {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.admin-cb-modal__search-row {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.admin-cb-modal__search-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin-cb__table-wrap--rounded {
+  border-radius: 8px;
+}
+
+.admin-cb__table--full {
+  min-width: 100%;
+}
+
+.admin-cb__th--actions {
+  width: 120px;
+  text-align: right;
+}
+
+.admin-cb__empty-text {
+  color: #888;
+}
+
+.admin-cb__td--right {
+  text-align: right;
+}
+
+.admin-cb-btn--edit, .admin-cb-btn--delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.admin-cb-btn--edit {
+  color: #10b981;
+  margin-right: 12px;
+}
+
+.admin-cb-btn--delete {
+  color: #ef4444;
+}
+
+.admin-cb-modal--small {
+  max-width: 400px;
+}
+
+.admin-cb-modal__confirm-text {
+  color: #fff;
+}
+
+.admin-cb-modal__select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.admin-cb-modal__mcc-row {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.admin-cb-modal__field--relative {
+  position: relative;
+  flex: 1;
+}
+
+.mcc-multi-select--styled {
+  min-height: 42px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
+}
+
+.mcc-multi-select__tags--flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  height: 100%;
+}
+
+.mcc-multi-tag--extra {
+  cursor: pointer;
+  background: rgba(255, 226, 138, 0.25);
+}
+
+.mcc-multi-tag--add {
+  cursor: pointer;
+  background: transparent;
+  border: 1px dashed rgba(255, 226, 138, 0.5);
+  width: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.mcc-dropdown--flex {
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mcc-dropdown__header {
+  width: 100%;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mcc-dropdown__close {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mcc-dropdown-item--all {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  font-weight: bold;
+  color: #10b981;
+}
+
+.admin-cb-modal__actions-row {
+  display: flex;
+  gap: 12px;
+  flex: 0 0 auto;
+}

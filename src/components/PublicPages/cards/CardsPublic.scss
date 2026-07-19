@@ -377,6 +377,12 @@
     font-weight: 900;
     line-height: 0.98;
     text-shadow: 0 0 40px rgba(255, 226, 138, 0.12);
+    overflow-wrap: normal;
+    word-break: normal;
+
+    html[lang="ru"] & {
+      font-size: clamp(35px, 4.9vw, 63px);
+    }
   }
 
   &__hero-actions {

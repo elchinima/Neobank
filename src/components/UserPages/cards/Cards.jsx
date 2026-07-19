@@ -1462,7 +1462,7 @@ const Cards = () => {
               <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
-              <div className="settings-section" style={{ marginTop: '16px' }}>
+              <div className="settings-section settings-section--mt">
                 <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
                   <img src={addProductIcon} className="btn-svg-icon" alt="" />
                   <div className="btn-text">
@@ -1496,7 +1496,7 @@ const Cards = () => {
             </div>
             <div className="card-modal__content">
               {payLoanStatus === 'success' ? (
-                <div className="success-state" style={{ textAlign: 'center', padding: '20px' }}>
+                <div className="success-state modal-success-state">
                   <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
@@ -1516,9 +1516,8 @@ const Cards = () => {
                   </div>
                   <button
                     type="submit"
-                    className="cards-page__button cards-page__button--primary submit-order-btn"
+                    className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
                     disabled={payLoanStatus === 'loading'}
-                    style={{ marginTop: '16px' }}
                   >
                     {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
                   </button>
@@ -1546,7 +1545,7 @@ const Cards = () => {
                 <form onSubmit={handleWithdrawDeposit} className="modal-form">
                   {withdrawDepositError && <div className="error-message cards-page__modal-error-mb">{withdrawDepositError}</div>}
                   {!withdrawingDepositExpired && (
-                    <div className="warning-message" style={{ color: '#faad14', marginBottom: '16px', background: 'rgba(250, 173, 20, 0.1)', padding: '12px', borderRadius: '8px', fontSize: '13px' }}>
+                    <div className="warning-message warning-message--styled">
                       {t(userCardsLang, 'withdrawDepositPenaltyWarning')}
                     </div>
                   )}
@@ -1563,9 +1562,8 @@ const Cards = () => {
                   </div>
                   <button
                     type="submit"
-                    className="cards-page__button cards-page__button--primary submit-order-btn"
+                    className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
                     disabled={withdrawDepositStatus === 'loading'}
-                    style={{ marginTop: '16px' }}
                   >
                     {withdrawDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'withdrawDepositBtn')}
                   </button>
@@ -1607,7 +1605,7 @@ const Cards = () => {
                     {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)})</option>)}
                   </select>
                 </div>
-                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newLoanStatus === 'loading'} style={{ marginTop: '16px' }}>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newLoanStatus === 'loading'}>
                   {newLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
                 </button>
               </form>
@@ -1647,7 +1645,7 @@ const Cards = () => {
                     {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}</option>)}
                   </select>
                 </div>
-                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn" disabled={newDepositStatus === 'loading'} style={{ marginTop: '16px' }}>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newDepositStatus === 'loading'}>
                   {newDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
                 </button>
               </form>
@@ -1897,8 +1895,7 @@ const Cards = () => {
                   <div className="form-group">
                     <label>{t(userCardsLang, 'destIban')}</label>
                     <input
-                      className="modal-input"
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }}
+                      className="modal-input modal-input--styled"
                       type="text"
                       placeholder="AZ00NABZ00000000000000000000"
                       value={ibanTransferForm.destIban}
@@ -1909,8 +1906,7 @@ const Cards = () => {
                   <div className="form-group">
                     <label>{t(userCardsLang, 'transferAmount')}</label>
                     <input
-                      className="modal-input"
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', outline: 'none' }}
+                      className="modal-input modal-input--styled"
                       type="number"
                       step="0.01"
                       min="1"
@@ -1922,9 +1918,8 @@ const Cards = () => {
                   </div>
                   <button
                     type="submit"
-                    className="cards-page__button cards-page__button--primary"
+                    className="cards-page__button cards-page__button--primary modal-btn--mt"
                     disabled={ibanTransferStatus === 'loading' || !ibanTransferForm.destIban || !ibanTransferForm.amount}
-                    style={{ marginTop: '16px' }}
                   >
                     {ibanTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
                   </button>
@@ -2021,14 +2016,13 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
               <button
-                className="cards-page__button cards-page__button--primary"
-                style={{ marginTop: '20px' }}
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
                 onClick={() => setShowPinAlertModal(false)}
               >
                 OK
@@ -2042,14 +2036,13 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setCreditLimitError(null)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 style={{ color: '#ff4d4d' }}>{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{creditLimitError}</p>
               <button
-                className="cards-page__button cards-page__button--primary"
-                style={{ marginTop: '20px' }}
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
                 onClick={() => setCreditLimitError(null)}
               >
                 OK
@@ -2063,15 +2056,14 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowPinSuccessModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 style={{ color: '#4caf50' }}>{t(userCardsLang, 'success') || 'Success'}</h2>
+              <h2 className="modal-header--success">{t(userCardsLang, 'success') || 'Success'}</h2>
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <div className="success-icon success-icon--green">✓</div>
               <p>{t(userCardsLang, 'pinSuccess')}</p>
               <button
-                className="cards-page__button cards-page__button--primary"
-                style={{ marginTop: '20px' }}
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
                 onClick={() => setShowPinSuccessModal(false)}
               >
                 OK
@@ -2157,33 +2149,31 @@ const Cards = () => {
               <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
               <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
             </div>
-            <div className="card-modal__content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="detail-item" style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px' }}>
-                <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'ibanLabel')}</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff', wordBreak: 'break-all', paddingRight: '10px' }}>
+            <div className="card-modal__content card-modal__content--account-details">
+              <div className="detail-item">
+                <span className="detail-label">{t(userCardsLang, 'ibanLabel')}</span>
+                <div className="detail-row">
+                  <span className="detail-value">
                     {formatCardNumber(selectedSettingsCard.iban)}
                   </span>
                   <button
                     className="copy-btn"
                     onClick={() => handleCopy(selectedSettingsCard.iban, 'iban')}
-                    style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     {copiedField === 'iban' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
                   </button>
                 </div>
               </div>
 
-              <div className="detail-item" style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '12px' }}>
-                <span className="detail-label" style={{ color: '#aaa', fontSize: '12px', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>{t(userCardsLang, 'swiftLabel')}</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="detail-value" style={{ fontSize: '16px', fontFamily: 'monospace', color: '#fff' }}>
+              <div className="detail-item">
+                <span className="detail-label">{t(userCardsLang, 'swiftLabel')}</span>
+                <div className="detail-row">
+                  <span className="detail-value">
                     {selectedSettingsCard.swift}
                   </span>
                   <button
                     className="copy-btn"
                     onClick={() => handleCopy(selectedSettingsCard.swift, 'swift')}
-                    style={{ background: 'transparent', border: '1px solid #4a00e0', color: '#00d2ff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     {copiedField === 'swift' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
                   </button>

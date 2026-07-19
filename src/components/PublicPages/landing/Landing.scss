@@ -382,6 +382,12 @@
     line-height: 0.98;
     text-shadow: 0 0 40px rgba(255, 226, 138, 0.12);
     animation: landingFadeUp $landing-animation-base $landing-animation-ease 160ms both;
+    overflow-wrap: normal;
+    word-break: normal;
+
+    html[lang="ru"] & {
+      font-size: clamp(37px, 5.1vw, 63px);
+    }
   }
 
   &__hero-copy {

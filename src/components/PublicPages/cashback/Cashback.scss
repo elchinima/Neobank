@@ -335,6 +335,12 @@
     line-height: 0.98;
     text-shadow: 0 0 40px rgba(255, 226, 138, 0.12);
     animation: cashbackFadeUp $landing-animation-base $landing-animation-ease 160ms both;
+    overflow-wrap: normal;
+    word-break: normal;
+
+    html[lang="ru"] & {
+      font-size: clamp(37px, 4.9vw, 63px);
+    }
   }
 
   &__hero-copy {

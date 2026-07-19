@@ -211,7 +211,7 @@ const AdminLoans = () => {
         </div>
       </header>
 
-      {error && <p style={{ color: '#ef4444' }}>{error}</p>}
+      {error && <p className="admin-error-text">{error}</p>}
       
       {loading ? (
         <p>Loading...</p>
@@ -318,7 +318,7 @@ const AdminLoans = () => {
               ))}
               {loans.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', color: '#888' }}>
+                  <td colSpan="7" className="admin-table__empty-cell">
                     No loans found.
                   </td>
                 </tr>
@@ -332,7 +332,7 @@ const AdminLoans = () => {
         <div className="admin-loans__modal-overlay">
           <div className="admin-loans__modal">
             <h3>Reject Loan</h3>
-            <p style={{ marginBottom: '16px', color: '#aaa', fontSize: '0.9rem' }}>
+            <p className="admin-modal__subtitle">
               Please provide a reason for rejection. This will be sent to the user via email.
             </p>
             <textarea 
@@ -340,9 +340,9 @@ const AdminLoans = () => {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               maxLength={100}
-              style={{ marginBottom: '4px' }}
+              className="admin-textarea--mb"
             />
-            <div style={{ textAlign: 'right', fontSize: '0.8rem', color: rejectReason.length >= 100 ? '#ef4444' : '#aaa', marginBottom: '16px' }}>
+            <div className="admin-char-counter" style={{ color: rejectReason.length >= 100 ? '#ef4444' : '#aaa' }}>
               {rejectReason.length}/100 characters
             </div>
             <div className="modal-actions">
@@ -369,7 +369,7 @@ const AdminLoans = () => {
         <div className="admin-loans__modal-overlay">
           <div className="admin-loans__modal">
             <h3>Approve Loan</h3>
-            <p style={{ marginBottom: '24px', color: '#aaa', fontSize: '0.9rem' }}>
+            <p className="admin-modal__subtitle admin-modal__subtitle--lg">
               Are you sure you want to approve this loan? This action cannot be undone.
             </p>
             <div className="modal-actions">
@@ -381,10 +381,9 @@ const AdminLoans = () => {
                 Cancel
               </button>
               <button 
-                className="confirm-btn" 
+                className="confirm-btn admin-btn--approve" 
                 onClick={handleApproveConfirm}
                 disabled={actionLoading}
-                style={{ background: '#10b981', color: '#fff' }}
               >
                 {actionLoading ? 'Processing...' : 'Confirm Approve'}
               </button>
@@ -395,29 +394,28 @@ const AdminLoans = () => {
 
       {notification.show && (
         <div className="admin-loans__modal-overlay">
-          <div className="admin-loans__modal" style={{ textAlign: 'center' }}>
-            <div style={{ marginBottom: '16px' }}>
+          <div className="admin-loans__modal admin-loans__modal--centered">
+            <div className="admin-notification__icon-wrap">
               {notification.type === 'success' ? (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-notification__svg">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
               ) : (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-notification__svg">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="15" y1="9" x2="9" y2="15"></line>
                   <line x1="9" y1="9" x2="15" y2="15"></line>
                 </svg>
               )}
             </div>
-            <h3 style={{ marginBottom: '8px', color: '#fff' }}>{notification.type === 'success' ? 'Success' : 'Error'}</h3>
-            <p style={{ marginBottom: '24px', color: '#aaa', fontSize: '0.9rem' }}>
+            <h3 className="admin-notification__title">{notification.type === 'success' ? 'Success' : 'Error'}</h3>
+            <p className="admin-notification__desc">
               {notification.message}
             </p>
             <button 
-              className="confirm-btn" 
+              className="confirm-btn admin-btn--close-notification" 
               onClick={() => setNotification({ ...notification, show: false })}
-              style={{ width: '100%', padding: '12px', background: 'rgba(160, 32, 240, 0.2)', border: '1px solid rgba(160, 32, 240, 0.3)', color: '#b185fa', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
             >
               OK
             </button>
@@ -442,21 +440,21 @@ const AdminLoans = () => {
               </div>
               
               <div className="admin-loans-modal__content">
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Rejected By</div>
-                  <div style={{ color: '#fff', fontSize: '1rem' }}>{changedByName}</div>
+                <div className="admin-reject-field">
+                  <div className="admin-reject-field__label">Rejected By</div>
+                  <div className="admin-reject-field__value">{changedByName}</div>
                 </div>
                 
                 {reasonModal.time && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Date</div>
-                    <div style={{ color: '#fff', fontSize: '1rem' }}>{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                  <div className="admin-reject-field">
+                    <div className="admin-reject-field__label">Date</div>
+                    <div className="admin-reject-field__value">{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
                 )}
                 
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Reason</div>
-                  <div style={{ color: '#fff', whiteSpace: 'pre-wrap', lineHeight: '1.5', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="admin-reject-field">
+                  <div className="admin-reject-field__label">Reason</div>
+                  <div className="admin-reject-field__reason">
                     {reasonModal.reason}
                   </div>
                 </div>

@@ -476,3 +476,98 @@
       }
     }
 }
+
+.admin-error-text {
+  color: #ef4444;
+}
+
+.admin-table__empty-cell {
+  text-align: center;
+  color: #888;
+}
+
+.admin-modal__subtitle {
+  margin-bottom: 16px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+.admin-modal__subtitle--lg {
+  margin-bottom: 24px;
+}
+
+.admin-textarea--mb {
+  margin-bottom: 4px;
+}
+
+.admin-char-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+}
+
+.admin-btn--approve {
+  background: #10b981 !important;
+  color: #fff !important;
+}
+
+.admin-loans__modal--centered {
+  text-align: center;
+}
+
+.admin-notification__icon-wrap {
+  margin-bottom: 16px;
+}
+
+.admin-notification__svg {
+  margin: 0 auto;
+}
+
+.admin-notification__title {
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.admin-notification__desc {
+  margin-bottom: 24px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.admin-btn--close-notification {
+  width: 100%;
+  padding: 12px;
+  background: rgba(160, 32, 240, 0.2);
+  border: 1px solid rgba(160, 32, 240, 0.3);
+  color: #b185fa;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-reject-field {
+  margin-bottom: 8px;
+}
+
+.admin-reject-field__label {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.admin-reject-field__value {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.admin-reject-field__reason {
+  color: #fff;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  background: rgba(0,0,0,0.2);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}

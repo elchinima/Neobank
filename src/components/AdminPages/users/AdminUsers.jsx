@@ -502,13 +502,13 @@ const AdminUsers = () => {
       {/* Status Modal */}
       {statusModal.open && statusModal.user && (
         <div className="admin-users-modal-overlay" onClick={() => setStatusModal({ open: false, user: null })}>
-          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+          <div className="admin-users-modal admin-users-modal--small" onClick={e => e.stopPropagation()}>
             <div className="admin-users-modal__header">
               <h2>{statusModal.user.isActive ? 'Block User' : 'Unblock User'}</h2>
               <button className="admin-users-modal__close" onClick={() => setStatusModal({ open: false, user: null })}>&times;</button>
             </div>
             <div className="admin-users-modal__content">
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+              <p className="admin-users-modal__text--sub">
                 {statusModal.user.isActive 
                   ? <>Are you sure you want to block <strong>{formatTableName(statusModal.user)}</strong>? They will not be able to log in.</>
                   : <>Are you sure you want to unblock <strong>{formatTableName(statusModal.user)}</strong>?</>
@@ -532,13 +532,13 @@ const AdminUsers = () => {
       {/* Role Modal */}
       {roleModal.open && roleModal.user && (
         <div className="admin-users-modal-overlay" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>
-          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+          <div className="admin-users-modal admin-users-modal--small" onClick={e => e.stopPropagation()}>
             <div className="admin-users-modal__header">
               <h2>Assign Role</h2>
               <button className="admin-users-modal__close" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>&times;</button>
             </div>
             <div className="admin-users-modal__content">
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', marginBottom: '16px' }}>
+              <p className="admin-users-modal__text--sub admin-users-modal__text--sub--margin-bottom">
                 Select a new role for <strong>{formatTableName(roleModal.user)}</strong>.
               </p>
               {loadingRoles ? (
@@ -558,7 +558,7 @@ const AdminUsers = () => {
                           return currentUserRoleObj && r.order > currentUserRoleObj.order;
                         })
                         .map(r => (
-                        <option key={r.id} value={r.id} style={{ background: '#0a0d14' }}>
+                        <option key={r.id} value={r.id} className="admin-users-modal__select-option">
                           {r.name}
                         </option>
                       ))}
@@ -688,7 +688,7 @@ const AdminUsers = () => {
             
             <div className="admin-users-modal__content">
               {loadingInfo ? (
-                <div style={{ color: '#fff', textAlign: 'center', padding: '40px' }}>Loading...</div>
+                <div className="admin-users-modal__loading">Loading...</div>
               ) : infoData ? (
                 <>
                   <div className="admin-users-modal__profile-header">
@@ -708,15 +708,15 @@ const AdminUsers = () => {
                   <div className="admin-users-modal__grid-2">
                     <div className="admin-users-modal__info-section">
                       <h3>General Info</h3>
-                      <div className="admin-users-modal__list-item" style={{ gap: '16px' }}>
-                        <dl className="admin-users-modal__kv" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: 0 }}>
+                      <div className="admin-users-modal__list-item admin-users-modal__list-item--gap">
+                        <dl className="admin-users-modal__kv admin-users-modal__kv--grid">
                           <div>
                             <dt>Role</dt>
                             <dd>{formatRoleName(infoData.role)}</dd>
                           </div>
                           <div>
                             <dt>Status</dt>
-                            <dd style={{ color: infoData.isActive ? '#2ecc71' : '#e74c3c' }}>{infoData.isActive ? 'Active' : 'Blocked'}</dd>
+                            <dd className={infoData.isActive ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--blocked'}>{infoData.isActive ? 'Active' : 'Blocked'}</dd>
                           </div>
                           <div>
                             <dt>Email</dt>
@@ -724,7 +724,7 @@ const AdminUsers = () => {
                           </div>
                           <div>
                             <dt>2FA Status</dt>
-                            <dd style={{ color: infoData.twoFactorEnabled ? '#2ecc71' : '#f3c24a' }}>{infoData.twoFactorEnabled ? 'Enabled' : 'Disabled'}</dd>
+                            <dd className={infoData.twoFactorEnabled ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--warning'}>{infoData.twoFactorEnabled ? 'Enabled' : 'Disabled'}</dd>
                           </div>
                           <div>
                             <dt>Created At</dt>
@@ -748,16 +748,15 @@ const AdminUsers = () => {
                           </div>
                           <div>
                             <dt>Newsletter</dt>
-                            <dd style={{ color: infoData.isSubscribedToNewsletter ? '#2ecc71' : '#7f8c8d' }}>{infoData.isSubscribedToNewsletter ? 'Subscribed' : 'Unsubscribed'}</dd>
+                            <dd className={infoData.isSubscribedToNewsletter ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--muted'}>{infoData.isSubscribedToNewsletter ? 'Subscribed' : 'Unsubscribed'}</dd>
                           </div>
                         </dl>
                         
                         {(infoData.twoFactorEnabled || infoData.isSubscribedToNewsletter) && (
-                          <div className="admin-users-modal__action-row" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <div className="admin-users-modal__action-row admin-users-modal__action-row--wrap">
                             {infoData.twoFactorEnabled && (
                               <button 
-                                className="admin-users-modal__btn-save" 
-                                style={{ background: '#e74c3c', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
+                                className="admin-users-modal__btn-save admin-users-modal__btn-save--danger" 
                                 onClick={() => setConfirmModal({
                                   open: true,
                                   message: 'Are you sure you want to send a 2FA reset email to this user?',
@@ -770,8 +769,7 @@ const AdminUsers = () => {
                             )}
                             {infoData.isSubscribedToNewsletter && (
                               <button 
-                                className="admin-users-modal__btn-save" 
-                                style={{ background: '#e67e22', color: '#fff', fontSize: '13px', padding: '8px 16px' }}
+                                className="admin-users-modal__btn-save admin-users-modal__btn-save--warning" 
                                 onClick={() => setConfirmModal({
                                   open: true,
                                   message: 'Are you sure you want to disable newsletter subscription for this user? They will receive an email notification.',
@@ -790,21 +788,20 @@ const AdminUsers = () => {
                     <div className="admin-users-modal__info-section">
                       <h3>Note</h3>
                       <div className="admin-users-modal__field">
-                        <div className="admin-users-modal__input-wrap" style={{ height: '100%' }}>
+                        <div className="admin-users-modal__input-wrap admin-users-modal__input-wrap--full-height">
                           <textarea
                             value={noteValue}
                             onChange={(e) => setNoteValue(e.target.value)}
                             maxLength={1000}
                             placeholder="Add a note about this user..."
-                            style={{ height: '160px', minHeight: '160px' }}
+                            className="admin-users-modal__textarea--large"
                           ></textarea>
                           <span className="admin-users-modal__counter">{noteValue.length}/1000</span>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '30px' }}>
+                      <div className="admin-users-modal__action-end">
                         <button 
-                          className="admin-users-modal__btn-save"
-                          style={{ fontSize: '13px', padding: '8px 24px' }}
+                          className="admin-users-modal__btn-save admin-users-modal__btn-save--small"
                           onClick={() => setConfirmModal({
                             open: true,
                             message: 'Are you sure you want to save this note?',
@@ -826,7 +823,7 @@ const AdminUsers = () => {
                           <div key={i} className="admin-users-modal__list-item">
                             <div className="admin-users-modal__list-item-header">
                               <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'}) - {card.type || card.cardType || 'Standard'}</strong>
-                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <div className="admin-users-modal__flex-center">
                                 <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
                                 <button 
                                   onClick={() => setConfirmModal({
@@ -834,22 +831,13 @@ const AdminUsers = () => {
                                     message: `Are you sure you want to ${card.status === 'Active' ? 'block' : 'unblock'} this card?`,
                                     onConfirm: () => handleToggleCardStatus(card.id)
                                   })}
-                                  style={{
-                                    padding: '4px 8px',
-                                    fontSize: '11px',
-                                    cursor: 'pointer',
-                                    borderRadius: '4px',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: 'transparent',
-                                    color: '#fff',
-                                    textTransform: 'uppercase'
-                                  }}
+                                  className="admin-users-modal__btn-outline"
                                 >
                                   {card.status === 'Active' ? 'Block' : 'Unblock'}
                                 </button>
                               </div>
                             </div>
-                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 2fr' }}>
+                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-3">
                               <dl className="admin-users-modal__kv">
                                 <dt>Balance</dt>
                                 <dd>{card.balance?.toFixed(2) || '0.00'} ₼</dd>
@@ -879,7 +867,7 @@ const AdminUsers = () => {
                               <strong>Deposit</strong>
                               <span className="active">Active</span>
                             </div>
-                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
                                 <dd>₼{dep.amount?.toFixed(2) || '0.00'}</dd>
@@ -921,7 +909,7 @@ const AdminUsers = () => {
                               <strong>Loan</strong>
                               <span className="active">Active</span>
                             </div>
-                            <div className="admin-users-modal__list-item-body" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
                               <dl className="admin-users-modal__kv">
                                 <dt>Amount</dt>
                                 <dd>₼{loan.amount?.toFixed(2) || '0.00'}</dd>
@@ -961,24 +949,23 @@ const AdminUsers = () => {
 
       {/* Alert Modal */}
       {alertModal.open && (
-        <div className="admin-users-modal-overlay" style={{ zIndex: 2000 }} onClick={() => setAlertModal({ open: false, message: '', isError: false })}>
-          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
-            <div className="admin-users-modal__content" style={{ padding: '32px 24px 24px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+        <div className="admin-users-modal-overlay admin-users-modal-overlay--z2000" onClick={() => setAlertModal({ open: false, message: '', isError: false })}>
+          <div className="admin-users-modal admin-users-modal--center" onClick={e => e.stopPropagation()}>
+            <div className="admin-users-modal__content admin-users-modal__content--padded">
+              <div className="admin-users-modal__icon-large">
                 {alertModal.isError ? '❌' : '✅'}
               </div>
-              <h2 style={{ color: '#fff', fontSize: '20px', margin: '0 0 12px 0' }}>
+              <h2 className="admin-users-modal__heading--margin">
                 {alertModal.isError ? 'Error' : 'Success'}
               </h2>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+              <p className="admin-users-modal__text--sub">
                 {alertModal.message}
               </p>
             </div>
-            <div className="admin-users-modal__footer" style={{ justifyContent: 'center', borderTop: 'none', paddingBottom: '24px' }}>
+            <div className="admin-users-modal__footer admin-users-modal__footer--center">
               <button 
-                className="admin-users-modal__btn-save" 
+                className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
                 onClick={() => setAlertModal({ open: false, message: '', isError: false })}
-                style={{ width: '120px' }}
               >
                 OK
               </button>
@@ -989,29 +976,27 @@ const AdminUsers = () => {
 
       {/* Confirm Modal */}
       {confirmModal.open && (
-        <div className="admin-users-modal-overlay" style={{ zIndex: 3000 }} onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}>
-          <div className="admin-users-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center' }}>
-            <div className="admin-users-modal__content" style={{ padding: '32px 24px 24px' }}>
-              <h2 style={{ color: '#fff', fontSize: '20px', margin: '0 0 12px 0' }}>Confirm Action</h2>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: 0, lineHeight: 1.5 }}>
+        <div className="admin-users-modal-overlay admin-users-modal-overlay--z3000" onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}>
+          <div className="admin-users-modal admin-users-modal--center" onClick={e => e.stopPropagation()}>
+            <div className="admin-users-modal__content admin-users-modal__content--padded">
+              <h2 className="admin-users-modal__heading--margin">Confirm Action</h2>
+              <p className="admin-users-modal__text--sub">
                 {confirmModal.message}
               </p>
             </div>
-            <div className="admin-users-modal__footer" style={{ justifyContent: 'center', borderTop: 'none', paddingBottom: '24px', gap: '16px' }}>
+            <div className="admin-users-modal__footer admin-users-modal__footer--center gap-16">
               <button 
-                className="admin-users-modal__btn-cancel" 
+                className="admin-users-modal__btn-cancel admin-users-modal__btn--fixed-width" 
                 onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
-                style={{ width: '120px' }}
               >
                 Cancel
               </button>
               <button 
-                className="admin-users-modal__btn-save" 
+                className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
                 onClick={() => {
                   if (confirmModal.onConfirm) confirmModal.onConfirm();
                   setConfirmModal({ open: false, message: '', onConfirm: null });
                 }}
-                style={{ width: '120px' }}
               >
                 Confirm
               </button>
