@@ -20,7 +20,8 @@ export const supportChatLang = {
     feedbackModalTitle: 'Please tell us why you gave a low rating',
     feedbackPlaceholder: 'Describe your issue...',
     submitFeedback: 'Submit',
-    feedbackThanks: 'Thank you for your feedback!'
+    feedbackThanks: 'Thank you for your feedback!',
+    copied: 'Copied!'
   },
   az: {
     agentWelcome: 'Salam! NeoBank dəstək xidmətinə xoş gəlmisiniz. Sizə necə kömək edə bilərəm?',
@@ -43,7 +44,8 @@ export const supportChatLang = {
     feedbackModalTitle: 'Zəhmət olmasa aşağı qiymətləndirmənin səbəbini qeyd edin',
     feedbackPlaceholder: 'Probleminizi təsvir edin...',
     submitFeedback: 'Göndər',
-    feedbackThanks: 'Rəyiniz üçün təşəkkürlər!'
+    feedbackThanks: 'Rəyiniz üçün təşəkkürlər!',
+    copied: 'Kopyalandı!'
   },
   ru: {
     agentWelcome: 'Здравствуйте! Добро пожаловать в службу поддержки NeoBank. Чем могу помочь?',
@@ -66,6 +68,7 @@ export const supportChatLang = {
     feedbackModalTitle: 'Пожалуйста, укажите причину низкой оценки',
     feedbackPlaceholder: 'Опишите вашу проблему...',
     submitFeedback: 'Отправить',
-    feedbackThanks: 'Спасибо за ваш отзыв!'
+    feedbackThanks: 'Спасибо за ваш отзыв!',
+    copied: 'Скопировано!'
   }
 }

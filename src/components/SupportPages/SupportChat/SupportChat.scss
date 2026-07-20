@@ -35,14 +35,37 @@
   background: rgba(255, 255, 255, 0.02);
 
   .support-chat-id {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 1;
+    text-align: center;
     font-size: 13px;
     color: rgba(255, 255, 255, 0.3);
     font-weight: 500;
     letter-spacing: 0.5px;
-    pointer-events: none;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    &__copied {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 4px;
+      background: rgba(40, 167, 69, 0.2);
+      border: 1px solid rgba(40, 167, 69, 0.4);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: $success;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 10;
+    }
     
     @media (max-width: 480px) {
       font-size: 11px;

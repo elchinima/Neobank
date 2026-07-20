@@ -40,7 +40,16 @@ function SupportChat() {
   const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false)
   const [selectedImageBase64, setSelectedImageBase64] = useState(null)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const fileInputRef = useRef(null)
+
+  const handleCopyId = () => {
+    if (chatId) {
+      navigator.clipboard.writeText(chatId)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 3000)
+    }
+  }
 
   const messagesEndRef = useRef(null)
   const inactivityTimerRef = useRef(null)
@@ -299,8 +308,9 @@ function SupportChat() {
           </div>
           
           {chatId && (
-            <div className="support-chat-id" title={chatId}>
-              ID: {chatId.substring(0, 8)}
+            <div className="support-chat-id" title={chatId} onClick={handleCopyId}>
+              {chatId.substring(0, 8)}
+              {isCopied && <span className="support-chat-id__copied">{t(supportChatLang, 'copied') || 'Copied!'}</span>}
             </div>
           )}
 
