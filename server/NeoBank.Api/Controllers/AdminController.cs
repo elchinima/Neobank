@@ -1156,6 +1156,7 @@ public class AdminController : ControllerBase
                 c.Id,
                 FirstName = c.User != null ? c.User.FirstName : "Unknown",
                 LastName = c.User != null ? c.User.LastName : "",
+                c.AgentName,
                 c.Created,
                 c.Status,
                 Rating = c.Review.OrderByDescending(r => r.Rating).Select(r => (int?)r.Rating).FirstOrDefault(),

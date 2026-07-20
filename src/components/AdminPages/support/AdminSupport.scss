@@ -29,11 +29,19 @@
 
   &__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     align-items: flex-end;
   }
 
-  &__action-btns {
+  &__search-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex: 1;
+  }
+
+  &__filter-group {
     display: flex;
     gap: 12px;
   }

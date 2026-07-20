@@ -140,20 +140,29 @@ const AdminSupport = () => {
           <h1>Support Chats</h1>
         </div>
         <div className="admin-support__actions">
-          <div className="admin-support__search">
-            <label htmlFor="admin-support-search">Search</label>
-            <input
-              id="admin-support-search"
-              type="search"
-              placeholder="Search by ID, Name..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') setSearch(searchInput)
-              }}
-            />
+          <div className="admin-support__search-group">
+            <div className="admin-support__search">
+              <label htmlFor="admin-support-search">Search</label>
+              <input
+                id="admin-support-search"
+                type="search"
+                placeholder="Search by ID, Name..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setSearch(searchInput)
+                }}
+              />
+            </div>
+            <button 
+              type="button" 
+              className="admin-support__search-btn" 
+              onClick={() => setSearch(searchInput)}
+            >
+              Search
+            </button>
           </div>
-          <div className="admin-support__action-btns">
+          <div className="admin-support__filter-group">
             <div className="admin-support__filter">
               <label htmlFor="admin-support-status">Status</label>
               <select
@@ -193,13 +202,6 @@ const AdminSupport = () => {
                 <option value="No">No</option>
               </select>
             </div>
-            <button 
-              type="button" 
-              className="admin-support__search-btn" 
-              onClick={() => setSearch(searchInput)}
-            >
-              Search
-            </button>
           </div>
         </div>
       </header>
@@ -280,7 +282,7 @@ const AdminSupport = () => {
         <div className="admin-support-modal-overlay" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>
           <div className="admin-support-modal" onClick={e => e.stopPropagation()}>
             <div className="admin-support-modal__header">
-              <h2>Chat History - {formatTableName(historyModal.chat)}</h2>
+              <h2>Chat History - {formatTableName(historyModal.chat)} (AI: {historyModal.chat.agentName || 'Agent'})</h2>
               <button className="admin-support-modal__close" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>&times;</button>
             </div>
             
