@@ -934,6 +934,45 @@ html.support-no-scroll {
       width: 100%;
       margin-top: 12px;
     }
+
+    &--auth-error {
+      max-width: 420px;
+      text-align: center;
+      padding: 40px 32px 32px;
+
+      h2 {
+        font-size: 22px;
+        font-weight: 800;
+        color: $landing-gold-soft;
+        margin: 12px 0 10px;
+      }
+
+      p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.65);
+        line-height: 1.6;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .support-modal__auth-icon {
+    font-size: 48px;
+    line-height: 1;
+    display: block;
+  }
+
+  .support-modal__auth-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    justify-content: center;
+
+    .support-page__button {
+      flex: 1;
+      max-width: 160px;
+      margin-top: 0;
+    }
   }
 
   &__channels {

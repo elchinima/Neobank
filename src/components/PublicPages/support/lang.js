@@ -53,7 +53,10 @@ export const supportLang = {
     submitTicket: 'Submit Ticket',
     liveChatTitle: 'Live Support Chat',
     chatInputPlaceholder: 'Type your message...',
-    send: 'Send'
+    send: 'Send',
+    authRequired: 'Authorization Required',
+    authRequiredDesc: 'You must be logged in to create a support chat or send messages. Please sign in to your account.',
+    goToLogin: 'Sign In'
   },
   az: {
     navHome: 'Ana səhifə',
@@ -109,7 +112,10 @@ export const supportLang = {
     submitTicket: 'Bileti Göndər',
     liveChatTitle: 'Canlı Dəstək Çatı',
     chatInputPlaceholder: 'Mesajınızı yazın...',
-    send: 'Göndər'
+    send: 'Göndər',
+    authRequired: 'Giriş Tələb Olunur',
+    authRequiredDesc: 'Dəstək çatı yaratmaq və ya mesaj göndərmək üçün hesabınıza daxil olmalısınız. Zəhmət olmasa daxil olun.',
+    goToLogin: 'Daxil Ol'
   },
   ru: {
     navHome: 'Главная',
@@ -165,6 +171,9 @@ export const supportLang = {
     submitTicket: 'Отправить заявку',
     liveChatTitle: 'Чат поддержки онлайн',
     chatInputPlaceholder: 'Введите сообщение...',
-    send: 'Отправить'
+    send: 'Отправить',
+    authRequired: 'Требуется авторизация',
+    authRequiredDesc: 'Для создания обращения и отправки сообщений необходимо войти в систему. Пожалуйста, авторизуйтесь.',
+    goToLogin: 'Войти'
   }
 }

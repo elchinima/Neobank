@@ -54,8 +54,8 @@ public class SupportChatCleanupService : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        // 1 day
-        var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-1);
+        // 7 days
+        var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-7);
 
         var oldChats = await dbContext.SupportChats
             .Where(c => c.Created < thresholdDate)
@@ -108,7 +108,7 @@ public class SupportChatCleanupService : BackgroundService
             var foldersJson = await response.Content.ReadAsStringAsync(stoppingToken);
             var folders = JsonDocument.Parse(foldersJson).RootElement;
             
-            var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-1);
+            var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-7);
             var filesToDelete = new List<string>();
 
             foreach (var item in folders.EnumerateArray())

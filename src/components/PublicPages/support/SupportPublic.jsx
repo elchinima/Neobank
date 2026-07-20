@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSupportPublic } from './SupportPublic.js'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
 import logoMark from '../../../assets/logo/main_logo.png'
 import supportBanner from '../../../assets/images/support_banner_az.png'
@@ -15,6 +15,8 @@ import './SupportPublic_Responsive.scss'
 function SupportPublic() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
+  const navigate = useNavigate()
+  const [authErrorModal, setAuthErrorModal] = useState(false)
   const { setting } = usePublicPageSetting('support')
   const bannerImage = setting?.bannerImageUrl ?? supportBanner
   const hasBanner = bannerImage !== ''
@@ -108,7 +110,7 @@ function SupportPublic() {
                 </button>
               ) : (
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)}
                   className="support-page__button support-page__button--primary"
                   data-lang-key="openTicket"
                 >
@@ -196,7 +198,7 @@ function SupportPublic() {
                 </button>
               ) : (
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)}
                   className="support-page__button support-page__button--primary"
                   data-lang-key="submitTicket"
                 >
@@ -262,6 +264,25 @@ function SupportPublic() {
       )}
 
       <PublicFooter />
+
+      {authErrorModal && (
+        <div className="support-modal-overlay" onClick={() => setAuthErrorModal(false)}>
+          <div className="support-modal support-modal--auth-error" onClick={(e) => e.stopPropagation()}>
+            <button className="support-modal__close" onClick={() => setAuthErrorModal(false)}>&times;</button>
+            <div className="support-modal__auth-icon">🔒</div>
+            <h2>{t(supportLang, 'authRequired')}</h2>
+            <p className="support-modal__subtitle">{t(supportLang, 'authRequiredDesc')}</p>
+            <div className="support-modal__auth-actions">
+              <button className="support-page__button support-page__button--ghost" onClick={() => setAuthErrorModal(false)}>
+                {t(supportLang, 'modalNo') || 'Cancel'}
+              </button>
+              <Link to="/login" className="support-page__button support-page__button--primary">
+                {t(supportLang, 'goToLogin')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

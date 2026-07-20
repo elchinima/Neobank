@@ -23,6 +23,12 @@ const AdminSupport = () => {
   const [chats, setChats] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [ratingFilter, setRatingFilter] = useState('All')
+  const [commentFilter, setCommentFilter] = useState('All')
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -55,10 +61,38 @@ const AdminSupport = () => {
     }
   }, [])
 
+  const filteredChats = useMemo(() => {
+    let result = chats
+
+    if (search) {
+      const lowerSearch = search.toLowerCase()
+      result = result.filter(chat => {
+        const idMatch = chat.id.toLowerCase().includes(lowerSearch)
+        const nameMatch = formatTableName(chat).toLowerCase().includes(lowerSearch)
+        return idMatch || nameMatch
+      })
+    }
+
+    if (statusFilter !== 'All') {
+      result = result.filter(chat => chat.status?.toLowerCase() === statusFilter.toLowerCase())
+    }
+
+    if (ratingFilter !== 'All') {
+      result = result.filter(chat => chat.rating === Number(ratingFilter))
+    }
+
+    if (commentFilter !== 'All') {
+      const hasComment = commentFilter === 'Yes'
+      result = result.filter(chat => Boolean(chat.hasComment) === hasComment)
+    }
+
+    return result
+  }, [chats, search, statusFilter, ratingFilter, commentFilter])
+
   const resultLabel = useMemo(() => {
     if (loading) return 'Loading chats...'
-    return `${chats.length} chat${chats.length === 1 ? '' : 's'}`
-  }, [loading, chats.length])
+    return `${filteredChats.length} chat${filteredChats.length === 1 ? '' : 's'}`
+  }, [loading, filteredChats.length])
 
   return (
     <div className="admin-support">
@@ -66,6 +100,69 @@ const AdminSupport = () => {
         <div>
           <span className="admin-support__eyebrow">Admin Panel</span>
           <h1>Support Chats</h1>
+        </div>
+        <div className="admin-support__actions">
+          <div className="admin-support__search">
+            <label htmlFor="admin-support-search">Search</label>
+            <input
+              id="admin-support-search"
+              type="search"
+              placeholder="Search by ID, Name..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setSearch(searchInput)
+              }}
+            />
+          </div>
+          <div className="admin-support__action-btns">
+            <div className="admin-support__filter">
+              <label htmlFor="admin-support-status">Status</label>
+              <select
+                id="admin-support-status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Active">Active</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+            <div className="admin-support__filter">
+              <label htmlFor="admin-support-rating">Rating</label>
+              <select
+                id="admin-support-rating"
+                value={ratingFilter}
+                onChange={(e) => setRatingFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+            <div className="admin-support__filter">
+              <label htmlFor="admin-support-comment">Comment</label>
+              <select
+                id="admin-support-comment"
+                value={commentFilter}
+                onChange={(e) => setCommentFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <button 
+              type="button" 
+              className="admin-support__search-btn" 
+              onClick={() => setSearch(searchInput)}
+            >
+              Search
+            </button>
+          </div>
         </div>
       </header>
 
@@ -84,7 +181,7 @@ const AdminSupport = () => {
               </tr>
             </thead>
             <tbody>
-              {chats.map((chat) => (
+              {filteredChats.map((chat) => (
                 <tr key={chat.id}>
                   <td title={chat.id}>{chat.id.substring(0, 8)}...</td>
                   <td>
@@ -123,7 +220,7 @@ const AdminSupport = () => {
                   </td>
                 </tr>
               ))}
-              {!chats.length && !loading && (
+              {!filteredChats.length && !loading && (
                 <tr>
                   <td colSpan="6" className="admin-support__empty">No support chats found.</td>
                 </tr>
