@@ -1143,6 +1143,28 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = "Loan rejected successfully." });
     }
+
+    [HttpGet("support")]
+    public async Task<IActionResult> GetSupportChats()
+    {
+        var chats = await _context.SupportChats
+            .Include(c => c.User)
+            .Include(c => c.Review)
+            .OrderByDescending(c => c.Created)
+            .Select(c => new
+            {
+                c.Id,
+                FirstName = c.User != null ? c.User.FirstName : "Unknown",
+                LastName = c.User != null ? c.User.LastName : "",
+                c.Created,
+                c.Status,
+                Rating = c.Review.OrderByDescending(r => r.Rating).Select(r => (int?)r.Rating).FirstOrDefault(),
+                HasComment = c.Review.Any(r => r.Comment != null && r.Comment.Trim() != "")
+            })
+            .ToListAsync();
+
+        return Ok(chats);
+    }
 }
 
 public class RejectLoanRequest
