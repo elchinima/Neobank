@@ -14,6 +14,15 @@
 
   .support-chat-header {
     padding: 20px 24px;
+
+    .close-chat-btn {
+      &__text {
+        display: inline;
+      }
+      &__icon {
+        display: none;
+      }
+    }
   }
 
   .support-chat-messages {

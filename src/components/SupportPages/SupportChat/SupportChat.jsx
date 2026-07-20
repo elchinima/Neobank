@@ -297,8 +297,16 @@ function SupportChat() {
               <p>{isAgentConnected ? t(supportChatLang, 'online') : t(supportChatLang, 'pleaseWait')}</p>
             </div>
           </div>
-          <button className="close-chat-btn" onClick={() => setIsCloseModalOpen(true)}>
-            {t(supportChatLang, 'close')}
+          
+          {chatId && (
+            <div className="support-chat-id" title={chatId}>
+              ID: {chatId.substring(0, 8)}
+            </div>
+          )}
+
+          <button className="close-chat-btn" onClick={() => setIsCloseModalOpen(true)} aria-label="Close">
+            <span className="close-chat-btn__text">{t(supportChatLang, 'close')}</span>
+            <span className="close-chat-btn__icon">&times;</span>
           </button>
         </div>
 

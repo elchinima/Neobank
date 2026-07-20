@@ -26,12 +26,28 @@
 }
 
 .support-chat-header {
+  position: relative;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(255, 255, 255, 0.02);
+
+  .support-chat-id {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    
+    @media (max-width: 480px) {
+      font-size: 11px;
+    }
+  }
 
   .agent-info {
     display: flex;
@@ -109,6 +125,16 @@
     &:hover {
       background: rgba(255, 255, 255, 0.1);
       color: #fff;
+    }
+
+    &__text {
+      display: none;
+    }
+
+    &__icon {
+      display: inline-block;
+      font-size: 20px;
+      line-height: 1;
     }
   }
 }
