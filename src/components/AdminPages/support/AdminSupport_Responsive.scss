@@ -2,6 +2,8 @@
 
 @media (max-width: 768px) {
   .admin-support {
+    padding: 16px;
+
     &__header {
       flex-direction: column;
       align-items: stretch;
@@ -19,22 +21,20 @@
     }
 
     &__action-btns {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-
-      button {
-        flex: 1;
-        padding: 0 8px;
-      }
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
     }
 
-    &__search {
+    &__search, &__filter {
+      width: 100%;
+    }
+
+    &__search-btn {
       width: 100%;
     }
 
     &__table-wrap {
-      // Add custom scrollbar styling for better mobile UX
       &::-webkit-scrollbar {
         height: 6px;
       }
@@ -44,25 +44,36 @@
       }
     }
 
-    &--info {
-      width: 95%;
-      margin: 0 auto;
+  }
 
-      .admin-support-modal__content {
-        padding: 16px;
-      }
-    }
-
-    &__drawer-content {
+  .admin-support-modal {
+    width: 95%;
+    max-height: 90vh;
+    
+    &__header {
       padding: 16px;
     }
 
-    &__drawer-footer {
+    &__content {
+      padding: 16px;
+    }
+
+    &__footer {
+      padding: 16px;
       flex-direction: column;
 
       button {
         width: 100%;
       }
+    }
+  }
+
+  .admin-support-chat-msg {
+    max-width: 95%;
+    
+    &__bubble {
+      font-size: 13px;
+      padding: 8px 12px;
     }
   }
 }

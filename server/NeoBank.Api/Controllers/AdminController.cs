@@ -1165,6 +1165,18 @@ public class AdminController : ControllerBase
 
         return Ok(chats);
     }
+
+    [HttpGet("support/{id}/history")]
+    public async Task<IActionResult> GetSupportChatHistory(string id)
+    {
+        var chat = await _context.SupportChats
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == id);
+            
+        if (chat == null) return NotFound(new { message = "Chat not found" });
+
+        return Ok(chat.Chat);
+    }
 }
 
 public class RejectLoanRequest

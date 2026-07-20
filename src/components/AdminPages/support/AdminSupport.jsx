@@ -29,6 +29,44 @@ const AdminSupport = () => {
   const [ratingFilter, setRatingFilter] = useState('All')
   const [commentFilter, setCommentFilter] = useState('All')
 
+  const [activeMenuId, setActiveMenuId] = useState(null)
+  const [dropdownUp, setDropdownUp] = useState(false)
+  
+  const [historyModal, setHistoryModal] = useState({ open: false, chat: null, messages: [], loading: false })
+
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null)
+    window.addEventListener('click', handleClickOutside)
+    return () => window.removeEventListener('click', handleClickOutside)
+  }, [])
+
+  const toggleMenu = (e, id) => {
+    e.stopPropagation()
+    if (activeMenuId === id) {
+      setActiveMenuId(null)
+    } else {
+      setActiveMenuId(id)
+      const buttonRect = e.currentTarget.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - buttonRect.bottom
+      setDropdownUp(spaceBelow < 150)
+    }
+  }
+
+  const openHistoryModal = async (chat) => {
+    setActiveMenuId(null)
+    setHistoryModal({ open: true, chat, messages: [], loading: true })
+    
+    try {
+      const response = await adminFetch(`${API_BASE_URL}/admin/support/${chat.id}/history`)
+      if (!response.ok) throw new Error('Failed to fetch chat history')
+      const messages = await response.json()
+      setHistoryModal(prev => ({ ...prev, messages, loading: false }))
+    } catch (err) {
+      console.error(err)
+      setHistoryModal(prev => ({ ...prev, loading: false }))
+    }
+  }
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -211,11 +249,18 @@ const AdminSupport = () => {
                         className="admin-support__dots" 
                         type="button" 
                         aria-label="Chat actions"
+                        onClick={(e) => toggleMenu(e, chat.id)}
                       >
                         <span />
                         <span />
                         <span />
                       </button>
+                      
+                      {activeMenuId === chat.id && (
+                        <div className={`admin-support__dropdown ${dropdownUp ? 'admin-support__dropdown--up' : ''}`}>
+                          <button onClick={() => openHistoryModal(chat)}>History</button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -229,6 +274,42 @@ const AdminSupport = () => {
           </table>
         </div>
       </section>
+
+      {/* History Modal */}
+      {historyModal.open && historyModal.chat && (
+        <div className="admin-support-modal-overlay" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>
+          <div className="admin-support-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-support-modal__header">
+              <h2>Chat History - {formatTableName(historyModal.chat)}</h2>
+              <button className="admin-support-modal__close" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>&times;</button>
+            </div>
+            
+            <div className="admin-support-modal__content" style={{ display: 'block' }}>
+              {historyModal.loading ? (
+                <p>Loading history...</p>
+              ) : historyModal.messages.length === 0 ? (
+                <p className="admin-support__empty">No messages found for this chat.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {historyModal.messages.map((msg, idx) => (
+                    <div key={idx} className={`admin-support-chat-msg admin-support-chat-msg--${msg.sender.toLowerCase()}`}>
+                      <div className="admin-support-chat-msg__bubble">
+                        {msg.imagePath && <img src={msg.imagePath} alt="Attachment" className="admin-support-chat-msg__image" />}
+                        {msg.text}
+                      </div>
+                      <span className="admin-support-chat-msg__time">{msg.time} - {msg.sender}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="admin-support-modal__footer">
+              <button className="admin-support-modal__btn-cancel" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
