@@ -107,7 +107,7 @@ public class SupportChatCleanupService : BackgroundService
 
             var foldersJson = await response.Content.ReadAsStringAsync(stoppingToken);
             var folders = JsonDocument.Parse(foldersJson).RootElement;
-            
+            // 7 days
             var thresholdDate = DateTime.UtcNow.AddHours(4).AddDays(-7);
             var filesToDelete = new List<string>();
 

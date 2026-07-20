@@ -33,6 +33,7 @@ const AdminSupport = () => {
   const [dropdownUp, setDropdownUp] = useState(false)
   
   const [historyModal, setHistoryModal] = useState({ open: false, chat: null, messages: [], loading: false })
+  const [reviewModal, setReviewModal] = useState({ open: false, chat: null })
 
   useEffect(() => {
     const handleClickOutside = () => setActiveMenuId(null)
@@ -65,6 +66,11 @@ const AdminSupport = () => {
       console.error(err)
       setHistoryModal(prev => ({ ...prev, loading: false }))
     }
+  }
+
+  const openReviewModal = (chat) => {
+    setActiveMenuId(null)
+    setReviewModal({ open: true, chat })
   }
 
   useEffect(() => {
@@ -228,7 +234,7 @@ const AdminSupport = () => {
                     <strong>{formatTableName(chat)}</strong>
                   </td>
                   <td>
-                    {new Date(chat.created).toLocaleString()}
+                    {chat.created ? new Date(chat.created.replace(/Z$/, '').replace(/([+-]\d{2}:\d{2})$/, '')).toLocaleString() : ''}
                   </td>
                   <td>
                     <span className={`admin-support__status admin-support__status--${chat.status?.toLowerCase() === 'active' ? 'active' : 'blocked'}`}>
@@ -261,6 +267,9 @@ const AdminSupport = () => {
                       {activeMenuId === chat.id && (
                         <div className={`admin-support__dropdown ${dropdownUp ? 'admin-support__dropdown--up' : ''}`}>
                           <button onClick={() => openHistoryModal(chat)}>History</button>
+                          {chat.hasComment && (
+                            <button onClick={() => openReviewModal(chat)}>Review</button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -308,6 +317,33 @@ const AdminSupport = () => {
             
             <div className="admin-support-modal__footer">
               <button className="admin-support-modal__btn-cancel" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Review Modal */}
+      {reviewModal.open && reviewModal.chat && (
+        <div className="admin-support-modal-overlay" onClick={() => setReviewModal({ open: false, chat: null })}>
+          <div className="admin-support-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-support-modal__header">
+              <h2>User Review - {formatTableName(reviewModal.chat)}</h2>
+              <button className="admin-support-modal__close" onClick={() => setReviewModal({ open: false, chat: null })}>&times;</button>
+            </div>
+            
+            <div className="admin-support-modal__content" style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '16px', fontSize: '18px' }}>
+                <strong>Rating:</strong> {reviewModal.chat.rating} ⭐
+              </div>
+              <div>
+                <strong style={{ fontSize: '16px' }}>Comment:</strong>
+                <p style={{ marginTop: '12px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                  {reviewModal.chat.commentText || "No comment provided."}
+                </p>
+              </div>
+            </div>
+            
+            <div className="admin-support-modal__footer">
+              <button className="admin-support-modal__btn-cancel" onClick={() => setReviewModal({ open: false, chat: null })}>Close</button>
             </div>
           </div>
         </div>

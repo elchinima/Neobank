@@ -1160,7 +1160,8 @@ public class AdminController : ControllerBase
                 c.Created,
                 c.Status,
                 Rating = c.Review.OrderByDescending(r => r.Rating).Select(r => (int?)r.Rating).FirstOrDefault(),
-                HasComment = c.Review.Any(r => r.Comment != null && r.Comment.Trim() != "")
+                HasComment = c.Review.Any(r => r.Comment != null && r.Comment.Trim() != ""),
+                CommentText = c.Review.OrderByDescending(r => r.Rating).Select(r => r.Comment).FirstOrDefault()
             })
             .ToListAsync();
 
