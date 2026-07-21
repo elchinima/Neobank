@@ -132,6 +132,7 @@ public class SupportController : ControllerBase
     }
 
     [HttpPost("upload-image")]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadImage(IFormFile file, [FromForm] string? chatId)
     {
         if (file == null || file.Length == 0) return BadRequest("No file uploaded.");

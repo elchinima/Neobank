@@ -910,7 +910,7 @@ public class UserController : ControllerBase
 
     [HttpPost("avatar")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
     {
         var userId = GetUserId();
         try

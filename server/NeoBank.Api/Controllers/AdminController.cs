@@ -605,7 +605,8 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("database/files")]
-    public async Task<IActionResult> UploadDatabaseFile([FromForm] IFormFile file, [FromForm] string name)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadDatabaseFile(IFormFile file, [FromForm] string name)
     {
         if (file == null || file.Length == 0) return BadRequest("File is empty.");
         if (string.IsNullOrWhiteSpace(name)) return BadRequest("Name is required.");

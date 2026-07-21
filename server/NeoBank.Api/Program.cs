@@ -39,10 +39,7 @@ if (File.Exists(dotenvPath))
 // Manually override config from env
 builder.Configuration.AddEnvironmentVariables();
 
-
-
 builder.Services.AddControllers();
-
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Host=localhost;Port=5432;Database=neobank_db;Username=postgres;Password=postgres";
@@ -65,7 +62,6 @@ builder.Services.AddScoped<ISupportAIService, SupportAIService>();
 builder.Services.AddHostedService<MonthlyResetService>();
 builder.Services.AddHostedService<SupportChatCleanupService>();
 builder.Services.AddSignalR();
-
 
 var secretKey = builder.Configuration["Jwt:Secret"] ?? "SuperSecretKeyForNeoBankJwtToken2026!#SecureKey_Minimum32Chars";
 var key = Encoding.UTF8.GetBytes(secretKey);
@@ -117,7 +113,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -128,9 +123,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
-
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -240,9 +232,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogWarning(ex, "An error occurred while creating/migrating the database.");
     }
 }
-
-
-
 
 app.UseHttpsRedirection();
 
