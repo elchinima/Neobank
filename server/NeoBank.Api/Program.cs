@@ -242,31 +242,17 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/developer/swagger"))
-    {
-        var token = context.Request.Cookies["neobank_token"];
-        
-        if (!string.IsNullOrEmpty(token))
-        {
-            context.Request.Headers["Authorization"] = $"Bearer {token}";
-            var authResult = await context.AuthenticateAsync(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme);
-            
-            if (authResult.Succeeded && authResult.Principal.IsInRole(NeoBank.Core.Entities.UserRole.Developer.ToString()))
-            {
-                await next();
-                return;
-            }
-        }
 
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        await context.Response.WriteAsync("Forbidden: Developer access required.");
-        return;
-    }
 
-    await next();
-});
+app.UseHttpsRedirection();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseSwagger(c =>
 {
@@ -278,15 +264,28 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/developer/swagger/v1/swagger.json", "NeoBank API v1");
 });
 
-app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
+    // Protect the swagger UI HTML page only; allow swagger.json and static assets through
+    if (path.Equals("/developer/swagger", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/developer/swagger/", StringComparison.OrdinalIgnoreCase)
+        || path.Equals("/developer/swagger/index.html", StringComparison.OrdinalIgnoreCase))
+    {
+        var isAuthenticated = context.User.Identity?.IsAuthenticated == true;
+        var isDeveloper = context.User.IsInRole(NeoBank.Core.Entities.UserRole.Developer.ToString());
 
-app.UseCors("AllowFrontend");
+        if (!isAuthenticated || !isDeveloper)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync("Forbidden: Developer access required.");
+            return;
+        }
+    }
 
-app.UseAuthentication();
-app.UseAuthorization();
+    await next();
+});
 
 app.MapControllers();
 app.MapHub<SupportChatHub>("/api/supportHub");
