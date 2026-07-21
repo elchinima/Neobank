@@ -128,7 +128,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "NeoBank API", Version = "v1" });
-    c.CustomSchemaIds(type => type.FullName);
+    c.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
 
     var securityScheme = new OpenApiSecurityScheme
     {
@@ -251,6 +251,7 @@ app.UseSwaggerUI(c =>
 {
     c.RoutePrefix = "developer/swagger";
     c.SwaggerEndpoint("/developer/swagger/v1/swagger.json", "NeoBank API v1");
+    c.InjectJavascript("/swagger/theme-toggle.js");
 });
 
 app.Use(async (context, next) =>
