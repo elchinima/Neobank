@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+﻿import { useState, useRef, useCallback } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { settingsLang } from './lang.js'
@@ -49,7 +49,7 @@ const Settings = () => {
       setUploadingAvatar(true)
       setUploadError('')
 
-      const res = await fetchWithAuth(`${API_BASE_URL}/users/avatar`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`

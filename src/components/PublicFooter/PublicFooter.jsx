@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+﻿import React, { useState, useRef, useEffect } from 'react'
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../app/context/LanguageContext'
@@ -195,7 +195,7 @@ function PublicFooter() {
     setLoading(true)
     setMessage({ text: '', isError: false })
     try {
-      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/request`, {
+      const res = await fetch(`${API_BASE_URL}/public/newsletter/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -224,7 +224,7 @@ function PublicFooter() {
     if (fullCode.length < 4) return
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/verify`, {
+      const res = await fetch(`${API_BASE_URL}/public/newsletter/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code: fullCode })
@@ -244,7 +244,7 @@ function PublicFooter() {
   const handleUnsubscribe = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE_URL}/public-content/newsletter/unsubscribe`, {
+      const res = await fetch(`${API_BASE_URL}/public/newsletter/unsubscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

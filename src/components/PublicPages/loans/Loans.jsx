@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useLoans } from './Loans.js'
 import { Link, useNavigate } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -75,7 +75,7 @@ function Loans() {
 
   useEffect(() => {
     if (isAuthenticated && token) {
-      fetch(`${API_BASE_URL}/cards`, {
+      fetch(`${API_BASE_URL}/user/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -111,7 +111,7 @@ function Loans() {
     setModalState(prev => ({ ...prev, step: 'processing', error: '' }))
 
     try {
-      const response = await fetch(`${API_BASE_URL}/loans/apply`, {
+      const response = await fetch(`${API_BASE_URL}/user/loans/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -22,7 +22,7 @@ export function usePublicContent() {
 
     async function loadContent() {
       try {
-        const response = await fetch(`${API_BASE_URL}/public-content`)
+        const response = await fetch(`${API_BASE_URL}/public`)
         if (!response.ok) {
           throw new Error('Failed to load public content')
         }

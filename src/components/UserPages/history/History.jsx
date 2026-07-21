@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { historyLang } from './lang.js'
@@ -131,7 +131,7 @@ const History = () => {
   useEffect(() => {
     if (token) {
       setLoading(true)
-      fetchWithAuth(`${API_BASE_URL}/history`, {
+      fetchWithAuth(`${API_BASE_URL}/user/history`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

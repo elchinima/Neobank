@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -128,7 +128,7 @@ const Cards = () => {
 
   const fetchCashbackData = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/cashback`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cashback`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -153,7 +153,7 @@ const Cards = () => {
     setSelectingVariant(true)
     setVariantError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/cashback/select-variant`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cashback/select-variant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ variant })
@@ -369,7 +369,7 @@ const Cards = () => {
     setWithdrawDepositError('');
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits/${depositId}/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ targetCardId: withdrawDepositForm.targetCardId })
@@ -433,7 +433,7 @@ const Cards = () => {
   const fetchCards = async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -455,7 +455,7 @@ const Cards = () => {
 
   const fetchLoans = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/loans`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -469,7 +469,7 @@ const Cards = () => {
 
   const fetchDeposits = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/deposits`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -487,7 +487,7 @@ const Cards = () => {
     setNewLoanStatus('loading')
     setNewLoanError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/loans/apply`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -522,7 +522,7 @@ const Cards = () => {
     setPayLoanError('');
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/loans/${loanId}/pay`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans/${loanId}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ sourceCardId: payLoanForm.sourceCardId })
@@ -567,7 +567,7 @@ const Cards = () => {
     setNewDepositStatus('loading')
     setNewDepositError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/open`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits/open`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -619,7 +619,7 @@ const Cards = () => {
   const submitCardOrderFromSession = async (cardType, network, sessionId) => {
     try {
       setLoading(true);
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -673,7 +673,7 @@ const Cards = () => {
     if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
       try {
         setSubmittingCard(true);
-        const res = await fetchWithAuth(`${API_BASE_URL}/cards/create-checkout-session`, {
+        const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/create-checkout-session`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -709,7 +709,7 @@ const Cards = () => {
     const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
     try {
       setSubmittingCard(true)
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -750,7 +750,7 @@ const Cards = () => {
 
   const handleToggleBlock = async (cardId) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-block`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/toggle-block`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -770,7 +770,7 @@ const Cards = () => {
 
   const handleToggleCreditLimit = async (cardId) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-credit-limit`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/toggle-credit-limit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -810,7 +810,7 @@ const Cards = () => {
     setPinError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/cards/change-pin`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/change-pin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -859,7 +859,7 @@ const Cards = () => {
     try {
       const destCard = cards.find(c => c.id.toString() === internalTransferForm.destCardId)
 
-      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -924,7 +924,7 @@ const Cards = () => {
     setIbanTransferError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -986,7 +986,7 @@ const Cards = () => {
     setNeoBankTransferError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

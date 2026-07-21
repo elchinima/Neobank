@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { paymentsLang } from './lang.js'
@@ -112,7 +112,7 @@ const Payments = () => {
 
   useEffect(() => {
     if (token) {
-      fetchWithAuth(`${API_BASE_URL}/cards`, {
+      fetchWithAuth(`${API_BASE_URL}/user/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -134,7 +134,7 @@ const Payments = () => {
     setErrorMessage('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

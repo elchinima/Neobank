@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useDeposits } from './Deposits.js'
 import { Link, useNavigate } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -58,7 +58,7 @@ function Deposits() {
 
   useEffect(() => {
     if (isAuthenticated && token) {
-      fetch(`${API_BASE_URL}/cards`, {
+      fetch(`${API_BASE_URL}/user/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -94,7 +94,7 @@ function Deposits() {
     setModalState(prev => ({ ...prev, step: 'processing', error: '' }))
 
     try {
-      const response = await fetch(`${API_BASE_URL}/deposits/open`, {
+      const response = await fetch(`${API_BASE_URL}/user/deposits/open`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

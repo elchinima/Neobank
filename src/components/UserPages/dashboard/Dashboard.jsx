@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { dashboardLang } from './lang.js'
@@ -38,7 +38,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (token) {
       setLoading(true)
-      fetchWithAuth(`${API_BASE_URL}/dashboard/summary?period=${activeFilter}`, {
+      fetchWithAuth(`${API_BASE_URL}/user/dashboard/summary?period=${activeFilter}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
 import logoMark from '../../../assets/logo/main_logo.png'
@@ -23,7 +23,7 @@ function Cashback() {
 
   useEffect(() => {
     let isMounted = true
-    fetch(`${API_BASE_URL}/public-content/cashbacks`)
+    fetch(`${API_BASE_URL}/public/cashbacks`)
       .then(res => {
         // Fallback to /admin/cashbacks if /cashbacks is not found or fails
         if (!res.ok && res.status === 404) {
