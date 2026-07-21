@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -240,11 +241,41 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-if (app.Environment.IsDevelopment())
+app.Use(async (context, next) =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    if (context.Request.Path.StartsWithSegments("/developer/swagger"))
+    {
+        var token = context.Request.Cookies["neobank_token"];
+        
+        if (!string.IsNullOrEmpty(token))
+        {
+            context.Request.Headers["Authorization"] = $"Bearer {token}";
+            var authResult = await context.AuthenticateAsync(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme);
+            
+            if (authResult.Succeeded && authResult.Principal.IsInRole(NeoBank.Core.Entities.UserRole.Developer.ToString()))
+            {
+                await next();
+                return;
+            }
+        }
+
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await context.Response.WriteAsync("Forbidden: Developer access required.");
+        return;
+    }
+
+    await next();
+});
+
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "developer/swagger/{documentName}/swagger.json";
+});
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "developer/swagger";
+    c.SwaggerEndpoint("/developer/swagger/v1/swagger.json", "NeoBank API v1");
+});
 
 app.UseHttpsRedirection();
 

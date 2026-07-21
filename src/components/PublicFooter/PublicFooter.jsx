@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { usePublicFooter } from './PublicFooter.js'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../app/context/LanguageContext'
@@ -405,7 +405,7 @@ function PublicFooter() {
               {loading ? '...' : t(footerLang, 'subscribeBtn')}
             </button>
           </form>
-          {message.text && (
+          {message.text && !modalType && (
             <p style={{ color: message.isError ? '#ff4d4d' : '#2ecc71', fontSize: '13px', marginTop: '8px' }}>
               {message.text}
             </p>
@@ -639,6 +639,11 @@ function PublicFooter() {
                     />
                   ))}
                 </div>
+                {message.text && (
+                  <p style={{ color: message.isError ? '#ff4d4d' : '#2ecc71', fontSize: '13px', marginBottom: '16px' }}>
+                    {message.text}
+                  </p>
+                )}
                 <button type="submit" disabled={loading} style={{
                   width: '100%', padding: '12px', background: 'linear-gradient(135deg, #FFE28A, #F3C24A 48%, #b47012)', color: '#211405',
                   border: 'none', borderRadius: '8px', fontWeight: '850', cursor: 'pointer', fontSize: '13px'
@@ -662,6 +667,11 @@ function PublicFooter() {
               <p style={{ marginBottom: '24px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
                 {t(footerLang, 'unsubscribeConfirmDesc')}
               </p>
+              {message.text && (
+                <p style={{ color: message.isError ? '#ff4d4d' : '#2ecc71', fontSize: '13px', marginBottom: '16px' }}>
+                  {message.text}
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button disabled={loading} onClick={handleUnsubscribe} style={{
                   flex: 1, padding: '12px', background: 'linear-gradient(135deg, #FFE28A, #F3C24A 48%, #b47012)', color: '#211405',
