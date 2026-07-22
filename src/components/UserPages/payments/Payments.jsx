@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { paymentsLang } from './lang.js'
@@ -32,7 +32,8 @@ import charityIcon from '../../../assets/icons/User/payments/charity.svg'
 import housingIcon from '../../../assets/icons/User/payments/housing.svg'
 import brokerIcon from '../../../assets/icons/User/payments/broker.svg'
 import otherIcon from '../../../assets/icons/User/payments/other.svg'
-
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
@@ -225,7 +226,7 @@ const Payments = () => {
             <div className="payment-modal__content">
               {selectedProvider ? (
                 <div className="payment-simulation">
-                  {paymentStatus === 'idle' && (
+                  {paymentStatus !== 'success' && (
                     <form className="payment-form" onSubmit={handlePay}>
                       {errorMessage && <p className="payment-error-msg">{errorMessage}</p>}
                       <div className="form-group">
@@ -267,20 +268,21 @@ const Payments = () => {
                           required
                         />
                       </div>
-                      <button type="submit" className="pay-btn" disabled={!paymentForm.account || !paymentForm.amount}>
-                        {t(paymentsLang, 'pay')} {paymentForm.amount ? `${paymentForm.amount} AZN` : ''}
+                      <button type="submit" className="pay-btn" disabled={!paymentForm.account || !paymentForm.amount || paymentStatus === 'loading'}>
+                        {paymentStatus === 'loading' ? (
+                          <>
+                            <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                            {t(paymentsLang, 'processingPayment')}
+                          </>
+                        ) : (
+                          <>{t(paymentsLang, 'pay')} {paymentForm.amount ? `${paymentForm.amount} AZN` : ''}</>
+                        )}
                       </button>
                     </form>
                   )}
-                  {paymentStatus === 'loading' && (
-                    <div className="payment-loading">
-                      <div className="spinner"></div>
-                      <p>{t(paymentsLang, 'processingPayment')}</p>
-                    </div>
-                  )}
                   {paymentStatus === 'success' && (
                     <div className="payment-success">
-                      <div className="success-icon">✓</div>
+                      <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                       <h3>{t(paymentsLang, 'paymentCompleted')}</h3>
                       <p>{t(paymentsLang, 'paymentSuccessDesc1')} {paymentForm.amount} {t(paymentsLang, 'paymentSuccessDesc2')} {selectedProvider.name} {t(paymentsLang, 'paymentSuccessDesc3')}</p>
                       <button className="done-btn" onClick={() => {
@@ -313,4 +315,3 @@ const Payments = () => {
 }
 
 export default Payments
-
