@@ -1775,3 +1775,38 @@ $modal-ease-close: cubic-bezier(0.4, 0, 1, 1);
   align-items: center;
   gap: 12px;
 }
+
+/* Animated Modal Styles */
+.card-modal-overlay--animated {
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &.is-closing {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.card-modal--animated {
+  transform-origin: var(--origin-x, 50%) var(--origin-y, 50%);
+  transform: scale(0.95) translateY(10px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out;
+
+  &.is-open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  &.is-closing {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+    transition: transform 0.3s ease-in, opacity 0.2s ease-in;
+  }
+}
