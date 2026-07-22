@@ -19,6 +19,19 @@ function Landing() {
   const { t } = useLanguage()
   const { isAuthenticated, user } = useAuth()
   const [selectedPartner, setSelectedPartner] = useState(null)
+  const [closingModal, setClosingModal] = useState(false)
+  const [clickPos, setClickPos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
+
+  const handleClosePartnerModal = (e) => {
+    if (e && e.clientX !== undefined && e.clientY !== undefined) {
+      setClickPos({ x: e.clientX, y: e.clientY })
+    }
+    setClosingModal(true)
+    setTimeout(() => {
+      setSelectedPartner(null)
+      setClosingModal(false)
+    }, 400)
+  }
 
   const products = [
     {
@@ -241,8 +254,11 @@ function Landing() {
               <article 
                 className="landing__partner-card" 
                 key={partner.id}
-                onClick={() => {
-                  if (window.innerWidth <= 768) setSelectedPartner(partner)
+                onClick={(e) => {
+                  if (window.innerWidth <= 768) {
+                    setClickPos({ x: e.clientX, y: e.clientY })
+                    setSelectedPartner(partner)
+                  }
                 }}
               >
                 <div className="landing__partner-header">
@@ -269,10 +285,17 @@ function Landing() {
         </section>
       </main>
 
-      {selectedPartner && (
-        <div className="landing__partner-modal" onClick={() => setSelectedPartner(null)}>
-          <div className="landing__partner-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="landing__partner-modal-close" onClick={() => setSelectedPartner(null)}>&times;</button>
+      {(selectedPartner || closingModal) && (
+        <div className={`landing__partner-modal ${closingModal ? 'closing' : ''}`} onClick={(e) => handleClosePartnerModal(e)}>
+          <div 
+            className={`landing__partner-modal-content ${closingModal ? 'closing' : ''}`}
+            onClick={e => e.stopPropagation()}
+            style={{
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
+          >
+            <button className="landing__partner-modal-close" onClick={(e) => handleClosePartnerModal(e)}>&times;</button>
             <div className="landing__partner-modal-header">
               <div className="landing__partner-logo-wrapper">
                 <img src={selectedPartner.icon} alt={t(landingLang, selectedPartner.nameKey)} className="landing__partner-logo" />

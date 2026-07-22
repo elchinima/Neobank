@@ -7,6 +7,7 @@ import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { authLang } from './lang.js'
 import EmailVerifyModal from './EmailVerifyModal.jsx'
+import TermsModal from '../../Modals/TermsModal.jsx'
 import { useGoogleLogin } from '@react-oauth/google'
 import './Login.scss'
 import './Login_Responsive.scss'
@@ -30,6 +31,10 @@ function Login() {
     handleVerifySuccess,
     handleResendCode,
     handleGoogleLoginSuccess,
+    termsModalOpen,
+    setTermsModalOpen,
+    clickPos,
+    handleTermsConfirm,
   } = useLogin()
 
   const googleLogin = useGoogleLogin({
@@ -229,7 +234,14 @@ function Login() {
         email={verifyModal?.email}
         onSuccess={handleVerifySuccess}
         onResend={handleResendCode}
-        onClose={verifyModal?.purpose === 'email' ? () => setVerifyModal(null) : undefined}
+        onClose={() => setVerifyModal(null)}
+      />
+
+      <TermsModal
+        isOpen={termsModalOpen}
+        clickPos={clickPos}
+        onConfirm={handleTermsConfirm}
+        onClose={() => setTermsModalOpen(false)}
       />
     </div>
   )

@@ -7,6 +7,7 @@ import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { authLang } from './lang.js'
 import EmailVerifyModal from './EmailVerifyModal.jsx'
+import TermsModal from '../../Modals/TermsModal.jsx'
 import './Register.scss'
 
 function Register() {
@@ -32,8 +33,13 @@ function Register() {
     serverError,
     handleSubmit,
     verifyModal,
+    setVerifyModal,
     handleVerifySuccess,
     handleResendCode,
+    termsModalOpen,
+    setTermsModalOpen,
+    clickPos,
+    handleTermsConfirm,
   } = useRegister()
 
   const features = [
@@ -259,7 +265,14 @@ function Register() {
         email={verifyModal?.email}
         onSuccess={handleVerifySuccess}
         onResend={handleResendCode}
-        // No close button for registration — user must verify email to continue
+        onClose={() => setVerifyModal(null)}
+      />
+
+      <TermsModal
+        isOpen={termsModalOpen}
+        clickPos={clickPos}
+        onConfirm={handleTermsConfirm}
+        onClose={() => setTermsModalOpen(false)}
       />
     </div>
   )

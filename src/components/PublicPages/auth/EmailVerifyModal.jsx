@@ -24,14 +24,23 @@ function EmailVerifyModal({
   const [cooldown, setCooldown] = useState(0)
   const inputRefs = useRef([])
 
+  const [closingModal, setClosingModal] = useState(false)
+  const [shouldRender, setShouldRender] = useState(isOpen)
+  const clickPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+
   const API_BASE_URL = import.meta.env.VITE_API_URL ||
     (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
   useEffect(() => {
     if (isOpen) {
+      setShouldRender(true)
+      setClosingModal(false)
       setDigits(Array(7).fill(''))
       setError('')
       setTimeout(() => inputRefs.current[0]?.focus(), 100)
+    } else if (shouldRender) {
+      setClosingModal(true)
+      setTimeout(() => setShouldRender(false), 400)
     }
   }, [isOpen])
 
@@ -128,7 +137,7 @@ function EmailVerifyModal({
     }
   }
 
-  if (!isOpen) return null
+  if (!shouldRender) return null
 
   const isTwoFactor = purpose === '2fa'
   const title = isTwoFactor ? t(verifyModalLang, 'twoFactorTitle') : t(verifyModalLang, 'verifyEmailTitle')
@@ -136,8 +145,15 @@ function EmailVerifyModal({
   const icon = isTwoFactor ? '🔐' : '✉️'
 
   return (
-    <div className="evm-overlay" role="dialog" aria-modal="true" aria-labelledby="evm-title">
-      <div className="evm-card">
+    <div className={`evm-overlay ${closingModal ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="evm-title" onClick={onClose}>
+      <div 
+        className={`evm-card ${closingModal ? 'closing' : ''}`} 
+        onClick={e => e.stopPropagation()}
+        style={{
+          '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+          '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+        }}
+      >
         {/* Close button */}
         {onClose && (
           <button className="evm-close" onClick={onClose} aria-label="Close">✕</button>

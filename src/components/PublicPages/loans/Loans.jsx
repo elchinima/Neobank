@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLoans } from './Loans.js'
 import { Link, useNavigate } from 'react-router-dom'
 import PublicFooter from '../../../components/PublicFooter/PublicFooter'
@@ -73,6 +73,9 @@ function Loans() {
     error: ''
   })
 
+  const [closingModal, setClosingModal] = useState(false)
+  const [clickPos, setClickPos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
+
   const [userCards, setUserCards] = useState([])
 
   useEffect(() => {
@@ -93,7 +96,11 @@ function Loans() {
     }
   }, [isAuthenticated, token])
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (e) => {
+    if (e && e.clientX !== undefined && e.clientY !== undefined) {
+      setClickPos({ x: e.clientX, y: e.clientY })
+    }
+
     if (!isAuthenticated) {
       navigate('/login')
       return
@@ -137,8 +144,15 @@ function Loans() {
     }
   }
 
-  const handleCloseModal = () => {
-    setModalState({ isOpen: false, step: 'select_card', selectedCardId: userCards[0]?.id || '', error: '' })
+  const handleCloseModal = (e) => {
+    if (e && e.clientX !== undefined && e.clientY !== undefined) {
+      setClickPos({ x: e.clientX, y: e.clientY })
+    }
+    setClosingModal(true)
+    setTimeout(() => {
+      setModalState(prev => ({ ...prev, isOpen: false, step: 'select_card', error: '' }))
+      setClosingModal(false)
+    }, 400)
   }
 
   return (
@@ -293,10 +307,17 @@ function Loans() {
 
       <PublicFooter />
 
-      {modalState.isOpen && (
-        <div className="loans-page__modal-overlay">
-          <div className="loans-page__modal">
-            <button className="loans-page__modal-close" onClick={handleCloseModal}>&times;</button>
+      {(modalState.isOpen || closingModal) && (
+        <div className={`loans-page__modal-overlay ${closingModal ? 'closing' : ''}`} onClick={(e) => handleCloseModal(e)}>
+          <div 
+            className={`loans-page__modal ${closingModal ? 'closing' : ''}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
+          >
+            <button className="loans-page__modal-close" onClick={(e) => handleCloseModal(e)}>&times;</button>
 
             {modalState.step === 'select_card' && (
               <div className="loans-page__modal-content">

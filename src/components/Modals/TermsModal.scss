@@ -1,0 +1,226 @@
+.terms-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 8, 14, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: morphContentFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 24px;
+
+  &.closing {
+    animation: morphContentFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+.terms-modal-card {
+  position: relative;
+  width: min(600px, 100%);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)), #1a1523;
+  border: 1px solid rgba(255, 226, 138, 0.16);
+  border-radius: 20px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.4);
+  transform-origin: center;
+  animation: morphModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  &.closing {
+    animation: morphModalOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+.terms-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: rotate(90deg);
+  }
+}
+
+.terms-modal-header {
+  text-align: center;
+  
+  h2 {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.terms-modal-documents {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.terms-modal-doc-link {
+  display: flex;
+  align-items: center;
+  background: #25202c;
+  padding: 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s, transform 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-height: 80px;
+
+  &:hover {
+    background: #2f2937;
+    transform: translateY(-2px);
+  }
+
+  img {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.terms-modal-consent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 226, 138, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid rgba(255, 226, 138, 0.4);
+    background: transparent;
+    cursor: pointer;
+    accent-color: #F3C24A;
+  }
+
+  label {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.terms-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 8px;
+
+  button {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+  }
+
+  .btn-confirm {
+    background: #F3C24A;
+    border: none;
+    color: #1a1523;
+
+    &:hover:not(:disabled) {
+      background: #f4ca61;
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+    }
+  }
+}
+
+@keyframes morphModal {
+  0% {
+    transform: translate(var(--start-x, 0px), var(--start-y, 60px)) scale(0.05);
+    opacity: 0;
+    border-radius: 120px;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    border-radius: 20px;
+  }
+}
+
+@keyframes morphModalOut {
+  0% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 20px;
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--start-x, 0px), var(--start-y, 60px)) scale(0.05);
+    opacity: 0;
+    border-radius: 120px;
+  }
+}
+
+@keyframes morphContentFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes morphContentFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

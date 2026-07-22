@@ -18,6 +18,11 @@ export function useRegister() {
   const [verifyModal, setVerifyModal] = useState(null)
   // verifyModal shape: { purpose: 'email', userId, email }
 
+  // Terms Consent modal state
+  const [termsModalOpen, setTermsModalOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null)
+  const [clickPos, setClickPos] = useState(null)
+
   const { register, completeAuth, resendVerification } = useAuth()
 
   const validate = () => {
@@ -40,27 +45,54 @@ export function useRegister() {
     setErrors(next)
 
     if (Object.keys(next).length === 0) {
-      setIsSubmitting(true)
-      try {
-        const data = await register({ firstName, lastName, email, password })
-
-        // Registration always requires email verification
-        if (data.requiresEmailVerification) {
-          setVerifyModal({
-            purpose: 'email',
-            userId: data.user?.id,
-            email: data.user?.email || email,
-          })
-          return
-        }
-
-        // Fallback: if somehow verification is not required
-        completeAuth(data)
-      } catch (err) {
-        setServerError(err.message || 'Registration failed. Please try again.')
-      } finally {
-        setIsSubmitting(false)
+      if (e && e.clientX && e.clientY) {
+        setClickPos({ x: e.clientX, y: e.clientY })
+      } else {
+        setClickPos(null)
       }
+      setPendingAction({ type: 'credentials', firstName, lastName, email, password })
+      setTermsModalOpen(true)
+    }
+  }
+
+  const executeRegister = async (action) => {
+    setIsSubmitting(true)
+    setServerError('')
+    try {
+      let data;
+      if (action.type === 'credentials') {
+        data = await register({ 
+          firstName: action.firstName, 
+          lastName: action.lastName, 
+          email: action.email, 
+          password: action.password 
+        })
+      }
+
+      // Registration always requires email verification
+      if (data.requiresEmailVerification) {
+        setVerifyModal({
+          purpose: 'email',
+          userId: data.user?.id,
+          email: data.user?.email || action.email,
+        })
+        return
+      }
+
+      // Fallback: if somehow verification is not required
+      completeAuth(data)
+    } catch (err) {
+      setServerError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleTermsConfirm = () => {
+    setTermsModalOpen(false)
+    if (pendingAction) {
+      executeRegister(pendingAction)
+      setPendingAction(null)
     }
   }
 
@@ -101,5 +133,9 @@ export function useRegister() {
     setVerifyModal,
     handleVerifySuccess,
     handleResendCode,
+    termsModalOpen,
+    setTermsModalOpen,
+    clickPos,
+    handleTermsConfirm,
   }
 }
