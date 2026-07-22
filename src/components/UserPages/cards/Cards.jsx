@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import './Cards.scss'
 import './Cards_Responsive.scss'
-import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 const stripePromise = loadStripe(stripePublicKey);
@@ -97,56 +95,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
 
 
 
-const AnimatedModal = ({ isOpen, onClose, origin, children, onOpenEnd }) => {
-  const [render, setRender] = useState(false)
-  const [phase, setPhase] = useState('closed') // 'closed', 'opening', 'open', 'closing'
-
-  useEffect(() => {
-    if (isOpen) {
-      setRender(true)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setPhase('opening')
-        })
-      })
-    } else if (render && phase !== 'closed') {
-      setPhase('closing')
-    }
-  }, [isOpen])
-
-  const handleTransitionEnd = (e) => {
-    if (e.target !== e.currentTarget) return
-    if (phase === 'opening') {
-      setPhase('open')
-      if (onOpenEnd) onOpenEnd()
-    } else if (phase === 'closing') {
-      setPhase('closed')
-      setRender(false)
-    }
-  }
-
-  if (!render) return null
-
-  const overlayClass = `card-modal-overlay card-modal-overlay--animated ${phase === 'opening' || phase === 'open' ? 'is-open' : ''} ${phase === 'closing' ? 'is-closing' : ''}`
-  const modalClass = `card-modal card-modal--animated ${phase === 'opening' || phase === 'open' ? 'is-open' : ''} ${phase === 'closing' ? 'is-closing' : ''}`
-
-  return (
-    <div className={overlayClass} onClick={onClose}>
-      <div 
-        className={modalClass} 
-        onClick={e => e.stopPropagation()}
-        style={{
-          '--origin-x': origin?.x ? `${origin.x}px` : '50%',
-          '--origin-y': origin?.y ? `${origin.y}px` : '50%'
-        }}
-        onTransitionEnd={handleTransitionEnd}
-      >
-        {children}
-      </div>
-    </div>
-  )
-}
-
 const Cards = () => {
   const { lang, t } = useLanguage()
   const { token, user, fetchWithAuth } = useAuth()
@@ -159,19 +107,6 @@ const Cards = () => {
   const [activeCardId, setActiveCardId] = useState(null)
   const [selectedSettingsCard, setSelectedSettingsCard] = useState(null)
   const [selectedTransferCard, setSelectedTransferCard] = useState(null)
-  
-  const [modalOrigin, setModalOrigin] = useState(null)
-  const [lastActiveElement, setLastActiveElement] = useState(null)
-  
-  const handleCloseTransferModal = (setter) => {
-    setter(false)
-    if (lastActiveElement) lastActiveElement.focus()
-  }
-
-  const internalFormFirstInputRef = useRef(null)
-  const neoBankFormFirstInputRef = useRef(null)
-  const ibanFormFirstInputRef = useRef(null)
-
   const [showVatModal, setShowVatModal] = useState(false)
   const [showLimits, setShowLimits] = useState(false)
   const [showProductSelectionModal, setShowProductSelectionModal] = useState(false)
@@ -193,7 +128,7 @@ const Cards = () => {
 
   const fetchCashbackData = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cashback`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cashback`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -218,7 +153,7 @@ const Cards = () => {
     setSelectingVariant(true)
     setVariantError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cashback/select-variant`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cashback/select-variant`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ variant })
@@ -434,7 +369,7 @@ const Cards = () => {
     setWithdrawDepositError('');
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits/${depositId}/withdraw`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/${depositId}/withdraw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ targetCardId: withdrawDepositForm.targetCardId })
@@ -498,7 +433,7 @@ const Cards = () => {
   const fetchCards = async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -520,7 +455,7 @@ const Cards = () => {
 
   const fetchLoans = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -534,7 +469,7 @@ const Cards = () => {
 
   const fetchDeposits = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -552,7 +487,7 @@ const Cards = () => {
     setNewLoanStatus('loading')
     setNewLoanError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans/apply`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -587,7 +522,7 @@ const Cards = () => {
     setPayLoanError('');
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/loans/${loanId}/pay`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/loans/${loanId}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ sourceCardId: payLoanForm.sourceCardId })
@@ -632,7 +567,7 @@ const Cards = () => {
     setNewDepositStatus('loading')
     setNewDepositError('')
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/deposits/open`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/deposits/open`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -684,7 +619,7 @@ const Cards = () => {
   const submitCardOrderFromSession = async (cardType, network, sessionId) => {
     try {
       setLoading(true);
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -738,7 +673,7 @@ const Cards = () => {
     if (fee > 0 && newCardForm.paymentMethod === 'stripe') {
       try {
         setSubmittingCard(true);
-        const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/create-checkout-session`, {
+        const res = await fetchWithAuth(`${API_BASE_URL}/cards/create-checkout-session`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -774,7 +709,7 @@ const Cards = () => {
     const fee = newCardForm.cardType === 'Premium' ? 19 : (newCardForm.cardType === 'Elite' ? 9 : 0)
     try {
       setSubmittingCard(true)
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/acquire`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/acquire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -815,7 +750,7 @@ const Cards = () => {
 
   const handleToggleBlock = async (cardId) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/toggle-block`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-block`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -835,7 +770,7 @@ const Cards = () => {
 
   const handleToggleCreditLimit = async (cardId) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/toggle-credit-limit`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/toggle-credit-limit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -871,16 +806,11 @@ const Cards = () => {
       return
     }
 
-    if (selectedSettingsCard?.hasPin && pinForm.oldPin === pinForm.newPin) {
-      setPinError(t(userCardsLang, 'pinSameAsOld'))
-      return
-    }
-
     setPinStatus('loading')
     setPinError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/cards/change-pin`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/cards/change-pin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -912,7 +842,6 @@ const Cards = () => {
       }, 1500)
     } catch (err) {
       setPinError(translateErrorMsg(err.message));
-      setPinStatus('idle');
     }
   }
 
@@ -930,7 +859,7 @@ const Cards = () => {
     try {
       const destCard = cards.find(c => c.id.toString() === internalTransferForm.destCardId)
 
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -995,7 +924,7 @@ const Cards = () => {
     setIbanTransferError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1057,7 +986,7 @@ const Cards = () => {
     setNeoBankTransferError('')
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/user/payments/process`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/payments/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1197,9 +1126,7 @@ const Cards = () => {
                           setShowPinAlertModal(true);
                           return;
                         }
-                        setModalOrigin({ x: e.clientX, y: e.clientY })
-                        setLastActiveElement(e.currentTarget)
-                        setSelectedTransferCard(card)
+                        setSelectedTransferCard(card);
                       }}
                       data-lang-key="transfer"
                     >
@@ -1527,907 +1454,1001 @@ const Cards = () => {
       )}
 
 
-      <AnimatedModal
-        isOpen={showProductSelectionModal}
-        onClose={() => setShowProductSelectionModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <div className="settings-section settings-section--mt">
-            <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
-              <img src={addProductIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'orderCardBtn')}</span>
+      {showProductSelectionModal && (
+        <div className="card-modal-overlay" onClick={() => setShowProductSelectionModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section settings-section--mt">
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewCardModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'orderCardBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewLoanModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'takeLoanBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewDepositModal(true); }}>
+                  <img src={addProductIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'openDepositBtn')}</span>
+                  </div>
+                </button>
               </div>
-            </button>
-            <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewLoanModal(true); }}>
-              <img src={addProductIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'takeLoanBtn')}</span>
-              </div>
-            </button>
-            <button className="settings-action-btn" onClick={() => { setShowProductSelectionModal(false); setShowNewDepositModal(true); }}>
-              <img src={addProductIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'openDepositBtn')}</span>
-              </div>
-            </button>
+            </div>
           </div>
         </div>
-      </AnimatedModal>
+      )}
 
-      <AnimatedModal
-        isOpen={showPayLoanModal}
-        onClose={() => setShowPayLoanModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
-          <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {payLoanStatus === 'success' ? (
-            <div className="success-state modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
+      {showPayLoanModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPayLoanModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
+              <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
             </div>
-          ) : (
-            <form onSubmit={handlePayLoan} className="modal-form">
-              {payLoanError && <div className="error-message cards-page__modal-error-mb">{payLoanError}</div>}
-              <div className="form-group">
-                <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
-                <select
-                  value={payLoanForm.sourceCardId}
-                  onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })}
-                  required
-                >
-                  <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                  {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
-                disabled={payLoanStatus === 'loading'}
-              >
-                {payLoanStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'payLoanBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showWithdrawDepositModal}
-        onClose={() => setShowWithdrawDepositModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {withdrawDepositStatus === 'success' ? (
-            <div className="success-state modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
-            </div>
-          ) : (
-            <form onSubmit={handleWithdrawDeposit} className="modal-form">
-              {withdrawDepositError && <div className="error-message cards-page__modal-error-mb">{withdrawDepositError}</div>}
-              {!withdrawingDepositExpired && (
-                <div className="warning-message warning-message--styled">
-                  {t(userCardsLang, 'withdrawDepositPenaltyWarning')}
+            <div className="card-modal__content">
+              {payLoanStatus === 'success' ? (
+                <div className="success-state modal-success-state">
+                  <div className="success-icon success-icon--green">✓</div>
+                  <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
+              ) : (
+                <form onSubmit={handlePayLoan} className="modal-form">
+                  {payLoanError && <div className="error-message cards-page__modal-error-mb">{payLoanError}</div>}
+                  <div className="form-group">
+                    <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel') || 'Select Card to Pay From'}</label>
+                    <select
+                      value={payLoanForm.sourceCardId}
+                      onChange={e => setPayLoanForm({ ...payLoanForm, sourceCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
+                    disabled={payLoanStatus === 'loading'}
+                  >
+                    {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                  </button>
+                </form>
               )}
-              <div className="form-group">
-                <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel') || 'Select Card to Withdraw To'}</label>
-                <select
-                  value={withdrawDepositForm.targetCardId}
-                  onChange={e => setWithdrawDepositForm({ ...withdrawDepositForm, targetCardId: e.target.value })}
-                  required
-                >
-                  <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                  {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
-                disabled={withdrawDepositStatus === 'loading'}
-              >
-                {withdrawDepositStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'withdrawDepositBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showNewLoanModal}
-        onClose={() => setShowNewLoanModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <form onSubmit={handleApplyLoan} className="modal-form">
-            {newLoanError && <div className="form-error cards-page__modal-error-mb">{newLoanError}</div>}
-            <div className="form-group">
-              <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
-              <input className="modal-input modal-input--styled" type="number" value={newLoanForm.amount} onChange={e => setNewLoanForm({ ...newLoanForm, amount: e.target.value })} placeholder="500 - 100000" min="500" max="100000" required />
-            </div>
-            <div className="form-group">
-              <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
-              <select value={newLoanForm.termMonths} onChange={e => setNewLoanForm({ ...newLoanForm, termMonths: e.target.value })}>
-                <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel')}</label>
-              <select value={newLoanForm.targetCardId} onChange={e => setNewLoanForm({ ...newLoanForm, targetCardId: e.target.value })} required>
-                <option value="" disabled style={{ color: '#111' }}>Select a card</option>
-                {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)})</option>)}
-              </select>
-            </div>
-            <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newLoanStatus === 'loading'}>
-              {newLoanStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'submitApplication')
-                )}
-            </button>
-          </form>
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showNewDepositModal}
-        onClose={() => setShowNewDepositModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <form onSubmit={handleOpenDeposit} className="modal-form">
-            {newDepositError && <div className="form-error cards-page__modal-error-mb">{newDepositError}</div>}
-            <div className="form-group">
-              <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
-              <input className="modal-input modal-input--styled" type="number" value={newDepositForm.amount} onChange={e => setNewDepositForm({ ...newDepositForm, amount: e.target.value })} placeholder="Min 100 AZN" min="100" required />
-            </div>
-            <div className="form-group">
-              <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
-              <select value={newDepositForm.termMonths} onChange={e => setNewDepositForm({ ...newDepositForm, termMonths: e.target.value })}>
-                <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-                <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
-              </select>
-            </div>
-            <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newDepositStatus === 'loading'}>
-              {newDepositStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'submitApplication')
-                )}
-            </button>
-          </form>
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={!!selectedTransferCard}
-        onClose={() => handleCloseTransferModal(setSelectedTransferCard)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
-          <button className="close-btn" onClick={() => handleCloseTransferModal(setSelectedTransferCard)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <div className="settings-section">
-            <h3>{t(userCardsLang, 'transferOptions')}</h3>
-            <button className="settings-action-btn" onClick={() => {
-              setInternalTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard?.id?.toString(), destCardId: '', amount: '' }))
-              setSelectedTransferCard(null)
-              setInternalTransferStatus('idle')
-              setInternalTransferError('')
-              setShowInternalTransferModal(true)
-            }}>
-              <img src={transferMyIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'transferToMyAccounts')}</span>
-              </div>
-            </button>
-            <button className="settings-action-btn" onClick={() => {
-              setIbanTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard?.id?.toString(), destIban: '', amount: '' }))
-              setSelectedTransferCard(null)
-              setIbanTransferStatus('idle')
-              setIbanTransferError('')
-              setShowIbanTransferModal(true)
-            }}>
-              <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'transferByIban')}</span>
-              </div>
-            </button>
-            <button className="settings-action-btn" onClick={() => {
-              setNeoBankTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard?.id?.toString(), destCardNumber: '', amount: '' }))
-              setSelectedTransferCard(null)
-              setNeoBankTransferStatus('idle')
-              setNeoBankTransferError('')
-              setShowNeoBankTransferModal(true)
-            }}>
-              <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'transferToNeoBank')}</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showIbanTransferModal}
-        onClose={() => handleCloseTransferModal(setShowIbanTransferModal)}
-        origin={modalOrigin}
-        onOpenEnd={() => ibanFormFirstInputRef.current?.focus()}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'transferByIban')}</h2>
-          <button className="close-btn" onClick={() => handleCloseTransferModal(setShowIbanTransferModal)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {ibanTransferStatus === 'success' ? (
-            <div className="success-message modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <p>{t(userCardsLang, 'transferSuccess')}</p>
-            </div>
-          ) : (
-            <form onSubmit={handleIbanTransferSubmit} className="modal-form">
-              {ibanTransferError && <div className="error-message cards-page__modal-error-msg">{ibanTransferError}</div>}
-              <div className="form-group">
-                <label>{t(userCardsLang, 'destIban')}</label>
-                <input
-                  ref={ibanFormFirstInputRef}
-                  className="modal-input modal-input--styled"
-                  type="text"
-                  placeholder="AZ00NABZ00000000000000000000"
-                  value={ibanTransferForm.destIban}
-                  onChange={e => setIbanTransferForm({ ...ibanTransferForm, destIban: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'transferAmount')}</label>
-                <input
-                  className="modal-input modal-input--styled"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  placeholder="0.00"
-                  value={ibanTransferForm.amount}
-                  onChange={e => setIbanTransferForm({ ...ibanTransferForm, amount: e.target.value })}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary modal-btn--mt"
-                disabled={ibanTransferStatus === 'loading' || !ibanTransferForm.destIban || !ibanTransferForm.amount}
-              >
-                {ibanTransferStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'transferBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showInternalTransferModal}
-        onClose={() => handleCloseTransferModal(setShowInternalTransferModal)}
-        origin={modalOrigin}
-        onOpenEnd={() => internalFormFirstInputRef.current?.focus()}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
-          <button className="close-btn" onClick={() => handleCloseTransferModal(setShowInternalTransferModal)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {internalTransferStatus === 'success' ? (
-            <div className="success-message modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <p>{t(userCardsLang, 'transferSuccess')}</p>
-            </div>
-          ) : (
-            <form onSubmit={handleInternalTransferSubmit} className="modal-form">
-              {internalTransferError && <div className="error-message cards-page__modal-error-msg">{internalTransferError}</div>}
-              <div className="form-group">
-                <label>{t(userCardsLang, 'sourceCard')}</label>
-                <select
-                  ref={internalFormFirstInputRef}
-                  value={internalTransferForm.sourceCardId}
-                  onChange={e => setInternalTransferForm({ ...internalTransferForm, sourceCardId: e.target.value })}
-                  required
-                >
-                  <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
-                  {cards.map(c => (
-                    <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'destCard')}</label>
-                <select
-                  value={internalTransferForm.destCardId}
-                  onChange={e => setInternalTransferForm({ ...internalTransferForm, destCardId: e.target.value })}
-                  required
-                >
-                  <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
-                  {cards.map(c => (
-                    <option key={`dst-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'transferAmount')}</label>
-                <input
-                  className="modal-input modal-input--styled"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  placeholder="0.00"
-                  value={internalTransferForm.amount}
-                  onChange={e => setInternalTransferForm({ ...internalTransferForm, amount: e.target.value })}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary modal-btn--mt"
-                disabled={internalTransferStatus === 'loading' || !internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount}
-              >
-                {internalTransferStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'transferBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showNeoBankTransferModal}
-        onClose={() => handleCloseTransferModal(setShowNeoBankTransferModal)}
-        origin={modalOrigin}
-        onOpenEnd={() => neoBankFormFirstInputRef.current?.focus()}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
-          <button className="close-btn" onClick={() => handleCloseTransferModal(setShowNeoBankTransferModal)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {neoBankTransferStatus === 'success' ? (
-            <div className="success-message modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <p>{t(userCardsLang, 'transferSuccess')}</p>
-            </div>
-          ) : (
-            <form onSubmit={handleNeoBankTransferSubmit} className="modal-form">
-              {neoBankTransferError && <div className="error-message cards-page__modal-error-msg">{neoBankTransferError}</div>}
-              <div className="form-group">
-                <label>{t(userCardsLang, 'sourceCard')}</label>
-                <select
-                  ref={neoBankFormFirstInputRef}
-                  className="modal-input modal-input--styled"
-                  value={neoBankTransferForm.sourceCardId}
-                  onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, sourceCardId: e.target.value })}
-                  required
-                >
-                  <option value="">{t(userCardsLang, 'selectCard')}</option>
-                  {cards.filter(c => c.status === 'Active').map(c => (
-                    <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
-                      {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'destCard')}</label>
-                <input
-                  className="modal-input modal-input--styled"
-                  type="text"
-                  placeholder={t(userCardsLang, 'recipientCardPlaceholder')}
-                  value={neoBankTransferForm.destCardNumber}
-                  onChange={handleDestCardNumberChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>{t(userCardsLang, 'transferAmount')}</label>
-                <input
-                  className="modal-input modal-input--styled"
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  placeholder="0.00"
-                  value={neoBankTransferForm.amount}
-                  onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, amount: e.target.value })}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary modal-btn--mt"
-                disabled={neoBankTransferStatus === 'loading' || !neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount}
-              >
-                {neoBankTransferStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'transferBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={!!selectedSettingsCard && !showAccountDetailsModal && !showPinModal && !showStatementsChoiceModal && !showArayislarModal && !showReferencesModal}
-        onClose={() => setSelectedSettingsCard(null)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'settings')}</h2>
-          <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <div className="settings-section">
-            <button className="settings-action-btn" onClick={() => handleToggleBlock(selectedSettingsCard?.id)}>
-              <img src={blockIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">
-                  {selectedSettingsCard?.status === 'Active' ? t(userCardsLang, 'blockPlasticCard') : t(userCardsLang, 'unblockPlasticCard')}
-                </span>
-                <span className="btn-desc">{t(userCardsLang, 'toggleCardStatus')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowUnavailableModal(true)}>
-              <img src={limitsIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'limitsTitle')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'limitsDesc')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowPinModal(true)}>
-              <img src={pinIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'changePin')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'pinDesc')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowUnavailableModal(true)}>
-              <img src={googlePayIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'setupGooglePay')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'cardAdded')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowUnavailableModal(true)}>
-              <img src={securityIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'securitySettings')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'securityDesc')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowUnavailableModal(true)}>
-              <img src={subscriptionsIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'manageSubscriptions')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'subscriptionsDesc')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowAccountDetailsModal(true)}>
-              <img src={accountIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'cardDetails')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'accountDetailsTitle')}</span>
-              </div>
-            </button>
-
-            <button className="settings-action-btn" onClick={() => setShowStatementsChoiceModal(true)}>
-              <img src={statementsIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'statementsChoiceTitle')}</span>
-                <span className="btn-desc">{t(userCardsLang, 'extractsBtn')}</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showAccountDetailsModal && !!selectedSettingsCard}
-        onClose={() => setShowAccountDetailsModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content card-modal__content--account-details">
-          <div className="detail-item">
-            <span className="detail-label">{t(userCardsLang, 'ibanLabel')}</span>
-            <div className="detail-row">
-              <span className="detail-value">
-                {formatCardNumber(selectedSettingsCard?.iban)}
-              </span>
-              <button
-                className="copy-btn"
-                onClick={() => handleCopy(selectedSettingsCard?.iban, 'iban')}
-              >
-                {copiedField === 'iban' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
-              </button>
-            </div>
-          </div>
-
-          <div className="detail-item">
-            <span className="detail-label">{t(userCardsLang, 'swiftLabel')}</span>
-            <div className="detail-row">
-              <span className="detail-value">
-                {selectedSettingsCard?.swift}
-              </span>
-              <button
-                className="copy-btn"
-                onClick={() => handleCopy(selectedSettingsCard?.swift, 'swift')}
-              >
-                {copiedField === 'swift' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
-              </button>
             </div>
           </div>
         </div>
-      </AnimatedModal>
+      )}
 
-      <AnimatedModal
-        isOpen={showPinModal}
-        onClose={() => setShowPinModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'changePinTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <form onSubmit={handleChangePinSubmit} className="modal-form">
-            {pinError && <div className="error-message cards-page__modal-error-mb">{pinError}</div>}
-            {selectedSettingsCard?.hasPin && (
-              <div className="form-group">
-                <label>{t(userCardsLang, 'oldPin')}</label>
-                <input
-                  type="password"
-                  maxLength="4"
-                  value={pinForm.oldPin}
-                  onChange={e => setPinForm({ ...pinForm, oldPin: e.target.value.replace(/\D/g, '') })}
-                  className="form-input"
-                  required
-                />
-              </div>
-            )}
-            <div className="form-group">
-              <label>{t(userCardsLang, 'newPin')}</label>
-              <input
-                type="password"
-                maxLength="4"
-                value={pinForm.newPin}
-                onChange={e => setPinForm({ ...pinForm, newPin: e.target.value.replace(/\D/g, '') })}
-                className="form-input"
-                required
-              />
+      {showWithdrawDepositModal && (
+        <div className="card-modal-overlay" onClick={() => setShowWithdrawDepositModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
             </div>
-            <div className="form-group">
-              <label>{t(userCardsLang, 'confirmNewPin')}</label>
-              <input
-                type="password"
-                maxLength="4"
-                value={pinForm.confirmNewPin}
-                onChange={e => setPinForm({ ...pinForm, confirmNewPin: e.target.value.replace(/\D/g, '') })}
-                className="form-input"
-                required
-              />
+            <div className="card-modal__content">
+              {withdrawDepositStatus === 'success' ? (
+                <div className="success-state modal-success-state">
+                  <div className="success-icon success-icon--green">✓</div>
+                  <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
+                </div>
+              ) : (
+                <form onSubmit={handleWithdrawDeposit} className="modal-form">
+                  {withdrawDepositError && <div className="error-message cards-page__modal-error-mb">{withdrawDepositError}</div>}
+                  {!withdrawingDepositExpired && (
+                    <div className="warning-message warning-message--styled">
+                      {t(userCardsLang, 'withdrawDepositPenaltyWarning')}
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel') || 'Select Card to Withdraw To'}</label>
+                    <select
+                      value={withdrawDepositForm.targetCardId}
+                      onChange={e => setWithdrawDepositForm({ ...withdrawDepositForm, targetCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                      {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {Number(c.balance).toFixed(2)} AZN</option>)}
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
+                    disabled={withdrawDepositStatus === 'loading'}
+                  >
+                    {withdrawDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'withdrawDepositBtn')}
+                  </button>
+                </form>
+              )}
             </div>
-            <button type="submit" className="cards-page__button cards-page__button--primary" disabled={pinStatus === 'loading'}>
-              {pinStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'changePinTitle')
-                )}
-            </button>
-          </form>
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showStatementsChoiceModal}
-        onClose={() => setShowStatementsChoiceModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          <div className="settings-section">
-            <button className="settings-action-btn" onClick={() => {
-              setShowStatementsChoiceModal(false);
-              setShowArayislarModal(true);
-            }}>
-              <img src={statementsIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'referencesBtn')}</span>
-              </div>
-            </button>
-            <button className="settings-action-btn" onClick={() => {
-              setShowStatementsChoiceModal(false);
-              setShowReferencesModal(true);
-            }}>
-              <img src={statementsIcon} className="btn-svg-icon" alt="" />
-              <div className="btn-text">
-                <span className="btn-title">{t(userCardsLang, 'extractsBtn')}</span>
-              </div>
-            </button>
           </div>
         </div>
-      </AnimatedModal>
+      )}
 
-      <AnimatedModal
-        isOpen={showArayislarModal}
-        onClose={() => setShowArayislarModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {arayislarStatus === 'success' ? (
-            <div className="success-message modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
+      {showNewLoanModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewLoanModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
             </div>
-          ) : (
-            <form onSubmit={handleArayislarSubmit} className="modal-form">
-              {arayislarError && <div className="error-message cards-page__modal-error-mb">{arayislarError}</div>}
-              
-              <div className="form-group">
-                <label>{t(userCardsLang, 'certificateType')}</label>
-                <select
-                  value={arayislarForm.type}
-                  onChange={e => setArayislarForm({ ...arayislarForm, type: e.target.value })}
-                  required
+            <div className="card-modal__content">
+              <form onSubmit={handleApplyLoan} className="modal-form">
+                {newLoanError && <div className="form-error cards-page__modal-error-mb">{newLoanError}</div>}
+                <div className="form-group">
+                  <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
+                  <input className="modal-input modal-input--styled" type="number" value={newLoanForm.amount} onChange={e => setNewLoanForm({ ...newLoanForm, amount: e.target.value })} placeholder="500 - 100000" min="500" max="100000" required />
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
+                  <select value={newLoanForm.termMonths} onChange={e => setNewLoanForm({ ...newLoanForm, termMonths: e.target.value })}>
+                    <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="targetCardLabel">{t(userCardsLang, 'targetCardLabel')}</label>
+                  <select value={newLoanForm.targetCardId} onChange={e => setNewLoanForm({ ...newLoanForm, targetCardId: e.target.value })} required>
+                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} ({c.cardNumber.slice(-4)})</option>)}
+                  </select>
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newLoanStatus === 'loading'}>
+                  {newLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNewDepositModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewDepositModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleOpenDeposit} className="modal-form">
+                {newDepositError && <div className="form-error cards-page__modal-error-mb">{newDepositError}</div>}
+                <div className="form-group">
+                  <label data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</label>
+                  <input className="modal-input modal-input--styled" type="number" value={newDepositForm.amount} onChange={e => setNewDepositForm({ ...newDepositForm, amount: e.target.value })} placeholder="Min 100 AZN" min="100" required />
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="termLabel">{t(userCardsLang, 'termLabel')}</label>
+                  <select value={newDepositForm.termMonths} onChange={e => setNewDepositForm({ ...newDepositForm, termMonths: e.target.value })}>
+                    <option value="3" style={{ color: '#111' }}>3 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="6" style={{ color: '#111' }}>6 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="12" style={{ color: '#111' }}>12 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="24" style={{ color: '#111' }}>24 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                    <option value="36" style={{ color: '#111' }}>36 {t(userCardsLang, 'termMonths').toLowerCase()}</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label data-lang-key="sourceCardLabel">{t(userCardsLang, 'sourceCardLabel')}</label>
+                  <select value={newDepositForm.sourceCardId} onChange={e => setNewDepositForm({ ...newDepositForm, sourceCardId: e.target.value })} required>
+                    <option value="" disabled style={{ color: '#111' }}>Select a card</option>
+                    {cards.map(c => <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}</option>)}
+                  </select>
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newDepositStatus === 'loading'}>
+                  {newDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNewCardModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNewCardModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="orderNewCardModalTitle">{t(userCardsLang, 'orderNewCardModalTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleAcquireCard} className="modal-form">
+                {newCardError && <div className="form-error cards-page__modal-error-mb">{newCardError}</div>}
+
+                <div className="form-group">
+                  <label data-lang-key="cardType">{t(userCardsLang, 'cardType')}</label>
+                  <select
+                    value={newCardForm.cardType}
+                    onChange={e => setNewCardForm({ ...newCardForm, cardType: e.target.value })}
+                  >
+                    <option value="Standard">Standard (0.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Premium">Premium (19.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                    <option value="Elite">Elite (9.00 AZN / {t(userCardsLang, 'monthly', 'month')})</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label data-lang-key="paymentNetwork">{t(userCardsLang, 'paymentNetwork')}</label>
+                  <select
+                    value={newCardForm.network}
+                    onChange={e => setNewCardForm({ ...newCardForm, network: e.target.value })}
+                  >
+                    <option value="Visa">Visa</option>
+                    <option value="Mastercard">Mastercard</option>
+                  </select>
+                </div>
+
+                {(newCardForm.cardType === 'Premium' || newCardForm.cardType === 'Elite') && (
+                  <div className="fee-payment-box">
+                    <p className="fee-payment-text">
+                      <span data-lang-key="feePaymentBoxText">{t(userCardsLang, 'feePaymentBoxText')}</span> ({newCardForm.cardType === 'Premium' ? '19' : '9'} AZN):
+                    </p>
+
+                    <div className="form-group">
+                      <label data-lang-key="paymentMethod">{t(userCardsLang, 'paymentMethod')}</label>
+                      <select
+                        value={newCardForm.paymentMethod}
+                        onChange={e => setNewCardForm({ ...newCardForm, paymentMethod: e.target.value })}
+                      >
+                        <option value="balance">{t(userCardsLang, 'balanceMethod')}</option>
+                        <option value="stripe">{t(userCardsLang, 'stripeMethod')}</option>
+                      </select>
+                    </div>
+
+                    {newCardForm.paymentMethod === 'balance' && (
+                      <div className="form-group">
+                        <label data-lang-key="selectSourceCard">{t(userCardsLang, 'selectSourceCard')}</label>
+                        <select
+                          value={newCardForm.sourceCardId}
+                          onChange={e => setNewCardForm({ ...newCardForm, sourceCardId: e.target.value })}
+                        >
+                          {cards.map(c => (
+                            <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
+                              {c.cardType} ({c.cardNumber.slice(-4)}) - {t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="cards-page__button cards-page__button--primary submit-order-btn"
+                  disabled={submittingCard}
                 >
-                  <option value="CreditLine" style={{ color: '#111' }}>{t(userCardsLang, 'certCreditLine')}</option>
-                  <option value="Debt" style={{ color: '#111' }}>{t(userCardsLang, 'certDebt')}</option>
-                  <option value="Deposits" style={{ color: '#111' }}>{t(userCardsLang, 'certDeposits')}</option>
-                </select>
+                  {submittingCard ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitCard')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedSettingsCard && (
+        <div className="card-modal-overlay" onClick={() => setSelectedSettingsCard(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="settings">{t(userCardsLang, 'settings')}</h2>
+              <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <h3 data-lang-key="cardDetails">{t(userCardsLang, 'cardDetails')}</h3>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="cardholder">{t(userCardsLang, 'cardholder')}</span>
+                  <span className="value">{selectedSettingsCard.holderName}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="cardType">{t(userCardsLang, 'cardType')}</span>
+                  <span className="value">{selectedSettingsCard.cardType} ({selectedSettingsCard.network})</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="number">{t(userCardsLang, 'number')}</span>
+                  <span className="value">{formatCardNumber(selectedSettingsCard.cardNumber)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="expiry">{t(userCardsLang, 'expiry')}</span>
+                  <span className="value">{selectedSettingsCard.expiryDate}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="cvv">{t(userCardsLang, 'cvv')}</span>
+                  <span className="value">{selectedSettingsCard.cvv}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label" data-lang-key="status">{t(userCardsLang, 'status')}</span>
+                  <span className={`status ${selectedSettingsCard.status.toLowerCase()}`}>{t(userCardsLang, selectedSettingsCard.status.toLowerCase(), selectedSettingsCard.status)}</span>
+                </div>
+                {selectedSettingsCard.creditLimit > 0 && (
+                  <div className="detail-row">
+                    <span className="label" data-lang-key="creditLineLabel">{t(userCardsLang, 'creditLineLabel')}</span>
+                    <span className="value">{Number(selectedSettingsCard.creditLimit).toFixed(2)} ₼</span>
+                  </div>
+                )}
               </div>
 
-              <div className="form-group">
-                <label>{t(userCardsLang, 'languageLabel')}</label>
-                <select
-                  value={arayislarForm.language}
-                  onChange={e => setArayislarForm({ ...arayislarForm, language: e.target.value })}
-                  required
-                >
-                  <option value="en" style={{ color: '#111' }}>English</option>
-                  <option value="ru" style={{ color: '#111' }}>Русский</option>
-                  <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
-                </select>
-              </div>
+              <div className="settings-section">
+                <h3 data-lang-key="settings">{t(userCardsLang, 'settings')}</h3>
+                <button className="settings-action-btn danger" onClick={() => handleToggleBlock(selectedSettingsCard.id)}>
+                  <img src={blockIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{selectedSettingsCard.status === 'Active' ? t(userCardsLang, 'blockPlasticCard') : t(userCardsLang, 'unblockPlasticCard')}</span>
+                    <span className="btn-subtitle" data-lang-key="toggleCardStatus">{t(userCardsLang, 'toggleCardStatus')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => handleToggleCreditLimit(selectedSettingsCard.id)}>
+                  <img src={limitIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{selectedSettingsCard.creditLimit > 0 ? t(userCardsLang, 'deactivateLimit') : t(userCardsLang, 'increaseLimit')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'currentLimit').replace('{limit}', selectedSettingsCard.creditLimit || 0)}</span>
+                  </div>
+                </button>
 
-              <div className="form-group">
-                <label>{t(userCardsLang, 'selectSourceCard')}</label>
-                <select
-                  value={arayislarForm.paymentCardId}
-                  onChange={e => setArayislarForm({ ...arayislarForm, paymentCardId: e.target.value })}
-                  required
-                >
-                  <option value="" disabled style={{ color: '#111' }}>{t(userCardsLang, 'selectCard')}</option>
-                  {cards.filter(c => c.status === 'Active').map(c => (
-                    <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
-                      {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              <div className="form-group" style={{ marginBottom: '20px' }}>
-                <label>{t(userCardsLang, 'certificateFee')}</label>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', color: '#ffcc00', border: '1px solid rgba(255,204,0,0.3)', textAlign: 'center', fontWeight: 'bold' }}>
-                  {t(userCardsLang, 'certificateFeeValue')}
+                <button className="settings-action-btn" onClick={() => setShowPinModal(true)}>
+                  <img src={pinIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'changePinTitle')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'pinDesc')}</span>
+                  </div>
+                </button>
+
+                <button className="settings-action-btn" onClick={() => setShowStatementsChoiceModal(true)}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'statementsAndCerts')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => setShowAccountDetailsModal(true)}>
+                  <img src={accountIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'accountDetailsTitle')}</span>
+                    <span className="btn-subtitle">{t(userCardsLang, 'accountDetailsDesc')}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTransferCard && (
+        <div className="card-modal-overlay" onClick={() => setSelectedTransferCard(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
+              <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <h3>{t(userCardsLang, 'transferOptions')}</h3>
+                <button className="settings-action-btn" onClick={() => {
+                  setInternalTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destCardId: '', amount: '' }))
+                  setSelectedTransferCard(null)
+                  setInternalTransferStatus('idle')
+                  setInternalTransferError('')
+                  setShowInternalTransferModal(true)
+                }}>
+                  <img src={transferMyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'transferToMyAccounts')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => {
+                  setIbanTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destIban: '', amount: '' }))
+                  setSelectedTransferCard(null)
+                  setIbanTransferStatus('idle')
+                  setIbanTransferError('')
+                  setShowIbanTransferModal(true)
+                }}>
+                  <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'transferByIban')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => {
+                  setNeoBankTransferForm(prev => ({ ...prev, sourceCardId: selectedTransferCard.id.toString(), destCardNumber: '', amount: '' }))
+                  setSelectedTransferCard(null)
+                  setNeoBankTransferStatus('idle')
+                  setNeoBankTransferError('')
+                  setShowNeoBankTransferModal(true)
+                }}>
+                  <img src={transferAnyIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'transferToNeoBank')}</span>
+                  </div>
+                </button>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showIbanTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowIbanTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'transferByIban')}</h2>
+              <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {ibanTransferStatus === 'success' ? (
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
+                  <p>{t(userCardsLang, 'transferSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleIbanTransferSubmit} className="modal-form">
+                  {ibanTransferError && <div className="error-message cards-page__modal-error-msg">{ibanTransferError}</div>}
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destIban')}</label>
+                    <input
+                      className="modal-input modal-input--styled"
+                      type="text"
+                      placeholder="AZ00NABZ00000000000000000000"
+                      value={ibanTransferForm.destIban}
+                      onChange={e => setIbanTransferForm({ ...ibanTransferForm, destIban: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      className="modal-input modal-input--styled"
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      placeholder="0.00"
+                      value={ibanTransferForm.amount}
+                      onChange={e => setIbanTransferForm({ ...ibanTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary modal-btn--mt"
+                    disabled={ibanTransferStatus === 'loading' || !ibanTransferForm.destIban || !ibanTransferForm.amount}
+                  >
+                    {ibanTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInternalTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowInternalTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {internalTransferStatus === 'success' ? (
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
+                  <p>{t(userCardsLang, 'transferSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleInternalTransferSubmit} className="modal-form">
+                  {internalTransferError && <div className="error-message cards-page__modal-error-msg">{internalTransferError}</div>}
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'sourceCard')}</label>
+                    <select
+                      value={internalTransferForm.sourceCardId}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, sourceCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.map(c => (
+                        <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destCard')}</label>
+                    <select
+                      value={internalTransferForm.destCardId}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, destCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.map(c => (
+                        <option key={`dst-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      placeholder="0.00"
+                      value={internalTransferForm.amount}
+                      onChange={e => setInternalTransferForm({ ...internalTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={internalTransferStatus === 'loading' || !internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount}
+                  >
+                    {internalTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUnavailableModal && (
+        <div className="card-modal-overlay" onClick={() => setShowUnavailableModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content modal-success-state">
+              <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPinAlertModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content modal-success-state">
+              <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
+              <button
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
+                onClick={() => setShowPinAlertModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {creditLimitError && (
+        <div className="card-modal-overlay" onClick={() => setCreditLimitError(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
+            </div>
+            <div className="card-modal__content modal-success-state">
+              <p>{creditLimitError}</p>
+              <button
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
+                onClick={() => setCreditLimitError(null)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPinSuccessModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinSuccessModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 className="modal-header--success">{t(userCardsLang, 'success') || 'Success'}</h2>
+              <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content modal-success-state">
+              <div className="success-icon success-icon--green">✓</div>
+              <p>{t(userCardsLang, 'pinSuccess')}</p>
+              <button
+                className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
+                onClick={() => setShowPinSuccessModal(false)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNeoBankTransferModal && (
+        <div className="card-modal-overlay" onClick={() => setShowNeoBankTransferModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {neoBankTransferStatus === 'success' ? (
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--green">✓</div>
+                  <h3>{t(userCardsLang, 'transferSuccess')}</h3>
+                </div>
+              ) : (
+                <form onSubmit={handleNeoBankTransferSubmit} className="modal-form">
+                  {neoBankTransferError && <div className="error-message cards-page__modal-error-msg">{neoBankTransferError}</div>}
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'sourceCard')}</label>
+                    <select
+                      className="form-control"
+                      value={neoBankTransferForm.sourceCardId}
+                      onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, sourceCardId: e.target.value })}
+                      required
+                    >
+                      <option value="">{t(userCardsLang, 'selectCard')}</option>
+                      {cards.filter(c => c.status === 'Active').map(c => (
+                        <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'destCard')}</label>
+                    <input
+                      type="text"
+                      placeholder={t(userCardsLang, 'recipientCardPlaceholder')}
+                      value={neoBankTransferForm.destCardNumber}
+                      onChange={handleDestCardNumberChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'transferAmount')}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      placeholder="0.00"
+                      value={neoBankTransferForm.amount}
+                      onChange={e => setNeoBankTransferForm({ ...neoBankTransferForm, amount: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={neoBankTransferStatus === 'loading' || !neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount}
+                  >
+                    {neoBankTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAccountDetailsModal && selectedSettingsCard && (
+        <div className="card-modal-overlay" onClick={() => setShowAccountDetailsModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content card-modal__content--account-details">
+              <div className="detail-item">
+                <span className="detail-label">{t(userCardsLang, 'ibanLabel')}</span>
+                <div className="detail-row">
+                  <span className="detail-value">
+                    {formatCardNumber(selectedSettingsCard.iban)}
+                  </span>
+                  <button
+                    className="copy-btn"
+                    onClick={() => handleCopy(selectedSettingsCard.iban, 'iban')}
+                  >
+                    {copiedField === 'iban' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
+                  </button>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary"
-                disabled={arayislarStatus === 'loading' || !arayislarForm.paymentCardId}
-              >
-                {arayislarStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'orderCertificateBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showReferencesModal}
-        onClose={() => setShowReferencesModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
-          <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content">
-          {referencesStatus === 'success' ? (
-            <div className="success-message modal-success-state">
-              <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              <p>{t(userCardsLang, 'statementSentSuccess')}</p>
+              <div className="detail-item">
+                <span className="detail-label">{t(userCardsLang, 'swiftLabel')}</span>
+                <div className="detail-row">
+                  <span className="detail-value">
+                    {selectedSettingsCard.swift}
+                  </span>
+                  <button
+                    className="copy-btn"
+                    onClick={() => handleCopy(selectedSettingsCard.swift, 'swift')}
+                  >
+                    {copiedField === 'swift' ? t(userCardsLang, 'copiedBtn') : t(userCardsLang, 'copyBtn')}
+                  </button>
+                </div>
+              </div>
             </div>
-          ) : (
-            <form onSubmit={handleSendReference} className="modal-form">
-              <div className="form-group">
-                <label>{t(userCardsLang, 'selectCard')}</label>
-                <select
-                  value={referencesForm.cardId}
-                  onChange={e => setReferencesForm({ ...referencesForm, cardId: e.target.value })}
-                  required
-                >
-                  <option value="all" style={{ color: '#111' }}>{t(userCardsLang, 'selectAllCards')}</option>
-                  {cards.map(c => (
-                    <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>{t(userCardsLang, 'periodLabel')}</label>
-                <select
-                  value={referencesForm.period}
-                  onChange={e => setReferencesForm({ ...referencesForm, period: e.target.value })}
-                  required
-                >
-                  <option value="3" style={{ color: '#111' }}>{t(userCardsLang, 'threeMonths')}</option>
-                  <option value="6" style={{ color: '#111' }}>{t(userCardsLang, 'sixMonths')}</option>
-                  <option value="12" style={{ color: '#111' }}>{t(userCardsLang, 'twelveMonths')}</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>{t(userCardsLang, 'languageLabel')}</label>
-                <select
-                  value={referencesForm.language}
-                  onChange={e => setReferencesForm({ ...referencesForm, language: e.target.value })}
-                  required
-                >
-                  <option value="en" style={{ color: '#111' }}>English</option>
-                  <option value="ru" style={{ color: '#111' }}>Русский</option>
-                  <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                className="cards-page__button cards-page__button--primary"
-                disabled={referencesStatus === 'loading'}
-                style={{ marginTop: '16px' }}
-              >
-                {referencesStatus === 'loading' ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
-                    {t(userCardsLang, 'submitting')}
-                  </>
-                ) : (
-                  t(userCardsLang, 'sendToEmailBtn')
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </AnimatedModal>
-
-      <AnimatedModal
-        isOpen={showQrModal}
-        onClose={() => setShowQrModal(false)}
-        origin={modalOrigin}
-      >
-        <div className="card-modal__header">
-          <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
-          <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
-        </div>
-        <div className="card-modal__content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', minHeight: '300px', position: 'relative', padding: 0 }}>
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            muted 
-            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-          />
-          <div style={{ position: 'absolute', width: '200px', height: '200px', border: '2px solid rgba(255,255,255,0.8)', borderRadius: '12px', boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)' }}></div>
-          <div style={{ position: 'absolute', bottom: '20px', color: '#fff', fontSize: '14px', zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-            {t(userCardsLang, 'scanQrCode')}...
           </div>
         </div>
-      </AnimatedModal>
+      )}
+
+
+      {showPinModal && (
+        <div className="card-modal-overlay" onClick={() => setShowPinModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'changePinTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <form onSubmit={handleChangePinSubmit} className="modal-form">
+                {pinError && <div className="error-message cards-page__modal-error-mb">{pinError}</div>}
+                {selectedSettingsCard?.hasPin && (
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'oldPin')}</label>
+                    <input
+                      type="password"
+                      maxLength="4"
+                      value={pinForm.oldPin}
+                      onChange={e => setPinForm({ ...pinForm, oldPin: e.target.value.replace(/\D/g, '') })}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                )}
+                <div className="form-group">
+                  <label>{t(userCardsLang, 'newPin')}</label>
+                  <input
+                    type="password"
+                    maxLength="4"
+                    value={pinForm.newPin}
+                    onChange={e => setPinForm({ ...pinForm, newPin: e.target.value.replace(/\D/g, '') })}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t(userCardsLang, 'confirmNewPin')}</label>
+                  <input
+                    type="password"
+                    maxLength="4"
+                    value={pinForm.confirmNewPin}
+                    onChange={e => setPinForm({ ...pinForm, confirmNewPin: e.target.value.replace(/\D/g, '') })}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <button type="submit" className="cards-page__button cards-page__button--primary" disabled={pinStatus === 'loading'}>
+                  {pinStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'changePinTitle')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStatementsChoiceModal && (
+        <div className="card-modal-overlay" onClick={() => setShowStatementsChoiceModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <button className="settings-action-btn" onClick={() => {
+                  setShowStatementsChoiceModal(false);
+                  setShowArayislarModal(true);
+                }}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'referencesBtn')}</span>
+                  </div>
+                </button>
+                <button className="settings-action-btn" onClick={() => {
+                  setShowStatementsChoiceModal(false);
+                  setShowReferencesModal(true);
+                }}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'extractsBtn')}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showArayislarModal && (
+        <div className="card-modal-overlay" onClick={() => setShowArayislarModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {arayislarStatus === 'success' ? (
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
+                  <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleArayislarSubmit} className="modal-form">
+                  {arayislarError && <div className="error-message cards-page__modal-error-mb">{arayislarError}</div>}
+                  
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'certificateType')}</label>
+                    <select
+                      value={arayislarForm.type}
+                      onChange={e => setArayislarForm({ ...arayislarForm, type: e.target.value })}
+                      required
+                    >
+                      <option value="CreditLine" style={{ color: '#111' }}>{t(userCardsLang, 'certCreditLine')}</option>
+                      <option value="Debt" style={{ color: '#111' }}>{t(userCardsLang, 'certDebt')}</option>
+                      <option value="Deposits" style={{ color: '#111' }}>{t(userCardsLang, 'certDeposits')}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'languageLabel')}</label>
+                    <select
+                      value={arayislarForm.language}
+                      onChange={e => setArayislarForm({ ...arayislarForm, language: e.target.value })}
+                      required
+                    >
+                      <option value="en" style={{ color: '#111' }}>English</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'selectSourceCard')}</label>
+                    <select
+                      value={arayislarForm.paymentCardId}
+                      onChange={e => setArayislarForm({ ...arayislarForm, paymentCardId: e.target.value })}
+                      required
+                    >
+                      <option value="" disabled style={{ color: '#111' }}>{t(userCardsLang, 'selectCard')}</option>
+                      {cards.filter(c => c.status === 'Active').map(c => (
+                        <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label>{t(userCardsLang, 'certificateFee')}</label>
+                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', color: '#ffcc00', border: '1px solid rgba(255,204,0,0.3)', textAlign: 'center', fontWeight: 'bold' }}>
+                      {t(userCardsLang, 'certificateFeeValue')}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={arayislarStatus === 'loading' || !arayislarForm.paymentCardId}
+                  >
+                    {arayislarStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'orderCertificateBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReferencesModal && (
+        <div className="card-modal-overlay" onClick={() => setShowReferencesModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
+              <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              {referencesStatus === 'success' ? (
+                <div className="success-message modal-success-state">
+                  <div className="success-icon success-icon--blue">✓</div>
+                  <p>{t(userCardsLang, 'statementSentSuccess')}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSendReference} className="modal-form">
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'selectCard')}</label>
+                    <select
+                      value={referencesForm.cardId}
+                      onChange={e => setReferencesForm({ ...referencesForm, cardId: e.target.value })}
+                      required
+                    >
+                      <option value="all" style={{ color: '#111' }}>{t(userCardsLang, 'selectAllCards')}</option>
+                      {cards.map(c => (
+                        <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'periodLabel')}</label>
+                    <select
+                      value={referencesForm.period}
+                      onChange={e => setReferencesForm({ ...referencesForm, period: e.target.value })}
+                      required
+                    >
+                      <option value="3" style={{ color: '#111' }}>{t(userCardsLang, 'threeMonths')}</option>
+                      <option value="6" style={{ color: '#111' }}>{t(userCardsLang, 'sixMonths')}</option>
+                      <option value="12" style={{ color: '#111' }}>{t(userCardsLang, 'twelveMonths')}</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t(userCardsLang, 'languageLabel')}</label>
+                    <select
+                      value={referencesForm.language}
+                      onChange={e => setReferencesForm({ ...referencesForm, language: e.target.value })}
+                      required
+                    >
+                      <option value="en" style={{ color: '#111' }}>English</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="cards-page__button cards-page__button--primary"
+                    disabled={referencesStatus === 'loading'}
+                    style={{ marginTop: '16px' }}
+                  >
+                    {referencesStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'sendToEmailBtn')}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQrModal && (
+        <div className="card-modal-overlay" onClick={() => setShowQrModal(false)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
+              <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
+            </div>
+            <div className="card-modal__content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', minHeight: '300px', position: 'relative', padding: 0 }}>
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+              />
+              {/* Target frame */}
+              <div style={{ position: 'absolute', width: '200px', height: '200px', border: '2px solid rgba(255,255,255,0.8)', borderRadius: '12px', boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)' }}></div>
+              <div style={{ position: 'absolute', bottom: '20px', color: '#fff', fontSize: '14px', zIndex: 1, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                {t(userCardsLang, 'scanQrCode')}...
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
 }
-
-// sonra silecem bunu
 
 export default Cards
