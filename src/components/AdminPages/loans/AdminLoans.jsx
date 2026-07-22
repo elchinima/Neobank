@@ -394,7 +394,7 @@ const AdminLoans = () => {
               >
                 {actionLoading ? (
                   <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
+                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
                     Processing...
                   </>
                 ) : 'Confirm Approve'}
