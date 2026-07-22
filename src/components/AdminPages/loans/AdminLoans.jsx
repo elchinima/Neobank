@@ -5,6 +5,7 @@ import './AdminLoans.scss'
 import './AdminLoans_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = async (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -27,6 +28,7 @@ const AdminLoans = () => {
   const [statusFilter, setStatusFilter] = useState('All')
   
   const [showRejectModal, setShowRejectModal] = useState(false)
+  const [rejectModalPos, setRejectModalPos] = useState(null)
   const [rejectLoanId, setRejectLoanId] = useState(null)
   const [rejectReason, setRejectReason] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
@@ -34,9 +36,10 @@ const AdminLoans = () => {
 
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [dropdownUp, setDropdownUp] = useState(false)
-  const [reasonModal, setReasonModal] = useState({ show: false, reason: '', changedBy: '', time: '' })
+  const [reasonModal, setReasonModal] = useState({ show: false, reason: '', changedBy: '', time: '', clickPos: null })
   
   const [showApproveModal, setShowApproveModal] = useState(false)
+  const [approveModalPos, setApproveModalPos] = useState(null)
   const [approveLoanId, setApproveLoanId] = useState(null)
 
   useEffect(() => {
@@ -88,8 +91,9 @@ const AdminLoans = () => {
     fetchUsers()
   }, [])
 
-  const openApproveModal = (id) => {
+  const openApproveModal = (id, e) => {
     setApproveLoanId(id)
+    setApproveModalPos(e ? { x: e.clientX, y: e.clientY } : null)
     setShowApproveModal(true)
   }
 
@@ -115,9 +119,10 @@ const AdminLoans = () => {
     }
   }
 
-  const openRejectModal = (id) => {
+  const openRejectModal = (id, e) => {
     setRejectLoanId(id)
     setRejectReason('')
+    setRejectModalPos(e ? { x: e.clientX, y: e.clientY } : null)
     setShowRejectModal(true)
   }
 
@@ -268,7 +273,7 @@ const AdminLoans = () => {
                               className="success"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openApproveModal(loan.id);
+                                openApproveModal(loan.id, e);
                                 setActiveMenuId(null);
                               }}
                               disabled={actionLoading}
@@ -279,7 +284,7 @@ const AdminLoans = () => {
                               className="danger"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openRejectModal(loan.id);
+                                openRejectModal(loan.id, e);
                                 setActiveMenuId(null);
                               }}
                               disabled={actionLoading}
@@ -301,7 +306,8 @@ const AdminLoans = () => {
                                 show: true,
                                 reason: history.reason,
                                 changedBy: history.changedBy,
-                                time: history.time
+                                time: history.time,
+                                clickPos: e ? { x: e.clientX, y: e.clientY } : null
                               });
                             }}
                             title="View Details"
@@ -330,142 +336,151 @@ const AdminLoans = () => {
         </div>
       )}
 
-      {showRejectModal && (
-        <div className="admin-loans__modal-overlay">
-          <div className="admin-loans__modal">
-            <h3>Reject Loan</h3>
-            <p className="admin-modal__subtitle">
-              Please provide a reason for rejection. This will be sent to the user via email.
-            </p>
-            <textarea 
-              placeholder="Enter rejection reason..."
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              maxLength={100}
-              className="admin-textarea--mb"
-            />
-            <div className="admin-char-counter" style={{ color: rejectReason.length >= 100 ? '#ef4444' : '#aaa' }}>
-              {rejectReason.length}/100 characters
-            </div>
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn" 
-                onClick={() => setShowRejectModal(false)}
-                disabled={actionLoading}
-              >
-                Cancel
-              </button>
-              <button 
-                className="confirm-btn danger" 
-                onClick={handleReject}
-                disabled={actionLoading || !rejectReason.trim()}
-              >
-                {actionLoading ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
-                    Processing...
-                  </>
-                ) : 'Confirm Reject'}
-              </button>
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        clickPos={rejectModalPos}
+        overlayClass="admin-loans__modal-overlay"
+        modalClass="admin-loans__modal"
+      >
+        <h3>Reject Loan</h3>
+        <p className="admin-modal__subtitle">
+          Please provide a reason for rejection. This will be sent to the user via email.
+        </p>
+        <textarea 
+          placeholder="Enter rejection reason..."
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+          maxLength={100}
+          className="admin-textarea--mb"
+        />
+        <div className="admin-char-counter" style={{ color: rejectReason.length >= 100 ? '#ef4444' : '#aaa' }}>
+          {rejectReason.length}/100 characters
         </div>
-      )}
+        <div className="modal-actions">
+          <button 
+            className="cancel-btn" 
+            onClick={() => setShowRejectModal(false)}
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button 
+            className="confirm-btn danger" 
+            onClick={handleReject}
+            disabled={actionLoading || !rejectReason.trim()}
+          >
+            {actionLoading ? (
+              <>
+                <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                Processing...
+              </>
+            ) : 'Confirm Reject'}
+          </button>
+        </div>
+      </AdminMorphModal>
 
-      {showApproveModal && (
-        <div className="admin-loans__modal-overlay">
-          <div className="admin-loans__modal">
-            <h3>Approve Loan</h3>
-            <p className="admin-modal__subtitle admin-modal__subtitle--lg">
-              Are you sure you want to approve this loan? This action cannot be undone.
-            </p>
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn" 
-                onClick={() => setShowApproveModal(false)}
-                disabled={actionLoading}
-              >
-                Cancel
-              </button>
-              <button 
-                className="confirm-btn" 
-                onClick={handleApproveConfirm}
-                disabled={actionLoading}
-              >
-                {actionLoading ? (
-                  <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
-                    Processing...
-                  </>
-                ) : 'Confirm Approve'}
-              </button>
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={showApproveModal}
+        onClose={() => setShowApproveModal(false)}
+        clickPos={approveModalPos}
+        overlayClass="admin-loans__modal-overlay"
+        modalClass="admin-loans__modal"
+      >
+        <h3>Approve Loan</h3>
+        <p className="admin-modal__subtitle admin-modal__subtitle--lg">
+          Are you sure you want to approve this loan? This action cannot be undone.
+        </p>
+        <div className="modal-actions">
+          <button 
+            className="cancel-btn" 
+            onClick={() => setShowApproveModal(false)}
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button 
+            className="confirm-btn" 
+            onClick={handleApproveConfirm}
+            disabled={actionLoading}
+          >
+            {actionLoading ? (
+              <>
+                <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                Processing...
+              </>
+            ) : 'Confirm Approve'}
+          </button>
         </div>
-      )}
+      </AdminMorphModal>
 
-      {notification.show && (
-        <div className="admin-loans__modal-overlay">
-          <div className="admin-loans__modal admin-loans__modal--centered">
-            <div className="admin-notification__icon-wrap">
-              {notification.type === 'success' ? (
-                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              ) : (
-                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
-              )}
-            </div>
-            <h3 className="admin-notification__title">{notification.type === 'success' ? 'Success' : 'Error'}</h3>
-            <p className="admin-notification__desc">
-              {notification.message}
-            </p>
-            <button 
-              className="confirm-btn admin-btn--close-notification" 
-              onClick={() => setNotification({ ...notification, show: false })}
-            >
-              OK
-            </button>
-          </div>
+      <AdminMorphModal
+        isOpen={notification.show}
+        onClose={() => setNotification({ ...notification, show: false })}
+        overlayClass="admin-loans__modal-overlay"
+        modalClass="admin-loans__modal admin-loans__modal--centered"
+      >
+        <div className="admin-notification__icon-wrap">
+          {notification.type === 'success' ? (
+            <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
+          ) : (
+            <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
+          )}
         </div>
-      )}
+        <h3 className="admin-notification__title">{notification.type === 'success' ? 'Success' : 'Error'}</h3>
+        <p className="admin-notification__desc">
+          {notification.message}
+        </p>
+        <button 
+          className="confirm-btn admin-btn--close-notification" 
+          onClick={() => setNotification({ ...notification, show: false })}
+        >
+          OK
+        </button>
+      </AdminMorphModal>
       {reasonModal.show && (() => {
         const changedByUser = users.find(u => u.id === reasonModal.changedBy)
         const changedByName = changedByUser ? `${changedByUser.firstName || ''} ${changedByUser.lastName || ''}`.trim() : (reasonModal.changedBy || 'System')
         
         return (
-          <div className="admin-loans__modal-overlay">
-            <div className="admin-loans-modal">
-              <div className="admin-loans-modal__header">
-                <h2>Rejection Details</h2>
-                <button 
-                  className="admin-loans-modal__close"
-                  onClick={() => setReasonModal({ ...reasonModal, show: false })}
-                >
-                  &times;
-                </button>
+          <AdminMorphModal
+            isOpen={reasonModal.show}
+            onClose={() => setReasonModal({ ...reasonModal, show: false })}
+            clickPos={reasonModal.clickPos}
+            overlayClass="admin-loans__modal-overlay"
+            modalClass="admin-loans-modal"
+          >
+            <div className="admin-loans-modal__header">
+              <h2>Rejection Details</h2>
+              <button 
+                className="admin-loans-modal__close"
+                onClick={() => setReasonModal({ ...reasonModal, show: false })}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="admin-loans-modal__content">
+              <div className="admin-reject-field">
+                <div className="admin-reject-field__label">Rejected By</div>
+                <div className="admin-reject-field__value">{changedByName}</div>
               </div>
               
-              <div className="admin-loans-modal__content">
+              {reasonModal.time && (
                 <div className="admin-reject-field">
-                  <div className="admin-reject-field__label">Rejected By</div>
-                  <div className="admin-reject-field__value">{changedByName}</div>
+                  <div className="admin-reject-field__label">Date</div>
+                  <div className="admin-reject-field__value">{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
-                
-                {reasonModal.time && (
-                  <div className="admin-reject-field">
-                    <div className="admin-reject-field__label">Date</div>
-                    <div className="admin-reject-field__value">{new Date(reasonModal.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                  </div>
-                )}
-                
-                <div className="admin-reject-field">
-                  <div className="admin-reject-field__label">Reason</div>
-                  <div className="admin-reject-field__reason">
-                    {reasonModal.reason}
-                  </div>
+              )}
+              
+              <div className="admin-reject-field">
+                <div className="admin-reject-field__label">Reason</div>
+                <div className="admin-reject-field__reason">
+                  {reasonModal.reason}
                 </div>
               </div>
             </div>
-          </div>
+          </AdminMorphModal>
         )
       })()}
     </div>

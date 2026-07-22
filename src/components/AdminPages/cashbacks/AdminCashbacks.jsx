@@ -5,6 +5,7 @@ import './AdminCashbacks.scss'
 import './AdminCashbacks_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -19,9 +20,13 @@ const AdminCashbacks = () => {
   const [allMccs, setAllMccs] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalOpenPos, setModalOpenPos] = useState(null)
   const [mccModalOpen, setMccModalOpen] = useState(false)
+  const [mccModalPos, setMccModalPos] = useState(null)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [confirmDeletePos, setConfirmDeletePos] = useState(null)
   const [confirmDeleteMccOpen, setConfirmDeleteMccOpen] = useState(false)
+  const [confirmDeleteMccPos, setConfirmDeleteMccPos] = useState(null)
   const [mccToDelete, setMccToDelete] = useState(null)
   const [selectedCashback, setSelectedCashback] = useState(null)
 
@@ -120,7 +125,7 @@ const AdminCashbacks = () => {
     setTimeout(() => setMessage(null), 5000)
   }
 
-  const handleOpenModal = (cashback = null) => {
+  const handleOpenModal = (cashback = null, e = null) => {
     if (cashback) {
       setSelectedCashback(cashback)
       setFormData({
@@ -144,11 +149,13 @@ const AdminCashbacks = () => {
     }
     setMccSearchQuery('')
     setShowAllMccs(false)
+    setModalOpenPos(e && e.clientX ? { x: e.clientX, y: e.clientY } : null)
     setModalOpen(true)
   }
 
-  const handleOpenMccModal = () => {
+  const handleOpenMccModal = (e) => {
     setMccForm({ code: '', description: '' })
+    setMccModalPos(e && e.clientX ? { x: e.clientX, y: e.clientY } : null)
     setMccModalOpen(true)
   }
 
@@ -193,8 +200,9 @@ const AdminCashbacks = () => {
     }
   }
 
-  const confirmDeleteMcc = (mcc) => {
+  const confirmDeleteMcc = (mcc, e) => {
     setMccToDelete(mcc)
+    setConfirmDeleteMccPos(e && e.clientX ? { x: e.clientX, y: e.clientY } : null)
     setConfirmDeleteMccOpen(true)
   }
 
@@ -378,8 +386,9 @@ const AdminCashbacks = () => {
     }
   }
 
-  const confirmDelete = (cashback) => {
+  const confirmDelete = (cashback, e) => {
     setSelectedCashback(cashback)
+    setConfirmDeletePos(e && e.clientX ? { x: e.clientX, y: e.clientY } : null)
     setConfirmDeleteOpen(true)
   }
 
@@ -449,11 +458,11 @@ const AdminCashbacks = () => {
             >
               Search
             </button>
-            <button className="admin-cb__add-btn" onClick={handleOpenMccModal}>
-              MCC
+            <button className="admin-cb__add-btn" onClick={(e) => handleOpenMccModal(e)}>
+              Manage MCCs
             </button>
-            <button className="admin-cb__add-btn" onClick={() => handleOpenModal()}>
-              Add Category
+            <button className="admin-cb__add-btn" onClick={(e) => handleOpenModal(null, e)}>
+              Add Cashbacktegory
             </button>
           </div>
         </div>
@@ -522,8 +531,8 @@ const AdminCashbacks = () => {
                                 className={`admin-cb__dropdown ${dropdownUp ? 'admin-cb__dropdown--up' : ''}`}
                                 onMouseDown={(e) => e.stopPropagation()}
                               >
-                                <button onClick={() => { setActiveMenuId(null); handleOpenModal(c); }}>Edit</button>
-                                <button className="danger" onClick={() => { setActiveMenuId(null); confirmDelete(c); }}>Delete</button>
+                                <button onClick={(e) => { setActiveMenuId(null); handleOpenModal(c, e); }}>Edit</button>
+                                <button className="danger" onClick={(e) => { setActiveMenuId(null); confirmDelete(c, e); }}>Delete</button>
                               </div>
                             )}
                           </div>
@@ -539,339 +548,349 @@ const AdminCashbacks = () => {
       </section>
 
       {/* MCC Management Modal */}
-      {mccModalOpen && (
-        <div className="admin-cb-modal-overlay" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>
-          <div className="admin-cb-modal admin-cb-modal--large" onClick={e => e.stopPropagation()}>
-            <div className="admin-cb-modal__header">
-              <h2>Manage MCC Codes</h2>
-              <button className="admin-cb-modal__close" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>&times;</button>
-            </div>
+      <AdminMorphModal
+        isOpen={mccModalOpen}
+        onClose={() => { setMccModalOpen(false); cancelEditMcc(); }}
+        clickPos={mccModalPos}
+        overlayClass="admin-cb-modal-overlay"
+        modalClass="admin-cb-modal admin-cb-modal--large"
+      >
+        <div className="admin-cb-modal__header">
+          <h2>Manage MCC Codes</h2>
+          <button className="admin-cb-modal__close" onClick={() => { setMccModalOpen(false); cancelEditMcc(); }}>&times;</button>
+        </div>
 
-            {message && (
-              <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
-                {message.text}
+        {message && (
+          <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
+            {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
+            {message.text}
+          </div>
+        )}
+
+        <div className="admin-cb-modal__content admin-cb-modal__content--scrollable">
+
+          {/* Form to Create/Edit */}
+          <div className="admin-cb-modal__form-box">
+
+            <div className="admin-cb-modal__row">
+              <div className="admin-cb-modal__field admin-cb-modal__field--quarter">
+                <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1234"
+                  value={mccForm.code}
+                  onChange={e => setMccForm({ ...mccForm, code: e.target.value })}
+                />
               </div>
-            )}
-
-            <div className="admin-cb-modal__content admin-cb-modal__content--scrollable">
-
-              {/* Form to Create/Edit */}
-              <div className="admin-cb-modal__form-box">
-
-                <div className="admin-cb-modal__row">
-                  <div className="admin-cb-modal__field admin-cb-modal__field--quarter">
-                    <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 1234"
-                      value={mccForm.code}
-                      onChange={e => setMccForm({ ...mccForm, code: e.target.value })}
-                    />
-                  </div>
-                  <div className="admin-cb-modal__field admin-cb-modal__field--flex">
-                    <label>Description</label>
-                    <input
-                      type="text"
-                      placeholder="Description..."
-                      value={mccForm.description}
-                      onChange={e => setMccForm({ ...mccForm, description: e.target.value })}
-                    />
-                    <div className={`admin-cb-modal__char-count ${mccForm.description.length > 100 ? 'admin-cb-modal__char-count--error' : 'admin-cb-modal__char-count--default'}`}>
-                      {mccForm.description.length}/100
-                    </div>
-                  </div>
-                  <div className="admin-cb-modal__actions-col">
-                    <button
-                      className="save-btn admin-cb-modal__btn--fixed"
-                      onClick={handleSaveMcc}
-                      disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
-                    >
-                      {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
-                    </button>
-                    {editingMccId && (
-                      <button className="cancel-btn admin-cb-modal__btn--small" onClick={cancelEditMcc}>
-                        Cancel
-                      </button>
-                    )}
-                  </div>
+              <div className="admin-cb-modal__field admin-cb-modal__field--flex">
+                <label>Description</label>
+                <input
+                  type="text"
+                  placeholder="Description..."
+                  value={mccForm.description}
+                  onChange={e => setMccForm({ ...mccForm, description: e.target.value })}
+                />
+                <div className={`admin-cb-modal__char-count ${mccForm.description.length > 100 ? 'admin-cb-modal__char-count--error' : 'admin-cb-modal__char-count--default'}`}>
+                  {mccForm.description.length}/100
                 </div>
-
-                {/* The Search Bar which takes the bottom row */}
-                <div className="admin-cb-modal__search-row">
-                  <input
-                    type="text"
-                    placeholder="Search MCCs..."
-                    value={mccListSearchQuery}
-                    onChange={(e) => setMccListSearchQuery(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') setAppliedMccSearch(mccListSearchQuery) }}
-                    className="admin-cb-modal__search-input"
-                  />
-                  <button
-                    className="save-btn admin-cb-modal__btn--fixed"
-                    onClick={() => setAppliedMccSearch(mccListSearchQuery)}
-                  >
-                    Search
+              </div>
+              <div className="admin-cb-modal__actions-col">
+                <button
+                  className="save-btn admin-cb-modal__btn--fixed"
+                  onClick={handleSaveMcc}
+                  disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
+                >
+                  {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
+                </button>
+                {editingMccId && (
+                  <button className="cancel-btn admin-cb-modal__btn--small" onClick={cancelEditMcc}>
+                    Cancel
                   </button>
-                </div>
+                )}
               </div>
-              <div className="admin-cb__table-wrap admin-cb__table-wrap--rounded">
-                <table className="admin-cb__table--full">
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Description</th>
-                      <th className="admin-cb__th--actions">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAllMccs.length === 0 ? (
-                      <tr>
-                        <td colSpan="3" className="admin-cb__empty">No MCCs found</td>
-                      </tr>
-                    ) : (
-                      filteredAllMccs.map(mcc => (
-                        <tr key={mcc.id} style={{ background: editingMccId === mcc.id ? 'rgba(255,255,255,0.05)' : 'transparent' }}>
-                          <td><strong>{mcc.code}</strong></td>
-                          <td>{mcc.description || <span className="admin-cb__empty-text">No description</span>}</td>
-                          <td className="admin-cb__td--right">
-                            <button
-                              type="button"
-                              onClick={() => startEditMcc(mcc)}
-                              className="admin-cb-btn--edit"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => confirmDeleteMcc(mcc)}
-                              className="admin-cb-btn--delete"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            </div>
 
+            {/* The Search Bar which takes the bottom row */}
+            <div className="admin-cb-modal__search-row">
+              <input
+                type="text"
+                placeholder="Search MCCs..."
+                value={mccListSearchQuery}
+                onChange={(e) => setMccListSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') setAppliedMccSearch(mccListSearchQuery) }}
+                className="admin-cb-modal__search-input"
+              />
+              <button
+                className="save-btn admin-cb-modal__btn--fixed"
+                onClick={() => setAppliedMccSearch(mccListSearchQuery)}
+              >
+                Search
+              </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Confirm Delete MCC Modal */}
-      {confirmDeleteMccOpen && (
-        <div className="admin-cb-modal-overlay" onClick={() => setConfirmDeleteMccOpen(false)}>
-          <div className="admin-cb-modal admin-cb-modal--small" onClick={e => e.stopPropagation()}>
-            <div className="admin-cb-modal__header">
-              <h2>Confirm Delete</h2>
-              <button className="admin-cb-modal__close" onClick={() => setConfirmDeleteMccOpen(false)}>&times;</button>
-            </div>
-            <div className="admin-cb-modal__content">
-              <p className="admin-cb-modal__confirm-text">Are you sure you want to delete this MCC?</p>
-            </div>
-            <div className="admin-cb-modal__footer">
-              <button className="cancel-btn" onClick={() => setConfirmDeleteMccOpen(false)}>Cancel</button>
-              <button className="delete-btn" onClick={handleDeleteMcc} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Cashback Category Modal */}
-      {modalOpen && (
-        <div className="admin-cb-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="admin-cb-modal" onClick={e => e.stopPropagation()}>
-            <div className="admin-cb-modal__header">
-              <h2>{selectedCashback ? 'Edit Cashback Category' : 'Create Cashback Category'}</h2>
-              <button className="admin-cb-modal__close" onClick={() => setModalOpen(false)}>&times;</button>
-            </div>
-
-            {message && (
-              <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
-                {message.text}
-              </div>
-            )}
-
-            <div className="admin-cb-modal__content">
-              <div className="admin-cb-modal__form-row">
-                <div className="admin-cb-modal__field">
-                  <label>Title (EN)</label>
-                  <input type="text" value={formData.titleEn} onChange={e => setFormData({ ...formData, titleEn: e.target.value })} />
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Title (RU)</label>
-                  <input type="text" value={formData.titleRu} onChange={e => setFormData({ ...formData, titleRu: e.target.value })} />
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Title (AZ)</label>
-                  <input type="text" value={formData.titleAz} onChange={e => setFormData({ ...formData, titleAz: e.target.value })} />
-                </div>
-              </div>
-
-              <div className="admin-cb-modal__form-row">
-                <div className="admin-cb-modal__field">
-                  <label>Description (EN)</label>
-                  <textarea value={formData.textEn} onChange={e => setFormData({ ...formData, textEn: e.target.value })}></textarea>
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Description (RU)</label>
-                  <textarea value={formData.textRu} onChange={e => setFormData({ ...formData, textRu: e.target.value })}></textarea>
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Description (AZ)</label>
-                  <textarea value={formData.textAz} onChange={e => setFormData({ ...formData, textAz: e.target.value })}></textarea>
-                </div>
-              </div>
-
-              <div className="admin-cb-modal__form-row">
-                <div className="admin-cb-modal__field">
-                  <label>Rate (%)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0.1"
-                    value={formData.rate}
-                    onChange={handleRateChange}
-                    onBlur={handleRateBlur}
-                  />
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Limit (₼)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="1.00"
-                    value={formData.limit}
-                    onChange={handleLimitChange}
-                    onBlur={handleLimitBlur}
-                  />
-                </div>
-                <div className="admin-cb-modal__field">
-                  <label>Variant</label>
-                  <select
-                    value={formData.variant}
-                    onChange={e => setFormData({ ...formData, variant: e.target.value })}
-                    className="admin-cb-modal__select"
-                  >
-                    <option value="A">Variant A</option>
-                    <option value="B">Variant B</option>
-                  </select>
-                </div>
-                <div className="admin-cb-modal__mcc-row">
-                  <div className="admin-cb-modal__field admin-cb-modal__field--relative" ref={mccDropdownRef}>
-                    <label>MCC Codes</label>
-
-                    <div className="mcc-multi-select mcc-multi-select--styled">
-                      <div className="mcc-multi-select__tags mcc-multi-select__tags--flex">
-                        {formData.mccCodes.slice(0, 2).map(code => (
-                          <span key={code} className="mcc-multi-tag">
-                            {code}
-                            <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
-                          </span>
-                        ))}
-
-                        {formData.mccCodes.length > 2 && (
-                          <span
-                            className="mcc-multi-tag mcc-multi-tag--extra"
-                            onClick={() => setShowAllMccs(!showAllMccs)}
-                          >
-                            +{formData.mccCodes.length - 2}
-                          </span>
-                        )}
-
+          <div className="admin-cb__table-wrap admin-cb__table-wrap--rounded">
+            <table className="admin-cb__table--full">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Description</th>
+                  <th className="admin-cb__th--actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAllMccs.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="admin-cb__empty">No MCCs found</td>
+                  </tr>
+                ) : (
+                  filteredAllMccs.map(mcc => (
+                    <tr key={mcc.id} style={{ background: editingMccId === mcc.id ? 'rgba(255,255,255,0.05)' : 'transparent' }}>
+                      <td><strong>{mcc.code}</strong></td>
+                      <td>{mcc.description || <span className="admin-cb__empty-text">No description</span>}</td>
+                      <td className="admin-cb__td--right">
                         <button
                           type="button"
-                          className="mcc-multi-tag mcc-multi-tag--add"
-                          onClick={() => setMccDropdownOpen(true)}
+                          onClick={() => startEditMcc(mcc)}
+                          className="admin-cb-btn--edit"
                         >
-                          +
+                          Edit
                         </button>
-                      </div>
-                    </div>
+                        <button
+                          type="button"
+                          onClick={(e) => confirmDeleteMcc(mcc, e)}
+                          disabled={saving}
+                          className="admin-cb-btn--delete"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-                    {showAllMccs && (
-                      <div className="mcc-dropdown mcc-dropdown--flex">
-                        <div className="mcc-dropdown__header">
-                          <span>All Added MCCs</span>
-                          <button type="button" onClick={() => setShowAllMccs(false)} className="mcc-dropdown__close">&times;</button>
-                        </div>
-                        {formData.mccCodes.map(code => (
-                          <span key={code} className="mcc-multi-tag">
-                            {code}
-                            <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
-                          </span>
-                        ))}
-                      </div>
+        </div>
+      </AdminMorphModal>
+
+      {/* Confirm Delete MCC Modal */}
+      <AdminMorphModal
+        isOpen={confirmDeleteMccOpen}
+        onClose={() => setConfirmDeleteMccOpen(false)}
+        clickPos={confirmDeleteMccPos}
+        overlayClass="admin-cb-modal-overlay"
+        modalClass="admin-cb-modal admin-cb-modal--small"
+      >
+        <div className="admin-cb-modal__header">
+          <h2>Confirm Delete</h2>
+          <button className="admin-cb-modal__close" onClick={() => setConfirmDeleteMccOpen(false)}>&times;</button>
+        </div>
+        <div className="admin-cb-modal__content">
+          <p className="admin-cb-modal__confirm-text">Are you sure you want to delete this MCC?</p>
+        </div>
+        <div className="admin-cb-modal__footer">
+          <button className="cancel-btn" onClick={() => setConfirmDeleteMccOpen(false)}>Cancel</button>
+          <button className="delete-btn" onClick={handleDeleteMcc} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
+        </div>
+      </AdminMorphModal>
+
+      {/* Cashback Category Modal */}
+      <AdminMorphModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        clickPos={modalOpenPos}
+        overlayClass="admin-cb-modal-overlay"
+        modalClass="admin-cb-modal"
+      >
+        <div className="admin-cb-modal__header">
+          <h2>{selectedCashback ? 'Edit Cashback Category' : 'Create Cashback Category'}</h2>
+          <button className="admin-cb-modal__close" onClick={() => setModalOpen(false)}>&times;</button>
+        </div>
+
+        {message && (
+          <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
+            {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
+            {message.text}
+          </div>
+        )}
+
+        <div className="admin-cb-modal__content">
+          <div className="admin-cb-modal__form-row">
+            <div className="admin-cb-modal__field">
+              <label>Title (EN)</label>
+              <input type="text" value={formData.titleEn} onChange={e => setFormData({ ...formData, titleEn: e.target.value })} />
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Title (RU)</label>
+              <input type="text" value={formData.titleRu} onChange={e => setFormData({ ...formData, titleRu: e.target.value })} />
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Title (AZ)</label>
+              <input type="text" value={formData.titleAz} onChange={e => setFormData({ ...formData, titleAz: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="admin-cb-modal__form-row">
+            <div className="admin-cb-modal__field">
+              <label>Description (EN)</label>
+              <textarea value={formData.textEn} onChange={e => setFormData({ ...formData, textEn: e.target.value })}></textarea>
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Description (RU)</label>
+              <textarea value={formData.textRu} onChange={e => setFormData({ ...formData, textRu: e.target.value })}></textarea>
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Description (AZ)</label>
+              <textarea value={formData.textAz} onChange={e => setFormData({ ...formData, textAz: e.target.value })}></textarea>
+            </div>
+          </div>
+
+          <div className="admin-cb-modal__form-row">
+            <div className="admin-cb-modal__field">
+              <label>Rate (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={formData.rate}
+                onChange={handleRateChange}
+                onBlur={handleRateBlur}
+              />
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Limit (₼)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="1.00"
+                value={formData.limit}
+                onChange={handleLimitChange}
+                onBlur={handleLimitBlur}
+              />
+            </div>
+            <div className="admin-cb-modal__field">
+              <label>Variant</label>
+              <select
+                value={formData.variant}
+                onChange={e => setFormData({ ...formData, variant: e.target.value })}
+                className="admin-cb-modal__select"
+              >
+                <option value="A">Variant A</option>
+                <option value="B">Variant B</option>
+              </select>
+            </div>
+            <div className="admin-cb-modal__mcc-row">
+              <div className="admin-cb-modal__field admin-cb-modal__field--relative" ref={mccDropdownRef}>
+                <label>MCC Codes</label>
+
+                <div className="mcc-multi-select mcc-multi-select--styled">
+                  <div className="mcc-multi-select__tags mcc-multi-select__tags--flex">
+                    {formData.mccCodes.slice(0, 2).map(code => (
+                      <span key={code} className="mcc-multi-tag">
+                        {code}
+                        <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
+                      </span>
+                    ))}
+
+                    {formData.mccCodes.length > 2 && (
+                      <span
+                        className="mcc-multi-tag mcc-multi-tag--extra"
+                        onClick={() => setShowAllMccs(!showAllMccs)}
+                      >
+                        +{formData.mccCodes.length - 2}
+                      </span>
                     )}
 
-                    {mccDropdownOpen && (
-                      <div className="mcc-dropdown">
-                        {filteredMccsDropdown.length > 0 ? (
-                          <>
-                            <div
-                              className="mcc-dropdown-item mcc-dropdown-item--all"
-                              onClick={handleAddAllAvailableMccs}
-                            >
-                              + Select All Available MCCs
-                            </div>
-                            {filteredMccsDropdown.map(mcc => (
-                              <div
-                                key={mcc.id || mcc.code}
-                                className="mcc-dropdown-item"
-                                onClick={() => handleAddMccToCategory(mcc)}
-                              >
-                                <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
-                              </div>
-                            ))}
-                          </>
-                        ) : (
-                          <div className="mcc-dropdown-empty">
-                            No matching MCCs found. Please add a new MCC first.
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="admin-cb-modal__actions-row">
-                    <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
                     <button
-                      className="save-btn"
-                      onClick={handleSave}
-                      disabled={saving || !isFormChanged()}
+                      type="button"
+                      className="mcc-multi-tag mcc-multi-tag--add"
+                      onClick={() => setMccDropdownOpen(true)}
                     >
-                      {saving ? 'Saving...' : 'Save'}
+                      +
                     </button>
                   </div>
                 </div>
+
+                {showAllMccs && (
+                  <div className="mcc-dropdown mcc-dropdown--flex">
+                    <div className="mcc-dropdown__header">
+                      <span>All Added MCCs</span>
+                      <button type="button" onClick={() => setShowAllMccs(false)} className="mcc-dropdown__close">&times;</button>
+                    </div>
+                    {formData.mccCodes.map(code => (
+                      <span key={code} className="mcc-multi-tag">
+                        {code}
+                        <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {mccDropdownOpen && (
+                  <div className="mcc-dropdown">
+                    {filteredMccsDropdown.length > 0 ? (
+                      <>
+                        <div
+                          className="mcc-dropdown-item mcc-dropdown-item--all"
+                          onClick={handleAddAllAvailableMccs}
+                        >
+                          + Select All Available MCCs
+                        </div>
+                        {filteredMccsDropdown.map(mcc => (
+                          <div
+                            key={mcc.id || mcc.code}
+                            className="mcc-dropdown-item"
+                            onClick={() => handleAddMccToCategory(mcc)}
+                          >
+                            <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="mcc-dropdown-empty">
+                        No matching MCCs found. Please add a new MCC first.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-cb-modal__actions-row">
+                <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
+                <button
+                  className="save-btn"
+                  onClick={handleSave}
+                  disabled={saving || !isFormChanged()}
+                >
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </AdminMorphModal>
 
-      {confirmDeleteOpen && (
-        <div className="admin-cb-modal-overlay" onClick={() => setConfirmDeleteOpen(false)}>
-          <div className="admin-cb-modal admin-cb-modal--small" onClick={e => e.stopPropagation()}>
-            <div className="admin-cb-modal__header">
-              <h2>Confirm Delete</h2>
-              <button className="admin-cb-modal__close" onClick={() => setConfirmDeleteOpen(false)}>&times;</button>
-            </div>
-            <div className="admin-cb-modal__content">
-              <p className="admin-cb-modal__confirm-text">Are you sure you want to delete this category?</p>
-            </div>
-            <div className="admin-cb-modal__footer">
-              <button className="cancel-btn" onClick={() => setConfirmDeleteOpen(false)}>Cancel</button>
-              <button className="delete-btn" onClick={handleDelete} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
-            </div>
-          </div>
+      {/* Confirm Delete Modal */}
+      <AdminMorphModal
+        isOpen={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        clickPos={confirmDeletePos}
+        overlayClass="admin-cb-modal-overlay"
+        modalClass="admin-cb-modal admin-cb-modal--small"
+      >
+        <div className="admin-cb-modal__header">
+          <h2>Confirm Delete</h2>
+          <button className="admin-cb-modal__close" onClick={() => setConfirmDeleteOpen(false)}>&times;</button>
         </div>
-      )}
+        <div className="admin-cb-modal__content">
+          <p className="admin-cb-modal__confirm-text">Are you sure you want to delete this category?</p>
+        </div>
+        <div className="admin-cb-modal__footer">
+          <button className="cancel-btn" onClick={() => setConfirmDeleteOpen(false)}>Cancel</button>
+          <button className="delete-btn" onClick={handleDelete} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
+        </div>
+      </AdminMorphModal>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import Cookies from 'js-cookie'
 import './AdminSupport.scss'
 import './AdminSupport_Responsive.scss'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
@@ -53,9 +54,9 @@ const AdminSupport = () => {
     }
   }
 
-  const openHistoryModal = async (chat) => {
+  const openHistoryModal = async (chat, e) => {
     setActiveMenuId(null)
-    setHistoryModal({ open: true, chat, messages: [], loading: true })
+    setHistoryModal({ open: true, chat, messages: [], loading: true, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     
     try {
       const response = await adminFetch(`${API_BASE_URL}/admin/support/${chat.id}/history`)
@@ -68,9 +69,9 @@ const AdminSupport = () => {
     }
   }
 
-  const openReviewModal = (chat) => {
+  const openReviewModal = (chat, e) => {
     setActiveMenuId(null)
-    setReviewModal({ open: true, chat })
+    setReviewModal({ open: true, chat, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
   }
 
   useEffect(() => {
@@ -266,9 +267,9 @@ const AdminSupport = () => {
                       
                       {activeMenuId === chat.id && (
                         <div className={`admin-support__dropdown ${dropdownUp ? 'admin-support__dropdown--up' : ''}`}>
-                          <button onClick={() => openHistoryModal(chat)}>History</button>
+                          <button onClick={(e) => openHistoryModal(chat, e)}>History</button>
                           {chat.hasComment && (
-                            <button onClick={() => openReviewModal(chat)}>Review</button>
+                            <button onClick={(e) => openReviewModal(chat, e)}>Review</button>
                           )}
                         </div>
                       )}
@@ -287,67 +288,71 @@ const AdminSupport = () => {
       </section>
 
       {/* History Modal */}
-      {historyModal.open && historyModal.chat && (
-        <div className="admin-support-modal-overlay" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>
-          <div className="admin-support-modal" onClick={e => e.stopPropagation()}>
-            <div className="admin-support-modal__header">
-              <h2>Chat History - {formatTableName(historyModal.chat)} (AI: {historyModal.chat.agentName || 'Agent'})</h2>
-              <button className="admin-support-modal__close" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>&times;</button>
-            </div>
-            
-            <div className="admin-support-modal__content" style={{ display: 'block' }}>
-              {historyModal.loading ? (
-                <p>Loading history...</p>
-              ) : historyModal.messages.length === 0 ? (
-                <p className="admin-support__empty">No messages found for this chat.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {historyModal.messages.map((msg, idx) => (
-                    <div key={idx} className={`admin-support-chat-msg admin-support-chat-msg--${msg.sender.toLowerCase()}`}>
-                      <div className="admin-support-chat-msg__bubble">
-                        {msg.imagePath && <img src={msg.imagePath} alt="Attachment" className="admin-support-chat-msg__image" />}
-                        {msg.text}
-                      </div>
-                      <span className="admin-support-chat-msg__time">{msg.time} - {msg.sender}</span>
-                    </div>
-                  ))}
+      <AdminMorphModal
+        isOpen={historyModal.open && !!historyModal.chat}
+        onClose={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}
+        clickPos={historyModal.clickPos}
+        overlayClass="admin-support-modal-overlay"
+        modalClass="admin-support-modal"
+      >
+        <div className="admin-support-modal__header">
+          <h2>Chat History - {formatTableName(historyModal.chat || {})} (AI: {historyModal.chat?.agentName || 'Agent'})</h2>
+          <button className="admin-support-modal__close" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>&times;</button>
+        </div>
+        
+        <div className="admin-support-modal__content" style={{ display: 'block' }}>
+          {historyModal.loading ? (
+            <p>Loading history...</p>
+          ) : historyModal.messages.length === 0 ? (
+            <p className="admin-support__empty">No messages found for this chat.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {historyModal.messages.map((msg, idx) => (
+                <div key={idx} className={`admin-support-chat-msg admin-support-chat-msg--${msg.sender.toLowerCase()}`}>
+                  <div className="admin-support-chat-msg__bubble">
+                    {msg.imagePath && <img src={msg.imagePath} alt="Attachment" className="admin-support-chat-msg__image" />}
+                    {msg.text}
+                  </div>
+                  <span className="admin-support-chat-msg__time">{msg.time} - {msg.sender}</span>
                 </div>
-              )}
+              ))}
             </div>
-            
-            <div className="admin-support-modal__footer">
-              <button className="admin-support-modal__btn-cancel" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>Close</button>
-            </div>
-          </div>
+          )}
         </div>
-      )}
+        
+        <div className="admin-support-modal__footer">
+          <button className="admin-support-modal__btn-cancel" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>Close</button>
+        </div>
+      </AdminMorphModal>
       {/* Review Modal */}
-      {reviewModal.open && reviewModal.chat && (
-        <div className="admin-support-modal-overlay" onClick={() => setReviewModal({ open: false, chat: null })}>
-          <div className="admin-support-modal" onClick={e => e.stopPropagation()}>
-            <div className="admin-support-modal__header">
-              <h2>User Review - {formatTableName(reviewModal.chat)}</h2>
-              <button className="admin-support-modal__close" onClick={() => setReviewModal({ open: false, chat: null })}>&times;</button>
-            </div>
-            
-            <div className="admin-support-modal__content" style={{ padding: '24px' }}>
-              <div style={{ marginBottom: '16px', fontSize: '18px' }}>
-                <strong>Rating:</strong> {reviewModal.chat.rating} ⭐
-              </div>
-              <div>
-                <strong style={{ fontSize: '16px' }}>Comment:</strong>
-                <p style={{ marginTop: '12px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                  {reviewModal.chat.commentText || "No comment provided."}
-                </p>
-              </div>
-            </div>
-            
-            <div className="admin-support-modal__footer">
-              <button className="admin-support-modal__btn-cancel" onClick={() => setReviewModal({ open: false, chat: null })}>Close</button>
-            </div>
+      <AdminMorphModal
+        isOpen={reviewModal.open && !!reviewModal.chat}
+        onClose={() => setReviewModal({ open: false, chat: null })}
+        clickPos={reviewModal.clickPos}
+        overlayClass="admin-support-modal-overlay"
+        modalClass="admin-support-modal"
+      >
+        <div className="admin-support-modal__header">
+          <h2>User Review - {formatTableName(reviewModal.chat || {})}</h2>
+          <button className="admin-support-modal__close" onClick={() => setReviewModal({ open: false, chat: null })}>&times;</button>
+        </div>
+        
+        <div className="admin-support-modal__content" style={{ padding: '24px' }}>
+          <div style={{ marginBottom: '16px', fontSize: '18px' }}>
+            <strong>Rating:</strong> {reviewModal.chat?.rating} ⭐
+          </div>
+          <div>
+            <strong style={{ fontSize: '16px' }}>Comment:</strong>
+            <p style={{ marginTop: '12px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+              {reviewModal.chat?.commentText || "No comment provided."}
+            </p>
           </div>
         </div>
-      )}
+        
+        <div className="admin-support-modal__footer">
+          <button className="admin-support-modal__btn-cancel" onClick={() => setReviewModal({ open: false, chat: null })}>Close</button>
+        </div>
+      </AdminMorphModal>
     </div>
   )
 }

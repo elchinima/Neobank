@@ -3,6 +3,7 @@ import { useLanguage } from '../../app/context/LanguageContext'
 import { authLang } from '../PublicPages/auth/lang.js'
 import { footerLang } from '../PublicFooter/lang.js'
 import { usePublicContent } from '../../app/hooks/usePublicContent'
+import { Turnstile } from '@marsidev/react-turnstile'
 import './TermsModal.scss'
 
 import userAgreementIcon from '../../assets/icons/Public/user_agreement.svg'
@@ -14,6 +15,7 @@ function TermsModal({ isOpen, clickPos, onConfirm, onClose }) {
   const { t } = useLanguage()
   const { footerDocuments = [] } = usePublicContent()
   const [agreed, setAgreed] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState(null)
   const [closingModal, setClosingModal] = useState(false)
   const [shouldRender, setShouldRender] = useState(isOpen)
 
@@ -22,6 +24,7 @@ function TermsModal({ isOpen, clickPos, onConfirm, onClose }) {
       setShouldRender(true)
       setClosingModal(false)
       setAgreed(false) // reset agreement
+      setCaptchaToken(null) // reset captcha
     } else if (shouldRender) {
       setClosingModal(true)
       setTimeout(() => setShouldRender(false), 400)
@@ -40,8 +43,8 @@ function TermsModal({ isOpen, clickPos, onConfirm, onClose }) {
   }
 
   const handleConfirm = () => {
-    if (agreed && onConfirm) {
-      onConfirm()
+    if (agreed && captchaToken && onConfirm) {
+      onConfirm(captchaToken)
     }
   }
 
@@ -87,13 +90,22 @@ function TermsModal({ isOpen, clickPos, onConfirm, onClose }) {
           <span data-lang-key="termsAgreement">{t(authLang, 'termsAgreement')}</span>
         </label>
 
-        <div className="terms-modal-actions">
-          <button className="btn-cancel" onClick={handleClose}>
-            {t(footerLang, 'noBtn')} {/* Just using 'No' or we can add 'Cancel' but let's just use cross or noBtn */}
-          </button>
-          <button className="btn-confirm" disabled={!agreed} onClick={handleConfirm}>
-            {t(footerLang, 'yesBtn')} {/* Using 'Yes' or 'Confirm' */}
-          </button>
+        <div className="terms-modal-footer">
+          <div className="terms-modal-captcha">
+            <Turnstile 
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY} 
+              onSuccess={(token) => setCaptchaToken(token)}
+              options={{ theme: 'dark' }}
+            />
+          </div>
+          <div className="terms-modal-actions">
+            <button className="btn-cancel" onClick={handleClose}>
+              {t(footerLang, 'noBtn')}
+            </button>
+            <button className="btn-confirm" disabled={!agreed || !captchaToken} onClick={handleConfirm}>
+              {t(footerLang, 'yesBtn')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

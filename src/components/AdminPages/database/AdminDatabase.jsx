@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDatabase.scss'
 import './AdminDatabase_Responsive.scss'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {
@@ -20,6 +21,7 @@ const AdminDatabase = () => {
   const [loading, setLoading] = useState(true)
   
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [uploadModalPos, setUploadModalPos] = useState(null)
   const [uploadName, setUploadName] = useState('')
   const [uploadFile, setUploadFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
@@ -28,9 +30,9 @@ const AdminDatabase = () => {
   
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [dropdownUp, setDropdownUp] = useState(false)
-  const [renameModal, setRenameModal] = useState({ open: false, img: null, newName: '' })
-  const [deleteModal, setDeleteModal] = useState({ open: false, img: null })
-  const [previewModal, setPreviewModal] = useState({ open: false, img: null })
+  const [renameModal, setRenameModal] = useState({ open: false, img: null, newName: '', clickPos: null })
+  const [deleteModal, setDeleteModal] = useState({ open: false, img: null, clickPos: null })
+  const [previewModal, setPreviewModal] = useState({ open: false, img: null, clickPos: null })
   
   const fileInputRef = useRef(null)
 
@@ -72,8 +74,9 @@ const AdminDatabase = () => {
     return `${filteredFiles.length} file${filteredFiles.length === 1 ? '' : 's'}`
   }, [loading, filteredFiles.length])
 
-  const openModal = () => {
+  const openModal = (e) => {
     setIsModalOpen(true)
+    setUploadModalPos(e && e.clientX ? { x: e.clientX, y: e.clientY } : null)
     setError('')
     setUploadName('')
     setUploadFile(null)
@@ -176,8 +179,8 @@ const AdminDatabase = () => {
     setActiveMenuId(null)
   }
 
-  const openDeleteModal = (img) => {
-    setDeleteModal({ open: true, img })
+  const openDeleteModal = (img, e) => {
+    setDeleteModal({ open: true, img, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setActiveMenuId(null)
   }
 
@@ -200,13 +203,13 @@ const AdminDatabase = () => {
     }
   }
 
-  const openRenameModal = (img) => {
-    setRenameModal({ open: true, img, newName: img.name })
+  const openRenameModal = (img, e) => {
+    setRenameModal({ open: true, img, newName: img.name, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setActiveMenuId(null)
   }
 
-  const openPreviewModal = (img) => {
-    setPreviewModal({ open: true, img })
+  const openPreviewModal = (img, e) => {
+    setPreviewModal({ open: true, img, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setActiveMenuId(null)
   }
 
@@ -260,7 +263,7 @@ const AdminDatabase = () => {
             >
               Search
             </button>
-            <button className="admin-db__add-btn" onClick={openModal}>
+            <button className="admin-db__add-btn" onClick={(e) => openModal(e)}>
               Add File
             </button>
           </div>
@@ -313,10 +316,10 @@ const AdminDatabase = () => {
                             
                             {activeMenuId === item.id && (
                               <div className={`admin-db__dropdown ${dropdownUp ? 'admin-db__dropdown--up' : ''}`}>
-                                <button onClick={() => openPreviewModal(item)}>Preview File</button>
-                                <button onClick={() => openRenameModal(item)}>Rename</button>
+                                <button onClick={(e) => openPreviewModal(item, e)}>Preview File</button>
+                                <button onClick={(e) => openRenameModal(item, e)}>Rename</button>
                                 <button onClick={() => handleCopyUrl(item.url)}>Copy URL</button>
-                                <button className="danger" onClick={() => openDeleteModal(item)}>Delete</button>
+                                <button className="danger" onClick={(e) => openDeleteModal(item, e)}>Delete</button>
                               </div>
                             )}
                           </div>
@@ -336,184 +339,192 @@ const AdminDatabase = () => {
           </div>
       </section>
 
-      {isModalOpen && (
-        <div className="admin-db-modal-overlay" onClick={closeModal}>
-          <div className="admin-db-modal" onClick={e => e.stopPropagation()}>
-            <div className="admin-db-modal__header">
-              <h2>Upload File</h2>
-              <button className="admin-db-modal__close" onClick={closeModal}>&times;</button>
+      <AdminMorphModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        clickPos={uploadModalPos}
+        overlayClass="admin-db-modal-overlay"
+        modalClass="admin-db-modal"
+      >
+        <div className="admin-db-modal__header">
+          <h2>Upload File</h2>
+          <button className="admin-db-modal__close" onClick={closeModal}>&times;</button>
+        </div>
+        
+        <div className="admin-db-modal__content">
+          {error && <div className="admin-db-modal__error">{error}</div>}
+          
+          <div className="admin-db-modal__field">
+            <label>File Name</label>
+            <div className="admin-db-modal__input-wrap">
+              <input 
+                type="text" 
+                value={uploadName} 
+                onChange={e => setUploadName(e.target.value)} 
+                placeholder="Enter unique name"
+                maxLength={100}
+              />
+              <span className="admin-db-modal__counter">{uploadName.length}/100</span>
             </div>
-            
-            <div className="admin-db-modal__content">
-              {error && <div className="admin-db-modal__error">{error}</div>}
-              
-              <div className="admin-db-modal__field">
-                <label>File Name</label>
-                <div className="admin-db-modal__input-wrap">
-                  <input 
-                    type="text" 
-                    value={uploadName} 
-                    onChange={e => setUploadName(e.target.value)} 
-                    placeholder="Enter unique name"
-                    maxLength={100}
-                  />
-                  <span className="admin-db-modal__counter">{uploadName.length}/100</span>
-                </div>
-              </div>
+          </div>
 
-              <div className="admin-db-modal__field">
-                <label>File *</label>
-                {!uploadFile ? (
-                  <div 
-                    className="admin-db-modal__dropzone"
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--muted">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="17 8 12 3 7 8"></polyline>
-                      <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <p>Click or drag file to upload<br/><span>Supports JPG, PNG, WEBP, TXT, PDF, DOCX, XLS, XLSX, MD (Max 5MB)</span></p>
-                  </div>
+          <div className="admin-db-modal__field">
+            <label>File *</label>
+            {!uploadFile ? (
+              <div 
+                className="admin-db-modal__dropzone"
+                onDragOver={e => e.preventDefault()}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--muted">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Click or drag file to upload<br/><span>Supports JPG, PNG, WEBP, TXT, PDF, DOCX, XLS, XLSX, MD (Max 5MB)</span></p>
+              </div>
+            ) : (
+              <div className="admin-db-modal__preview-container">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Preview" className="admin-db-modal__preview-img" />
                 ) : (
-                  <div className="admin-db-modal__preview-container">
-                    {previewUrl ? (
-                      <img src={previewUrl} alt="Preview" className="admin-db-modal__preview-img" />
-                    ) : (
-                      <div className="admin-db-modal__preview-doc">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--medium">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                          <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        <p className="admin-db-modal__preview-doc-name">{uploadFile.name}</p>
-                      </div>
-                    )}
-                    <button className="admin-db-modal__remove-file" onClick={() => {
-                      setUploadFile(null)
-                      setPreviewUrl(null)
-                    }}>
-                      Remove File
-                    </button>
+                  <div className="admin-db-modal__preview-doc">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--medium">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <p className="admin-db-modal__preview-doc-name">{uploadFile.name}</p>
                   </div>
                 )}
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  style={{ display: 'none' }}
-                  accept="image/jpeg,image/png,image/webp,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/markdown"
-                />
+                <button className="admin-db-modal__remove-file" onClick={() => {
+                  setUploadFile(null)
+                  setPreviewUrl(null)
+                }}>
+                  Remove File
+                </button>
               </div>
-            </div>
+            )}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              style={{ display: 'none' }}
+              accept="image/jpeg,image/png,image/webp,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/markdown"
+            />
+          </div>
+        </div>
 
-            <div className="admin-db-modal__footer">
-              <button className="admin-db-modal__btn-cancel" onClick={closeModal} disabled={uploading}>Cancel</button>
-              <button className="admin-db-modal__btn-save" onClick={handleUpload} disabled={uploading || !uploadFile || !uploadName}>
-                {uploading ? 'Uploading...' : 'Save'}
-              </button>
+        <div className="admin-db-modal__footer">
+          <button className="admin-db-modal__btn-cancel" onClick={closeModal} disabled={uploading}>Cancel</button>
+          <button className="admin-db-modal__btn-save" onClick={handleUpload} disabled={uploading || !uploadFile || !uploadName}>
+            {uploading ? 'Uploading...' : 'Save'}
+          </button>
+        </div>
+      </AdminMorphModal>
+
+      <AdminMorphModal
+        isOpen={renameModal.open && !!renameModal.img}
+        onClose={() => setRenameModal({ open: false, img: null, newName: '', clickPos: null })}
+        clickPos={renameModal.clickPos}
+        overlayClass="admin-db-modal-overlay"
+        modalClass="admin-db-modal admin-db-modal--small"
+      >
+        <div className="admin-db-modal__header">
+          <h2>Rename File</h2>
+          <button className="admin-db-modal__close" onClick={() => setRenameModal({ open: false, img: null, newName: '', clickPos: null })}>&times;</button>
+        </div>
+        <div className="admin-db-modal__content">
+          <div className="admin-db-modal__field">
+            <label>New File Name</label>
+            <div className="admin-db-modal__input-wrap">
+              <input 
+                type="text" 
+                value={renameModal.newName} 
+                onChange={e => setRenameModal({ ...renameModal, newName: e.target.value })} 
+                placeholder="Enter new name"
+                maxLength={100}
+              />
+              <span className="admin-db-modal__counter">{renameModal.newName.length}/100</span>
             </div>
           </div>
         </div>
-      )}
-
-      {renameModal.open && (
-        <div className="admin-db-modal-overlay" onClick={() => setRenameModal({ open: false, img: null, newName: '' })}>
-          <div className="admin-db-modal admin-db-modal--small" onClick={e => e.stopPropagation()}>
-            <div className="admin-db-modal__header">
-              <h2>Rename File</h2>
-              <button className="admin-db-modal__close" onClick={() => setRenameModal({ open: false, img: null, newName: '' })}>&times;</button>
-            </div>
-            <div className="admin-db-modal__content">
-              <div className="admin-db-modal__field">
-                <label>New File Name</label>
-                <div className="admin-db-modal__input-wrap">
-                  <input 
-                    type="text" 
-                    value={renameModal.newName} 
-                    onChange={e => setRenameModal({ ...renameModal, newName: e.target.value })} 
-                    placeholder="Enter new name"
-                    maxLength={100}
-                  />
-                  <span className="admin-db-modal__counter">{renameModal.newName.length}/100</span>
-                </div>
-              </div>
-            </div>
-            <div className="admin-db-modal__footer">
-              <button className="admin-db-modal__btn-cancel" onClick={() => setRenameModal({ open: false, img: null, newName: '' })}>Cancel</button>
-              <button className="admin-db-modal__btn-save" onClick={handleRename}>Save</button>
-            </div>
-          </div>
+        <div className="admin-db-modal__footer">
+          <button className="admin-db-modal__btn-cancel" onClick={() => setRenameModal({ open: false, img: null, newName: '', clickPos: null })}>Cancel</button>
+          <button className="admin-db-modal__btn-save" onClick={handleRename}>Save</button>
         </div>
-      )}
+      </AdminMorphModal>
 
-      {deleteModal.open && (
-        <div className="admin-db-modal-overlay" onClick={() => setDeleteModal({ open: false, img: null })}>
-          <div className="admin-db-modal admin-db-modal--small" onClick={e => e.stopPropagation()}>
-            <div className="admin-db-modal__header">
-              <h2>Confirm Deletion</h2>
-              <button className="admin-db-modal__close" onClick={() => setDeleteModal({ open: false, img: null })}>&times;</button>
-            </div>
-            <div className="admin-db-modal__content">
-              <p className="admin-db-modal__confirm-text">
-                Are you sure you want to delete <strong>{deleteModal.img?.name}</strong>?
-                This action cannot be undone.
-              </p>
-            </div>
-            <div className="admin-db-modal__footer admin-db-modal__footer--end">
-              <button 
-                className="admin-db-modal__btn-cancel" 
-                onClick={() => setDeleteModal({ open: false, img: null })}
-              >
-                Cancel
-              </button>
-              <button 
-                className="admin-db-modal__btn-save admin-btn--danger" 
-                onClick={handleDelete}
-              >
-                Delete File
-              </button>
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={deleteModal.open && !!deleteModal.img}
+        onClose={() => setDeleteModal({ open: false, img: null, clickPos: null })}
+        clickPos={deleteModal.clickPos}
+        overlayClass="admin-db-modal-overlay"
+        modalClass="admin-db-modal admin-db-modal--small"
+      >
+        <div className="admin-db-modal__header">
+          <h2>Confirm Deletion</h2>
+          <button className="admin-db-modal__close" onClick={() => setDeleteModal({ open: false, img: null, clickPos: null })}>&times;</button>
         </div>
-      )}
+        <div className="admin-db-modal__content">
+          <p className="admin-db-modal__confirm-text">
+            Are you sure you want to delete <strong>{deleteModal.img?.name}</strong>?
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="admin-db-modal__footer admin-db-modal__footer--end">
+          <button 
+            className="admin-db-modal__btn-cancel" 
+            onClick={() => setDeleteModal({ open: false, img: null, clickPos: null })}
+          >
+            Cancel
+          </button>
+          <button 
+            className="admin-db-modal__btn-save admin-btn--danger" 
+            onClick={handleDelete}
+          >
+            Delete File
+          </button>
+        </div>
+      </AdminMorphModal>
 
       {/* View Preview Modal */}
-      {previewModal.open && previewModal.img && (
-        <div className="admin-db-modal-overlay" onClick={() => setPreviewModal({ open: false, img: null })}>
-          <div className="admin-db-modal admin-db-modal--preview" onClick={e => e.stopPropagation()}>
-            <div className="admin-db-modal__header">
-              <h2>Preview File</h2>
-              <button className="admin-db-modal__close" onClick={() => setPreviewModal({ open: false, img: null })}>&times;</button>
-            </div>
-            <div className="admin-db-modal__content admin-db-modal__content--preview">
-              {previewModal.img.folder === 'documents' ? (
-                <div className="admin-db__empty-preview">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--medium">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                  <p className="admin-db__preview-filename">{previewModal.img.fileName}</p>
-                  <a href={previewModal.img.url} target="_blank" rel="noopener noreferrer" className="admin-db__preview-download">Download / Open</a>
-                </div>
-              ) : (
-                <img 
-                  src={previewModal.img.url} 
-                  alt={previewModal.img.name} 
-                  className="admin-db__preview-img-full"
-                />
-              )}
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={previewModal.open && !!previewModal.img}
+        onClose={() => setPreviewModal({ open: false, img: null, clickPos: null })}
+        clickPos={previewModal.clickPos}
+        overlayClass="admin-db-modal-overlay"
+        modalClass="admin-db-modal admin-db-modal--preview"
+      >
+        <div className="admin-db-modal__header">
+          <h2>Preview File</h2>
+          <button className="admin-db-modal__close" onClick={() => setPreviewModal({ open: false, img: null, clickPos: null })}>&times;</button>
         </div>
-      )}
+        <div className="admin-db-modal__content admin-db-modal__content--preview">
+          {previewModal.img?.folder === 'documents' ? (
+            <div className="admin-db__empty-preview">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-db__icon--medium">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <p className="admin-db__preview-filename">{previewModal.img.fileName}</p>
+              <a href={previewModal.img.url} target="_blank" rel="noopener noreferrer" className="admin-db__preview-download">Download / Open</a>
+            </div>
+          ) : previewModal.img ? (
+            <img 
+              src={previewModal.img.url} 
+              alt={previewModal.img.name} 
+              className="admin-db__preview-img-full"
+            />
+          ) : null}
+        </div>
+      </AdminMorphModal>
     </div>
   )
 }

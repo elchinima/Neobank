@@ -1,0 +1,61 @@
+.admin-morph-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInAdmin 0.3s ease-out forwards;
+
+  &.closing {
+    animation: fadeOutAdmin 0.4s ease-in forwards;
+  }
+}
+
+.admin-morph-modal {
+  /* Let child classes determine width/height/padding/bg, but apply morph animation */
+  animation: morphModalAdmin 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center;
+  
+  &.closing {
+    animation: fadeOutModalAdmin 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes fadeInAdmin {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes fadeOutAdmin {
+  from { opacity: 1; backdrop-filter: blur(4px); }
+  to { opacity: 0; backdrop-filter: blur(0px); }
+}
+
+@keyframes morphModalAdmin {
+  0% {
+    opacity: 0;
+    transform: translate(var(--start-x, 0), var(--start-y, 0)) scale(0.1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(calc(var(--start-x, 0) * 0.5), calc(var(--start-y, 0) * 0.5)) scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes fadeOutModalAdmin {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--start-x, 0), var(--start-y, 0)) scale(0.1);
+  }
+}

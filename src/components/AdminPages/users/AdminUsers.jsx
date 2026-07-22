@@ -6,6 +6,7 @@ import './AdminUsers.scss'
 import './AdminUsers_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {
@@ -502,9 +503,15 @@ const AdminUsers = () => {
       </section>
 
       {/* Status Modal */}
-      {statusModal.open && statusModal.user && (
-        <div className="admin-users-modal-overlay" onClick={() => setStatusModal({ open: false, user: null })}>
-          <div className="admin-users-modal admin-users-modal--small" onClick={e => e.stopPropagation()}>
+      <AdminMorphModal
+        isOpen={statusModal.open && !!statusModal.user}
+        onClose={() => setStatusModal({ open: false, user: null })}
+        clickPos={statusModal.clickPos}
+        overlayClass="admin-users-modal-overlay"
+        modalClass="admin-users-modal admin-users-modal--small"
+      >
+        {statusModal.user && (
+          <>
             <div className="admin-users-modal__header">
               <h2>{statusModal.user.isActive ? 'Block User' : 'Unblock User'}</h2>
               <button className="admin-users-modal__close" onClick={() => setStatusModal({ open: false, user: null })}>&times;</button>
@@ -527,14 +534,20 @@ const AdminUsers = () => {
                 {statusModal.user.isActive ? 'Block' : 'Unblock'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AdminMorphModal>
 
       {/* Role Modal */}
-      {roleModal.open && roleModal.user && (
-        <div className="admin-users-modal-overlay" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>
-          <div className="admin-users-modal admin-users-modal--small" onClick={e => e.stopPropagation()}>
+      <AdminMorphModal
+        isOpen={roleModal.open && !!roleModal.user}
+        onClose={() => setRoleModal({ open: false, user: null, selectedRole: '' })}
+        clickPos={roleModal.clickPos}
+        overlayClass="admin-users-modal-overlay"
+        modalClass="admin-users-modal admin-users-modal--small"
+      >
+        {roleModal.user && (
+          <>
             <div className="admin-users-modal__header">
               <h2>Assign Role</h2>
               <button className="admin-users-modal__close" onClick={() => setRoleModal({ open: false, user: null, selectedRole: '' })}>&times;</button>
@@ -579,433 +592,439 @@ const AdminUsers = () => {
                 Assign
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AdminMorphModal>
 
       {/* Email Modal */}
-      {emailModal.open && (emailModal.user || emailModal.isNewsletter) && (
-        <div className="admin-users-modal-overlay" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}>
-          <div className="admin-users-modal admin-users-modal--email" onClick={e => e.stopPropagation()}>
-            <div className="admin-users-modal__header">
-              <h2>Send Email to {emailModal.isNewsletter ? 'All Subscribed Users' : formatTableName(emailModal.user)}</h2>
-              <button className="admin-users-modal__close" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}>&times;</button>
-            </div>
-            
-            <div className="admin-users-modal__content">
-              <div className="admin-users-modal__field">
-                <label>Email Title (Subject)</label>
-                <div className="admin-users-modal__input-wrap">
-                  <input
-                    type="text"
-                    name="emailTitle"
-                    value={emailData.emailTitle}
-                    onChange={handleEmailChange}
-                    maxLength={100}
-                    placeholder="Enter email subject"
-                  />
-                  <span className="admin-users-modal__counter">{emailData.emailTitle.length}/100</span>
-                </div>
-              </div>
-
-              <div className="admin-users-modal__field">
-                <label>Content Title</label>
-                <div className="admin-users-modal__input-wrap">
-                  <input
-                    type="text"
-                    name="contentTitle"
-                    value={emailData.contentTitle}
-                    onChange={handleEmailChange}
-                    maxLength={100}
-                    placeholder="Enter title displayed inside the email"
-                  />
-                  <span className="admin-users-modal__counter">{emailData.contentTitle.length}/100</span>
-                </div>
-              </div>
-
-              <div className="admin-users-modal__field">
-                <label>Content Message</label>
-                <div className="admin-users-modal__input-wrap">
-                  <textarea
-                    name="contentMessage"
-                    value={emailData.contentMessage}
-                    onChange={handleEmailChange}
-                    maxLength={1000}
-                    rows="6"
-                    placeholder="Enter the main content of the email"
-                  ></textarea>
-                  <span className="admin-users-modal__counter">{emailData.contentMessage.length}/1000</span>
-                </div>
-              </div>
-
-              <div 
-                className="admin-users-modal__dropzone" 
-                onDragOver={e => e.preventDefault()} 
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  accept="image/png, image/jpeg, image/jpg, image/gif, image/webp, application/pdf, .docx" 
-                  hidden 
-                />
-                {emailFile ? (
-                  emailPreviewUrl ? (
-                    <img src={emailPreviewUrl} alt="Attachment Preview" className="admin-users-modal__preview-img" />
-                  ) : (
-                    <div className="admin-users-modal__file-info">
-                      📄 {emailFile.name} ({(emailFile.size / 1024 / 1024).toFixed(2)} MB)
-                    </div>
-                  )
-                ) : (
-                  <p>Drag & drop file here or click to select<br/><span>Max 5MB (PNG, JPG, WEBP, GIF, PDF, DOCX)</span></p>
-                )}
-              </div>
-            </div>
-            
-            <div className="admin-users-modal__footer">
-              <button className="admin-users-modal__btn-cancel" disabled={sendingEmail} onClick={() => setEmailModal({ open: false, user: null, isNewsletter: false })}>Cancel</button>
-              <button 
-                className="admin-users-modal__btn-save" 
-                onClick={handleSendEmail}
-                disabled={sendingEmail || !emailData.emailTitle.trim() || !emailData.contentTitle.trim() || !emailData.contentMessage.trim()}
-              >
-                {sendingEmail ? 'Sending...' : 'Send'}
-              </button>
+      <AdminMorphModal
+        isOpen={emailModal.open && (!!emailModal.user || emailModal.isNewsletter)}
+        onClose={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}
+        clickPos={emailModal.clickPos}
+        overlayClass="admin-users-modal-overlay"
+        modalClass="admin-users-modal admin-users-modal--email"
+      >
+        <div className="admin-users-modal__header">
+          <h2>Send Email to {emailModal.isNewsletter ? 'All Subscribed Users' : formatTableName(emailModal.user || {})}</h2>
+          <button className="admin-users-modal__close" onClick={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}>&times;</button>
+        </div>
+        
+        <div className="admin-users-modal__content">
+          <div className="admin-users-modal__field">
+            <label>Email Title (Subject)</label>
+            <div className="admin-users-modal__input-wrap">
+              <input
+                type="text"
+                name="emailTitle"
+                value={emailData.emailTitle}
+                onChange={handleEmailChange}
+                maxLength={100}
+                placeholder="Enter email subject"
+              />
+              <span className="admin-users-modal__counter">{emailData.emailTitle.length}/100</span>
             </div>
           </div>
+
+          <div className="admin-users-modal__field">
+            <label>Content Title</label>
+            <div className="admin-users-modal__input-wrap">
+              <input
+                type="text"
+                name="contentTitle"
+                value={emailData.contentTitle}
+                onChange={handleEmailChange}
+                maxLength={100}
+                placeholder="Enter title displayed inside the email"
+              />
+              <span className="admin-users-modal__counter">{emailData.contentTitle.length}/100</span>
+            </div>
+          </div>
+
+          <div className="admin-users-modal__field">
+            <label>Content Message</label>
+            <div className="admin-users-modal__input-wrap">
+              <textarea
+                name="contentMessage"
+                value={emailData.contentMessage}
+                onChange={handleEmailChange}
+                maxLength={1000}
+                rows="6"
+                placeholder="Enter the main content of the email"
+              ></textarea>
+              <span className="admin-users-modal__counter">{emailData.contentMessage.length}/1000</span>
+            </div>
+          </div>
+
+          <div 
+            className="admin-users-modal__dropzone" 
+            onDragOver={e => e.preventDefault()} 
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/png, image/jpeg, image/jpg, image/gif, image/webp, application/pdf, .docx" 
+              hidden 
+            />
+            {emailFile ? (
+              emailPreviewUrl ? (
+                <img src={emailPreviewUrl} alt="Attachment Preview" className="admin-users-modal__preview-img" />
+              ) : (
+                <div className="admin-users-modal__file-info">
+                  📄 {emailFile.name} ({(emailFile.size / 1024 / 1024).toFixed(2)} MB)
+                </div>
+              )
+            ) : (
+              <p>Drag & drop file here or click to select<br/><span>Max 5MB (PNG, JPG, WEBP, GIF, PDF, DOCX)</span></p>
+            )}
+          </div>
         </div>
-      )}
+        
+        <div className="admin-users-modal__footer">
+          <button className="admin-users-modal__btn-cancel" disabled={sendingEmail} onClick={() => setEmailModal({ open: false, user: null, isNewsletter: false })}>Cancel</button>
+          <button 
+            className="admin-users-modal__btn-save" 
+            onClick={handleSendEmail}
+            disabled={sendingEmail || !emailData.emailTitle.trim() || !emailData.contentTitle.trim() || !emailData.contentMessage.trim()}
+          >
+            {sendingEmail ? 'Sending...' : 'Send'}
+          </button>
+        </div>
+      </AdminMorphModal>
 
       {/* Info Modal */}
-      {infoModal.open && infoModal.user && (
-        <div className="admin-users-modal-overlay" onClick={() => setInfoModal({ open: false, user: null })}>
-          <div className="admin-users-modal admin-users-modal--info" onClick={e => e.stopPropagation()}>
-            <div className="admin-users-modal__header">
-              <h2>User Details: {formatTableName(infoModal.user)}</h2>
-              <button className="admin-users-modal__close" onClick={() => setInfoModal({ open: false, user: null })}>&times;</button>
-            </div>
-            
-            <div className="admin-users-modal__content">
-              {loadingInfo ? (
-                <div className="admin-users-modal__loading">Loading...</div>
-              ) : infoData ? (
-                <>
-                  <div className="admin-users-modal__profile-header">
-                    {infoData.avatarUrl ? (
-                      <img src={infoData.avatarUrl} alt="Avatar" />
-                    ) : (
-                      <div className="profile-placeholder">
-                        {infoData.firstName ? infoData.firstName[0].toUpperCase() : 'U'}
-                      </div>
-                    )}
-                    <div>
-                      <h4>{formatTableName(infoData)}</h4>
-                      <span>ID: {infoData.id}</span>
-                    </div>
+      <AdminMorphModal
+        isOpen={infoModal.open && !!infoModal.user}
+        onClose={() => setInfoModal({ open: false, user: null })}
+        clickPos={infoModal.clickPos}
+        overlayClass="admin-users-modal-overlay"
+        modalClass="admin-users-modal admin-users-modal--info"
+      >
+        <div className="admin-users-modal__header">
+          <h2>User Details: {formatTableName(infoModal.user || {})}</h2>
+          <button className="admin-users-modal__close" onClick={() => setInfoModal({ open: false, user: null })}>&times;</button>
+        </div>
+        
+        <div className="admin-users-modal__content">
+          {loadingInfo ? (
+            <div className="admin-users-modal__loading">Loading...</div>
+          ) : infoData ? (
+            <>
+              <div className="admin-users-modal__profile-header">
+                {infoData.avatarUrl ? (
+                  <img src={infoData.avatarUrl} alt="Avatar" />
+                ) : (
+                  <div className="profile-placeholder">
+                    {infoData.firstName ? infoData.firstName[0].toUpperCase() : 'U'}
                   </div>
+                )}
+                <div>
+                  <h4>{formatTableName(infoData)}</h4>
+                  <span>ID: {infoData.id}</span>
+                </div>
+              </div>
 
-                  <div className="admin-users-modal__grid-2">
-                    <div className="admin-users-modal__info-section">
-                      <h3>General Info</h3>
-                      <div className="admin-users-modal__list-item admin-users-modal__list-item--gap">
-                        <dl className="admin-users-modal__kv admin-users-modal__kv--grid">
-                          <div>
-                            <dt>Role</dt>
-                            <dd>{formatRoleName(infoData.role)}</dd>
-                          </div>
-                          <div>
-                            <dt>Status</dt>
-                            <dd className={infoData.isActive ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--blocked'}>{infoData.isActive ? 'Active' : 'Blocked'}</dd>
-                          </div>
-                          <div>
-                            <dt>Email</dt>
-                            <dd>{infoData.email}</dd>
-                          </div>
-                          <div>
-                            <dt>2FA Status</dt>
-                            <dd className={infoData.twoFactorEnabled ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--warning'}>{infoData.twoFactorEnabled ? 'Enabled' : 'Disabled'}</dd>
-                          </div>
-                          <div>
-                            <dt>Created At</dt>
-                            <dd>{new Date(infoData.createdAt).toLocaleString()}</dd>
-                          </div>
-                          <div>
-                            <dt>Last Login At</dt>
-                            <dd>{infoData.lastLoginAt ? new Date(infoData.lastLoginAt).toLocaleString() : 'Never'}</dd>
-                          </div>
-                          <div>
-                            <dt>Registration IP</dt>
-                            <dd>{infoData.registrationIp || 'N/A'}</dd>
-                          </div>
-                          <div>
-                            <dt>Last Login IP</dt>
-                            <dd>{infoData.lastIp || 'N/A'}</dd>
-                          </div>
-                          <div>
-                            <dt>Cashback Variant</dt>
-                            <dd>{infoData.cashbackVariant || 'Not Selected'}</dd>
-                          </div>
-                          <div>
-                            <dt>Newsletter</dt>
-                            <dd className={infoData.isSubscribedToNewsletter ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--muted'}>{infoData.isSubscribedToNewsletter ? 'Subscribed' : 'Unsubscribed'}</dd>
-                          </div>
-                        </dl>
-                        
-                        {(infoData.twoFactorEnabled || infoData.isSubscribedToNewsletter) && (
-                          <div className="admin-users-modal__action-row admin-users-modal__action-row--wrap">
-                            {infoData.twoFactorEnabled && (
-                              <button 
-                                className="admin-users-modal__btn-save admin-users-modal__btn-save--danger" 
-                                onClick={() => setConfirmModal({
-                                  open: true,
-                                  message: 'Are you sure you want to send a 2FA reset email to this user?',
-                                  onConfirm: () => handleReset2Fa()
-                                })}
-                                disabled={resetting2Fa}
-                              >
-                                {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
-                              </button>
-                            )}
-                            {infoData.isSubscribedToNewsletter && (
-                              <button 
-                                className="admin-users-modal__btn-save admin-users-modal__btn-save--warning" 
-                                onClick={() => setConfirmModal({
-                                  open: true,
-                                  message: 'Are you sure you want to disable newsletter subscription for this user? They will receive an email notification.',
-                                  onConfirm: () => handleDisableNewsletter()
-                                })}
-                                disabled={disablingNewsletter}
-                              >
-                                {disablingNewsletter ? 'Disabling...' : 'Disable Newsletter'}
-                              </button>
-                            )}
-                          </div>
+              <div className="admin-users-modal__grid-2">
+                <div className="admin-users-modal__info-section">
+                  <h3>General Info</h3>
+                  <div className="admin-users-modal__list-item admin-users-modal__list-item--gap">
+                    <dl className="admin-users-modal__kv admin-users-modal__kv--grid">
+                      <div>
+                        <dt>Role</dt>
+                        <dd>{formatRoleName(infoData.role)}</dd>
+                      </div>
+                      <div>
+                        <dt>Status</dt>
+                        <dd className={infoData.isActive ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--blocked'}>{infoData.isActive ? 'Active' : 'Blocked'}</dd>
+                      </div>
+                      <div>
+                        <dt>Email</dt>
+                        <dd>{infoData.email}</dd>
+                      </div>
+                      <div>
+                        <dt>2FA Status</dt>
+                        <dd className={infoData.twoFactorEnabled ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--warning'}>{infoData.twoFactorEnabled ? 'Enabled' : 'Disabled'}</dd>
+                      </div>
+                      <div>
+                        <dt>Created At</dt>
+                        <dd>{new Date(infoData.createdAt).toLocaleString()}</dd>
+                      </div>
+                      <div>
+                        <dt>Last Login At</dt>
+                        <dd>{infoData.lastLoginAt ? new Date(infoData.lastLoginAt).toLocaleString() : 'Never'}</dd>
+                      </div>
+                      <div>
+                        <dt>Registration IP</dt>
+                        <dd>{infoData.registrationIp || 'N/A'}</dd>
+                      </div>
+                      <div>
+                        <dt>Last Login IP</dt>
+                        <dd>{infoData.lastIp || 'N/A'}</dd>
+                      </div>
+                      <div>
+                        <dt>Cashback Variant</dt>
+                        <dd>{infoData.cashbackVariant || 'Not Selected'}</dd>
+                      </div>
+                      <div>
+                        <dt>Newsletter</dt>
+                        <dd className={infoData.isSubscribedToNewsletter ? 'admin-users-modal__status-text--active' : 'admin-users-modal__status-text--muted'}>{infoData.isSubscribedToNewsletter ? 'Subscribed' : 'Unsubscribed'}</dd>
+                      </div>
+                    </dl>
+                    
+                    {(infoData.twoFactorEnabled || infoData.isSubscribedToNewsletter) && (
+                      <div className="admin-users-modal__action-row admin-users-modal__action-row--wrap">
+                        {infoData.twoFactorEnabled && (
+                          <button 
+                            className="admin-users-modal__btn-save admin-users-modal__btn-save--danger" 
+                            onClick={() => setConfirmModal({
+                              open: true,
+                              message: 'Are you sure you want to send a 2FA reset email to this user?',
+                              onConfirm: () => handleReset2Fa()
+                            })}
+                            disabled={resetting2Fa}
+                          >
+                            {resetting2Fa ? 'Sending...' : 'Reset 2FA (Send Email)'}
+                          </button>
+                        )}
+                        {infoData.isSubscribedToNewsletter && (
+                          <button 
+                            className="admin-users-modal__btn-save admin-users-modal__btn-save--warning" 
+                            onClick={() => setConfirmModal({
+                              open: true,
+                              message: 'Are you sure you want to disable newsletter subscription for this user? They will receive an email notification.',
+                              onConfirm: () => handleDisableNewsletter()
+                            })}
+                            disabled={disablingNewsletter}
+                          >
+                            {disablingNewsletter ? 'Disabling...' : 'Disable Newsletter'}
+                          </button>
                         )}
                       </div>
-                    </div>
+                    )}
+                  </div>
+                </div>
 
-                    <div className="admin-users-modal__info-section">
-                      <h3>Note</h3>
-                      <div className="admin-users-modal__field">
-                        <div className="admin-users-modal__input-wrap admin-users-modal__input-wrap--full-height">
-                          <textarea
-                            value={noteValue}
-                            onChange={(e) => setNoteValue(e.target.value)}
-                            maxLength={1000}
-                            placeholder="Add a note about this user..."
-                            className="admin-users-modal__textarea--large"
-                          ></textarea>
-                          <span className="admin-users-modal__counter">{noteValue.length}/1000</span>
-                        </div>
-                      </div>
-                      <div className="admin-users-modal__action-end">
-                        <button 
-                          className="admin-users-modal__btn-save admin-users-modal__btn-save--small"
-                          onClick={() => setConfirmModal({
-                            open: true,
-                            message: 'Are you sure you want to save this note?',
-                            onConfirm: () => handleSaveNote()
-                          })}
-                          disabled={savingNote || noteValue === (infoData?.note || '')}
-                        >
-                          {savingNote ? 'Saving...' : 'Save Note'}
-                        </button>
-                      </div>
+                <div className="admin-users-modal__info-section">
+                  <h3>Note</h3>
+                  <div className="admin-users-modal__field">
+                    <div className="admin-users-modal__input-wrap admin-users-modal__input-wrap--full-height">
+                      <textarea
+                        value={noteValue}
+                        onChange={(e) => setNoteValue(e.target.value)}
+                        maxLength={1000}
+                        placeholder="Add a note about this user..."
+                        className="admin-users-modal__textarea--large"
+                      ></textarea>
+                      <span className="admin-users-modal__counter">{noteValue.length}/1000</span>
                     </div>
                   </div>
+                  <div className="admin-users-modal__action-end">
+                    <button 
+                      className="admin-users-modal__btn-save admin-users-modal__btn-save--small"
+                      onClick={() => setConfirmModal({
+                        open: true,
+                        message: 'Are you sure you want to save this note?',
+                        onConfirm: () => handleSaveNote()
+                      })}
+                      disabled={savingNote || noteValue === (infoData?.note || '')}
+                    >
+                      {savingNote ? 'Saving...' : 'Save Note'}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                  {infoData.cards && infoData.cards.length > 0 && (
-                    <div className="admin-users-modal__info-section">
-                      <h3>Cards ({infoData.cards.length})</h3>
-                      <div className="admin-users-modal__list">
-                        {infoData.cards.map((card, i) => (
-                          <div key={i} className="admin-users-modal__list-item">
-                            <div className="admin-users-modal__list-item-header">
-                              <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'}) - {card.type || card.cardType || 'Standard'}</strong>
-                              <div className="admin-users-modal__flex-center">
-                                <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
-                                <button 
-                                  onClick={() => setConfirmModal({
-                                    open: true,
-                                    message: `Are you sure you want to ${card.status === 'Active' ? 'block' : 'unblock'} this card?`,
-                                    onConfirm: () => handleToggleCardStatus(card.id)
-                                  })}
-                                  className="admin-users-modal__btn-outline"
-                                >
-                                  {card.status === 'Active' ? 'Block' : 'Unblock'}
-                                </button>
-                              </div>
-                            </div>
-                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-3">
-                              <dl className="admin-users-modal__kv">
-                                <dt>Balance</dt>
-                                <dd>{card.balance?.toFixed(2) || '0.00'} ₼</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Credit Limit</dt>
-                                <dd>{card.creditLimit?.toFixed(2) || '0.00'} ₼</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>IBAN</dt>
-                                <dd>{card.iban}</dd>
-                              </dl>
-                            </div>
+              {infoData.cards && infoData.cards.length > 0 && (
+                <div className="admin-users-modal__info-section">
+                  <h3>Cards ({infoData.cards.length})</h3>
+                  <div className="admin-users-modal__list">
+                    {infoData.cards.map((card, i) => (
+                      <div key={i} className="admin-users-modal__list-item">
+                        <div className="admin-users-modal__list-item-header">
+                          <strong>**** **** **** {card.cardNumber?.slice(-4) || '****'} ({card.network || 'Unknown'}) - {card.type || card.cardType || 'Standard'}</strong>
+                          <div className="admin-users-modal__flex-center">
+                            <span className={card.status === 'Active' ? 'active' : 'inactive'}>{card.status}</span>
+                            <button 
+                              onClick={() => setConfirmModal({
+                                open: true,
+                                message: `Are you sure you want to ${card.status === 'Active' ? 'block' : 'unblock'} this card?`,
+                                onConfirm: () => handleToggleCardStatus(card.id)
+                              })}
+                              className="admin-users-modal__btn-outline"
+                            >
+                              {card.status === 'Active' ? 'Block' : 'Unblock'}
+                            </button>
                           </div>
-                        ))}
+                        </div>
+                        <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-3">
+                          <dl className="admin-users-modal__kv">
+                            <dt>Balance</dt>
+                            <dd>{card.balance?.toFixed(2) || '0.00'} ₼</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Credit Limit</dt>
+                            <dd>{card.creditLimit?.toFixed(2) || '0.00'} ₼</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>IBAN</dt>
+                            <dd>{card.iban}</dd>
+                          </dl>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                  {infoData.deposits && infoData.deposits.length > 0 && (
-                    <div className="admin-users-modal__info-section">
-                      <h3>Active Deposits ({infoData.deposits.length})</h3>
-                      <div className="admin-users-modal__list">
-                        {infoData.deposits.map((dep, i) => (
-                          <div key={i} className="admin-users-modal__list-item">
-                            <div className="admin-users-modal__list-item-header">
-                              <strong>Deposit</strong>
-                              <span className="active">Active</span>
-                            </div>
-                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
-                              <dl className="admin-users-modal__kv">
-                                <dt>Amount</dt>
-                                <dd>₼{dep.amount?.toFixed(2) || '0.00'}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Interest Rate</dt>
-                                <dd>{dep.interestRate}%</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Profit</dt>
-                                <dd>₼{dep.totalIncome?.toFixed(2) || '0.00'}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Term (Months)</dt>
-                                <dd>{dep.termMonths}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Created At</dt>
-                                <dd>{new Date(dep.createdAt).toLocaleDateString()}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Payout Date</dt>
-                                <dd>{new Date(new Date(dep.createdAt).setMonth(new Date(dep.createdAt).getMonth() + dep.termMonths)).toLocaleDateString()}</dd>
-                              </dl>
-                            </div>
-                          </div>
-                        ))}
+              {infoData.deposits && infoData.deposits.length > 0 && (
+                <div className="admin-users-modal__info-section">
+                  <h3>Active Deposits ({infoData.deposits.length})</h3>
+                  <div className="admin-users-modal__list">
+                    {infoData.deposits.map((dep, i) => (
+                      <div key={i} className="admin-users-modal__list-item">
+                        <div className="admin-users-modal__list-item-header">
+                          <strong>Deposit</strong>
+                          <span className="active">Active</span>
+                        </div>
+                        <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
+                          <dl className="admin-users-modal__kv">
+                            <dt>Amount</dt>
+                            <dd>₼{dep.amount?.toFixed(2) || '0.00'}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Interest Rate</dt>
+                            <dd>{dep.interestRate}%</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Profit</dt>
+                            <dd>₼{dep.totalIncome?.toFixed(2) || '0.00'}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Term (Months)</dt>
+                            <dd>{dep.termMonths}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Created At</dt>
+                            <dd>{new Date(dep.createdAt).toLocaleDateString()}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Payout Date</dt>
+                            <dd>{new Date(new Date(dep.createdAt).setMonth(new Date(dep.createdAt).getMonth() + dep.termMonths)).toLocaleDateString()}</dd>
+                          </dl>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                  {infoData.loans && infoData.loans.length > 0 && (
-                    <div className="admin-users-modal__info-section">
-                      <h3>Active Loans ({infoData.loans.length})</h3>
-                      <div className="admin-users-modal__list">
-                        {infoData.loans.map((loan, i) => (
-                          <div key={i} className="admin-users-modal__list-item">
-                            <div className="admin-users-modal__list-item-header">
-                              <strong>Loan</strong>
-                              <span className="active">Active</span>
-                            </div>
-                            <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
-                              <dl className="admin-users-modal__kv">
-                                <dt>Amount</dt>
-                                <dd>₼{loan.amount?.toFixed(2) || '0.00'}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Remaining</dt>
-                                <dd>₼{loan.remainingBalance?.toFixed(2) || '0.00'}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Monthly Payment</dt>
-                                <dd>₼{loan.monthlyPayment?.toFixed(2) || '0.00'}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Interest Rate</dt>
-                                <dd>{loan.interestRate}%</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Term (Months)</dt>
-                                <dd>{loan.termMonths}</dd>
-                              </dl>
-                              <dl className="admin-users-modal__kv">
-                                <dt>Next Payment</dt>
-                                <dd>{loan.nextPaymentDate ? new Date(loan.nextPaymentDate).toLocaleDateString() : 'N/A'}</dd>
-                              </dl>
-                            </div>
-                          </div>
-                        ))}
+              {infoData.loans && infoData.loans.length > 0 && (
+                <div className="admin-users-modal__info-section">
+                  <h3>Active Loans ({infoData.loans.length})</h3>
+                  <div className="admin-users-modal__list">
+                    {infoData.loans.map((loan, i) => (
+                      <div key={i} className="admin-users-modal__list-item">
+                        <div className="admin-users-modal__list-item-header">
+                          <strong>Loan</strong>
+                          <span className="active">Active</span>
+                        </div>
+                        <div className="admin-users-modal__list-item-body admin-users-modal__list-item-body--cols-equal">
+                          <dl className="admin-users-modal__kv">
+                            <dt>Amount</dt>
+                            <dd>₼{loan.amount?.toFixed(2) || '0.00'}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Remaining</dt>
+                            <dd>₼{loan.remainingBalance?.toFixed(2) || '0.00'}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Monthly Payment</dt>
+                            <dd>₼{loan.monthlyPayment?.toFixed(2) || '0.00'}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Interest Rate</dt>
+                            <dd>{loan.interestRate}%</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Term (Months)</dt>
+                            <dd>{loan.termMonths}</dd>
+                          </dl>
+                          <dl className="admin-users-modal__kv">
+                            <dt>Next Payment</dt>
+                            <dd>{loan.nextPaymentDate ? new Date(loan.nextPaymentDate).toLocaleDateString() : 'N/A'}</dd>
+                          </dl>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </>
-              ) : null}
-            </div>
-          </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
-      )}
+      </AdminMorphModal>
 
       {/* Alert Modal */}
-      {alertModal.open && (
-        <div className="admin-users-modal-overlay admin-users-modal-overlay--z2000" onClick={() => setAlertModal({ open: false, message: '', isError: false })}>
-          <div className="admin-users-modal admin-users-modal--center" onClick={e => e.stopPropagation()}>
-            <div className="admin-users-modal__content admin-users-modal__content--padded">
-              <div className="admin-users-modal__icon-large">
-                {alertModal.isError ? '❌' : <img src={loaderSuccessIcon} alt="Success" className="modal-success-icon" />}
-              </div>
-              <h2 className="admin-users-modal__heading--margin">
-                {alertModal.isError ? 'Error' : 'Success'}
-              </h2>
-              <p className="admin-users-modal__text--sub">
-                {alertModal.message}
-              </p>
-            </div>
-            <div className="admin-users-modal__footer admin-users-modal__footer--center">
-              <button 
-                className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
-                onClick={() => setAlertModal({ open: false, message: '', isError: false })}
-              >
-                OK
-              </button>
-            </div>
+      <AdminMorphModal
+        isOpen={alertModal.open}
+        onClose={() => setAlertModal({ open: false, message: '', isError: false })}
+        overlayClass="admin-users-modal-overlay--z2000"
+        modalClass="admin-users-modal admin-users-modal--center"
+      >
+        <div className="admin-users-modal__content admin-users-modal__content--padded">
+          <div className="admin-users-modal__icon-large">
+            {alertModal.isError ? '❌' : <img src={loaderSuccessIcon} alt="Success" className="modal-success-icon" />}
           </div>
+          <h2 className="admin-users-modal__heading--margin">
+            {alertModal.isError ? 'Error' : 'Success'}
+          </h2>
+          <p className="admin-users-modal__text--sub">
+            {alertModal.message}
+          </p>
         </div>
-      )}
+        <div className="admin-users-modal__footer admin-users-modal__footer--center">
+          <button 
+            className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
+            onClick={() => setAlertModal({ open: false, message: '', isError: false })}
+          >
+            OK
+          </button>
+        </div>
+      </AdminMorphModal>
 
       {/* Confirm Modal */}
-      {confirmModal.open && (
-        <div className="admin-users-modal-overlay admin-users-modal-overlay--z3000" onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}>
-          <div className="admin-users-modal admin-users-modal--center" onClick={e => e.stopPropagation()}>
-            <div className="admin-users-modal__content admin-users-modal__content--padded">
-              <h2 className="admin-users-modal__heading--margin">Confirm Action</h2>
-              <p className="admin-users-modal__text--sub">
-                {confirmModal.message}
-              </p>
-            </div>
-            <div className="admin-users-modal__footer admin-users-modal__footer--center gap-16">
-              <button 
-                className="admin-users-modal__btn-cancel admin-users-modal__btn--fixed-width" 
-                onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
-              >
-                Cancel
-              </button>
-              <button 
-                className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
-                onClick={() => {
-                  if (confirmModal.onConfirm) confirmModal.onConfirm();
-                  setConfirmModal({ open: false, message: '', onConfirm: null });
-                }}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={confirmModal.open}
+        onClose={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
+        overlayClass="admin-users-modal-overlay--z3000"
+        modalClass="admin-users-modal admin-users-modal--center"
+      >
+        <div className="admin-users-modal__content admin-users-modal__content--padded">
+          <h2 className="admin-users-modal__heading--margin">Confirm Action</h2>
+          <p className="admin-users-modal__text--sub">
+            {confirmModal.message}
+          </p>
         </div>
-      )}
+        <div className="admin-users-modal__footer admin-users-modal__footer--center gap-16">
+          <button 
+            className="admin-users-modal__btn-cancel admin-users-modal__btn--fixed-width" 
+            onClick={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
+          >
+            Cancel
+          </button>
+          <button 
+            className="admin-users-modal__btn-save admin-users-modal__btn--fixed-width" 
+            onClick={() => {
+              if (confirmModal.onConfirm) confirmModal.onConfirm();
+              setConfirmModal({ open: false, message: '', onConfirm: null });
+            }}
+          >
+            Confirm
+          </button>
+        </div>
+      </AdminMorphModal>
     </div>
   )
 }

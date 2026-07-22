@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
 import loaderIcon from '../../../assets/icons/loader.svg'
+import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 import './AdminBanner.scss'
 import './AdminBanner_Responsive.scss'
 
@@ -52,16 +53,16 @@ const AdminBanner = () => {
     return init
   })
   
-  const [aiModal, setAiModal] = useState({ isOpen: false, pageKey: '', lang: '' })
+  const [aiModal, setAiModal] = useState({ isOpen: false, pageKey: '', lang: '', clickPos: null })
   const [aiLoadingKey, setAiLoadingKey] = useState('')
 
-  const openAiModal = (pageKey, lang) => {
-    setAiModal({ isOpen: true, pageKey, lang })
+  const openAiModal = (pageKey, lang, e = null) => {
+    setAiModal({ isOpen: true, pageKey, lang, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
   }
 
   const handleAIGenerate = async () => {
     const { pageKey, lang } = aiModal;
-    setAiModal({ isOpen: false, pageKey: '', lang: '' });
+    setAiModal({ isOpen: false, pageKey: '', lang: '', clickPos: null });
     
     const pageData = pages.find(p => p.pageKey === pageKey);
     const imageUrl = pageData?.translations[lang]?.bannerImageUrl || '';
@@ -317,7 +318,7 @@ const AdminBanner = () => {
                     <button 
                       type="button" 
                       className="admin-banner__button admin-banner__button--purple-square"
-                      onClick={() => openAiModal(page.pageKey, currentLang)}
+                      onClick={(e) => openAiModal(page.pageKey, currentLang, e)}
                       disabled={aiLoadingKey === page.pageKey}
                     >
                       <svg viewBox="48 0 104 50" xmlns="http://www.w3.org/2000/svg" width="28" height="14" style={{ transform: 'scale(10)' }}>
@@ -387,28 +388,30 @@ const AdminBanner = () => {
         </div>
       </section>
 
-      {aiModal.isOpen && (
-        <div className="admin-banner__modal-overlay">
-          <div className="admin-banner__modal">
-            <h3>Generate with AI</h3>
-            <p>Are you sure you want to write "Text below image" for <strong>{pageLabels[aiModal.pageKey]}</strong> with AI?</p>
-            <div className="admin-banner__modal-actions">
-              <button 
-                className="admin-banner__button"
-                onClick={() => setAiModal({ isOpen: false, pageKey: '', lang: '' })}
-              >
-                Cancel
-              </button>
-              <button 
-                className="admin-banner__button admin-banner__button--primary"
-                onClick={handleAIGenerate}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
+      <AdminMorphModal
+        isOpen={aiModal.isOpen}
+        onClose={() => setAiModal({ isOpen: false, pageKey: '', lang: '', clickPos: null })}
+        clickPos={aiModal.clickPos}
+        overlayClass="admin-banner__modal-overlay"
+        modalClass="admin-banner__modal"
+      >
+        <h3>Generate with AI</h3>
+        <p>Are you sure you want to write "Text below image" for <strong>{pageLabels[aiModal.pageKey]}</strong> with AI?</p>
+        <div className="admin-banner__modal-actions">
+          <button 
+            className="admin-banner__button"
+            onClick={() => setAiModal({ isOpen: false, pageKey: '', lang: '', clickPos: null })}
+          >
+            Cancel
+          </button>
+          <button 
+            className="admin-banner__button admin-banner__button--primary"
+            onClick={handleAIGenerate}
+          >
+            Confirm
+          </button>
         </div>
-      )}
+      </AdminMorphModal>
     </div>
   )
 }
