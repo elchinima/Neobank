@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminCashbacks.scss'
 import './AdminCashbacks_Responsive.scss'
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -527,8 +529,9 @@ const AdminCashbacks = () => {
 
             {message && (
               <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                {message.text}
-              </div>
+                  {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{width: 32, height: 32, marginRight: 8}} />}
+                  {message.text}
+                </div>
             )}
             
             <div className="admin-cb-modal__content admin-cb-modal__content--scrollable">
@@ -669,8 +672,9 @@ const AdminCashbacks = () => {
 
             {message && (
               <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                {message.text}
-              </div>
+                  {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{width: 32, height: 32, marginRight: 8}} />}
+                  {message.text}
+                </div>
             )}
             
             <div className="admin-cb-modal__content">

@@ -11,6 +11,8 @@ import NavUserProfile from '../../NavUserProfile/NavUserProfile'
 import { loansLang } from './lang.js'
 import './Loans.scss'
 import './Loans_Responsive.scss'
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -339,7 +341,7 @@ function Loans() {
 
             {modalState.step === 'success' && (
               <div className="loans-page__modal-content loans-page__modal-content--center">
-                <div className="loans-page__success-icon">✓</div>
+                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
                 <h3 data-lang-key="successTitle">{t(loansLang, 'successTitle')}</h3>
                 <p data-lang-key="successDesc">{t(loansLang, 'successDesc')}</p>
                 <button

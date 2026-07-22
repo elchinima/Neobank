@@ -3,6 +3,8 @@ import Cookies from 'js-cookie'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminLoans.scss'
 import './AdminLoans_Responsive.scss'
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 const adminFetch = async (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -358,7 +360,12 @@ const AdminLoans = () => {
                 onClick={handleReject}
                 disabled={actionLoading || !rejectReason.trim()}
               >
-                {actionLoading ? 'Processing...' : 'Confirm Reject'}
+                {actionLoading ? (
+                  <>
+                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                    Processing...
+                  </>
+                ) : 'Confirm Reject'}
               </button>
             </div>
           </div>
@@ -385,7 +392,12 @@ const AdminLoans = () => {
                 onClick={handleApproveConfirm}
                 disabled={actionLoading}
               >
-                {actionLoading ? 'Processing...' : 'Confirm Approve'}
+                {actionLoading ? (
+                  <>
+                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                    Processing...
+                  </>
+                ) : 'Confirm Approve'}
               </button>
             </div>
           </div>
@@ -397,16 +409,9 @@ const AdminLoans = () => {
           <div className="admin-loans__modal admin-loans__modal--centered">
             <div className="admin-notification__icon-wrap">
               {notification.type === 'success' ? (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-notification__svg">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
+                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
               ) : (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-notification__svg">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
+                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
               )}
             </div>
             <h3 className="admin-notification__title">{notification.type === 'success' ? 'Success' : 'Error'}</h3>

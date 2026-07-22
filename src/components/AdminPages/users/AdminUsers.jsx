@@ -4,6 +4,8 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import { useAuth } from '../../../app/context/AuthContext'
 import './AdminUsers.scss'
 import './AdminUsers_Responsive.scss'
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {
