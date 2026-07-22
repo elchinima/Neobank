@@ -12,6 +12,13 @@ export default function MorphModal({
   const [closingModal, setClosingModal] = useState(false)
   const [shouldRender, setShouldRender] = useState(isOpen)
   const [currentPos, setCurrentPos] = useState(clickPos)
+  const [cachedChildren, setCachedChildren] = useState(children)
+
+  useEffect(() => {
+    if (isOpen && children) {
+      setCachedChildren(children)
+    }
+  }, [isOpen, children])
 
   useEffect(() => {
     if (isOpen && clickPos) {
@@ -58,7 +65,7 @@ export default function MorphModal({
           '--start-y': `${safeClickPos.y - window.innerHeight / 2}px`
         }}
       >
-        {children}
+        {cachedChildren}
       </div>
     </div>
   )
