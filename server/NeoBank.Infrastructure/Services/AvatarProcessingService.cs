@@ -59,7 +59,6 @@ public class AvatarProcessingService : IAvatarProcessingService
             Mode = ResizeMode.Crop
         }));
 
-
         using var webpStream = new MemoryStream();
         var encoder = new WebpEncoder
         {

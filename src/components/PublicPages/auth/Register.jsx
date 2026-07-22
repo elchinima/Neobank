@@ -1,6 +1,7 @@
 import { useRegister } from './Register.js'
 import { Link } from 'react-router-dom'
 import logoMark from '../../../assets/logo/main_logo.png'
+import loaderIcon from '../../../assets/icons/loader.svg'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
@@ -223,7 +224,14 @@ function Register() {
                   className="auth-page__button auth-page__button--primary auth-page__button--full"
                   data-lang-key="registerSubmit"
                 >
-                  {isSubmitting ? '...' : t(authLang, 'registerSubmit')}
+                  {isSubmitting ? (
+                    <>
+                      <img src={loaderIcon} alt="Loading..." className="auth-page__btn-loader" />
+                      {t(authLang, 'registerSubmit')}
+                    </>
+                  ) : (
+                    t(authLang, 'registerSubmit')
+                  )}
                 </button>
               </form>
 

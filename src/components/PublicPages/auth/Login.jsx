@@ -1,6 +1,7 @@
 import { useLogin } from './Login.js'
 import { Link } from 'react-router-dom'
 import logoMark from '../../../assets/logo/main_logo.png'
+import loaderIcon from '../../../assets/icons/loader.svg'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import NavUserProfile from '../../NavUserProfile/NavUserProfile'
@@ -178,7 +179,14 @@ function Login() {
                     className="auth-page__button auth-page__button--primary auth-page__button--full"
                     data-lang-key="loginSubmit"
                   >
-                    {isSubmitting ? '...' : t(authLang, 'loginSubmit')}
+                    {isSubmitting ? (
+                      <>
+                        <img src={loaderIcon} alt="Loading..." className="auth-page__btn-loader" />
+                        {t(authLang, 'loginSubmit')}
+                      </>
+                    ) : (
+                      t(authLang, 'loginSubmit')
+                    )}
                   </button>
                   <button
                     type="button"
