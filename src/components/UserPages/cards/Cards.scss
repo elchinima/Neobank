@@ -978,6 +978,18 @@
           flex-direction: column;
           align-items: flex-start;
           gap: 2px;
+
+          .btn-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFFFFF;
+          }
+
+          .btn-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+          }
         }
 
         &:last-child {
