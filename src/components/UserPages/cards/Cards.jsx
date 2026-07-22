@@ -2020,6 +2020,50 @@ const Cards = () => {
         </div>
       </AnimatedModal>
 
+      {selectedSettingsCard && !showAccountDetailsModal && !showPinModal && !showStatementsChoiceModal && !showArayislarModal && !showReferencesModal && (
+        <div className="card-modal-overlay" onClick={() => setSelectedSettingsCard(null)}>
+          <div className="card-modal" onClick={e => e.stopPropagation()}>
+            <div className="card-modal__header">
+              <h2>{t(userCardsLang, 'settings')}</h2>
+              <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
+            </div>
+            <div className="card-modal__content">
+              <div className="settings-section">
+                <button className="settings-action-btn" onClick={() => handleToggleBlock(selectedSettingsCard.id)}>
+                  <img src={blockIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">
+                      {selectedSettingsCard.status === 'Active' ? t(userCardsLang, 'blockPlasticCard') : t(userCardsLang, 'unblockPlasticCard')}
+                    </span>
+                  </div>
+                </button>
+
+                <button className="settings-action-btn" onClick={() => setShowPinModal(true)}>
+                  <img src={pinIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'changePin')}</span>
+                  </div>
+                </button>
+
+                <button className="settings-action-btn" onClick={() => setShowAccountDetailsModal(true)}>
+                  <img src={accountIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'cardDetails')}</span>
+                  </div>
+                </button>
+
+                <button className="settings-action-btn" onClick={() => setShowStatementsChoiceModal(true)}>
+                  <img src={statementsIcon} className="btn-svg-icon" alt="" />
+                  <div className="btn-text">
+                    <span className="btn-title">{t(userCardsLang, 'statementsChoiceTitle')}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAccountDetailsModal && selectedSettingsCard && (
         <div className="card-modal-overlay" onClick={() => setShowAccountDetailsModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
