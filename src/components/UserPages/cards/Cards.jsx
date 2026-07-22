@@ -4,6 +4,8 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import './Cards.scss'
 import './Cards_Responsive.scss'
+import loaderIcon from '../../../assets/icons/loader.svg'
+import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 const stripePromise = loadStripe(stripePublicKey);
@@ -43,7 +45,14 @@ const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) =>
       <PaymentElement />
       <div className="cards-page__stripe-actions">
         <button type="submit" disabled={!stripe || processing} className="cards-page__button cards-page__button--primary cards-page__stripe-btn">
-          {processing ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payNow')}
+          {processing ? (
+            <>
+              <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+              {t(userCardsLang, 'submitting')}
+            </>
+          ) : (
+            t(userCardsLang, 'payNow')
+          )}
         </button>
         <button type="button" onClick={onCancel} className="cards-page__button cards-page__stripe-btn cards-page__stripe-btn--cancel">
           ✕
@@ -1215,7 +1224,7 @@ const Cards = () => {
                         }}
                         disabled={payingLoanId === loan.id}
                       >
-                        {payingLoanId === loan.id ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                        {payingLoanId === loan.id ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'payLoanBtn')}
                       </button>
                     </div>
                   )}
@@ -1297,7 +1306,7 @@ const Cards = () => {
                           }}
                           disabled={withdrawingDepositId === deposit.id}
                         >
-                          {withdrawingDepositId === deposit.id ? t(userCardsLang, 'submitting') : (isExpired ? t(userCardsLang, 'withdraw') : t(userCardsLang, 'withdrawEarly'))}
+                          {withdrawingDepositId === deposit.id ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : (isExpired ? t(userCardsLang, 'withdraw') : t(userCardsLang, 'withdrawEarly'))}
                         </button>
                       );
                     })()}
@@ -1497,7 +1506,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {payLoanStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <div className="success-icon success-icon--green">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
               ) : (
@@ -1519,7 +1528,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
                     disabled={payLoanStatus === 'loading'}
                   >
-                    {payLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payLoanBtn')}
+                    {payLoanStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'payLoanBtn')}
                   </button>
                 </form>
               )}
@@ -1538,7 +1547,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {withdrawDepositStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <div className="success-icon success-icon--green">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
                 </div>
               ) : (
@@ -1565,7 +1574,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt"
                     disabled={withdrawDepositStatus === 'loading'}
                   >
-                    {withdrawDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'withdrawDepositBtn')}
+                    {withdrawDepositStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'withdrawDepositBtn')}
                   </button>
                 </form>
               )}
@@ -1606,7 +1615,7 @@ const Cards = () => {
                   </select>
                 </div>
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newLoanStatus === 'loading'}>
-                  {newLoanStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                  {newLoanStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'submitApplication')}
                 </button>
               </form>
             </div>
@@ -1646,7 +1655,7 @@ const Cards = () => {
                   </select>
                 </div>
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newDepositStatus === 'loading'}>
-                  {newDepositStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitApplication')}
+                  {newDepositStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'submitApplication')}
                 </button>
               </form>
             </div>
@@ -1728,7 +1737,7 @@ const Cards = () => {
                   className="cards-page__button cards-page__button--primary submit-order-btn"
                   disabled={submittingCard}
                 >
-                  {submittingCard ? t(userCardsLang, 'submitting') : t(userCardsLang, 'submitCard')}
+                  {submittingCard ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'submitCard')}
                 </button>
               </form>
             </div>
@@ -1886,7 +1895,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {ibanTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -1921,7 +1930,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary modal-btn--mt"
                     disabled={ibanTransferStatus === 'loading' || !ibanTransferForm.destIban || !ibanTransferForm.amount}
                   >
-                    {ibanTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                    {ibanTransferStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'transferBtn')}
                   </button>
                 </form>
               )}
@@ -1940,7 +1949,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {internalTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -1989,7 +1998,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary"
                     disabled={internalTransferStatus === 'loading' || !internalTransferForm.sourceCardId || !internalTransferForm.destCardId || !internalTransferForm.amount}
                   >
-                    {internalTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                    {internalTransferStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'transferBtn')}
                   </button>
                 </form>
               )}
@@ -2060,7 +2069,7 @@ const Cards = () => {
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
-              <div className="success-icon success-icon--green">✓</div>
+              <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
               <p>{t(userCardsLang, 'pinSuccess')}</p>
               <button
                 className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
@@ -2083,7 +2092,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {neoBankTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--green">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <h3>{t(userCardsLang, 'transferSuccess')}</h3>
                 </div>
               ) : (
@@ -2133,7 +2142,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary"
                     disabled={neoBankTransferStatus === 'loading' || !neoBankTransferForm.sourceCardId || !neoBankTransferForm.destCardNumber || !neoBankTransferForm.amount}
                   >
-                    {neoBankTransferStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'transferBtn')}
+                    {neoBankTransferStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'transferBtn')}
                   </button>
                 </form>
               )}
@@ -2231,7 +2240,7 @@ const Cards = () => {
                   />
                 </div>
                 <button type="submit" className="cards-page__button cards-page__button--primary" disabled={pinStatus === 'loading'}>
-                  {pinStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'changePinTitle')}
+                  {pinStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'changePinTitle')}
                 </button>
               </form>
             </div>
@@ -2282,7 +2291,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {arayislarStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
                 </div>
               ) : (
@@ -2343,7 +2352,7 @@ const Cards = () => {
                     className="cards-page__button cards-page__button--primary"
                     disabled={arayislarStatus === 'loading' || !arayislarForm.paymentCardId}
                   >
-                    {arayislarStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'orderCertificateBtn')}
+                    {arayislarStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'orderCertificateBtn')}
                   </button>
                 </form>
               )}
@@ -2362,7 +2371,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {referencesStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">✓</div>
+                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
                   <p>{t(userCardsLang, 'statementSentSuccess')}</p>
                 </div>
               ) : (
@@ -2413,7 +2422,7 @@ const Cards = () => {
                     disabled={referencesStatus === 'loading'}
                     style={{ marginTop: '16px' }}
                   >
-                    {referencesStatus === 'loading' ? t(userCardsLang, 'submitting') : t(userCardsLang, 'sendToEmailBtn')}
+                    {referencesStatus === 'loading' ? <><img src={loaderIcon} alt="Loading..." className="btn-loader" />{t(userCardsLang, 'submitting')}</> : t(userCardsLang, 'sendToEmailBtn')}
                   </button>
                 </form>
               )}

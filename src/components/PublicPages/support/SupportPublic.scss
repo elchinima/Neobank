@@ -17,6 +17,63 @@ html.support-no-scroll {
   }
 }
 
+@keyframes morphModal {
+  0% {
+    transform: translate(var(--start-x, 0px), var(--start-y, 60px)) scale(0.05);
+    opacity: 0;
+    border-radius: 120px;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    border-radius: 12px;
+  }
+}
+
+@keyframes morphContentFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes morphModalOut {
+  0% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 12px;
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--start-x, 0px), var(--start-y, 60px)) scale(0.05);
+    opacity: 0;
+    border-radius: 120px;
+  }
+}
+
+@keyframes morphContentFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes supportFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @keyframes supportFadeUp {
   from {
     opacity: 0;
@@ -792,7 +849,11 @@ html.support-no-scroll {
     background: rgba(12, 9, 18, 0.8);
     backdrop-filter: blur(8px);
     padding: 20px;
-    animation: supportFadeIn 0.3s ease-out;
+    animation: supportFadeIn 0.3s ease-out forwards;
+
+    &.closing {
+      animation: supportFadeOut 0.4s ease-in forwards;
+    }
   }
 
   .support-modal {
@@ -808,7 +869,26 @@ html.support-no-scroll {
     box-shadow:
       0 24px 60px rgba(0, 0, 0, 0.4),
       0 0 40px rgba(160, 32, 240, 0.15);
-    animation: supportScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: morphModal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    > * {
+      opacity: 0;
+      animation: morphContentFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    & > *:nth-child(1) { animation-delay: 0.1s; }
+    & > *:nth-child(2) { animation-delay: 0.15s; }
+    & > *:nth-child(3) { animation-delay: 0.2s; }
+    & > *:nth-child(4) { animation-delay: 0.25s; }
+    & > *:nth-child(5) { animation-delay: 0.3s; }
+
+    &.closing {
+      animation: morphModalOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      > * {
+        animation: morphContentFadeOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: 0s !important;
+      }
+    }
 
     @media (max-width: 500px) {
       padding: 24px 20px;

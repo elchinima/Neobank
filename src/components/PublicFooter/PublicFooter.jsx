@@ -170,6 +170,8 @@ function PublicFooter() {
   }
 
   const [isDocumentsOpen, setIsDocumentsOpen] = useState(false)
+  const [closingModal, setClosingModal] = useState(null)
+  const [clickPos, setClickPos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
   const [email, setEmail] = useState('')
   const [modalType, setModalType] = useState(null) // 'verify', 'unsubscribe', null
   const [code, setCode] = useState(['', '', '', ''])
@@ -185,6 +187,29 @@ function PublicFooter() {
       return () => clearTimeout(timer)
     }
   }, [message.text])
+
+  const handleCloseModal = (type, e) => {
+    if (e && e.clientX !== undefined && e.clientY !== undefined) {
+      setClickPos({ x: e.clientX, y: e.clientY })
+    }
+    setClosingModal(type)
+    setTimeout(() => {
+      if (type === 'info') setIsInfoOpen(false)
+      if (type === 'documents') setIsDocumentsOpen(false)
+      setClosingModal(null)
+    }, 400)
+  }
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        if (isInfoOpen) handleCloseModal('info')
+        if (isDocumentsOpen) handleCloseModal('documents')
+      }
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [isInfoOpen, isDocumentsOpen])
 
   const API_BASE_URL = import.meta.env.VITE_API_URL ||
     (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -435,7 +460,10 @@ function PublicFooter() {
             </div>
             <button 
               className="public-footer__lang-selector" 
-              onClick={() => setIsDocumentsOpen(true)}
+              onClick={(e) => {
+                setClickPos({ x: e.clientX, y: e.clientY })
+                setIsDocumentsOpen(true)
+              }}
               style={{ cursor: 'pointer' }}
             >
               <svg className="public-footer__lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -473,7 +501,10 @@ function PublicFooter() {
               </span>
             </a>
           ))}
-          <button className="public-footer__info" type="button" aria-label="More information" onClick={() => setIsInfoOpen(true)}>
+          <button className="public-footer__info" type="button" aria-label="More information" onClick={(e) => {
+            setClickPos({ x: e.clientX, y: e.clientY })
+            setIsInfoOpen(true)
+          }}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3.8a8.2 8.2 0 1 0 0 16.4 8.2 8.2 0 0 0 0-16.4Z" />
               <path d="M12 11v5" />
@@ -497,16 +528,20 @@ function PublicFooter() {
         </svg>
       </button>
 
-      {isInfoOpen && (
-        <div className="public-footer__modal-backdrop" role="presentation" onMouseDown={() => setIsInfoOpen(false)}>
+      {(isInfoOpen || closingModal === 'info') && (
+        <div className={`public-footer__modal-backdrop ${closingModal === 'info' ? 'closing' : ''}`} role="presentation" onMouseDown={(e) => handleCloseModal('info', e)}>
           <section
-            className="public-footer__modal"
+            className={`public-footer__modal ${closingModal === 'info' ? 'closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="app-info-title"
             onMouseDown={(event) => event.stopPropagation()}
+            style={{
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
           >
-            <button className="public-footer__modal-close" type="button" aria-label="Close app information" onClick={() => setIsInfoOpen(false)}>
+            <button className="public-footer__modal-close" type="button" aria-label="Close app information" onClick={(e) => handleCloseModal('info', e)}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="m6 6 12 12" />
                 <path d="M18 6 6 18" />
@@ -565,17 +600,23 @@ function PublicFooter() {
 
       )}
 
-      {isDocumentsOpen && (
-        <div className="public-footer__modal-backdrop" role="presentation" onMouseDown={() => setIsDocumentsOpen(false)}>
+      {(isDocumentsOpen || closingModal === 'documents') && (
+        <div className={`public-footer__modal-backdrop ${closingModal === 'documents' ? 'closing' : ''}`} role="presentation" onMouseDown={(e) => handleCloseModal('documents', e)}>
           <section
-            className="public-footer__modal"
+            className={`public-footer__modal ${closingModal === 'documents' ? 'closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="documents-modal-title"
             onMouseDown={(event) => event.stopPropagation()}
-            style={{ maxWidth: '700px', width: '90%', display: 'block' }}
+            style={{ 
+              maxWidth: '700px', 
+              width: '90%', 
+              display: 'block',
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
           >
-            <button className="public-footer__modal-close" type="button" aria-label="Close documents" onClick={() => setIsDocumentsOpen(false)}>
+            <button className="public-footer__modal-close" type="button" aria-label="Close documents" onClick={(e) => handleCloseModal('documents', e)}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="m6 6 12 12" />
                 <path d="M18 6 6 18" />

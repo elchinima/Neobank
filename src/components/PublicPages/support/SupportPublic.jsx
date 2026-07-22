@@ -17,6 +17,8 @@ function SupportPublic() {
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const [authErrorModal, setAuthErrorModal] = useState(false)
+  const [closingModal, setClosingModal] = useState(null)
+  const [clickPos, setClickPos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 })
   const { setting } = usePublicPageSetting('support')
   const bannerImage = setting?.bannerImageUrl ?? supportBanner
   const hasBanner = bannerImage !== ''
@@ -44,20 +46,46 @@ function SupportPublic() {
     handleOpenChat,
   } = useSupportPublic()
 
+  const handleCloseModal = (type, e) => {
+    if (e && e.clientX !== undefined && e.clientY !== undefined) {
+      setClickPos({ x: e.clientX, y: e.clientY })
+    }
+    setClosingModal(type)
+    setTimeout(() => {
+      if (type === 'auth') setAuthErrorModal(false)
+      if (type === 'ticket') setIsModalOpen(false)
+      setClosingModal(null)
+    }, 400)
+  }
+
   useEffect(() => {
-    if (isModalOpen) {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        if (isModalOpen) handleCloseModal('ticket')
+        if (authErrorModal) handleCloseModal('auth')
+      }
+    }
+    
+    if (isModalOpen || closingModal === 'ticket') {
       document.body.classList.add('support-no-scroll')
       document.documentElement.classList.add('support-no-scroll')
+      window.addEventListener('keydown', handleEsc)
     } else {
       document.body.classList.remove('support-no-scroll')
       document.documentElement.classList.remove('support-no-scroll')
+      window.removeEventListener('keydown', handleEsc)
+    }
+
+    if (authErrorModal || closingModal === 'auth') {
+      window.addEventListener('keydown', handleEsc)
     }
 
     return () => {
       document.body.classList.remove('support-no-scroll')
       document.documentElement.classList.remove('support-no-scroll')
+      window.removeEventListener('keydown', handleEsc)
     }
-  }, [isModalOpen])
+  }, [isModalOpen, closingModal, authErrorModal])
 
   return (
     <div className="support-page">
@@ -110,7 +138,10 @@ function SupportPublic() {
                 </button>
               ) : (
                 <button
-                  onClick={() => isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)}
+                  onClick={(e) => {
+                    setClickPos({ x: e.clientX, y: e.clientY })
+                    isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)
+                  }}
                   className="support-page__button support-page__button--primary"
                   data-lang-key="openTicket"
                 >
@@ -198,7 +229,10 @@ function SupportPublic() {
                 </button>
               ) : (
                 <button
-                  onClick={() => isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)}
+                  onClick={(e) => {
+                    setClickPos({ x: e.clientX, y: e.clientY })
+                    isAuthenticated ? setIsModalOpen(true) : setAuthErrorModal(true)
+                  }}
                   className="support-page__button support-page__button--primary"
                   data-lang-key="submitTicket"
                 >
@@ -210,10 +244,17 @@ function SupportPublic() {
         </section>
       </main>
 
-      {isModalOpen && (
-        <div className="support-modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="support-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="support-modal__close" onClick={() => setIsModalOpen(false)}>&times;</button>
+      {(isModalOpen || closingModal === 'ticket') && (
+        <div className={`support-modal-overlay ${closingModal === 'ticket' ? 'closing' : ''}`} onClick={(e) => handleCloseModal('ticket', e)}>
+          <div 
+            className={`support-modal ${closingModal === 'ticket' ? 'closing' : ''}`} 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
+          >
+            <button className="support-modal__close" onClick={(e) => handleCloseModal('ticket', e)}>&times;</button>
             <h2 data-lang-key="createTicketTitle">{t(supportLang, 'createTicketTitle')}</h2>
             <p className="support-modal__subtitle" data-lang-key="createTicketDesc">{t(supportLang, 'createTicketDesc')}</p>
 
@@ -265,17 +306,21 @@ function SupportPublic() {
 
       <PublicFooter />
 
-      {authErrorModal && (
-        <div className="support-modal-overlay" onClick={() => setAuthErrorModal(false)}>
-          <div className="support-modal support-modal--auth-error" onClick={(e) => e.stopPropagation()}>
-            <button className="support-modal__close" onClick={() => setAuthErrorModal(false)}>&times;</button>
+      {(authErrorModal || closingModal === 'auth') && (
+        <div className={`support-modal-overlay ${closingModal === 'auth' ? 'closing' : ''}`} onClick={(e) => handleCloseModal('auth', e)}>
+          <div 
+            className={`support-modal support-modal--auth-error ${closingModal === 'auth' ? 'closing' : ''}`} 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
+              '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+            }}
+          >
+            <button className="support-modal__close" onClick={(e) => handleCloseModal('auth', e)}>&times;</button>
             <div className="support-modal__auth-icon">🔒</div>
             <h2>{t(supportLang, 'authRequired')}</h2>
             <p className="support-modal__subtitle">{t(supportLang, 'authRequiredDesc')}</p>
             <div className="support-modal__auth-actions">
-              <button className="support-page__button support-page__button--ghost" onClick={() => setAuthErrorModal(false)}>
-                {t(supportLang, 'modalNo') || 'Cancel'}
-              </button>
               <Link to="/login" className="support-page__button support-page__button--primary">
                 {t(supportLang, 'goToLogin')}
               </Link>
