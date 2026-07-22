@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -46,7 +46,7 @@ const StripeCheckoutForm = ({ onPaymentSuccess, onCancel, t, userCardsLang }) =>
           {processing ? t(userCardsLang, 'submitting') : t(userCardsLang, 'payNow')}
         </button>
         <button type="button" onClick={onCancel} className="cards-page__button cards-page__stripe-btn cards-page__stripe-btn--cancel">
-          вњ•
+          ✕
         </button>
       </div>
     </form>
@@ -347,7 +347,7 @@ const Cards = () => {
     } catch (error) {
       console.error('Statement error:', error);
       setReferencesStatus('idle');
-      alert(`XЙ™ta: ${error.message}`);
+      alert(`Xəta: ${error.message}`);
     }
   };
 
@@ -1178,11 +1178,11 @@ const Cards = () => {
                   <div className="virtual-card__grid">
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="loanAmount">{t(userCardsLang, 'loanAmount')}</span>
-                      <span className="virtual-card__value">{Number(loan.amount).toFixed(2)} в‚ј</span>
+                      <span className="virtual-card__value">{Number(loan.amount).toFixed(2)} ₼</span>
                     </div>
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="monthlyPayment">{t(userCardsLang, 'monthlyPayment')}</span>
-                      <span className="virtual-card__value">{Number(loan.monthlyPayment).toFixed(2)} в‚ј</span>
+                      <span className="virtual-card__value">{Number(loan.monthlyPayment).toFixed(2)} ₼</span>
                     </div>
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
@@ -1254,11 +1254,11 @@ const Cards = () => {
                   <div className="virtual-card__grid">
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="amountLabel">{t(userCardsLang, 'amountLabel')}</span>
-                      <span className="virtual-card__value">{Number(deposit.amount).toFixed(2)} в‚ј</span>
+                      <span className="virtual-card__value">{Number(deposit.amount).toFixed(2)} ₼</span>
                     </div>
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="totalIncome">{t(userCardsLang, 'totalIncome')}</span>
-                      <span className="virtual-card__value">{Number(deposit.totalIncome).toFixed(2)} в‚ј</span>
+                      <span className="virtual-card__value">{Number(deposit.totalIncome).toFixed(2)} ₼</span>
                     </div>
                     <div className="virtual-card__item">
                       <span className="virtual-card__label" data-lang-key="interestRate">{t(userCardsLang, 'interestRate')}</span>
@@ -1356,7 +1356,7 @@ const Cards = () => {
 
               {/* OR divider */}
               <div className="cashback-variant-selector__or">
-                <span>{lang === 'az' ? 'vЙ™ ya' : lang === 'ru' ? 'РёР»Рё' : 'or'}</span>
+                <span>{lang === 'az' ? 'və ya' : lang === 'ru' ? 'или' : 'or'}</span>
               </div>
 
               {/* Variant B */}
@@ -1402,7 +1402,7 @@ const Cards = () => {
               <div className="cashback-header-stats">
                 <div className="total-cashback">
                   <span data-lang-key="totalEarned">{t(userCardsLang, 'totalEarned')} </span>
-                  <strong>{Number(cashbackData?.totalEarned || 0).toFixed(2)} в‚ј</strong>
+                  <strong>{Number(cashbackData?.totalEarned || 0).toFixed(2)} ₼</strong>
                 </div>
               </div>
             </div>
@@ -1427,8 +1427,8 @@ const Cards = () => {
                         <p>{text}</p>
                         {showLimits && (
                           <div className="cashback-limits">
-                            <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> {Number(limit).toFixed(2)} в‚ј</span>
-                            <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} в‚ј</span>
+                            <span className="limit"><span data-lang-key="limitAmount">{t(userCardsLang, 'limitAmount')}</span> {Number(limit).toFixed(2)} ₼</span>
+                            <span className="earned"><span data-lang-key="earnedAmount">{t(userCardsLang, 'earnedAmount')}</span> {Number(earned).toFixed(2)} ₼</span>
                           </div>
                         )}
                       </div>
@@ -1459,7 +1459,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section settings-section--mt">
@@ -1492,13 +1492,13 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
-              <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {payLoanStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <div className="success-icon success-icon--green">вњ“</div>
-                  <h3>{t(userCardsLang, 'paymentSuccess') || 'Г–dЙ™niЕџ uДџurla tamamlandД±!'}</h3>
+                  <div className="success-icon success-icon--green">✓</div>
+                  <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
               ) : (
                 <form onSubmit={handlePayLoan} className="modal-form">
@@ -1533,12 +1533,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {withdrawDepositStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <div className="success-icon success-icon--green">вњ“</div>
+                  <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
                 </div>
               ) : (
@@ -1579,7 +1579,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleApplyLoan} className="modal-form">
@@ -1619,7 +1619,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleOpenDeposit} className="modal-form">
@@ -1659,7 +1659,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="orderNewCardModalTitle">{t(userCardsLang, 'orderNewCardModalTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowNewCardModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleAcquireCard} className="modal-form">
@@ -1741,7 +1741,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="settings">{t(userCardsLang, 'settings')}</h2>
-              <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>вњ•</button>
+              <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section">
@@ -1773,7 +1773,7 @@ const Cards = () => {
                 {selectedSettingsCard.creditLimit > 0 && (
                   <div className="detail-row">
                     <span className="label" data-lang-key="creditLineLabel">{t(userCardsLang, 'creditLineLabel')}</span>
-                    <span className="value">{Number(selectedSettingsCard.creditLimit).toFixed(2)} в‚ј</span>
+                    <span className="value">{Number(selectedSettingsCard.creditLimit).toFixed(2)} ₼</span>
                   </div>
                 )}
               </div>
@@ -1828,7 +1828,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
-              <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>вњ•</button>
+              <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section">
@@ -1881,12 +1881,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferByIban')}</h2>
-              <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {ibanTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">вњ“</div>
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -1935,12 +1935,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {internalTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">вњ“</div>
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -1955,7 +1955,7 @@ const Cards = () => {
                     >
                       <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
                       {cards.map(c => (
-                        <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} вЂўвЂўвЂўвЂў {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
+                        <option key={`src-${c.id}`} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>{c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {Number(c.balance).toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${Number(c.creditLimit).toFixed(2)} AZN` : ''})</option>
                       ))}
                     </select>
                   </div>
@@ -1968,7 +1968,7 @@ const Cards = () => {
                     >
                       <option value="" disabled>{t(userCardsLang, 'selectCard')}</option>
                       {cards.map(c => (
-                        <option key={`dst-${c.id}`} value={c.id}>{c.cardType} вЂўвЂўвЂўвЂў {c.cardNumber.slice(-4)}</option>
+                        <option key={`dst-${c.id}`} value={c.id}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
                       ))}
                     </select>
                   </div>
@@ -2003,7 +2003,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
@@ -2016,8 +2016,8 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'DiqqЙ™t'}</h2>
-              <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>вњ•</button>
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'cardNeedsPinAlert')}</p>
@@ -2036,8 +2036,8 @@ const Cards = () => {
         <div className="card-modal-overlay" onClick={() => setCreditLimitError(null)}>
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
-              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'DiqqЙ™t'}</h2>
-              <button className="close-btn" onClick={() => setCreditLimitError(null)}>вњ•</button>
+              <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
+              <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{creditLimitError}</p>
@@ -2057,10 +2057,10 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 className="modal-header--success">{t(userCardsLang, 'success') || 'Success'}</h2>
-              <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
-              <div className="success-icon success-icon--green">вњ“</div>
+              <div className="success-icon success-icon--green">✓</div>
               <p>{t(userCardsLang, 'pinSuccess')}</p>
               <button
                 className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
@@ -2078,12 +2078,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {neoBankTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--green">вњ“</div>
+                  <div className="success-icon success-icon--green">✓</div>
                   <h3>{t(userCardsLang, 'transferSuccess')}</h3>
                 </div>
               ) : (
@@ -2101,7 +2101,7 @@ const Cards = () => {
                       <option value="">{t(userCardsLang, 'selectCard')}</option>
                       {cards.filter(c => c.status === 'Active').map(c => (
                         <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
-                          {c.cardType} вЂўвЂўвЂўвЂў {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN {c.creditLimit > 0 ? `| ${t(userCardsLang, 'creditLineLabel')}: ${c.creditLimit.toFixed(2)} AZN` : ''})
                         </option>
                       ))}
                     </select>
@@ -2147,7 +2147,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
             </div>
             <div className="card-modal__content card-modal__content--account-details">
               <div className="detail-item">
@@ -2190,7 +2190,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'changePinTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowPinModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <form onSubmit={handleChangePinSubmit} className="modal-form">
@@ -2244,7 +2244,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               <div className="settings-section">
@@ -2277,12 +2277,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowArayislarModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {arayislarStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">вњ“</div>
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
                 </div>
               ) : (
@@ -2310,8 +2310,8 @@ const Cards = () => {
                       required
                     >
                       <option value="en" style={{ color: '#111' }}>English</option>
-                      <option value="ru" style={{ color: '#111' }}>Р СѓСЃСЃРєРёР№</option>
-                      <option value="az" style={{ color: '#111' }}>AzЙ™rbaycan</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
                     </select>
                   </div>
 
@@ -2325,7 +2325,7 @@ const Cards = () => {
                       <option value="" disabled style={{ color: '#111' }}>{t(userCardsLang, 'selectCard')}</option>
                       {cards.filter(c => c.status === 'Active').map(c => (
                         <option key={c.id} value={c.id} style={{ color: getBalanceColor(c.balance, true) }}>
-                          {c.cardType} вЂўвЂўвЂўвЂў {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
+                          {c.cardType} •••• {c.cardNumber.slice(-4)} ({t(userCardsLang, 'availableBalance')}: {c.balance.toFixed(2)} AZN)
                         </option>
                       ))}
                     </select>
@@ -2357,12 +2357,12 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
-              <button className="close-btn" onClick={() => setShowReferencesModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
             </div>
             <div className="card-modal__content">
               {referencesStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <div className="success-icon success-icon--blue">вњ“</div>
+                  <div className="success-icon success-icon--blue">✓</div>
                   <p>{t(userCardsLang, 'statementSentSuccess')}</p>
                 </div>
               ) : (
@@ -2376,7 +2376,7 @@ const Cards = () => {
                     >
                       <option value="all" style={{ color: '#111' }}>{t(userCardsLang, 'selectAllCards')}</option>
                       {cards.map(c => (
-                        <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} вЂўвЂўвЂўвЂў {c.cardNumber.slice(-4)}</option>
+                        <option key={c.id} value={c.id} style={{ color: '#111' }}>{c.cardType} •••• {c.cardNumber.slice(-4)}</option>
                       ))}
                     </select>
                   </div>
@@ -2402,8 +2402,8 @@ const Cards = () => {
                       required
                     >
                       <option value="en" style={{ color: '#111' }}>English</option>
-                      <option value="ru" style={{ color: '#111' }}>Р СѓСЃСЃРєРёР№</option>
-                      <option value="az" style={{ color: '#111' }}>AzЙ™rbaycan</option>
+                      <option value="ru" style={{ color: '#111' }}>Русский</option>
+                      <option value="az" style={{ color: '#111' }}>Azərbaycan</option>
                     </select>
                   </div>
 
@@ -2427,7 +2427,7 @@ const Cards = () => {
           <div className="card-modal" onClick={e => e.stopPropagation()}>
             <div className="card-modal__header">
               <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
-              <button className="close-btn" onClick={() => setShowQrModal(false)}>вњ•</button>
+              <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
             </div>
             <div className="card-modal__content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden', minHeight: '300px', position: 'relative', padding: 0 }}>
               <video 
