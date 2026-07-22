@@ -2428,6 +2428,6 @@ const Cards = () => {
   )
 }
 
+// sonra silecem bunu
+
 export default Cards
-
-
