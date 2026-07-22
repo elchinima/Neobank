@@ -1,5 +1,6 @@
 export const userCardsLang = {
   en: {
+    success: 'Success',
     title: 'My Cards & Accounts',
     subtitle: 'Manage card limits, status, and request new cards.',
     orderCard: 'Order new card',
@@ -86,6 +87,7 @@ export const userCardsLang = {
     confirmNewPin: 'Confirm New PIN',
     pinNotMatch: 'PINs do not match.',
     incorrectOldPin: 'Incorrect old PIN.',
+    pinSameAsOld: 'New PIN cannot be the same as the old PIN.',
     cardNeedsPinAlert: 'Please set a PIN for this card before using it.',
     pinSuccess: 'PIN successfully updated.',
     limitsTitle: 'Limits',
@@ -190,6 +192,7 @@ export const userCardsLang = {
     changeVariantBtn: 'Change plan'
   },
   az: {
+    success: 'Uğurlu',
     title: 'Kartlarım və Hesablarım',
     subtitle: 'Kart limitlərini, statusunu idarə edin və yeni kartlar sifariş edin.',
     orderCard: 'Yeni kart sifariş et',
@@ -276,6 +279,7 @@ export const userCardsLang = {
     confirmNewPin: 'Yeni PİN-i təsdiqləyin',
     pinNotMatch: 'PİN kodlar uyğun gəlmir.',
     incorrectOldPin: 'Köhnə PİN yanlışdır.',
+    pinSameAsOld: 'Yeni PİN köhnə PİN ilə eyni ola bilməz.',
     cardNeedsPinAlert: 'Lütfən istifadə etməzdən əvvəl bu kart üçün PİN təyin edin.',
     pinSuccess: 'PİN uğurla yeniləndi.',
     limitsTitle: 'Limitlər',
@@ -380,6 +384,7 @@ export const userCardsLang = {
     changeVariantBtn: 'Planı dəyişdir'
   },
   ru: {
+    success: 'Успешно',
     title: 'Мои карты и счета',
     subtitle: 'Управление лимитами, статусом и заказ новых карт.',
     orderCard: 'Заказать новую карту',
@@ -466,6 +471,7 @@ export const userCardsLang = {
     confirmNewPin: 'Подтвердите новый PIN',
     pinNotMatch: 'PIN-коды не совпадают.',
     incorrectOldPin: 'Неверный старый PIN.',
+    pinSameAsOld: 'Новый PIN-код не может совпадать со старым.',
     cardNeedsPinAlert: 'Пожалуйста, установите PIN для этой карты перед ее использованием.',
     pinSuccess: 'PIN успешно обновлен.',
     limitsTitle: 'Лимиты',

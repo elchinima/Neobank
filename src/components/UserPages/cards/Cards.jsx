@@ -808,6 +808,11 @@ const Cards = () => {
       return
     }
 
+    if (selectedSettingsCard?.hasPin && pinForm.oldPin === pinForm.newPin) {
+      setPinError(t(userCardsLang, 'pinSameAsOld'))
+      return
+    }
+
     setPinStatus('loading')
     setPinError('')
 

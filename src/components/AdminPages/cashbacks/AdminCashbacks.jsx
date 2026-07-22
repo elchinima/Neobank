@@ -24,7 +24,7 @@ const AdminCashbacks = () => {
   const [confirmDeleteMccOpen, setConfirmDeleteMccOpen] = useState(false)
   const [mccToDelete, setMccToDelete] = useState(null)
   const [selectedCashback, setSelectedCashback] = useState(null)
-  
+
   const [formData, setFormData] = useState({
     titleEn: '', titleRu: '', titleAz: '',
     textEn: '', textRu: '', textAz: '',
@@ -33,12 +33,12 @@ const AdminCashbacks = () => {
     variant: 'A',
     mccCodes: []
   })
-  
+
   const [mccForm, setMccForm] = useState({ code: '', description: '' })
   const [editingMccId, setEditingMccId] = useState(null)
   const [mccListSearchQuery, setMccListSearchQuery] = useState('')
   const [appliedMccSearch, setAppliedMccSearch] = useState('')
-  
+
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
 
@@ -46,7 +46,7 @@ const AdminCashbacks = () => {
   const [dropdownUp, setDropdownUp] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
-  
+
   const [mccSearchQuery, setMccSearchQuery] = useState('')
   const [mccDropdownOpen, setMccDropdownOpen] = useState(false)
   const [showAllMccs, setShowAllMccs] = useState(false)
@@ -84,7 +84,7 @@ const AdminCashbacks = () => {
       if (!res.ok) {
         const text = await res.text()
         if (text.includes('<!DOCTYPE') || text.includes('<!doctype')) {
-           throw new Error('API Endpoint not available yet. Please restart the backend server.')
+          throw new Error('API Endpoint not available yet. Please restart the backend server.')
         }
         throw new Error('Failed to load cashbacks')
       }
@@ -156,7 +156,7 @@ const AdminCashbacks = () => {
     if (!mccForm.code.trim()) return showMessage('MCC Code is required', 'error')
     if (!/^\d{3,4}$/.test(mccForm.code.trim())) return showMessage('MCC Code must be a 3 or 4 digit number', 'error')
     if (mccForm.description.length > 100) return showMessage('Description is too long', 'error')
-    
+
     if (editingMccId) {
       const originalMcc = allMccs.find(m => m.id === editingMccId)
       if (originalMcc && originalMcc.code === mccForm.code.trim() && (originalMcc.description || '') === mccForm.description.trim()) {
@@ -168,10 +168,10 @@ const AdminCashbacks = () => {
     setSaving(true)
     try {
       const isEditing = !!editingMccId
-      const url = isEditing 
-        ? `${API_BASE_URL}/admin/mccs/${editingMccId}` 
+      const url = isEditing
+        ? `${API_BASE_URL}/admin/mccs/${editingMccId}`
         : `${API_BASE_URL}/admin/mccs`
-      
+
       const res = await adminFetch(url, {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,7 +181,7 @@ const AdminCashbacks = () => {
         const text = await res.text()
         throw new Error(text || 'Failed to save MCC')
       }
-      
+
       showMessage(isEditing ? 'MCC updated successfully!' : 'MCC created successfully!', 'success')
       setEditingMccId(null)
       setMccForm({ code: '', description: '' })
@@ -262,12 +262,12 @@ const AdminCashbacks = () => {
     if (formData.mccCodes.includes('All')) return false
     if (formData.mccCodes.includes(mcc.code)) return false
     return mcc.code?.toLowerCase().includes(mccSearchQuery.toLowerCase()) ||
-           mcc.description?.toLowerCase().includes(mccSearchQuery.toLowerCase())
+      mcc.description?.toLowerCase().includes(mccSearchQuery.toLowerCase())
   })
 
   const handleRateChange = (e) => {
     let val = e.target.value;
-    
+
     if (val === '') {
       setFormData({ ...formData, rate: '' });
       return;
@@ -281,7 +281,7 @@ const AdminCashbacks = () => {
         val = parts[0] + '.' + parts[1].slice(0, 1);
       }
     }
-    
+
     setFormData({ ...formData, rate: val });
   }
 
@@ -296,7 +296,7 @@ const AdminCashbacks = () => {
 
   const handleLimitChange = (e) => {
     let val = e.target.value;
-    
+
     if (val === '') {
       setFormData({ ...formData, limit: '' });
       return;
@@ -310,7 +310,7 @@ const AdminCashbacks = () => {
         val = parts[0] + '.' + parts[1].slice(0, 2);
       }
     }
-    
+
     setFormData({ ...formData, limit: val });
   }
 
@@ -322,6 +322,26 @@ const AdminCashbacks = () => {
       setFormData({ ...formData, limit: parsed.toFixed(2) });
     }
   }
+
+  const isFormChanged = () => {
+    if (!selectedCashback) return true;
+
+    const initialMccCodes = [...(selectedCashback.mccCodes || [])].sort((a, b) => b.localeCompare(a)).join(',');
+    const currentMccCodes = [...formData.mccCodes].sort((a, b) => b.localeCompare(a)).join(',');
+
+    return (
+      formData.titleEn !== (selectedCashback.titleEn || '') ||
+      formData.titleRu !== (selectedCashback.titleRu || '') ||
+      formData.titleAz !== (selectedCashback.titleAz || '') ||
+      formData.textEn !== (selectedCashback.textEn || '') ||
+      formData.textRu !== (selectedCashback.textRu || '') ||
+      formData.textAz !== (selectedCashback.textAz || '') ||
+      Number(formData.rate) !== Number(selectedCashback.rate || 0) ||
+      Number(formData.limit) !== Number(selectedCashback.limit !== undefined ? selectedCashback.limit : 1) ||
+      formData.variant !== (selectedCashback.variant || 'A') ||
+      initialMccCodes !== currentMccCodes
+    );
+  };
 
   const handleSave = async () => {
     setSaving(true)
@@ -336,7 +356,7 @@ const AdminCashbacks = () => {
       }
 
       const method = selectedCashback ? 'PUT' : 'POST'
-      const url = selectedCashback 
+      const url = selectedCashback
         ? `${API_BASE_URL}/admin/cashbacks/${selectedCashback.id}`
         : `${API_BASE_URL}/admin/cashbacks`
 
@@ -371,7 +391,7 @@ const AdminCashbacks = () => {
         method: 'DELETE'
       })
       if (!res.ok) throw new Error('Failed to delete cashback')
-      
+
       showMessage('Cashback deleted successfully!', 'success')
       setConfirmDeleteOpen(false)
       loadCashbacks()
@@ -422,9 +442,9 @@ const AdminCashbacks = () => {
             />
           </div>
           <div className="admin-cb__action-btns">
-            <button 
-              type="button" 
-              className="admin-cb__add-btn" 
+            <button
+              type="button"
+              className="admin-cb__add-btn"
               onClick={() => setSearch(searchInput)}
             >
               Search
@@ -487,18 +507,18 @@ const AdminCashbacks = () => {
                         </td>
                         <td className="admin-cb__actions-cell">
                           <div className="admin-cb__menu-container">
-                            <button 
-                              className="admin-cb__dots" 
-                              type="button" 
+                            <button
+                              className="admin-cb__dots"
+                              type="button"
                               onClick={(e) => toggleMenu(e, c.id)}
                             >
                               <span />
                               <span />
                               <span />
                             </button>
-                            
+
                             {activeMenuId === c.id && (
-                              <div 
+                              <div
                                 className={`admin-cb__dropdown ${dropdownUp ? 'admin-cb__dropdown--up' : ''}`}
                                 onMouseDown={(e) => e.stopPropagation()}
                               >
@@ -529,42 +549,42 @@ const AdminCashbacks = () => {
 
             {message && (
               <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                  {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{width: 32, height: 32, marginRight: 8}} />}
-                  {message.text}
-                </div>
+                {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
+                {message.text}
+              </div>
             )}
-            
+
             <div className="admin-cb-modal__content admin-cb-modal__content--scrollable">
-              
+
               {/* Form to Create/Edit */}
               <div className="admin-cb-modal__form-box">
-                
+
                 <div className="admin-cb-modal__row">
                   <div className="admin-cb-modal__field admin-cb-modal__field--quarter">
                     <label>{editingMccId ? 'Edit MCC' : 'New MCC'}</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. 1234" 
-                      value={mccForm.code} 
-                      onChange={e => setMccForm({...mccForm, code: e.target.value})} 
+                    <input
+                      type="text"
+                      placeholder="e.g. 1234"
+                      value={mccForm.code}
+                      onChange={e => setMccForm({ ...mccForm, code: e.target.value })}
                     />
                   </div>
                   <div className="admin-cb-modal__field admin-cb-modal__field--flex">
                     <label>Description</label>
-                    <input 
+                    <input
                       type="text"
-                      placeholder="Description..." 
-                      value={mccForm.description} 
-                      onChange={e => setMccForm({...mccForm, description: e.target.value})}
+                      placeholder="Description..."
+                      value={mccForm.description}
+                      onChange={e => setMccForm({ ...mccForm, description: e.target.value })}
                     />
                     <div className={`admin-cb-modal__char-count ${mccForm.description.length > 100 ? 'admin-cb-modal__char-count--error' : 'admin-cb-modal__char-count--default'}`}>
                       {mccForm.description.length}/100
                     </div>
                   </div>
                   <div className="admin-cb-modal__actions-col">
-                    <button 
-                      className="save-btn admin-cb-modal__btn--fixed" 
-                      onClick={handleSaveMcc} 
+                    <button
+                      className="save-btn admin-cb-modal__btn--fixed"
+                      onClick={handleSaveMcc}
                       disabled={saving || !mccForm.code.trim() || mccForm.description.length > 100}
                     >
                       {saving ? 'Saving...' : (editingMccId ? 'Update' : 'Add')}
@@ -579,16 +599,16 @@ const AdminCashbacks = () => {
 
                 {/* The Search Bar which takes the bottom row */}
                 <div className="admin-cb-modal__search-row">
-                  <input 
-                    type="text" 
-                    placeholder="Search MCCs..." 
+                  <input
+                    type="text"
+                    placeholder="Search MCCs..."
                     value={mccListSearchQuery}
                     onChange={(e) => setMccListSearchQuery(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') setAppliedMccSearch(mccListSearchQuery) }}
                     className="admin-cb-modal__search-input"
                   />
-                  <button 
-                    className="save-btn admin-cb-modal__btn--fixed" 
+                  <button
+                    className="save-btn admin-cb-modal__btn--fixed"
                     onClick={() => setAppliedMccSearch(mccListSearchQuery)}
                   >
                     Search
@@ -615,15 +635,15 @@ const AdminCashbacks = () => {
                           <td><strong>{mcc.code}</strong></td>
                           <td>{mcc.description || <span className="admin-cb__empty-text">No description</span>}</td>
                           <td className="admin-cb__td--right">
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               onClick={() => startEditMcc(mcc)}
                               className="admin-cb-btn--edit"
                             >
                               Edit
                             </button>
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               onClick={() => confirmDeleteMcc(mcc)}
                               className="admin-cb-btn--delete"
                             >
@@ -672,70 +692,70 @@ const AdminCashbacks = () => {
 
             {message && (
               <div className={`admin-cb-modal__alert ${message.type === 'error' ? 'admin-cb-modal__alert--error' : 'admin-cb-modal__alert--success'}`}>
-                  {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{width: 32, height: 32, marginRight: 8}} />}
-                  {message.text}
-                </div>
+                {message.type === 'success' && <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" style={{ width: 32, height: 32, marginRight: 8 }} />}
+                {message.text}
+              </div>
             )}
-            
+
             <div className="admin-cb-modal__content">
               <div className="admin-cb-modal__form-row">
                 <div className="admin-cb-modal__field">
                   <label>Title (EN)</label>
-                  <input type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} />
+                  <input type="text" value={formData.titleEn} onChange={e => setFormData({ ...formData, titleEn: e.target.value })} />
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Title (RU)</label>
-                  <input type="text" value={formData.titleRu} onChange={e => setFormData({...formData, titleRu: e.target.value})} />
+                  <input type="text" value={formData.titleRu} onChange={e => setFormData({ ...formData, titleRu: e.target.value })} />
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Title (AZ)</label>
-                  <input type="text" value={formData.titleAz} onChange={e => setFormData({...formData, titleAz: e.target.value})} />
+                  <input type="text" value={formData.titleAz} onChange={e => setFormData({ ...formData, titleAz: e.target.value })} />
                 </div>
               </div>
 
               <div className="admin-cb-modal__form-row">
                 <div className="admin-cb-modal__field">
                   <label>Description (EN)</label>
-                  <textarea value={formData.textEn} onChange={e => setFormData({...formData, textEn: e.target.value})}></textarea>
+                  <textarea value={formData.textEn} onChange={e => setFormData({ ...formData, textEn: e.target.value })}></textarea>
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Description (RU)</label>
-                  <textarea value={formData.textRu} onChange={e => setFormData({...formData, textRu: e.target.value})}></textarea>
+                  <textarea value={formData.textRu} onChange={e => setFormData({ ...formData, textRu: e.target.value })}></textarea>
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Description (AZ)</label>
-                  <textarea value={formData.textAz} onChange={e => setFormData({...formData, textAz: e.target.value})}></textarea>
+                  <textarea value={formData.textAz} onChange={e => setFormData({ ...formData, textAz: e.target.value })}></textarea>
                 </div>
               </div>
 
               <div className="admin-cb-modal__form-row">
                 <div className="admin-cb-modal__field">
                   <label>Rate (%)</label>
-                  <input 
-                    type="number" 
-                    step="0.1" 
+                  <input
+                    type="number"
+                    step="0.1"
                     min="0.1"
-                    value={formData.rate} 
-                    onChange={handleRateChange} 
-                    onBlur={handleRateBlur} 
+                    value={formData.rate}
+                    onChange={handleRateChange}
+                    onBlur={handleRateBlur}
                   />
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Limit (₼)</label>
-                  <input 
-                    type="number" 
-                    step="0.01" 
+                  <input
+                    type="number"
+                    step="0.01"
                     min="1.00"
-                    value={formData.limit} 
+                    value={formData.limit}
                     onChange={handleLimitChange}
                     onBlur={handleLimitBlur}
                   />
                 </div>
                 <div className="admin-cb-modal__field">
                   <label>Variant</label>
-                  <select 
-                    value={formData.variant} 
-                    onChange={e => setFormData({...formData, variant: e.target.value})}
+                  <select
+                    value={formData.variant}
+                    onChange={e => setFormData({ ...formData, variant: e.target.value })}
                     className="admin-cb-modal__select"
                   >
                     <option value="A">Variant A</option>
@@ -745,7 +765,7 @@ const AdminCashbacks = () => {
                 <div className="admin-cb-modal__mcc-row">
                   <div className="admin-cb-modal__field admin-cb-modal__field--relative" ref={mccDropdownRef}>
                     <label>MCC Codes</label>
-                    
+
                     <div className="mcc-multi-select mcc-multi-select--styled">
                       <div className="mcc-multi-select__tags mcc-multi-select__tags--flex">
                         {formData.mccCodes.slice(0, 2).map(code => (
@@ -754,26 +774,26 @@ const AdminCashbacks = () => {
                             <button type="button" onClick={() => handleRemoveMccFromCategory(code)}>&times;</button>
                           </span>
                         ))}
-                        
+
                         {formData.mccCodes.length > 2 && (
-                          <span 
-                            className="mcc-multi-tag mcc-multi-tag--extra" 
+                          <span
+                            className="mcc-multi-tag mcc-multi-tag--extra"
                             onClick={() => setShowAllMccs(!showAllMccs)}
                           >
                             +{formData.mccCodes.length - 2}
                           </span>
                         )}
-                        
-                        <button 
-                          type="button" 
-                          className="mcc-multi-tag mcc-multi-tag--add" 
+
+                        <button
+                          type="button"
+                          className="mcc-multi-tag mcc-multi-tag--add"
                           onClick={() => setMccDropdownOpen(true)}
                         >
                           +
                         </button>
                       </div>
                     </div>
-                    
+
                     {showAllMccs && (
                       <div className="mcc-dropdown mcc-dropdown--flex">
                         <div className="mcc-dropdown__header">
@@ -793,21 +813,21 @@ const AdminCashbacks = () => {
                       <div className="mcc-dropdown">
                         {filteredMccsDropdown.length > 0 ? (
                           <>
-                            <div 
+                            <div
                               className="mcc-dropdown-item mcc-dropdown-item--all"
                               onClick={handleAddAllAvailableMccs}
                             >
                               + Select All Available MCCs
                             </div>
                             {filteredMccsDropdown.map(mcc => (
-                            <div 
-                              key={mcc.id || mcc.code} 
-                              className="mcc-dropdown-item"
-                              onClick={() => handleAddMccToCategory(mcc)}
-                            >
-                              <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
-                            </div>
-                          ))}
+                              <div
+                                key={mcc.id || mcc.code}
+                                className="mcc-dropdown-item"
+                                onClick={() => handleAddMccToCategory(mcc)}
+                              >
+                                <strong>{mcc.code}</strong> {mcc.description && `- ${mcc.description}`}
+                              </div>
+                            ))}
                           </>
                         ) : (
                           <div className="mcc-dropdown-empty">
@@ -820,10 +840,10 @@ const AdminCashbacks = () => {
 
                   <div className="admin-cb-modal__actions-row">
                     <button className="cancel-btn" onClick={() => setModalOpen(false)}>Cancel</button>
-                    <button 
-                      className="save-btn" 
-                      onClick={handleSave} 
-                      disabled={saving}
+                    <button
+                      className="save-btn"
+                      onClick={handleSave}
+                      disabled={saving || !isFormChanged()}
                     >
                       {saving ? 'Saving...' : 'Save'}
                     </button>

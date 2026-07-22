@@ -388,7 +388,7 @@ const AdminLoans = () => {
                 Cancel
               </button>
               <button 
-                className="confirm-btn admin-btn--approve" 
+                className="confirm-btn" 
                 onClick={handleApproveConfirm}
                 disabled={actionLoading}
               >
