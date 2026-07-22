@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import Cookies from 'js-cookie'
 import './AdminSupport.scss'
 import './AdminSupport_Responsive.scss'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
@@ -288,7 +288,7 @@ const AdminSupport = () => {
       </section>
 
       {/* History Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={historyModal.open && !!historyModal.chat}
         onClose={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}
         clickPos={historyModal.clickPos}
@@ -323,9 +323,9 @@ const AdminSupport = () => {
         <div className="admin-support-modal__footer">
           <button className="admin-support-modal__btn-cancel" onClick={() => setHistoryModal({ open: false, chat: null, messages: [], loading: false })}>Close</button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
       {/* Review Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={reviewModal.open && !!reviewModal.chat}
         onClose={() => setReviewModal({ open: false, chat: null })}
         clickPos={reviewModal.clickPos}
@@ -352,9 +352,10 @@ const AdminSupport = () => {
         <div className="admin-support-modal__footer">
           <button className="admin-support-modal__btn-cancel" onClick={() => setReviewModal({ open: false, chat: null })}>Close</button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
     </div>
   )
 }
 
 export default AdminSupport
+

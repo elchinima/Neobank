@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import './AdminMorphModal.scss'
+import './MorphModal.scss'
 
-export default function AdminMorphModal({ 
+export default function MorphModal({ 
   isOpen, 
   onClose, 
   clickPos, 
@@ -11,6 +11,23 @@ export default function AdminMorphModal({
 }) {
   const [closingModal, setClosingModal] = useState(false)
   const [shouldRender, setShouldRender] = useState(isOpen)
+  const [currentPos, setCurrentPos] = useState(clickPos)
+
+  useEffect(() => {
+    if (isOpen && clickPos) {
+      setCurrentPos(clickPos)
+    }
+  }, [isOpen, clickPos])
+
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      setCurrentPos({ x: e.clientX, y: e.clientY })
+    }
+    if (isOpen) {
+      window.addEventListener('mousedown', handleGlobalClick, true)
+    }
+    return () => window.removeEventListener('mousedown', handleGlobalClick, true)
+  }, [isOpen])
 
   useEffect(() => {
     if (isOpen) {
@@ -26,15 +43,15 @@ export default function AdminMorphModal({
   if (!shouldRender) return null
 
   // Default to center if no clickPos provided
-  const safeClickPos = clickPos || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+  const safeClickPos = currentPos || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 
   return (
     <div 
-      className={`admin-morph-overlay ${overlayClass} ${closingModal ? 'closing' : ''}`}
+      className={`morph-overlay ${overlayClass} ${closingModal ? 'closing' : ''}`}
       onClick={onClose}
     >
       <div 
-        className={`admin-morph-modal ${modalClass} ${closingModal ? 'closing' : ''}`}
+        className={`morph-modal ${modalClass} ${closingModal ? 'closing' : ''}`}
         onClick={e => e.stopPropagation()}
         style={{
           '--start-x': `${safeClickPos.x - window.innerWidth / 2}px`,

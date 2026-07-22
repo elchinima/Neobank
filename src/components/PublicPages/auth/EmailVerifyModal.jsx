@@ -16,6 +16,7 @@ function EmailVerifyModal({
   onSuccess,       // called with auth response data
   onResend,        // async function to resend code
   onClose,         // optional — close/cancel
+  clickPos,
 }) {
   const { t, lang } = useLanguage()
   const [digits, setDigits] = useState(Array(7).fill(''))
@@ -26,7 +27,7 @@ function EmailVerifyModal({
 
   const [closingModal, setClosingModal] = useState(false)
   const [shouldRender, setShouldRender] = useState(isOpen)
-  const clickPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+  const safeClickPos = clickPos || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 
   const API_BASE_URL = import.meta.env.VITE_API_URL ||
     (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -150,8 +151,8 @@ function EmailVerifyModal({
         className={`evm-card ${closingModal ? 'closing' : ''}`} 
         onClick={e => e.stopPropagation()}
         style={{
-          '--start-x': `${clickPos.x - window.innerWidth / 2}px`,
-          '--start-y': `${clickPos.y - window.innerHeight / 2}px`
+          '--start-x': `${safeClickPos.x - window.innerWidth / 2}px`,
+          '--start-y': `${safeClickPos.y - window.innerHeight / 2}px`
         }}
       >
         {/* Close button */}

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminDatabase.scss'
 import './AdminDatabase_Responsive.scss'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {
@@ -339,7 +339,7 @@ const AdminDatabase = () => {
           </div>
       </section>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={isModalOpen}
         onClose={closeModal}
         clickPos={uploadModalPos}
@@ -424,9 +424,9 @@ const AdminDatabase = () => {
             {uploading ? 'Uploading...' : 'Save'}
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={renameModal.open && !!renameModal.img}
         onClose={() => setRenameModal({ open: false, img: null, newName: '', clickPos: null })}
         clickPos={renameModal.clickPos}
@@ -456,9 +456,9 @@ const AdminDatabase = () => {
           <button className="admin-db-modal__btn-cancel" onClick={() => setRenameModal({ open: false, img: null, newName: '', clickPos: null })}>Cancel</button>
           <button className="admin-db-modal__btn-save" onClick={handleRename}>Save</button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={deleteModal.open && !!deleteModal.img}
         onClose={() => setDeleteModal({ open: false, img: null, clickPos: null })}
         clickPos={deleteModal.clickPos}
@@ -489,10 +489,10 @@ const AdminDatabase = () => {
             Delete File
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* View Preview Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={previewModal.open && !!previewModal.img}
         onClose={() => setPreviewModal({ open: false, img: null, clickPos: null })}
         clickPos={previewModal.clickPos}
@@ -524,7 +524,7 @@ const AdminDatabase = () => {
             />
           ) : null}
         </div>
-      </AdminMorphModal>
+      </MorphModal>
     </div>
   )
 }

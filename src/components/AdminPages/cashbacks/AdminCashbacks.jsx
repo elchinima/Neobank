@@ -5,7 +5,7 @@ import './AdminCashbacks.scss'
 import './AdminCashbacks_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -548,7 +548,7 @@ const AdminCashbacks = () => {
       </section>
 
       {/* MCC Management Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={mccModalOpen}
         onClose={() => { setMccModalOpen(false); cancelEditMcc(); }}
         clickPos={mccModalPos}
@@ -672,10 +672,10 @@ const AdminCashbacks = () => {
           </div>
 
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Confirm Delete MCC Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={confirmDeleteMccOpen}
         onClose={() => setConfirmDeleteMccOpen(false)}
         clickPos={confirmDeleteMccPos}
@@ -693,10 +693,10 @@ const AdminCashbacks = () => {
           <button className="cancel-btn" onClick={() => setConfirmDeleteMccOpen(false)}>Cancel</button>
           <button className="delete-btn" onClick={handleDeleteMcc} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Cashback Category Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         clickPos={modalOpenPos}
@@ -869,10 +869,10 @@ const AdminCashbacks = () => {
             </div>
           </div>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Confirm Delete Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
         clickPos={confirmDeletePos}
@@ -890,10 +890,11 @@ const AdminCashbacks = () => {
           <button className="cancel-btn" onClick={() => setConfirmDeleteOpen(false)}>Cancel</button>
           <button className="delete-btn" onClick={handleDelete} disabled={saving}>{saving ? 'Deleting...' : 'Delete'}</button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
     </div>
   )
 }
 
 export default AdminCashbacks
+
 

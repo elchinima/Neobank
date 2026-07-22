@@ -75,6 +75,7 @@ const cardImages = {
 }
 
 import { useLanguage } from '../../../app/context/LanguageContext'
+import MorphModal from '../../common/MorphModal/MorphModal'
 import { useAuth } from '../../../app/context/AuthContext'
 import { userCardsLang } from './lang.js'
 
@@ -243,6 +244,13 @@ const Cards = () => {
   const [showPinAlertModal, setShowPinAlertModal] = useState(false)
   const [showPinSuccessModal, setShowPinSuccessModal] = useState(false)
   const [creditLimitError, setCreditLimitError] = useState(null)
+  const [modalPos, setModalPos] = useState(null)
+
+  useEffect(() => {
+    const handleAnyClick = (e) => setModalPos({ x: e.clientX, y: e.clientY })
+    window.addEventListener('mousedown', handleAnyClick, true)
+    return () => window.removeEventListener('mousedown', handleAnyClick, true)
+  }, [])
   const [payingLoanId, setPayingLoanId] = useState(null)
   const [showPayLoanModal, setShowPayLoanModal] = useState(false)
   const [payLoanForm, setPayLoanForm] = useState({ loanId: null, sourceCardId: '' })
@@ -1463,10 +1471,14 @@ const Cards = () => {
       )}
 
 
-      {showProductSelectionModal && (
-        <div className="card-modal-overlay" onClick={() => setShowProductSelectionModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showProductSelectionModal}
+        onClose={() => setShowProductSelectionModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
               <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
             </div>
@@ -1492,14 +1504,17 @@ const Cards = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showPayLoanModal && (
-        <div className="card-modal-overlay" onClick={() => setShowPayLoanModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showPayLoanModal}
+        onClose={() => setShowPayLoanModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
               <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
             </div>
@@ -1533,14 +1548,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showWithdrawDepositModal && (
-        <div className="card-modal-overlay" onClick={() => setShowWithdrawDepositModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showWithdrawDepositModal}
+        onClose={() => setShowWithdrawDepositModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
               <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
             </div>
@@ -1579,14 +1597,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showNewLoanModal && (
-        <div className="card-modal-overlay" onClick={() => setShowNewLoanModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showNewLoanModal}
+        onClose={() => setShowNewLoanModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
             </div>
@@ -1619,14 +1640,17 @@ const Cards = () => {
                 </button>
               </form>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showNewDepositModal && (
-        <div className="card-modal-overlay" onClick={() => setShowNewDepositModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showNewDepositModal}
+        onClose={() => setShowNewDepositModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
             </div>
@@ -1659,14 +1683,17 @@ const Cards = () => {
                 </button>
               </form>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showNewCardModal && (
-        <div className="card-modal-overlay" onClick={() => setShowNewCardModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showNewCardModal}
+        onClose={() => setShowNewCardModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="orderNewCardModalTitle">{t(userCardsLang, 'orderNewCardModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
             </div>
@@ -1741,14 +1768,17 @@ const Cards = () => {
                 </button>
               </form>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {selectedSettingsCard && (
-        <div className="card-modal-overlay" onClick={() => setSelectedSettingsCard(null)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!selectedSettingsCard}
+        onClose={() => setSelectedSettingsCard(null)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="settings">{t(userCardsLang, 'settings')}</h2>
               <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
             </div>
@@ -1828,14 +1858,17 @@ const Cards = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {selectedTransferCard && (
-        <div className="card-modal-overlay" onClick={() => setSelectedTransferCard(null)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!selectedTransferCard}
+        onClose={() => setSelectedTransferCard(null)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
               <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
             </div>
@@ -1881,14 +1914,17 @@ const Cards = () => {
 
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showIbanTransferModal && (
-        <div className="card-modal-overlay" onClick={() => setShowIbanTransferModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showIbanTransferModal}
+        onClose={() => setShowIbanTransferModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferByIban')}</h2>
               <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>✕</button>
             </div>
@@ -1935,14 +1971,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showInternalTransferModal && (
-        <div className="card-modal-overlay" onClick={() => setShowInternalTransferModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showInternalTransferModal}
+        onClose={() => setShowInternalTransferModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
               <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>✕</button>
             </div>
@@ -2003,28 +2042,34 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showUnavailableModal && (
-        <div className="card-modal-overlay" onClick={() => setShowUnavailableModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showUnavailableModal}
+        onClose={() => setShowUnavailableModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
               <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
               <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showPinAlertModal && (
-        <div className="card-modal-overlay" onClick={() => setShowPinAlertModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showPinAlertModal}
+        onClose={() => setShowPinAlertModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
@@ -2037,14 +2082,17 @@ const Cards = () => {
                 OK
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {creditLimitError && (
-        <div className="card-modal-overlay" onClick={() => setCreditLimitError(null)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!creditLimitError}
+        onClose={() => setCreditLimitError(null)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
             </div>
@@ -2057,14 +2105,17 @@ const Cards = () => {
                 OK
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showPinSuccessModal && (
-        <div className="card-modal-overlay" onClick={() => setShowPinSuccessModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showPinSuccessModal}
+        onClose={() => setShowPinSuccessModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 className="modal-header--success">{t(userCardsLang, 'success') || 'Success'}</h2>
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
@@ -2078,14 +2129,17 @@ const Cards = () => {
                 OK
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showNeoBankTransferModal && (
-        <div className="card-modal-overlay" onClick={() => setShowNeoBankTransferModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showNeoBankTransferModal}
+        onClose={() => setShowNeoBankTransferModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>✕</button>
             </div>
@@ -2147,14 +2201,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showAccountDetailsModal && selectedSettingsCard && (
-        <div className="card-modal-overlay" onClick={() => setShowAccountDetailsModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showAccountDetailsModal && !!selectedSettingsCard}
+        onClose={() => setShowAccountDetailsModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
               <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
             </div>
@@ -2189,15 +2246,18 @@ const Cards = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
 
-      {showPinModal && (
-        <div className="card-modal-overlay" onClick={() => setShowPinModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showPinModal}
+        onClose={() => setShowPinModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'changePinTitle')}</h2>
               <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
             </div>
@@ -2244,14 +2304,17 @@ const Cards = () => {
                 </button>
               </form>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showStatementsChoiceModal && (
-        <div className="card-modal-overlay" onClick={() => setShowStatementsChoiceModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showStatementsChoiceModal}
+        onClose={() => setShowStatementsChoiceModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
               <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
             </div>
@@ -2277,14 +2340,17 @@ const Cards = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showArayislarModal && (
-        <div className="card-modal-overlay" onClick={() => setShowArayislarModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showArayislarModal}
+        onClose={() => setShowArayislarModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
             </div>
@@ -2357,14 +2423,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showReferencesModal && (
-        <div className="card-modal-overlay" onClick={() => setShowReferencesModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showReferencesModal}
+        onClose={() => setShowReferencesModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
             </div>
@@ -2427,14 +2496,17 @@ const Cards = () => {
                 </form>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
-      {showQrModal && (
-        <div className="card-modal-overlay" onClick={() => setShowQrModal(false)}>
-          <div className="card-modal" onClick={e => e.stopPropagation()}>
-            <div className="card-modal__header">
+      <MorphModal
+        isOpen={!!showQrModal}
+        onClose={() => setShowQrModal(false)}
+        clickPos={modalPos}
+        overlayClass="card-modal-overlay"
+        modalClass="card-modal"
+      >
+        <div className="card-modal__header">
               <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
               <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
             </div>
@@ -2452,9 +2524,8 @@ const Cards = () => {
                 {t(userCardsLang, 'scanQrCode')}...
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          
+      </MorphModal>
 
     </div>
   )

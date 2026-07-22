@@ -6,7 +6,7 @@ import './AdminUsers.scss'
 import './AdminUsers_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
   const headers = {
@@ -119,8 +119,8 @@ const AdminUsers = () => {
     }
   }
 
-  const openStatusModal = (user) => {
-    setStatusModal({ open: true, user })
+  const openStatusModal = (e, user) => {
+    setStatusModal({ open: true, user, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setActiveMenuId(null)
   }
 
@@ -149,9 +149,9 @@ const AdminUsers = () => {
     }
   }
 
-  const openRoleModal = async (user) => {
+  const openRoleModal = async (e, user) => {
     setActiveMenuId(null)
-    setRoleModal({ open: true, user, selectedRole: user.role || 'User' })
+    setRoleModal({ open: true, user, selectedRole: user.role || 'User', clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     if (roles.length === 0) {
       setLoadingRoles(true)
       try {
@@ -189,16 +189,16 @@ const AdminUsers = () => {
     }
   }
 
-  const openEmailModal = (user) => {
-    setEmailModal({ open: true, user, isNewsletter: false })
+  const openEmailModal = (e, user) => {
+    setEmailModal({ open: true, user, isNewsletter: false, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
     setEmailFile(null)
     setEmailPreviewUrl(null)
     setActiveMenuId(null)
   }
 
-  const openNewsletterEmailModal = () => {
-    setEmailModal({ open: true, user: null, isNewsletter: true })
+  const openNewsletterEmailModal = (e) => {
+    setEmailModal({ open: true, user: null, isNewsletter: true, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setEmailData({ emailTitle: '', contentTitle: '', contentMessage: '' })
     setEmailFile(null)
     setEmailPreviewUrl(null)
@@ -286,9 +286,9 @@ const AdminUsers = () => {
     }
   }
 
-  const openInfoModal = async (user) => {
+  const openInfoModal = async (e, user) => {
     setActiveMenuId(null)
-    setInfoModal({ open: true, user })
+    setInfoModal({ open: true, user, clickPos: e ? { x: e.clientX, y: e.clientY } : null })
     setLoadingInfo(true)
     setInfoData(null)
     setNoteValue('')
@@ -423,8 +423,8 @@ const AdminUsers = () => {
             </button>
             <button 
               type="button" 
-              className="admin-users__search-btn" 
-              onClick={openNewsletterEmailModal}
+              className="admin-btn admin-btn--primary"
+              onClick={(e) => openNewsletterEmailModal(e)}
             >
               Send to Subscribers
             </button>
@@ -475,14 +475,14 @@ const AdminUsers = () => {
 
                       {activeMenuId === user.id && (
                         <div className={`admin-users__dropdown ${dropdownUp ? 'admin-users__dropdown--up' : ''}`}>
-                          <button onClick={() => openInfoModal(user)}>View Info</button>
+                          <button onClick={(e) => openInfoModal(e, user)}>View Info</button>
                           {user.id !== authUser?.id && (
-                            <button onClick={() => openRoleModal(user)}>Assign Role</button>
+                            <button onClick={(e) => openRoleModal(e, user)}>Assign Role</button>
                           )}
-                          <button onClick={() => openEmailModal(user)}>Send Email</button>
+                          <button onClick={(e) => openEmailModal(e, user)}>Send Email</button>
                           <button 
                             className={user.isActive ? 'danger' : 'success'} 
-                            onClick={() => openStatusModal(user)}
+                            onClick={(e) => openStatusModal(e, user)}
                           >
                             {user.isActive ? 'Block User' : 'Unblock User'}
                           </button>
@@ -503,7 +503,7 @@ const AdminUsers = () => {
       </section>
 
       {/* Status Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={statusModal.open && !!statusModal.user}
         onClose={() => setStatusModal({ open: false, user: null })}
         clickPos={statusModal.clickPos}
@@ -536,10 +536,10 @@ const AdminUsers = () => {
             </div>
           </>
         )}
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Role Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={roleModal.open && !!roleModal.user}
         onClose={() => setRoleModal({ open: false, user: null, selectedRole: '' })}
         clickPos={roleModal.clickPos}
@@ -594,10 +594,10 @@ const AdminUsers = () => {
             </div>
           </>
         )}
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Email Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={emailModal.open && (!!emailModal.user || emailModal.isNewsletter)}
         onClose={() => !sendingEmail && setEmailModal({ open: false, user: null, isNewsletter: false })}
         clickPos={emailModal.clickPos}
@@ -692,10 +692,10 @@ const AdminUsers = () => {
             {sendingEmail ? 'Sending...' : 'Send'}
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Info Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={infoModal.open && !!infoModal.user}
         onClose={() => setInfoModal({ open: false, user: null })}
         clickPos={infoModal.clickPos}
@@ -964,10 +964,10 @@ const AdminUsers = () => {
             </>
           ) : null}
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Alert Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={alertModal.open}
         onClose={() => setAlertModal({ open: false, message: '', isError: false })}
         overlayClass="admin-users-modal-overlay--z2000"
@@ -992,10 +992,10 @@ const AdminUsers = () => {
             OK
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
       {/* Confirm Modal */}
-      <AdminMorphModal
+      <MorphModal
         isOpen={confirmModal.open}
         onClose={() => setConfirmModal({ open: false, message: '', onConfirm: null })}
         overlayClass="admin-users-modal-overlay--z3000"
@@ -1024,12 +1024,13 @@ const AdminUsers = () => {
             Confirm
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
     </div>
   )
 }
 
 export default AdminUsers
+
 
 
 

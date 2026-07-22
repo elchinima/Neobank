@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
 import { useAuth } from '../../../app/context/AuthContext'
 import { paymentsLang } from './lang.js'
+import MorphModal from '../../common/MorphModal/MorphModal'
 import './Payments.scss'
 import './Payments_Responsive.scss'
 
@@ -110,6 +111,7 @@ const Payments = () => {
   const [paymentForm, setPaymentForm] = useState({ account: '', amount: '', cardId: '' })
   const [paymentStatus, setPaymentStatus] = useState('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [paymentModalPos, setPaymentModalPos] = useState(null)
 
   useEffect(() => {
     if (token) {
@@ -126,6 +128,14 @@ const Payments = () => {
         .catch(err => console.error(err))
     }
   }, [token])
+
+  const closePaymentModal = () => {
+    setSelectedCategory(null)
+    setSelectedProvider(null)
+    setPaymentStatus('idle')
+    setPaymentForm({ account: '', amount: '', cardId: userCards[0]?.id || '' })
+    setErrorMessage('')
+  }
 
   const handlePay = async (e) => {
     e.preventDefault()
@@ -192,7 +202,10 @@ const Payments = () => {
           <div
             key={category.id}
             className="payment-category-item"
-            onClick={() => setSelectedCategory(category)}
+            onClick={(e) => {
+              setSelectedCategory(category)
+              setPaymentModalPos(e ? { x: e.clientX, y: e.clientY } : null)
+            }}
           >
             <div className="payment-category-item__icon">
               <img src={category.icon} alt={category.name} />
@@ -204,27 +217,27 @@ const Payments = () => {
         ))}
       </div>
 
-      {selectedCategory && (
-        <div className="payment-modal-overlay" onClick={() => setSelectedCategory(null)}>
-          <div className="payment-modal" onClick={e => e.stopPropagation()}>
-            <div className="payment-modal__header">
-              {selectedProvider && paymentStatus !== 'success' && paymentStatus !== 'loading' ? (
-                <button className="back-btn" onClick={() => {
-                  setSelectedProvider(null);
-                  setPaymentStatus('idle');
-                  setErrorMessage('');
-                }}>←</button>
-              ) : null}
-              <h2>{selectedProvider ? (paymentStatus === 'success' ? t(paymentsLang, 'paymentSuccessfulTitle') : selectedProvider.name) : `${selectedCategory.name} ${t(paymentsLang, 'providersTitle')}`}</h2>
-              <button className="close-btn" onClick={() => {
-                setSelectedCategory(null);
-                setSelectedProvider(null);
-                setPaymentStatus('idle');
-                setPaymentForm({ account: '', amount: '', cardId: userCards[0]?.id || '' });
-              }}>✕</button>
-            </div>
-            <div className="payment-modal__content">
-              {selectedProvider ? (
+      <MorphModal
+        isOpen={!!selectedCategory}
+        onClose={closePaymentModal}
+        clickPos={paymentModalPos}
+        overlayClass="payment-modal-overlay"
+        modalClass="payment-modal"
+      >
+        <div className="payment-modal__header">
+          {selectedProvider && paymentStatus !== 'success' && paymentStatus !== 'loading' ? (
+            <button className="back-btn" onClick={() => {
+              setSelectedProvider(null);
+              setPaymentStatus('idle');
+              setErrorMessage('');
+            }}>←</button>
+          ) : null}
+          <h2>{selectedProvider ? (paymentStatus === 'success' ? t(paymentsLang, 'paymentSuccessfulTitle') : selectedProvider.name) : `${selectedCategory?.name || ''} ${t(paymentsLang, 'providersTitle')}`}</h2>
+          <button className="close-btn" onClick={closePaymentModal}>✕</button>
+        </div>
+        <div className="payment-modal__content">
+          {selectedCategory && (
+            selectedProvider ? (
                 <div className="payment-simulation">
                   {paymentStatus !== 'success' && (
                     <form className="payment-form" onSubmit={handlePay}>
@@ -305,11 +318,10 @@ const Payments = () => {
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-          </div>
+            )
+          )}
         </div>
-      )}
+      </MorphModal>
     </div>
   )
 }

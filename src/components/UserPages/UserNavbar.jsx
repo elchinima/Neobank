@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoMark from '../../assets/logo/main_logo.png'
 import { useAuth } from '../../app/context/AuthContext'
 import { useLanguage } from '../../app/context/LanguageContext'
+import MorphModal from '../common/MorphModal/MorphModal'
 import { navbarLang } from './navbar.lang.js'
 import './UserNavbar.scss'
 import './UserNavbar_Responsive.scss'
 
 const UserNavbar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [logoutModalPos, setLogoutModalPos] = useState(null)
   const navigate = useNavigate()
   const location = useLocation()
   const currentPath = location.pathname
@@ -82,28 +84,30 @@ const UserNavbar = () => {
             <span>{user?.email || 'User'}</span>
           </div>
         </Link>
-        <button className="user-navbar__button user-navbar__button--ghost" onClick={() => setIsLogoutModalOpen(true)} data-lang-key="logout">
+        <button className="user-navbar__button user-navbar__button--ghost" onClick={(e) => { setIsLogoutModalOpen(true); setLogoutModalPos(e ? { x: e.clientX, y: e.clientY } : null); }} data-lang-key="logout">
           {t(navbarLang, 'logout')}
         </button>
       </div>
     </nav>
 
-      {isLogoutModalOpen && (
-        <div className="user-navbar__modal-overlay" onClick={() => setIsLogoutModalOpen(false)}>
-          <div className="user-navbar__modal" onClick={(e) => e.stopPropagation()}>
-            <h3 data-lang-key="logoutConfirmTitle">{t(navbarLang, 'logoutConfirmTitle')}</h3>
-            <p data-lang-key="logoutConfirmText">{t(navbarLang, 'logoutConfirmText')}</p>
-            <div className="user-navbar__modal-actions">
-              <button onClick={() => setIsLogoutModalOpen(false)} className="user-navbar__button user-navbar__button--ghost" data-lang-key="cancel">
-                {t(navbarLang, 'cancel')}
-              </button>
-              <button onClick={handleLogout} className="user-navbar__button user-navbar__button--danger" data-lang-key="logout">
-                {t(navbarLang, 'logout')}
-              </button>
-            </div>
-          </div>
+      <MorphModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        clickPos={logoutModalPos}
+        overlayClass="user-navbar__modal-overlay"
+        modalClass="user-navbar__modal"
+      >
+        <h3 data-lang-key="logoutConfirmTitle">{t(navbarLang, 'logoutConfirmTitle')}</h3>
+        <p data-lang-key="logoutConfirmText">{t(navbarLang, 'logoutConfirmText')}</p>
+        <div className="user-navbar__modal-actions">
+          <button onClick={() => setIsLogoutModalOpen(false)} className="user-navbar__button user-navbar__button--ghost" data-lang-key="cancel">
+            {t(navbarLang, 'cancel')}
+          </button>
+          <button onClick={handleLogout} className="user-navbar__button user-navbar__button--danger" data-lang-key="logout">
+            {t(navbarLang, 'logout')}
+          </button>
         </div>
-      )}
+      </MorphModal>
     </>
   )
 }

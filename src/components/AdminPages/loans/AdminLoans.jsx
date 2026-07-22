@@ -5,7 +5,7 @@ import './AdminLoans.scss'
 import './AdminLoans_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
 import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 const adminFetch = async (url, options = {}) => {
   const token = Cookies.get('neobank_token')
   const headers = {
@@ -336,7 +336,7 @@ const AdminLoans = () => {
         </div>
       )}
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={showRejectModal}
         onClose={() => setShowRejectModal(false)}
         clickPos={rejectModalPos}
@@ -378,9 +378,9 @@ const AdminLoans = () => {
             ) : 'Confirm Reject'}
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={showApproveModal}
         onClose={() => setShowApproveModal(false)}
         clickPos={approveModalPos}
@@ -412,9 +412,9 @@ const AdminLoans = () => {
             ) : 'Confirm Approve'}
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={notification.show}
         onClose={() => setNotification({ ...notification, show: false })}
         overlayClass="admin-loans__modal-overlay"
@@ -437,13 +437,13 @@ const AdminLoans = () => {
         >
           OK
         </button>
-      </AdminMorphModal>
-      {reasonModal.show && (() => {
+      </MorphModal>
+      {(() => {
         const changedByUser = users.find(u => u.id === reasonModal.changedBy)
         const changedByName = changedByUser ? `${changedByUser.firstName || ''} ${changedByUser.lastName || ''}`.trim() : (reasonModal.changedBy || 'System')
         
         return (
-          <AdminMorphModal
+          <MorphModal
             isOpen={reasonModal.show}
             onClose={() => setReasonModal({ ...reasonModal, show: false })}
             clickPos={reasonModal.clickPos}
@@ -480,7 +480,7 @@ const AdminLoans = () => {
                 </div>
               </div>
             </div>
-          </AdminMorphModal>
+          </MorphModal>
         )
       })()}
     </div>
@@ -488,4 +488,5 @@ const AdminLoans = () => {
 }
 
 export default AdminLoans
+
 

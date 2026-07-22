@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import glowingSmiley from '../../../assets/icons/glowing_smiley_animated.svg'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
+import MorphModal from '../../common/MorphModal/MorphModal'
 import './AdminBanner.scss'
 import './AdminBanner_Responsive.scss'
 
@@ -388,7 +388,7 @@ const AdminBanner = () => {
         </div>
       </section>
 
-      <AdminMorphModal
+      <MorphModal
         isOpen={aiModal.isOpen}
         onClose={() => setAiModal({ isOpen: false, pageKey: '', lang: '', clickPos: null })}
         clickPos={aiModal.clickPos}
@@ -411,9 +411,10 @@ const AdminBanner = () => {
             Confirm
           </button>
         </div>
-      </AdminMorphModal>
+      </MorphModal>
     </div>
   )
 }
 
 export default AdminBanner
+

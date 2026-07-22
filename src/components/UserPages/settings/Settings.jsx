@@ -1,5 +1,6 @@
-﻿import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useLanguage } from '../../../app/context/LanguageContext'
+import MorphModal from '../../common/MorphModal/MorphModal'
 import { useAuth } from '../../../app/context/AuthContext'
 import { settingsLang } from './lang.js'
 import EmailVerifyModal from '../../../components/PublicPages/auth/EmailVerifyModal.jsx'
@@ -30,6 +31,13 @@ const Settings = () => {
 
   // Email verification modal state (for "Verify Email" button in settings)
   const [showVerifyModal, setShowVerifyModal] = useState(false)
+  const [modalPos, setModalPos] = useState(null)
+
+  useEffect(() => {
+    const handleAnyClick = (e) => setModalPos({ x: e.clientX, y: e.clientY })
+    window.addEventListener('mousedown', handleAnyClick, true)
+    return () => window.removeEventListener('mousedown', handleAnyClick, true)
+  }, [])
 
   const fileInputRef = useRef(null)
 
@@ -316,10 +324,14 @@ const Settings = () => {
         </div>
       </div>
 
-      {isPasswordModalOpen && (
-        <div className="settings-modal-overlay">
-          <div className="settings-modal">
-            <div className="settings-modal__header">
+      <MorphModal
+        isOpen={isPasswordModalOpen}
+        onClose={closePasswordModal}
+        clickPos={modalPos}
+        overlayClass="settings-modal-overlay"
+        modalClass="settings-modal"
+      >
+        <div className="settings-modal__header">
               <h2 data-lang-key="changePassword">{t(settingsLang, 'changePassword')}</h2>
               <button className="close-btn" onClick={closePasswordModal}>✕</button>
             </div>
@@ -360,9 +372,8 @@ const Settings = () => {
               </button>
             </div>
           </div>
-        </div>
-      </div>
-      )}
+        
+      </MorphModal>
 
       {/* Email verification modal (from settings page) */}
       <EmailVerifyModal
@@ -373,6 +384,7 @@ const Settings = () => {
         onSuccess={handleVerifySuccess}
         onResend={handleVerifyResend}
         onClose={() => setShowVerifyModal(false)}
+        clickPos={modalPos}
       />
     </div>
   )
