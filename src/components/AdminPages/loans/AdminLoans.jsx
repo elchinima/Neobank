@@ -356,7 +356,7 @@ const AdminLoans = () => {
                 Cancel
               </button>
               <button 
-                className="confirm-btn" 
+                className="confirm-btn danger" 
                 onClick={handleReject}
                 disabled={actionLoading || !rejectReason.trim()}
               >
@@ -394,7 +394,7 @@ const AdminLoans = () => {
               >
                 {actionLoading ? (
                   <>
-                    <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                    <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                     Processing...
                   </>
                 ) : 'Confirm Approve'}

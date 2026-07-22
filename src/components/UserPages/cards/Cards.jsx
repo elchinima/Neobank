@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -844,6 +844,7 @@ const Cards = () => {
       }, 1500)
     } catch (err) {
       setPinError(translateErrorMsg(err.message));
+      setPinStatus('idle');
     }
   }
 
@@ -1523,7 +1524,7 @@ const Cards = () => {
                   >
                     {payLoanStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -1576,7 +1577,7 @@ const Cards = () => {
                   >
                     {withdrawDepositStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -1624,7 +1625,7 @@ const Cards = () => {
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newLoanStatus === 'loading'}>
                   {newLoanStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -1671,7 +1672,7 @@ const Cards = () => {
                 <button type="submit" className="cards-page__button cards-page__button--primary submit-order-btn modal-btn--mt" disabled={newDepositStatus === 'loading'}>
                   {newDepositStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -1953,7 +1954,7 @@ const Cards = () => {
                   >
                     {ibanTransferStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -2028,7 +2029,7 @@ const Cards = () => {
                   >
                     {internalTransferStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -2179,7 +2180,7 @@ const Cards = () => {
                   >
                     {neoBankTransferStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -2284,7 +2285,7 @@ const Cards = () => {
                 <button type="submit" className="cards-page__button cards-page__button--primary" disabled={pinStatus === 'loading'}>
                   {pinStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -2403,7 +2404,7 @@ const Cards = () => {
                   >
                     {arayislarStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (
@@ -2480,7 +2481,7 @@ const Cards = () => {
                   >
                     {referencesStatus === 'loading' ? (
                       <>
-                        <img src={loaderIcon} alt="Loading..." className="btn-loader" />
+                        <img src={loaderIcon} alt="Loading..." className="btn-loader btn-loader-black" />
                         {t(userCardsLang, 'submitting')}
                       </>
                     ) : (

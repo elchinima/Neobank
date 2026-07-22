@@ -53,6 +53,10 @@ body {
   animation: spin 1s linear infinite;
 }
 
+.btn-loader-black {
+  filter: grayscale(1) brightness(0);
+}
+
 .modal-success-icon {
   width: 64px;
   height: 64px;

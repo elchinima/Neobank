@@ -955,7 +955,7 @@ const AdminUsers = () => {
           <div className="admin-users-modal admin-users-modal--center" onClick={e => e.stopPropagation()}>
             <div className="admin-users-modal__content admin-users-modal__content--padded">
               <div className="admin-users-modal__icon-large">
-                {alertModal.isError ? '❌' : '✅'}
+                {alertModal.isError ? '❌' : <img src={loaderSuccessIcon} alt="Success" className="modal-success-icon" />}
               </div>
               <h2 className="admin-users-modal__heading--margin">
                 {alertModal.isError ? 'Error' : 'Success'}
