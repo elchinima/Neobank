@@ -1478,7 +1478,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showProductSelectionModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="selectProductTitle">{t(userCardsLang, 'selectProductTitle')}</h2>
               <button className="close-btn" onClick={() => setShowProductSelectionModal(false)}>✕</button>
             </div>
@@ -1505,6 +1507,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1514,7 +1518,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showPayLoanModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="payLoanBtn">{t(userCardsLang, 'payLoanBtn')}</h2>
               <button className="close-btn" onClick={() => setShowPayLoanModal(false)}>✕</button>
             </div>
@@ -1549,6 +1555,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1558,7 +1566,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showWithdrawDepositModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="withdrawDepositTitle">{t(userCardsLang, 'withdrawDepositTitle')}</h2>
               <button className="close-btn" onClick={() => setShowWithdrawDepositModal(false)}>✕</button>
             </div>
@@ -1598,6 +1608,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1607,7 +1619,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showNewLoanModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="loanApplicationTitle">{t(userCardsLang, 'loanApplicationTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewLoanModal(false)}>✕</button>
             </div>
@@ -1641,6 +1655,8 @@ const Cards = () => {
               </form>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1650,7 +1666,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showNewDepositModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="depositOpeningTitle">{t(userCardsLang, 'depositOpeningTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewDepositModal(false)}>✕</button>
             </div>
@@ -1684,6 +1702,8 @@ const Cards = () => {
               </form>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1693,7 +1713,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showNewCardModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="orderNewCardModalTitle">{t(userCardsLang, 'orderNewCardModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNewCardModal(false)}>✕</button>
             </div>
@@ -1769,6 +1791,8 @@ const Cards = () => {
               </form>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1778,7 +1802,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {selectedSettingsCard ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="settings">{t(userCardsLang, 'settings')}</h2>
               <button className="close-btn" onClick={() => setSelectedSettingsCard(null)}>✕</button>
             </div>
@@ -1859,6 +1885,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1868,7 +1896,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {selectedTransferCard ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferMoneyTitle')}</h2>
               <button className="close-btn" onClick={() => setSelectedTransferCard(null)}>✕</button>
             </div>
@@ -1915,6 +1945,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1924,7 +1956,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showIbanTransferModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'transferByIban')}</h2>
               <button className="close-btn" onClick={() => setShowIbanTransferModal(false)}>✕</button>
             </div>
@@ -1972,6 +2006,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -1981,7 +2017,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showInternalTransferModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'internalTransferTitle')}</h2>
               <button className="close-btn" onClick={() => setShowInternalTransferModal(false)}>✕</button>
             </div>
@@ -2043,6 +2081,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2052,7 +2092,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showUnavailableModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'featureUnavailableTitle')}</h2>
               <button className="close-btn" onClick={() => setShowUnavailableModal(false)}>✕</button>
             </div>
@@ -2060,6 +2102,8 @@ const Cards = () => {
               <p>{t(userCardsLang, 'featureUnavailableDesc')}</p>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2069,7 +2113,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showPinAlertModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setShowPinAlertModal(false)}>✕</button>
             </div>
@@ -2083,6 +2129,8 @@ const Cards = () => {
               </button>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2092,7 +2140,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {creditLimitError ? (
+          <>
+            <div className="card-modal__header">
               <h2 className="modal-header--danger">{t(userCardsLang, 'attention') || 'Diqqət'}</h2>
               <button className="close-btn" onClick={() => setCreditLimitError(null)}>✕</button>
             </div>
@@ -2106,6 +2156,8 @@ const Cards = () => {
               </button>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2115,7 +2167,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showPinSuccessModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 className="modal-header--success">{t(userCardsLang, 'success') || 'Success'}</h2>
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
@@ -2130,6 +2184,8 @@ const Cards = () => {
               </button>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2139,7 +2195,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showNeoBankTransferModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'neoBankTransferTitle')}</h2>
               <button className="close-btn" onClick={() => setShowNeoBankTransferModal(false)}>✕</button>
             </div>
@@ -2202,6 +2260,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2211,7 +2271,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showAccountDetailsModal && selectedSettingsCard ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'accountDetailsTitle')}</h2>
               <button className="close-btn" onClick={() => setShowAccountDetailsModal(false)}>✕</button>
             </div>
@@ -2247,6 +2309,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
 
@@ -2257,7 +2321,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showPinModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'changePinTitle')}</h2>
               <button className="close-btn" onClick={() => setShowPinModal(false)}>✕</button>
             </div>
@@ -2305,6 +2371,8 @@ const Cards = () => {
               </form>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2314,7 +2382,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showStatementsChoiceModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'statementsChoiceTitle')}</h2>
               <button className="close-btn" onClick={() => setShowStatementsChoiceModal(false)}>✕</button>
             </div>
@@ -2341,6 +2411,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2350,7 +2422,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showArayislarModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'arayislarModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowArayislarModal(false)}>✕</button>
             </div>
@@ -2424,6 +2498,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2433,7 +2509,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showReferencesModal ? (
+          <>
+            <div className="card-modal__header">
               <h2>{t(userCardsLang, 'referencesModalTitle')}</h2>
               <button className="close-btn" onClick={() => setShowReferencesModal(false)}>✕</button>
             </div>
@@ -2497,6 +2575,8 @@ const Cards = () => {
               )}
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
       <MorphModal
@@ -2506,7 +2586,9 @@ const Cards = () => {
         overlayClass="card-modal-overlay"
         modalClass="card-modal"
       >
-        <div className="card-modal__header">
+        {showQrModal ? (
+          <>
+            <div className="card-modal__header">
               <h2 data-lang-key="scanQrCode">{t(userCardsLang, 'scanQrCode')}</h2>
               <button className="close-btn" onClick={() => setShowQrModal(false)}>✕</button>
             </div>
@@ -2525,6 +2607,8 @@ const Cards = () => {
               </div>
             </div>
           
+          </>
+        ) : null}
       </MorphModal>
 
     </div>

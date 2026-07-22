@@ -462,7 +462,7 @@ const AdminCashbacks = () => {
               Manage MCCs
             </button>
             <button className="admin-cb__add-btn" onClick={(e) => handleOpenModal(null, e)}>
-              Add Cashbacktegory
+              Add Category
             </button>
           </div>
         </div>

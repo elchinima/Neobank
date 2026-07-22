@@ -423,7 +423,7 @@ const AdminUsers = () => {
             </button>
             <button 
               type="button" 
-              className="admin-btn admin-btn--primary"
+              className="admin-users__search-btn" 
               onClick={(e) => openNewsletterEmailModal(e)}
             >
               Send to Subscribers

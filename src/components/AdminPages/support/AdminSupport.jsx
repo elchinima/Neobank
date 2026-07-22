@@ -139,6 +139,13 @@ const AdminSupport = () => {
     return `${filteredChats.length} chat${filteredChats.length === 1 ? '' : 's'}`
   }, [loading, filteredChats.length])
 
+  const averageRating = useMemo(() => {
+    const ratedChats = filteredChats.filter(chat => chat.rating);
+    if (ratedChats.length === 0) return '0,0';
+    const sum = ratedChats.reduce((acc, chat) => acc + chat.rating, 0);
+    return (sum / ratedChats.length).toFixed(1).replace('.', ',');
+  }, [filteredChats])
+
   return (
     <div className="admin-support">
       <header className="admin-support__header">
@@ -214,7 +221,10 @@ const AdminSupport = () => {
       </header>
 
       <section className="admin-support__table-card" aria-label="Support chats table">
-        <div className="admin-support__table-meta">{resultLabel}</div>
+        <div className="admin-support__table-meta">
+          <span>{resultLabel}</span>
+          <span>Average Rating: {averageRating} ⭐</span>
+        </div>
         <div className="admin-support__table-wrap">
           <table>
             <thead>
