@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { useLanguage } from '../../../app/context/LanguageContext'
-import { authLang } from '../../PublicPages/auth/lang.js'
-import { footerLang } from '../../PublicFooter/lang.js'
-import { usePublicContent } from '../../../app/hooks/usePublicContent'
+import { useLanguage } from '../../app/context/LanguageContext'
+import { authLang } from '../PublicPages/auth/lang.js'
+import { footerLang } from '../PublicFooter/lang.js'
+import { usePublicContent } from '../../app/hooks/usePublicContent'
 import './TermsModal.scss'
 
-import userAgreementIcon from '../../../assets/icons/Public/user_agreement.svg'
-import rulesIcon from '../../../assets/icons/Public/rules.svg'
-import privacyPolicyIcon from '../../../assets/icons/Public/privacy_policy.svg'
-import personalDataIcon from '../../../assets/icons/Public/personal_data_processing.svg'
+import userAgreementIcon from '../../assets/icons/Public/user_agreement.svg'
+import rulesIcon from '../../assets/icons/Public/rules.svg'
+import privacyPolicyIcon from '../../assets/icons/Public/privacy_policy.svg'
+import personalDataIcon from '../../assets/icons/Public/personal_data_processing.svg'
 
 function TermsModal({ isOpen, clickPos, onConfirm, onClose }) {
   const { t } = useLanguage()
