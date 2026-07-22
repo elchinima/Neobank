@@ -859,48 +859,6 @@
   animation: slideUp 0.3s ease;
   overflow-y: auto;
 
-$modal-ease-open: cubic-bezier(0, 0, 0.2, 1);
-$modal-ease-close: cubic-bezier(0.4, 0, 1, 1);
-
-.card-modal-overlay--animated {
-  opacity: 0;
-  transition: opacity 200ms $modal-ease-close;
-  animation: none;
-
-  &.is-open {
-    opacity: 1;
-    transition: opacity 200ms $modal-ease-open;
-    transition-delay: 0ms;
-  }
-
-  &.is-closing {
-    opacity: 0;
-    transition: opacity 200ms $modal-ease-close;
-    transition-delay: 50ms;
-  }
-}
-
-.card-modal--animated {
-  animation: none;
-  opacity: 0;
-  transform: scale(0.95) translateY(8px);
-  transform-origin: var(--origin-x, 50%) var(--origin-y, 50%);
-  transition: opacity 150ms $modal-ease-close, transform 150ms $modal-ease-close;
-
-  &.is-open {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    transition: opacity 250ms $modal-ease-open, transform 250ms $modal-ease-open;
-    transition-delay: 20ms;
-  }
-
-  &.is-closing {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-    transition: opacity 150ms $modal-ease-close, transform 150ms $modal-ease-close;
-    transition-delay: 0ms;
-  }
-}
 
   &__header {
     display: flex;
@@ -1242,8 +1200,6 @@ $modal-ease-close: cubic-bezier(0.4, 0, 1, 1);
     }
   }
 }
-
-// ========= NEW CLASSES FROM INLINE STYLES REFACTORING =========
 
 .cards-page__modal-error-msg {
   color: #ff4d4d;
