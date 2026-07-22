@@ -53,6 +53,20 @@ Welcome to **Neobank** — a premium, modern banking web application built to pr
 - **Stripe API** (Payment Gateway integration)
 - **JWT Authentication** (Secure stateless sessions)
 
+**Backend Packages (NuGet):**
+- `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
+- `Microsoft.EntityFrameworkCore.SqlServer`
+- `Microsoft.EntityFrameworkCore.Tools`
+- `Npgsql.EntityFrameworkCore.PostgreSQL`
+- `SixLabors.ImageSharp`
+- `Stripe.net`
+- `System.IdentityModel.Tokens.Jwt`
+- `AutoMapper`
+- `Google.Apis.Auth`
+- `Microsoft.AspNetCore.Authentication.JwtBearer`
+- `QuestPDF`
+- `Swashbuckle.AspNetCore`
+
 ---
 
 ## 📁 Project Structure

@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using NeoBank.Application.DTOs.Auth;
 using NeoBank.Application.Interfaces;
 using NeoBank.Core.Entities;
@@ -16,19 +17,29 @@ public class AuthService : IAuthService
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _cache;
+
+    public class PendingRegistration
+    {
+        public RegisterDto Dto { get; set; } = null!;
+        public string IpAddress { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
 
     public AuthService(
         IApplicationDbContext dbContext,
         IPasswordHasher<ApplicationUser> passwordHasher,
         IJwtService jwtService,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IMemoryCache cache)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
         _emailService = emailService;
         _configuration = configuration;
+        _cache = cache;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto, string ipAddress)
@@ -40,44 +51,28 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("User with this email already exists.");
         }
 
-        var user = new ApplicationUser
-        {
-            Email = dto.Email.Trim(),
-            FirstName = dto.FirstName.Trim(),
-            LastName = dto.LastName.Trim(),
-            Role = UserRole.User,
-            IsActive = true
-        };
-
-        user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
-
-        _dbContext.Users.Add(user);
-
-        var session = new UserSession
-        {
-            UserId = user.Id,
-            RegistrationIp = ipAddress,
-            LastIp = ipAddress,
-            LastLoginAt = DateTime.UtcNow,
-            CreatedAt = DateTime.UtcNow,
-            IsEmailVerified = false,
-            TwoFactorEnabled = false,
-            IsSubscribedToNewsletter = false
-        };
-
-        _dbContext.UserSessions.Add(session);
-        await _dbContext.SaveChangesAsync();
-
         var code = GenerateCode();
-        await SaveVerificationCode(user.Id, code, "EmailVerification");
-        await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "EmailVerification");
+        // This will throw if the email service fails (e.g., unverified sender in Brevo)
+        await _emailService.SendVerificationCodeAsync(dto.Email.Trim(), dto.FirstName.Trim(), code, "EmailVerification");
 
-        user.Session = session;
+        var pending = new PendingRegistration
+        {
+            Dto = dto,
+            IpAddress = ipAddress,
+            Code = code
+        };
+
+        // Cache for 15 minutes
+        _cache.Set($"PendingReg_{normalizedEmail}", pending, TimeSpan.FromMinutes(15));
 
         return new AuthResponseDto
         {
             RequiresEmailVerification = true,
-            User = MapToUserDto(user)
+            User = new UserDto { 
+                Id = normalizedEmail, 
+                Email = dto.Email.Trim(), 
+                FirstName = dto.FirstName.Trim() 
+            }
         };
     }
 
@@ -187,6 +182,18 @@ public class AuthService : IAuthService
 
     public async Task<bool> SendEmailVerificationAsync(string userId)
     {
+        var normalizedEmail = userId.Trim().ToLowerInvariant();
+        
+        // Check if it's a pending registration
+        if (_cache.TryGetValue($"PendingReg_{normalizedEmail}", out PendingRegistration? pending) && pending != null)
+        {
+            var code = GenerateCode();
+            pending.Code = code;
+            await _emailService.SendVerificationCodeAsync(pending.Dto.Email, pending.Dto.FirstName, code, "EmailVerification");
+            _cache.Set($"PendingReg_{normalizedEmail}", pending, TimeSpan.FromMinutes(15));
+            return true;
+        }
+
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) return false;
 
@@ -200,14 +207,58 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("Please wait 15 minutes before requesting a new code.");
         }
 
-        var code = GenerateCode();
-        await SaveVerificationCode(user.Id, code, "EmailVerification");
-        await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, code, "EmailVerification");
+        var dbCode = GenerateCode();
+        await SaveVerificationCode(user.Id, dbCode, "EmailVerification");
+        await _emailService.SendVerificationCodeAsync(user.Email, user.FirstName, dbCode, "EmailVerification");
         return true;
     }
 
     public async Task<AuthResponseDto> VerifyEmailCodeAsync(string userId, string code, string ipAddress)
     {
+        var normalizedEmail = userId.Trim().ToLowerInvariant();
+
+        // 1. Check if it's a pending registration in cache
+        if (_cache.TryGetValue($"PendingReg_{normalizedEmail}", out PendingRegistration? pending) && pending != null)
+        {
+            if (pending.Code != code)
+            {
+                throw new InvalidOperationException("Invalid or expired verification code.");
+            }
+
+            var newUser = new ApplicationUser
+            {
+                Email = pending.Dto.Email.Trim(),
+                FirstName = pending.Dto.FirstName.Trim(),
+                LastName = pending.Dto.LastName.Trim(),
+                Role = UserRole.User,
+                IsActive = true
+            };
+
+            newUser.PasswordHash = _passwordHasher.HashPassword(newUser, pending.Dto.Password);
+            _dbContext.Users.Add(newUser);
+
+            var session = new UserSession
+            {
+                UserId = newUser.Id,
+                RegistrationIp = pending.IpAddress,
+                LastIp = ipAddress,
+                LastLoginAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                IsEmailVerified = true,
+                TwoFactorEnabled = false,
+                IsSubscribedToNewsletter = false
+            };
+
+            _dbContext.UserSessions.Add(session);
+            await _dbContext.SaveChangesAsync();
+
+            newUser.Session = session;
+            _cache.Remove($"PendingReg_{normalizedEmail}");
+
+            return await CompleteLoginAsync(newUser, ipAddress);
+        }
+
+        // 2. Fallback to normal DB code verification (for logins or existing accounts)
         await CleanupExpiredCodesAsync();
 
         var entry = await _dbContext.EmailVerificationCodes

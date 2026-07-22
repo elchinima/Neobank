@@ -39,6 +39,7 @@ if (File.Exists(dotenvPath))
 // Manually override config from env
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
