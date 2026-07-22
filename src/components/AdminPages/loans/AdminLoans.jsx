@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../../app/hooks/usePublicContent'
 import './AdminLoans.scss'
 import './AdminLoans_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
 import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = async (url, options = {}) => {
   const token = Cookies.get('neobank_token')
@@ -422,9 +422,9 @@ const AdminLoans = () => {
       >
         <div className="admin-notification__icon-wrap">
           {notification.type === 'success' ? (
-            <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
+            <LoaderSuccessIcon className="modal-success-icon" />
           ) : (
-            <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
+            <LoaderSuccessIcon className="modal-success-icon" />
           )}
         </div>
         <h3 className="admin-notification__title">{notification.type === 'success' ? 'Success' : 'Error'}</h3>
@@ -488,3 +488,4 @@ const AdminLoans = () => {
 }
 
 export default AdminLoans
+

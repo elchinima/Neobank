@@ -5,7 +5,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import './Cards.scss'
 import './Cards_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx';
 const stripePromise = loadStripe(stripePublicKey);
@@ -1506,7 +1506,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {payLoanStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <h3>{t(userCardsLang, 'paymentSuccess') || 'Ödəniş uğurla tamamlandı!'}</h3>
                 </div>
               ) : (
@@ -1547,7 +1547,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {withdrawDepositStatus === 'success' ? (
                 <div className="success-state modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <h3>{t(userCardsLang, 'withdrawDepositSuccess') || 'Deposit successfully withdrawn!'}</h3>
                 </div>
               ) : (
@@ -1895,7 +1895,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {ibanTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -1949,7 +1949,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {internalTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <p>{t(userCardsLang, 'transferSuccess')}</p>
                 </div>
               ) : (
@@ -2069,7 +2069,7 @@ const Cards = () => {
               <button className="close-btn" onClick={() => setShowPinSuccessModal(false)}>✕</button>
             </div>
             <div className="card-modal__content modal-success-state">
-              <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+              <LoaderSuccessIcon className="payment-status-icon" />
               <p>{t(userCardsLang, 'pinSuccess')}</p>
               <button
                 className="cards-page__button cards-page__button--primary modal-btn--mt-lg"
@@ -2092,7 +2092,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {neoBankTransferStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <h3>{t(userCardsLang, 'transferSuccess')}</h3>
                 </div>
               ) : (
@@ -2291,7 +2291,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {arayislarStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <p>{t(userCardsLang, 'certificateSentSuccess')}</p>
                 </div>
               ) : (
@@ -2371,7 +2371,7 @@ const Cards = () => {
             <div className="card-modal__content">
               {referencesStatus === 'success' ? (
                 <div className="success-message modal-success-state">
-                  <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                  <LoaderSuccessIcon className="payment-status-icon" />
                   <p>{t(userCardsLang, 'statementSentSuccess')}</p>
                 </div>
               ) : (

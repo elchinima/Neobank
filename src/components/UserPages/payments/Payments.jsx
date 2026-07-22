@@ -33,7 +33,7 @@ import housingIcon from '../../../assets/icons/User/payments/housing.svg'
 import brokerIcon from '../../../assets/icons/User/payments/broker.svg'
 import otherIcon from '../../../assets/icons/User/payments/other.svg'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
 
@@ -282,7 +282,7 @@ const Payments = () => {
                   )}
                   {paymentStatus === 'success' && (
                     <div className="payment-success">
-                      <img src={loaderSuccessIcon} className="payment-status-icon" alt="Success" />
+                      <LoaderSuccessIcon className="payment-status-icon" />
                       <h3>{t(paymentsLang, 'paymentCompleted')}</h3>
                       <p>{t(paymentsLang, 'paymentSuccessDesc1')} {paymentForm.amount} {t(paymentsLang, 'paymentSuccessDesc2')} {selectedProvider.name} {t(paymentsLang, 'paymentSuccessDesc3')}</p>
                       <button className="done-btn" onClick={() => {

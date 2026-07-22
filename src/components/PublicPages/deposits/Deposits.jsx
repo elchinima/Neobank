@@ -12,7 +12,7 @@ import { depositsLang } from './lang.js'
 import './Deposits.scss'
 import './Deposits_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (window.location.port === '5173' ? 'http://localhost:5284/api' : '/api')
@@ -348,7 +348,7 @@ function Deposits() {
 
             {modalState.step === 'success' && (
               <div className="deposits-page__modal-content deposits-page__modal-content--center">
-                <img src={loaderSuccessIcon} className="modal-success-icon" alt="Success" />
+                <LoaderSuccessIcon className="modal-success-icon" />
                 <h3 data-lang-key="successTitle">{t(depositsLang, 'successTitle')}</h3>
                 <p data-lang-key="successDesc">{t(depositsLang, 'successDesc')}</p>
                 <button
@@ -371,3 +371,4 @@ function Deposits() {
 }
 
 export default Deposits
+

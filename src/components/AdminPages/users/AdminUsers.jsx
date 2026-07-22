@@ -5,7 +5,7 @@ import { useAuth } from '../../../app/context/AuthContext'
 import './AdminUsers.scss'
 import './AdminUsers_Responsive.scss'
 import loaderIcon from '../../../assets/icons/loader.svg'
-import loaderSuccessIcon from '../../../assets/icons/loader-success.svg'
+import LoaderSuccessIcon from '../../common/LoaderSuccessIcon'
 import AdminMorphModal from '../AdminMorphModal/AdminMorphModal'
 const adminFetch = (url, options = {}) => {
   const token = Cookies.get('neobank_token');
@@ -975,7 +975,7 @@ const AdminUsers = () => {
       >
         <div className="admin-users-modal__content admin-users-modal__content--padded">
           <div className="admin-users-modal__icon-large">
-            {alertModal.isError ? '❌' : <img src={loaderSuccessIcon} alt="Success" className="modal-success-icon" />}
+            {alertModal.isError ? '❌' : <LoaderSuccessIcon className="modal-success-icon" />}
           </div>
           <h2 className="admin-users-modal__heading--margin">
             {alertModal.isError ? 'Error' : 'Success'}
@@ -1030,5 +1030,6 @@ const AdminUsers = () => {
 }
 
 export default AdminUsers
+
 
 
