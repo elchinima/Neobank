@@ -72,7 +72,7 @@ export const authLang = {
     lastNamePlaceholder: 'Məmmədov',
     confirmPasswordLabel: 'Şifrəni təsdiqləyin',
     confirmPasswordPlaceholder: 'Şifrəni təkrar daxil edin',
-    termsAgreement: 'Xidmət Şərtləri və Məfhilik Siyasəti ilə razılaşıram',
+    termsAgreement: 'Xidmət Şərtləri və Məxfilik Siyasəti ilə razılaşıram',
     registerSubmit: 'Hesab yaradın',
     hasAccount: 'Artıq hesabınız var?',
     signInNow: 'Daxil olun',

@@ -267,28 +267,43 @@ const Cards = () => {
   const [showStatementsChoiceModal, setShowStatementsChoiceModal] = useState(false)
   const [showReferencesModal, setShowReferencesModal] = useState(false)
   const [showArayislarModal, setShowArayislarModal] = useState(false)
-  
-  const [showQrModal, setShowQrModal] = useState(false)
+  const [showQrModal, setShowQrModal] = useState(false)
   const videoRef = React.useRef(null)
 
   useEffect(() => {
     let stream = null;
-    if (showQrModal && videoRef.current) {
+    let isCancelled = false;
+
+    if (showQrModal) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then((s) => {
-          stream = s;
-          if (videoRef.current) {
-            videoRef.current.srcObject = s;
+          if (isCancelled) {
+            s.getTracks().forEach(track => track.stop());
+            return;
           }
+          stream = s;
+          
+          const tryAttach = () => {
+            if (videoRef.current) {
+              videoRef.current.srcObject = s;
+              videoRef.current.play().catch(e => console.error(e));
+            } else if (!isCancelled) {
+              setTimeout(tryAttach, 50);
+            }
+          };
+          tryAttach();
         })
         .catch(err => console.error("Camera error:", err));
     }
+
     return () => {
+      isCancelled = true;
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
   }, [showQrModal]);
+  
   const [referencesForm, setReferencesForm] = useState({ cardId: 'all', period: '3', language: 'az' })
   const [arayislarForm, setArayislarForm] = useState({ type: 'CreditLine', language: 'az', paymentCardId: '' })
   const [referencesStatus, setReferencesStatus] = useState('idle')
